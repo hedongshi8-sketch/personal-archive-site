@@ -31,6 +31,7 @@
 - [ ] Storage bucket `portfolio-public` 存在且 public。
 - [ ] 站主邮箱首次 magic link 登录完成。
 - [ ] `profiles.role` 已将站主邮箱设置为 `owner`。
+- [ ] `npm run verify:supabase`
 
 ## 部署平台
 

@@ -30,6 +30,7 @@ npm run audit:release
 npm run deploy:readiness
 npm run pack:static
 npm run verify:remote
+npm run verify:supabase
 ```
 
 构建产物在 `dist`。`vercel.json`、`public/_redirects`、`public/_headers` 已经为 Vercel / Cloudflare Pages 的 SPA 路由和静态资源缓存做好准备。
@@ -37,6 +38,7 @@ npm run verify:remote
 `deploy:readiness` 会检查 Git 远程、部署 CLI 和本地 Supabase 环境变量状态，帮助确认还差哪些外部授权。
 `pack:static` 会生成 `release/personal-archive-site-static.zip` 和 manifest，方便没有 CLI 时手动上传静态站点。
 `verify:remote` 会检查 GitHub Pages 默认公网 URL，确认首页、原型、PDF 和 Excel 可访问。
+`verify:supabase` 会在配置 Supabase 环境变量后检查公开作品、访客评论、点赞 RPC 和 owner-only RLS。
 
 ## 作品集资产
 
@@ -76,6 +78,17 @@ Supabase 侧步骤：
 update public.profiles
 set role = 'owner'
 where email = '你的邮箱';
+```
+
+也可以把 `supabase/set-owner.sql` 中的邮箱确认无误后直接执行。
+
+初始化完成后运行：
+
+```bash
+set VITE_SUPABASE_URL=https://your-project.supabase.co
+set VITE_SUPABASE_ANON_KEY=your-anon-public-key
+set VITE_SUPABASE_PUBLIC_BUCKET=portfolio-public
+npm run verify:supabase
 ```
 
 这样外部访客可以浏览作品集和评论，只有 `profiles.role = 'owner'` 的账号能写入私密发帖和管理资源。

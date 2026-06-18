@@ -84,6 +84,7 @@ npm run audit:release
 npm run deploy:readiness
 npm run pack:static
 npm run verify:remote
+npm run verify:supabase
 ```
 
 确认：
@@ -96,3 +97,4 @@ npm run verify:remote
 - `npm run deploy:readiness` 没有 `BLOCK` 项；如果提示缺少 Git remote，先创建 GitHub 仓库并执行 `git remote add origin <repo-url>`。
 - 如需手动上传，`release/personal-archive-site-static.zip` 已由 `npm run pack:static` 生成。
 - `npm run verify:remote` 通过；如果 GitHub Pages 仍是 404，先在仓库 Settings -> Pages 中选择 GitHub Actions。
+- 配置 Supabase 后，`npm run verify:supabase` 通过。

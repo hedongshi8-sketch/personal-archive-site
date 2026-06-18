@@ -85,6 +85,7 @@ assert(packageJson.scripts?.["smoke:dist"] === "node scripts/dist-smoke-test.mjs
 assert(packageJson.scripts?.["deploy:readiness"] === "node scripts/deploy-readiness.mjs", "deploy readiness script exists");
 assert(packageJson.scripts?.["pack:static"] === "node scripts/pack-static-release.mjs", "static pack script exists");
 assert(packageJson.scripts?.["verify:remote"] === "node scripts/verify-remote-release.mjs", "remote verification script exists");
+assert(packageJson.scripts?.["verify:supabase"] === "node scripts/verify-supabase-backend.mjs", "Supabase verification script exists");
 
 const ciWorkflow = read(".github/workflows/ci.yml");
 const vercelWorkflow = read(".github/workflows/vercel-deploy.yml");
