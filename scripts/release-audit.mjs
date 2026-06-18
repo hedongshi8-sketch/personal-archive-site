@@ -75,6 +75,7 @@ assert(exists(".github/workflows/vercel-deploy.yml"), "Vercel workflow exists");
 assert(exists(".github/workflows/github-pages.yml"), "GitHub Pages workflow exists");
 assert(exists("docs/deployment-runbook.md"), "deployment runbook exists");
 assert(exists("docs/release-checklist.md"), "release checklist exists");
+assert(exists(".env.example"), ".env.example exists");
 assert(exists("supabase/schema.sql"), "Supabase schema exists");
 assert(exists("supabase/seed-portfolio.sql"), "Supabase portfolio seed exists");
 assert(read("README.md").includes("GitHub Pages"), "README documents GitHub Pages");
@@ -96,6 +97,11 @@ assert(pagesWorkflow.includes("npm run smoke:dist"), "GitHub Pages deploy runs d
 assert(ciWorkflow.includes("npm run audit:release"), "CI runs release audit");
 assert(vercelWorkflow.includes("npm run audit:release"), "Vercel deploy runs release audit");
 assert(pagesWorkflow.includes("npm run audit:release"), "GitHub Pages deploy runs release audit");
+assert(vercelWorkflow.includes("Check Vercel secrets"), "Vercel deploy checks secrets before deploy");
+assert(
+  vercelWorkflow.includes("if: steps.vercel-secrets.outputs.configured == 'true'"),
+  "Vercel deploy skips when secrets are missing",
+);
 assert(ciWorkflow.includes("npm run pack:static"), "CI packs static release");
 assert(ciWorkflow.includes("actions/upload-artifact@v4"), "CI uploads static release artifact");
 assert(pagesWorkflow.includes("actions/deploy-pages@v4"), "GitHub Pages deploy action exists");
@@ -104,6 +110,11 @@ const gitignore = read(".gitignore");
 assert(gitignore.includes("node_modules/"), "node_modules ignored");
 assert(gitignore.includes("dist/"), "dist ignored");
 assert(gitignore.includes(".env"), ".env ignored");
+
+const envExample = read(".env.example");
+for (const key of ["VITE_SUPABASE_URL", "VITE_SUPABASE_ANON_KEY", "VITE_SUPABASE_PUBLIC_BUCKET"]) {
+  assert(envExample.includes(key), `.env.example documents ${key}`);
+}
 
 const publicAssets = walkFiles("public/portfolio-assets");
 const distAssets = walkFiles("dist/portfolio-assets");
