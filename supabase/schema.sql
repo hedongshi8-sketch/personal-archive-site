@@ -1,0 +1,312 @@
+create type public.site_role as enum ('owner', 'visitor');
+create type public.owner_post_visibility as enum ('private', 'draft');
+create type public.asset_kind as enum ('design-doc', 'game-demo', 'music-cover', 'gallery-image');
+create type public.portfolio_kind as enum (
+  'pdf',
+  'excel',
+  'docx',
+  'html-prototype',
+  'image',
+  'archive',
+  'markdown',
+  'text'
+);
+
+create table public.profiles (
+  id uuid primary key references auth.users(id) on delete cascade,
+  email text not null,
+  role public.site_role not null default 'visitor',
+  created_at timestamptz not null default now()
+);
+
+create table public.owner_posts (
+  id uuid primary key default gen_random_uuid(),
+  owner_id uuid not null references public.profiles(id) on delete cascade,
+  title text not null,
+  body text not null,
+  visibility public.owner_post_visibility not null default 'private',
+  created_at timestamptz not null default now()
+);
+
+create table public.public_comments (
+  id uuid primary key default gen_random_uuid(),
+  author text not null,
+  body text not null,
+  likes integer not null default 0,
+  approved boolean not null default true,
+  created_at timestamptz not null default now()
+);
+
+create table public.assets (
+  id uuid primary key default gen_random_uuid(),
+  owner_id uuid not null references public.profiles(id) on delete cascade,
+  kind public.asset_kind not null,
+  title text not null,
+  storage_path text not null,
+  public_url text,
+  created_at timestamptz not null default now()
+);
+
+create table public.portfolio_projects (
+  id text primary key,
+  title text not null,
+  summary text not null default '',
+  sort_order integer not null default 0,
+  published boolean not null default true,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table public.portfolio_items (
+  id uuid primary key default gen_random_uuid(),
+  project_id text not null references public.portfolio_projects(id) on delete cascade,
+  owner_id uuid references public.profiles(id) on delete set null,
+  title text not null,
+  kind public.portfolio_kind not null,
+  summary text not null default '',
+  tags text[] not null default '{}',
+  public_url text not null,
+  preview_url text,
+  thumbnail_url text,
+  source_path text,
+  featured boolean not null default false,
+  published boolean not null default true,
+  sort_order integer not null default 0,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table public.portfolio_files (
+  id uuid primary key default gen_random_uuid(),
+  item_id uuid not null references public.portfolio_items(id) on delete cascade,
+  title text not null,
+  kind public.portfolio_kind not null,
+  storage_path text not null,
+  public_url text,
+  byte_size bigint,
+  created_at timestamptz not null default now()
+);
+
+alter table public.profiles enable row level security;
+alter table public.owner_posts enable row level security;
+alter table public.public_comments enable row level security;
+alter table public.assets enable row level security;
+alter table public.portfolio_projects enable row level security;
+alter table public.portfolio_items enable row level security;
+alter table public.portfolio_files enable row level security;
+
+create index portfolio_items_project_id_idx on public.portfolio_items(project_id);
+create index portfolio_items_kind_idx on public.portfolio_items(kind);
+create index portfolio_items_published_updated_idx on public.portfolio_items(published, updated_at desc);
+create index portfolio_files_item_id_idx on public.portfolio_files(item_id);
+create index public_comments_approved_created_idx on public.public_comments(approved, created_at desc);
+
+insert into storage.buckets (id, name, public)
+values ('portfolio-public', 'portfolio-public', true)
+on conflict (id) do update set public = excluded.public;
+
+create or replace function public.handle_new_user()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  insert into public.profiles (id, email, role)
+  values (new.id, coalesce(new.email, ''), 'visitor')
+  on conflict (id) do nothing;
+  return new;
+end;
+$$;
+
+create trigger on_auth_user_created
+after insert on auth.users
+for each row execute function public.handle_new_user();
+
+create or replace function public.increment_comment_likes(comment_id uuid)
+returns integer
+language sql
+security definer
+set search_path = public
+as $$
+  update public.public_comments
+  set likes = likes + 1
+  where id = comment_id
+    and approved = true
+  returning likes;
+$$;
+
+create policy "profiles can read own profile"
+on public.profiles for select
+using (auth.uid() = id);
+
+create policy "owner can manage private posts"
+on public.owner_posts for all
+using (
+  exists (
+    select 1 from public.profiles
+    where profiles.id = auth.uid()
+      and profiles.role = 'owner'
+  )
+)
+with check (
+  exists (
+    select 1 from public.profiles
+    where profiles.id = auth.uid()
+      and profiles.role = 'owner'
+  )
+);
+
+create policy "approved comments are public"
+on public.public_comments for select
+using (approved = true);
+
+create policy "visitors can create comments"
+on public.public_comments for insert
+with check (length(author) between 1 and 80 and length(body) between 1 and 1200);
+
+create policy "owner can moderate comments"
+on public.public_comments for update
+using (
+  exists (
+    select 1 from public.profiles
+    where profiles.id = auth.uid()
+      and profiles.role = 'owner'
+  )
+);
+
+create policy "assets are readable when public url exists"
+on public.assets for select
+using (public_url is not null);
+
+create policy "owner can manage assets"
+on public.assets for all
+using (
+  exists (
+    select 1 from public.profiles
+    where profiles.id = auth.uid()
+      and profiles.role = 'owner'
+  )
+)
+with check (
+  exists (
+    select 1 from public.profiles
+    where profiles.id = auth.uid()
+      and profiles.role = 'owner'
+  )
+);
+
+create policy "published portfolio projects are public"
+on public.portfolio_projects for select
+using (published = true);
+
+create policy "owner can manage portfolio projects"
+on public.portfolio_projects for all
+using (
+  exists (
+    select 1 from public.profiles
+    where profiles.id = auth.uid()
+      and profiles.role = 'owner'
+  )
+)
+with check (
+  exists (
+    select 1 from public.profiles
+    where profiles.id = auth.uid()
+      and profiles.role = 'owner'
+  )
+);
+
+create policy "published portfolio items are public"
+on public.portfolio_items for select
+using (published = true);
+
+create policy "owner can manage portfolio items"
+on public.portfolio_items for all
+using (
+  exists (
+    select 1 from public.profiles
+    where profiles.id = auth.uid()
+      and profiles.role = 'owner'
+  )
+)
+with check (
+  exists (
+    select 1 from public.profiles
+    where profiles.id = auth.uid()
+      and profiles.role = 'owner'
+  )
+);
+
+create policy "files for published portfolio items are public"
+on public.portfolio_files for select
+using (
+  public_url is not null
+  and exists (
+    select 1 from public.portfolio_items
+    where portfolio_items.id = portfolio_files.item_id
+      and portfolio_items.published = true
+  )
+);
+
+create policy "owner can manage portfolio files"
+on public.portfolio_files for all
+using (
+  exists (
+    select 1 from public.profiles
+    where profiles.id = auth.uid()
+      and profiles.role = 'owner'
+  )
+)
+with check (
+  exists (
+    select 1 from public.profiles
+    where profiles.id = auth.uid()
+      and profiles.role = 'owner'
+  )
+);
+
+create policy "public portfolio storage is readable"
+on storage.objects for select
+using (bucket_id = 'portfolio-public');
+
+create policy "owner can upload portfolio storage"
+on storage.objects for insert
+with check (
+  bucket_id = 'portfolio-public'
+  and exists (
+    select 1 from public.profiles
+    where profiles.id = auth.uid()
+      and profiles.role = 'owner'
+  )
+);
+
+create policy "owner can update portfolio storage"
+on storage.objects for update
+using (
+  bucket_id = 'portfolio-public'
+  and exists (
+    select 1 from public.profiles
+    where profiles.id = auth.uid()
+      and profiles.role = 'owner'
+  )
+)
+with check (
+  bucket_id = 'portfolio-public'
+  and exists (
+    select 1 from public.profiles
+    where profiles.id = auth.uid()
+      and profiles.role = 'owner'
+  )
+);
+
+create policy "owner can delete portfolio storage"
+on storage.objects for delete
+using (
+  bucket_id = 'portfolio-public'
+  and exists (
+    select 1 from public.profiles
+    where profiles.id = auth.uid()
+      and profiles.role = 'owner'
+  )
+);

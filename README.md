@@ -1,0 +1,94 @@
+# 我的策划档案
+
+个人创作网站：策划文档作品集、游戏 Demo、音乐收藏、灵感图库、站主私密发帖区和公开留言墙。
+
+## 技术栈
+
+- React 19 + TypeScript + Vite
+- lucide-react 图标系统
+- PWA 基础：manifest + service worker
+- 静态作品集资产：`public/portfolio-assets`
+- Supabase-ready 后端：Auth、Postgres RLS、Storage、公开评论、站主私密发帖
+
+## 本地运行
+
+```bash
+npm install
+npm run dev
+```
+
+开发地址默认是 `http://localhost:5173/`。
+
+## 构建检查
+
+```bash
+npm run lint
+npm run typecheck
+npm run build
+```
+
+构建产物在 `dist`。`vercel.json`、`public/_redirects`、`public/_headers` 已经为 Vercel / Cloudflare Pages 的 SPA 路由和静态资源缓存做好准备。
+
+## 作品集资产
+
+当前真实作品已经复制到 `public/portfolio-assets`，构建后会进入 `dist/portfolio-assets`：
+
+- `barbarq`：野蛮人大作战 PDF 和 Excel
+- `system-planner`：系统策划作品集 PDF、Excel、HTML 原型和图片
+- `game-town`：游戏小镇 HTML 原型、文档、图片、配置表和归档包
+
+## 启用站主权限
+
+前端已经接入 `src/lib/backendContract.ts`：
+
+- 没有 Supabase 环境变量时：自动使用本地预览模式，方便开发和静态展示。
+- 配置 Supabase 后：私密发帖、公开评论、点赞、资源上传接口切换到 Supabase。
+- 策划档案页包含 owner-only 管理面板；owner 可以上传作品集文件并登记新作品条目。
+- 真实权限由 `supabase/schema.sql` 的 Auth + RLS + profile role 控制。
+
+部署前复制 `.env.example`，在本地或部署平台填入：
+
+```bash
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-public-key
+VITE_SUPABASE_PUBLIC_BUCKET=portfolio-public
+```
+
+Supabase 侧步骤：
+
+1. 新建 Supabase 项目。
+2. 在 SQL Editor 执行 `supabase/schema.sql`。
+3. 再执行 `supabase/seed-portfolio.sql`，把当前 16 个公开作品写入 `portfolio_items`。
+4. `schema.sql` 会创建公开 bucket：`portfolio-public`；如果 Supabase 控制台已存在同名 bucket，可直接复用。
+5. 用网站私密区发送 magic link 到你的站主邮箱并完成首次登录。
+6. 在 Supabase SQL Editor 把你的账号设成 owner：
+
+```sql
+update public.profiles
+set role = 'owner'
+where email = '你的邮箱';
+```
+
+这样外部访客可以浏览作品集和评论，只有 `profiles.role = 'owner'` 的账号能写入私密发帖和管理资源。
+
+## 部署
+
+完整上线流程见 [docs/deployment-runbook.md](docs/deployment-runbook.md)。
+发布前后逐项验收见 [docs/release-checklist.md](docs/release-checklist.md)。
+
+### Vercel
+
+- Build Command: `npm run build`
+- Output Directory: `dist`
+- Environment Variables: 填 `.env.example` 中的三个 Supabase 变量
+- 配置文件：`vercel.json`
+- GitHub Actions 自动部署：`.github/workflows/vercel-deploy.yml`
+
+### Cloudflare Pages
+
+- Build Command: `npm run build`
+- Build Output Directory: `dist`
+- Environment Variables: 填 `.env.example` 中的三个 Supabase 变量
+- `_headers` 和 `_redirects` 会随 Vite 构建复制到 `dist`
+
+真正上线需要登录你的 Vercel / Cloudflare / GitHub 账号后发布。当前仓库已经具备静态展示和 Supabase 权限接入骨架。

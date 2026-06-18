@@ -1,0 +1,330 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>游戏小镇美术需求文档</title>
+    <style>
+      :root {
+        --ink: #222;
+        --muted: #666;
+        --line: #d9d9d9;
+        --paper: #fff;
+        --band: #f6f7f8;
+        --accent: #14a7b2;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        color: var(--ink);
+        background: #eceff1;
+        font-family: "Microsoft YaHei", "Microsoft YaHei UI", Arial, sans-serif;
+        line-height: 1.65;
+        letter-spacing: 0;
+      }
+
+      .doc {
+        width: min(980px, calc(100vw - 32px));
+        margin: 28px auto;
+        padding: 44px 52px;
+        background: var(--paper);
+        box-shadow: 0 12px 36px rgba(0, 0, 0, 0.08);
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin: 0;
+      }
+
+      h1 {
+        font-size: 34px;
+        line-height: 1.25;
+      }
+
+      .subtitle {
+        margin-top: 10px;
+        color: var(--muted);
+        font-size: 15px;
+      }
+
+      .meta {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        margin: 28px 0;
+        padding: 14px;
+        background: var(--band);
+        border: 1px solid var(--line);
+      }
+
+      .meta strong {
+        display: block;
+        font-size: 13px;
+        color: var(--muted);
+      }
+
+      section {
+        margin-top: 34px;
+      }
+
+      h2 {
+        padding-left: 12px;
+        border-left: 5px solid var(--accent);
+        font-size: 22px;
+      }
+
+      h3 {
+        margin: 20px 0 8px;
+        font-size: 17px;
+      }
+
+      ul {
+        margin: 10px 0 0;
+        padding-left: 20px;
+      }
+
+      li {
+        margin: 6px 0;
+      }
+
+      table {
+        width: 100%;
+        margin-top: 12px;
+        border-collapse: collapse;
+        font-size: 14px;
+      }
+
+      th,
+      td {
+        padding: 10px 12px;
+        border: 1px solid var(--line);
+        vertical-align: top;
+      }
+
+      th {
+        background: var(--band);
+        text-align: left;
+      }
+
+      .note {
+        margin-top: 12px;
+        padding: 12px 14px;
+        background: #f2fbfc;
+        border: 1px solid #b9e5e9;
+      }
+
+      @media print {
+        body {
+          background: #fff;
+        }
+
+        .doc {
+          width: auto;
+          margin: 0;
+          padding: 24px;
+          box-shadow: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <article class="doc">
+      <header>
+        <h1>游戏小镇美术需求文档</h1>
+        <p class="subtitle">面向微信小程序竖屏原型的低保真到正式美术制作说明。本文不限定最终画风，只明确资产范围、层级关系和交互反馈需求。</p>
+        <div class="meta">
+          <div><strong>项目</strong>游戏小镇</div>
+          <div><strong>原型版本</strong>彩色交互版</div>
+          <div><strong>字体</strong>Microsoft YaHei / 微软雅黑</div>
+        </div>
+      </header>
+
+      <section>
+        <h2>一、整体美术方向</h2>
+        <ul>
+          <li>核心体验是“AI 角色自动演出的小镇”，画面需要让角色、建筑、地块和海域关系清晰，优先服务可读性和交互反馈。</li>
+          <li>小镇出生地位于海域中，海面、已有土地、可扩张海域、桥、出行小舟必须视觉上可区分。</li>
+          <li>角色来自动漫短剧 IP 素材时，需要保留角色识别点，同时适配小程序竖屏、缩小后仍能识别。</li>
+          <li>界面不要过早写死最终风格。原型中的色块只用于区分功能，美术可在此基础上重新定义材质、光照、色彩和装饰。</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>二、角色与 NPC 资产</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>资产</th>
+              <th>需求</th>
+              <th>状态/动作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>玩家分身</td>
+              <td>支持外貌、服装、配饰组合；用于小镇、冒险、战斗、魔法地等场景。</td>
+              <td>待机、行走、奔跑、飞毛腿加速、交互、战斗待机、普攻、技能。</td>
+            </tr>
+            <tr>
+              <td>普通 NPC</td>
+              <td>可随机生成外观，需支持身份差异：商人、冒险家、法师、农民、艺术家、机械师等。</td>
+              <td>工作、建造、搬运土地、砍树、钓鱼、摸鱼、对话、吐槽气泡。</td>
+            </tr>
+            <tr>
+              <td>IP 角色</td>
+              <td>保留 IP 角色关键轮廓、发型、服装、配色或标志性道具；金色特性角色需要更强识别度。</td>
+              <td>专属待机、专属技能、SSR/稀有获得演出。</td>
+            </tr>
+            <tr>
+              <td>怪物</td>
+              <td>按冒险地区域分层：平原、森林、洞穴、火山、冰原；每层包含小怪、精英、Boss。</td>
+              <td>待机、受击、死亡、掉落、眩晕。</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section>
+        <h2>三、小镇地图资产</h2>
+        <h3>地形与扩张</h3>
+        <ul>
+          <li>海域：需要可铺满背景的大面积水面材质，支持格网/可交互区域提示。</li>
+          <li>土地块：至少包含平原土地、森林土地、洞穴土地、火山土地、冰原土地，外观与冒险地区域一致。</li>
+          <li>扩地表现：NPC 托着土地奔跑到海域，土地落下并拼入小镇地块。</li>
+        </ul>
+
+        <h3>默认建筑</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>建筑</th>
+              <th>说明</th>
+              <th>交互反馈</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>住宅</td>
+              <td>基础人口建筑，外观要能隐约看到内部有人生活。</td>
+              <td>点击弹升级/移动/销毁，升级有建造动画。</td>
+            </tr>
+            <tr>
+              <td>仓库</td>
+              <td>地图实体，不是 UI；负责储存超出背包上限材料。</td>
+              <td>点击弹仓库说明或库存入口。</td>
+            </tr>
+            <tr>
+              <td>招募栏</td>
+              <td>地图实体，点击后打开招募界面。</td>
+              <td>招募中需要倒计时/等待状态。</td>
+            </tr>
+            <tr>
+              <td>桥</td>
+              <td>从土地边缘延伸到海面，不放在地块正中央。</td>
+              <td>NPC 可随机到桥上钓鱼或摸鱼。</td>
+            </tr>
+            <tr>
+              <td>出行小舟</td>
+              <td>小镇海面上的真实交通实体，不是固定 UI。</td>
+              <td>点击后角色跑到小舟旁，弹团队选择，再进入世界传送地图。</td>
+            </tr>
+            <tr>
+              <td>田地、树、铁匠铺、书店</td>
+              <td>基础经营建筑，后续可扩展等级外观。</td>
+              <td>产出飞字、升级、建造、损坏修复。</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section>
+        <h2>四、五大地域地图资产</h2>
+        <div class="note">五大地域都按竖向长地图制作，不是一屏菜单背景。玩家默认从底部入口出现，通过向上滚动/移动探索更高等级区域。地图需支持底部低等级区、中段主循环区、顶部高阶挑战区的视觉层级。</div>
+        <table>
+          <thead>
+            <tr>
+              <th>地域</th>
+              <th>地图构成</th>
+              <th>关键资产</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>冒险地</td>
+              <td>竖向长图，下到上：入口平原、森林村落、岩石洞穴、左上火山、右上冰原。</td>
+              <td>树木、小怪巡逻、精英驻守、Boss 场、掉落光、原生村落、村落建筑、铲子 UI、区域土地块、主路和岔路。</td>
+            </tr>
+            <tr>
+              <td>魔法地</td>
+              <td>竖向长图，底部传送阵入口，沿路上行到魔法塔、魔法集市、住宅区、符文研究室、魔法竞赛传送阵和镜像试炼。</td>
+              <td>传送阵、魔法塔浮现/下沉、任务气泡、魔法商店、魔宠寄养处、竞赛入口 NPC、镜像试炼门。</td>
+            </tr>
+            <tr>
+              <td>世界商业地</td>
+              <td>竖向长街，底部市集入口，中段摊位街和行商会，上方拍卖栏、仓储码头、黑市岔路和商业竞争公告。</td>
+              <td>摊位、商铺招牌、金币交易反馈、行商角色、订单公告、拍卖牌、码头货箱。</td>
+            </tr>
+            <tr>
+              <td>创意地</td>
+              <td>竖向展览动线，底部提交建筑入口，中段投票广场和第三/第二名展示，上方第一名展示、评审席和赛季榜。</td>
+              <td>第一/第二/第三名展示台、投票箱、提交入口、评审席、装饰材料兑换点、赛季榜。</td>
+            </tr>
+            <tr>
+              <td>和谐地</td>
+              <td>竖向社区动线，底部好友入口和点赞广场，中段驻外 NPC、回访信箱、关系调解公园，上方工会建设区和公共工坊。</td>
+              <td>好友传送门、点赞广场、驻外 NPC 标识、回访信箱、工会建设场地、公共工程材料堆。</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section>
+        <h2>五、UI 与图标资产</h2>
+        <ul>
+          <li>固定 UI：金币资源栏、设置、好友、工会、创建分身、框选主图标、活动主图标、地图、背包。</li>
+          <li>展开栏：框选展开“角色框选 / 建筑框选”；活动展开“通行证 / 活动”。需要主图标、选中态、按压态、收回动画。</li>
+          <li>背包：材料 / 道具 / 装备页签、物品格、高亮框、名称与描述区域、稀有度边框。</li>
+          <li>角色面板：属性页、装备页、关系网页签；关系网节点和关系线需要可读且便于拖拽。</li>
+          <li>世界传送地图：左梦想能量条、右挑战能量条、能量波漫过地域效果、锁定灰态、解锁彩态、小船漂流虚线路线。</li>
+          <li>世界地图背景：梦想能量从底部向上铺淡蓝色波层，挑战能量从底部向上铺淡红色波层，两者重合区域显示混合色。未被对应能量覆盖的地域为灰白不可交互，被覆盖后转为彩色可点击。</li>
+          <li>演示按钮：原型中允许出现“演示用：临时解锁高等级地域”按钮，视觉上必须像调试/演示控件，不能误导为正式玩法按钮。</li>
+          <li>登录与创建：登录页需要能看出海域、小镇地块、小舟和流程预览；创建页需要外貌资产槽位、智能体行为预览、特性影响预览。</li>
+          <li>新手教程：使用纵向流程地图表现砍树、建造、战斗、小舟出行、挖土扩地，所有教学点位都应像地图实体而非说明列表。</li>
+          <li>背包：材料 / 道具 / 装备页签、物品格、高亮框、名称与描述区域、稀有度边框、仓库溢出、资源流向和快速处理按钮。</li>
+          <li>角色面板：属性页、装备页、关系网页签；额外需要 AI 日程、派遣动作、装备成长链、装备来源提示、关系事件列表；关系网节点和关系线需要可读且便于拖拽。</li>
+          <li>战斗：怪物血条、六人阵位、装备栏、普攻、独特技能、即时托管按钮、回合顺序、怪物意图、背包快捷栏、掉落结算和战斗日志。</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>六、动效与反馈</h2>
+        <ul>
+          <li>框选：拖动出现矩形框，框内对象被高亮；角色框选只选角色，建筑框选只选建筑。</li>
+          <li>角色移动：点击任意地面或实体，当前分身/选中队伍跑到目标旁；距离超过 10 格触发飞毛腿加速特效。</li>
+          <li>收益：金币或材料从建筑飞向资源栏，暴击时有放大、闪光和飞字。</li>
+          <li>战斗：普攻、技能、受击、血条变化、掉落光、自动拾取。</li>
+          <li>传送：小舟漂流到世界地图地域；魔法传送阵出现传送光、角色落点。</li>
+          <li>AI 演出：NPC 工作、摸鱼、吐槽气泡、钓鱼、搬运、吵架、社交、自动建设。</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>七、交付规格建议</h2>
+        <ul>
+          <li>优先提供竖屏 9:16 布局下的地图主视觉、UI 图标、角色缩略表现和关键弹窗。</li>
+          <li>图标与 UI 建议提供矢量源文件；角色、怪物、建筑建议提供分层源文件和透明 PNG 导出。</li>
+          <li>地图实体需提供普通态、选中态、不可交互态、点击按压态。</li>
+          <li>角色与怪物动作用序列帧或 Spine/Live2D 等方案均可，需提前统一技术规格。</li>
+          <li>所有文字 UI 默认使用 Microsoft YaHei / 微软雅黑，字号按小程序竖屏可读性调整。</li>
+        </ul>
+        <div class="note">备注：当前原型用于确认信息架构、交互逻辑和界面层级，不要求美术完全照搬原型色块。正式美术应以“清晰、可爱、有演出感、缩小后可读”为优先级。</div>
+      </section>
+    </article>
+  </body>
+</html>

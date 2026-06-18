@@ -1,0 +1,1678 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>3D战争界面交互原型 - 战意赛季经济闭环</title>
+  <style>
+    :root {
+      --bg: #11151f;
+      --surface: #18202d;
+      --surface-2: #202a38;
+      --surface-3: #111827;
+      --line: #334155;
+      --line-soft: rgba(148, 163, 184, .24);
+      --text: #f8fafc;
+      --muted: #a8b3c5;
+      --weak: #718096;
+      --red: #b91c1c;
+      --red-hot: #ef4444;
+      --amber: #d97706;
+      --amber-soft: #fbbf24;
+      --green: #16a34a;
+      --blue: #38bdf8;
+      --violet: #8b5cf6;
+      --paper: #e7d6ad;
+      --radius: 8px;
+      --shadow: 0 18px 46px rgba(0, 0, 0, .34);
+      font-family: "Microsoft YaHei", "PingFang SC", "Noto Sans SC", Arial, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: #080c13;
+      color: var(--text);
+      letter-spacing: 0;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+      border: 0;
+    }
+
+    .app {
+      width: min(100vw, 1500px);
+      min-height: 920px;
+      margin: 0 auto;
+      background:
+        linear-gradient(90deg, rgba(17, 21, 31, .96), rgba(17, 21, 31, .78)),
+        radial-gradient(circle at 78% 14%, rgba(217, 119, 6, .20), transparent 30%),
+        radial-gradient(circle at 12% 78%, rgba(22, 163, 74, .13), transparent 26%),
+        linear-gradient(140deg, #11151f 0%, #171f2d 45%, #2b201c 100%);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .app::before {
+      content: "";
+      position: absolute;
+      inset: 64px 0 0;
+      pointer-events: none;
+      background:
+        linear-gradient(rgba(255,255,255,.028) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.022) 1px, transparent 1px);
+      background-size: 48px 48px;
+      mask-image: linear-gradient(180deg, transparent, #000 18%, #000 84%, transparent);
+    }
+
+    .topbar {
+      height: 64px;
+      display: grid;
+      grid-template-columns: 280px 1fr 360px;
+      align-items: center;
+      gap: 16px;
+      padding: 0 24px;
+      border-bottom: 1px solid var(--line-soft);
+      background: rgba(12, 18, 28, .88);
+      backdrop-filter: blur(14px);
+      position: relative;
+      z-index: 5;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .crest {
+      width: 34px;
+      height: 38px;
+      clip-path: polygon(50% 0, 92% 16%, 86% 72%, 50% 100%, 14% 72%, 8% 16%);
+      background: linear-gradient(180deg, #d97706, #7f1d1d);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.24), 0 8px 22px rgba(185, 28, 28, .26);
+      flex: 0 0 auto;
+    }
+
+    .brand strong {
+      display: block;
+      font-size: 17px;
+      line-height: 1.1;
+    }
+
+    .brand span {
+      display: block;
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 12px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .stage-tabs {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .stage-tab {
+      min-width: 92px;
+      height: 34px;
+      padding: 0 12px;
+      border-radius: 6px;
+      background: rgba(32, 42, 56, .78);
+      color: var(--muted);
+      border: 1px solid var(--line-soft);
+      font-size: 13px;
+    }
+
+    .stage-tab.active {
+      background: linear-gradient(180deg, #9f1d1d, #6f1d1b);
+      color: #fff;
+      border-color: rgba(248, 113, 113, .78);
+      box-shadow: 0 8px 24px rgba(185, 28, 28, .26);
+      font-weight: 700;
+    }
+
+    .global-status {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .global-status .stat {
+      padding: 7px 9px;
+      border: 1px solid rgba(148, 163, 184, .18);
+      border-radius: 6px;
+      background: rgba(15, 23, 42, .64);
+      min-width: 0;
+    }
+
+    .stat span {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.15;
+    }
+
+    .stat b {
+      display: block;
+      margin-top: 3px;
+      font-size: 13px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .layout {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: 330px minmax(520px, 1fr) 386px;
+      gap: 16px;
+      padding: 16px 22px 18px;
+    }
+
+    .column {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .panel {
+      background: rgba(24, 32, 45, .92);
+      border: 1px solid rgba(148, 163, 184, .22);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      min-width: 0;
+    }
+
+    .panel-header {
+      min-height: 42px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 14px;
+      border-bottom: 1px solid rgba(148, 163, 184, .18);
+      background: rgba(15, 23, 42, .36);
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .subtle {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 400;
+    }
+
+    .hero-card {
+      padding: 14px;
+    }
+
+    .commander {
+      display: grid;
+      grid-template-columns: 58px 1fr;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .weapon-icon {
+      width: 58px;
+      height: 58px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #5b6473, #111827 72%);
+      border: 1px solid rgba(226, 232, 240, .26);
+      position: relative;
+      box-shadow: inset 0 0 18px rgba(255, 255, 255, .06);
+    }
+
+    .weapon-icon::before {
+      content: "";
+      position: absolute;
+      width: 6px;
+      height: 48px;
+      background: #e2e8f0;
+      left: 26px;
+      top: 5px;
+      transform: rotate(42deg);
+      border-radius: 6px;
+    }
+
+    .weapon-icon::after {
+      content: "";
+      position: absolute;
+      width: 30px;
+      height: 6px;
+      left: 14px;
+      top: 30px;
+      transform: rotate(42deg);
+      border-radius: 6px;
+      background: #d97706;
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin: 0;
+    }
+
+    .commander h2 {
+      font-size: 18px;
+      margin-bottom: 6px;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-top: 14px;
+    }
+
+    .chip {
+      padding: 5px 8px;
+      border-radius: 5px;
+      background: rgba(15, 23, 42, .68);
+      border: 1px solid rgba(148, 163, 184, .22);
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .budget {
+      padding: 12px 14px 14px;
+    }
+
+    .budget-main {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 12px;
+    }
+
+    .budget-main b {
+      font-size: 26px;
+    }
+
+    .risk-badge {
+      padding: 5px 8px;
+      border-radius: 6px;
+      color: #fff;
+      background: var(--amber);
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .range-row {
+      display: grid;
+      grid-template-columns: 92px 1fr 74px;
+      align-items: center;
+      gap: 9px;
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--amber-soft);
+    }
+
+    .preset-row,
+    .mode-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .mini-btn {
+      min-height: 32px;
+      padding: 0 10px;
+      border-radius: 6px;
+      background: rgba(15, 23, 42, .72);
+      color: var(--muted);
+      border: 1px solid rgba(148, 163, 184, .24);
+      font-size: 12px;
+    }
+
+    .mini-btn:hover,
+    .mini-btn.active {
+      color: #fff;
+      border-color: rgba(251, 191, 36, .68);
+      background: rgba(180, 83, 9, .36);
+    }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .metric {
+      padding: 9px;
+      border-radius: 6px;
+      background: rgba(15, 23, 42, .66);
+      border: 1px solid rgba(148, 163, 184, .16);
+      min-width: 0;
+    }
+
+    .metric b {
+      display: block;
+      font-size: 16px;
+      margin-bottom: 3px;
+      white-space: nowrap;
+    }
+
+    .metric span {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.25;
+    }
+
+    .unit-list {
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+      max-height: 354px;
+      overflow: auto;
+    }
+
+    .unit-card {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 48px 1fr auto;
+      gap: 10px;
+      padding: 10px;
+      align-items: center;
+      border-radius: 7px;
+      border: 1px solid rgba(148, 163, 184, .16);
+      background: rgba(15, 23, 42, .58);
+      color: var(--text);
+      text-align: left;
+    }
+
+    .unit-card:hover {
+      border-color: rgba(56, 189, 248, .58);
+      background: rgba(15, 23, 42, .82);
+    }
+
+    .unit-card.selected {
+      border-color: rgba(34, 197, 94, .72);
+      box-shadow: inset 4px 0 0 var(--green);
+    }
+
+    .unit-token {
+      width: 48px;
+      height: 48px;
+      border-radius: 7px;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-size: 20px;
+      font-weight: 800;
+      background: #374151;
+      border: 1px solid rgba(255, 255, 255, .16);
+    }
+
+    .unit-card h3 {
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+
+    .unit-card p {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .unit-cost {
+      color: var(--amber-soft);
+      font-weight: 800;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .formation-list {
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      min-height: 136px;
+    }
+
+    .formation-item {
+      display: grid;
+      grid-template-columns: 24px 1fr 80px;
+      gap: 8px;
+      align-items: center;
+      padding: 8px;
+      border-radius: 6px;
+      background: rgba(15, 23, 42, .62);
+      border: 1px solid rgba(148, 163, 184, .14);
+      font-size: 12px;
+    }
+
+    .order {
+      width: 24px;
+      height: 24px;
+      border-radius: 5px;
+      display: grid;
+      place-items: center;
+      background: rgba(217, 119, 6, .30);
+      color: #fff;
+      font-weight: 800;
+    }
+
+    .icon-btns {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 4px;
+    }
+
+    .icon-btn {
+      height: 24px;
+      border-radius: 5px;
+      background: rgba(30, 41, 59, .92);
+      color: var(--muted);
+      border: 1px solid rgba(148, 163, 184, .16);
+    }
+
+    .icon-btn:hover {
+      color: #fff;
+      border-color: rgba(56, 189, 248, .58);
+    }
+
+    .empty {
+      padding: 12px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+      background: rgba(15, 23, 42, .44);
+      border-radius: 6px;
+      border: 1px dashed rgba(148, 163, 184, .28);
+    }
+
+    .battlefield {
+      min-height: 522px;
+      position: relative;
+    }
+
+    .battle-header {
+      padding: 18px 18px 12px;
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .battle-title h1 {
+      font-size: 24px;
+      margin-bottom: 7px;
+    }
+
+    .battle-title p {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .battle-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .action-btn {
+      min-height: 34px;
+      padding: 0 12px;
+      border-radius: 6px;
+      color: #fff;
+      background: rgba(30, 41, 59, .88);
+      border: 1px solid rgba(148, 163, 184, .28);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .action-btn.primary {
+      background: linear-gradient(180deg, #d97706, #92400e);
+      border-color: rgba(251, 191, 36, .72);
+    }
+
+    .action-btn.danger {
+      background: linear-gradient(180deg, #dc2626, #7f1d1d);
+      border-color: rgba(248, 113, 113, .62);
+    }
+
+    .map-wrap {
+      margin: 0 18px 14px;
+      min-height: 330px;
+      position: relative;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid rgba(148, 163, 184, .24);
+      background:
+        linear-gradient(145deg, rgba(18, 83, 56, .72), rgba(84, 61, 31, .76)),
+        linear-gradient(90deg, rgba(255,255,255,.06) 1px, transparent 1px),
+        linear-gradient(rgba(255,255,255,.06) 1px, transparent 1px);
+      background-size: auto, 42px 42px, 42px 42px;
+      box-shadow: inset 0 0 80px rgba(0, 0, 0, .26);
+    }
+
+    .map-wrap::before {
+      content: "";
+      position: absolute;
+      left: 13%;
+      right: 9%;
+      top: 18%;
+      height: 104px;
+      transform: skewX(-16deg) rotate(-2deg);
+      border-radius: 10px;
+      background:
+        linear-gradient(90deg, rgba(231, 214, 173, .16) 0 2px, transparent 2px 16px),
+        linear-gradient(180deg, #77624f, #3f342d);
+      border: 2px solid rgba(231, 214, 173, .34);
+      box-shadow: 0 18px 34px rgba(0,0,0,.34);
+    }
+
+    .keep {
+      position: absolute;
+      right: 17%;
+      top: 17%;
+      width: 118px;
+      height: 108px;
+      transform: skewX(-12deg);
+      border-radius: 8px 8px 4px 4px;
+      background: linear-gradient(180deg, #746354, #2b2724);
+      border: 2px solid rgba(231, 214, 173, .34);
+      box-shadow: 0 20px 32px rgba(0, 0, 0, .34);
+    }
+
+    .keep::before,
+    .keep::after {
+      content: "";
+      position: absolute;
+      top: -22px;
+      width: 30px;
+      height: 32px;
+      background: #8a7762;
+      border: 2px solid rgba(231, 214, 173, .30);
+    }
+
+    .keep::before { left: 12px; }
+    .keep::after { right: 12px; }
+
+    .route-line {
+      position: absolute;
+      height: 3px;
+      transform-origin: left center;
+      border-radius: 999px;
+      background: linear-gradient(90deg, rgba(56,189,248,.15), rgba(56,189,248,.95), rgba(251,191,36,.75));
+      box-shadow: 0 0 18px rgba(56, 189, 248, .38);
+    }
+
+    .route-main {
+      width: 380px;
+      left: 18%;
+      top: 64%;
+      transform: rotate(-23deg);
+    }
+
+    .route-alt {
+      width: 265px;
+      left: 24%;
+      top: 74%;
+      transform: rotate(-42deg);
+      opacity: .52;
+      background: linear-gradient(90deg, rgba(251,191,36,.12), rgba(251,191,36,.70));
+    }
+
+    .objective {
+      position: absolute;
+      z-index: 3;
+      width: 112px;
+      min-height: 48px;
+      padding: 8px;
+      border-radius: 8px;
+      color: #fff;
+      background: rgba(15, 23, 42, .82);
+      border: 1px solid rgba(226, 232, 240, .28);
+      box-shadow: 0 12px 30px rgba(0,0,0,.30);
+      text-align: left;
+    }
+
+    .objective strong {
+      display: block;
+      font-size: 13px;
+      margin-bottom: 3px;
+    }
+
+    .objective span {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.25;
+    }
+
+    .objective.active {
+      border-color: rgba(251, 191, 36, .92);
+      background: rgba(127, 29, 29, .86);
+      box-shadow: 0 0 0 2px rgba(251, 191, 36, .18), 0 16px 32px rgba(127, 29, 29, .32);
+    }
+
+    .objective[data-id="gate"] { left: 45%; top: 47%; }
+    .objective[data-id="wall"] { left: 26%; top: 28%; }
+    .objective[data-id="tower"] { left: 12%; top: 60%; }
+    .objective[data-id="supply"] { right: 11%; bottom: 12%; }
+
+    .squad {
+      position: absolute;
+      width: 54px;
+      height: 34px;
+      border-radius: 7px;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      border: 1px solid rgba(255,255,255,.28);
+      box-shadow: 0 9px 20px rgba(0,0,0,.28);
+      font-size: 12px;
+      font-weight: 900;
+      transition: transform .35s ease, left .35s ease, top .35s ease;
+    }
+
+    .squad-a { left: 18%; top: 69%; background: #16a34a; }
+    .squad-b { left: 27%; top: 70%; background: #2563eb; }
+    .squad-c { left: 20%; top: 78%; background: #d97706; }
+
+    .map-wrap.advanced .squad-a { left: 36%; top: 54%; transform: rotate(-8deg); }
+    .map-wrap.advanced .squad-b { left: 42%; top: 61%; transform: rotate(-16deg); }
+    .map-wrap.advanced .squad-c { left: 33%; top: 65%; transform: rotate(-22deg); }
+
+    .map-wrap.disrupted .route-main {
+      background: linear-gradient(90deg, rgba(239,68,68,.2), rgba(239,68,68,.88));
+      box-shadow: 0 0 18px rgba(239, 68, 68, .38);
+    }
+
+    .stage-board {
+      display: grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap: 10px;
+      padding: 0 18px 16px;
+    }
+
+    .board-card {
+      padding: 10px;
+      border-radius: 7px;
+      background: rgba(15, 23, 42, .62);
+      border: 1px solid rgba(148, 163, 184, .16);
+      min-width: 0;
+    }
+
+    .board-card h3 {
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+
+    .board-card p,
+    .board-card li {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .bar {
+      height: 9px;
+      overflow: hidden;
+      background: #0f172a;
+      border: 1px solid rgba(148, 163, 184, .16);
+      border-radius: 999px;
+    }
+
+    .bar span {
+      display: block;
+      height: 100%;
+      width: 50%;
+      background: linear-gradient(90deg, var(--green), var(--amber-soft), var(--red-hot));
+      transition: width .25s ease;
+    }
+
+    .timeline {
+      padding: 12px 14px;
+      max-height: 188px;
+      overflow: auto;
+    }
+
+    .event {
+      display: grid;
+      grid-template-columns: 64px 1fr;
+      gap: 10px;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(148, 163, 184, .12);
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .event:last-child { border-bottom: 0; }
+
+    .event b {
+      color: var(--blue);
+      font-size: 12px;
+    }
+
+    .challenge-list {
+      padding: 10px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 9px;
+    }
+
+    .challenge {
+      padding: 10px;
+      border-radius: 7px;
+      border: 1px solid rgba(148, 163, 184, .16);
+      background: rgba(15, 23, 42, .58);
+    }
+
+    .challenge.active {
+      border-color: rgba(139, 92, 246, .72);
+      box-shadow: inset 4px 0 0 var(--violet);
+    }
+
+    .challenge h3 {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+
+    .challenge p {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .path-score {
+      color: var(--amber-soft);
+      white-space: nowrap;
+    }
+
+    .data-panel {
+      padding: 12px 14px 14px;
+    }
+
+    .economy-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .economy-card {
+      padding: 10px;
+      border-radius: 7px;
+      background: rgba(15, 23, 42, .66);
+      border: 1px solid rgba(148, 163, 184, .16);
+    }
+
+    .economy-card span {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      margin-bottom: 5px;
+    }
+
+    .economy-card b {
+      font-size: 18px;
+    }
+
+    .trend {
+      margin-top: 5px;
+      font-size: 11px;
+      color: var(--green);
+    }
+
+    .trend.down { color: var(--red-hot); }
+
+    .sql-box {
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 7px;
+      background: #0b1220;
+      border: 1px solid rgba(56, 189, 248, .22);
+      color: #c7d2fe;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 11px;
+      line-height: 1.55;
+      white-space: pre-wrap;
+      min-height: 130px;
+    }
+
+    .review-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 9px;
+      padding: 0 14px 14px;
+    }
+
+    .review-card {
+      padding: 10px;
+      border-radius: 7px;
+      background: rgba(15, 23, 42, .62);
+      border: 1px solid rgba(148, 163, 184, .16);
+      min-width: 0;
+    }
+
+    .review-card span {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      margin-bottom: 5px;
+    }
+
+    .review-card b {
+      font-size: 16px;
+      white-space: nowrap;
+    }
+
+    .footer-strip {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+      padding: 0 22px 18px;
+    }
+
+    .logic-card {
+      padding: 12px 14px;
+      border-radius: 8px;
+      background: rgba(17, 24, 39, .84);
+      border: 1px solid rgba(148, 163, 184, .18);
+      min-width: 0;
+    }
+
+    .logic-card h3 {
+      font-size: 13px;
+      margin-bottom: 7px;
+    }
+
+    .logic-card p {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .toast {
+      position: fixed;
+      right: 22px;
+      bottom: 22px;
+      z-index: 30;
+      max-width: 360px;
+      padding: 12px 14px;
+      border-radius: 8px;
+      color: #fff;
+      background: rgba(15, 23, 42, .94);
+      border: 1px solid rgba(251, 191, 36, .45);
+      box-shadow: 0 18px 44px rgba(0,0,0,.36);
+      transform: translateY(16px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .2s ease, transform .2s ease;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @media (max-width: 1180px) {
+      .app { width: 100%; }
+      .topbar {
+        height: auto;
+        grid-template-columns: 1fr;
+        padding: 12px;
+      }
+      .stage-tabs {
+        justify-content: flex-start;
+        overflow-x: auto;
+      }
+      .global-status { grid-template-columns: repeat(3, minmax(120px, 1fr)); }
+      .layout {
+        grid-template-columns: 1fr;
+        padding: 12px;
+      }
+      .footer-strip {
+        grid-template-columns: 1fr;
+        padding: 0 12px 12px;
+      }
+      .map-wrap { min-height: 360px; }
+    }
+
+    @media (max-width: 620px) {
+      .stage-tab { min-width: 84px; padding: 0 8px; }
+      .global-status,
+      .stage-board,
+      .review-grid,
+      .economy-grid,
+      .metric-grid {
+        grid-template-columns: 1fr;
+      }
+      .battle-header {
+        flex-direction: column;
+      }
+      .battle-actions {
+        justify-content: flex-start;
+      }
+      .objective {
+        width: 96px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="crest" aria-hidden="true"></div>
+        <div>
+          <strong>战意赛季经济原型</strong>
+          <span>成长消耗 / 军团社交 / 战场经济 / 3D态势交互</span>
+        </div>
+      </div>
+
+      <nav class="stage-tabs" aria-label="阶段切换">
+        <button class="stage-tab active" data-stage="prep">战前筹备</button>
+        <button class="stage-tab" data-stage="battle">攻城进行</button>
+        <button class="stage-tab" data-stage="season">赛季经营</button>
+        <button class="stage-tab" data-stage="review">战后复盘</button>
+      </nav>
+
+      <section class="global-status" aria-label="全局状态">
+        <div class="stat"><span>赛季阶段</span><b id="seasonStage">S16 第3周</b></div>
+        <div class="stat"><span>军团动员</span><b id="guildMobilize">72%</b></div>
+        <div class="stat"><span>战局时间</span><b id="battleClock">00:00</b></div>
+      </section>
+    </header>
+
+    <section class="layout">
+      <aside class="column">
+        <section class="panel hero-card">
+          <div class="commander">
+            <div class="weapon-icon" aria-hidden="true"></div>
+            <div>
+              <h2>武将：关刀 / 前线破阵</h2>
+              <p class="subtle">定位：先手开团、控线、协助工程队建立攻城窗口</p>
+            </div>
+          </div>
+          <div class="chips">
+            <span class="chip">兵种克制</span>
+            <span class="chip">城防工事</span>
+            <span class="chip">后勤补给</span>
+            <span class="chip">赛季消耗</span>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            战前军需预算
+            <span class="subtle">滑杆实时影响右侧经济指标</span>
+          </div>
+          <div class="budget">
+            <div class="budget-main">
+              <div>
+                <span class="subtle">可投入军费</span>
+                <b id="budgetText">42,000</b>
+              </div>
+              <span class="risk-badge" id="riskBadge">风险：中</span>
+            </div>
+
+            <div class="range-row">
+              <label for="budgetRange">军费上限</label>
+              <input id="budgetRange" type="range" min="18000" max="62000" step="1000" value="42000" />
+              <span id="budgetRangeValue">42,000</span>
+            </div>
+            <div class="range-row">
+              <label for="reserveRange">补给预留</label>
+              <input id="reserveRange" type="range" min="8" max="45" step="1" value="24" />
+              <span id="reserveRangeValue">24%</span>
+            </div>
+            <div class="range-row">
+              <label for="gearRange">器械投入</label>
+              <input id="gearRange" type="range" min="0" max="4" step="1" value="2" />
+              <span id="gearRangeValue">2组</span>
+            </div>
+
+            <div class="preset-row">
+              <button class="mini-btn" data-preset="safe">保守补给</button>
+              <button class="mini-btn active" data-preset="balanced">均衡攻城</button>
+              <button class="mini-btn" data-preset="rush">高压破城</button>
+            </div>
+
+            <div class="metric-grid">
+              <div class="metric"><b id="repairFund">10,080</b><span>装备维修预留</span></div>
+              <div class="metric"><b id="gearCost">7,400</b><span>器械与攻城消耗</span></div>
+              <div class="metric"><b id="unitCost">18,900</b><span>当前编队成本</span></div>
+              <div class="metric"><b id="surplusText">5,620</b><span>战后现金缓冲</span></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            兵团池
+            <span class="subtle">点击选择 / 取消</span>
+          </div>
+          <div class="unit-list" id="unitList"></div>
+        </section>
+      </aside>
+
+      <section class="column">
+        <section class="panel battlefield">
+          <div class="battle-header">
+            <div class="battle-title">
+              <h1 id="stageTitle">战前配置：把经济选择转成战场行为</h1>
+              <p id="stageSubtitle">选择兵团、预算和攻城目标，系统实时给出风险、消耗、社交协作与数据验证口径。</p>
+            </div>
+            <div class="battle-actions">
+              <button class="action-btn primary" id="advanceBtn">推进30秒</button>
+              <button class="action-btn" id="repairBtn">修复器械</button>
+              <button class="action-btn danger" id="disruptBtn">补给中断</button>
+              <button class="action-btn" id="settleBtn">结算战斗</button>
+            </div>
+          </div>
+
+          <div class="map-wrap" id="mapWrap" aria-label="攻城地图态势">
+            <div class="keep" aria-hidden="true"></div>
+            <div class="route-line route-main" aria-hidden="true"></div>
+            <div class="route-line route-alt" aria-hidden="true"></div>
+            <button class="objective active" data-id="gate" data-testid="objective-gate">
+              <strong>主城门</strong>
+              <span>低绕行，高伤亡，适合盾兵压线</span>
+            </button>
+            <button class="objective" data-id="wall" data-testid="objective-wall">
+              <strong>西侧城墙</strong>
+              <span>需云梯，弩兵压制收益高</span>
+            </button>
+            <button class="objective" data-id="tower" data-testid="objective-tower">
+              <strong>攻城塔</strong>
+              <span>器械成本高，突破窗口稳定</span>
+            </button>
+            <button class="objective" data-id="supply" data-testid="objective-supply">
+              <strong>补给营地</strong>
+              <span>低击杀，高经济压制与续航</span>
+            </button>
+            <div class="squad squad-a">盾</div>
+            <div class="squad squad-b">弩</div>
+            <div class="squad squad-c">工</div>
+          </div>
+
+          <div class="stage-board">
+            <div class="board-card">
+              <h3>当前推荐战术</h3>
+              <p id="tacticText">先用盾兵吃城门火力，弩兵压制城墙，工程队保留器械耐久。目标是把“高消耗破门”转成“可复盘的资源交换”。</p>
+            </div>
+            <div class="board-card">
+              <h3>攻城进度</h3>
+              <div class="bar"><span id="progressBar"></span></div>
+              <p id="progressText" style="margin-top:8px;">破城进度 0%，未进入接敌窗口。</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            当前编队
+            <span class="subtle">↑ ↓ 调整前后排，影响伤亡与补给</span>
+          </div>
+          <div class="formation-list" id="formationList"></div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            战场事件流
+            <span class="subtle">用于面试演示“玩家行为 -> 数据记录”</span>
+          </div>
+          <div class="timeline" id="eventLog"></div>
+        </section>
+      </section>
+
+      <aside class="column">
+        <section class="panel">
+          <div class="panel-header">
+            战场经济指标
+            <span class="subtle">由预算、选兵、目标、事件联动</span>
+          </div>
+          <div class="data-panel">
+            <div class="economy-grid">
+              <div class="economy-card"><span>预估银币消耗</span><b id="silverSpent">36,380</b><div class="trend down" id="silverTrend">消耗可控</div></div>
+              <div class="economy-card"><span>兵团损耗率</span><b id="lossRate">18%</b><div class="trend down" id="lossTrend">城门压力中等</div></div>
+              <div class="economy-card"><span>补给续航</span><b id="supplyTurns">4.8轮</b><div class="trend" id="supplyTrend">足够打满主战线</div></div>
+              <div class="economy-card"><span>军团协作需求</span><b id="socialNeed">中</b><div class="trend" id="socialTrend">需要1名器械手</div></div>
+            </div>
+
+            <div class="board-card">
+              <h3>设计目标 -> 玩家行为 -> 数据验证</h3>
+              <p id="loopText">目标：让玩家在赛季内形成“备战-攻城-补给-复盘”的资源循环，而不是只追求单局击杀。</p>
+            </div>
+
+            <div class="sql-box" id="sqlBox"></div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            赛季挑战路径
+            <span class="subtle">切换路径会改变消耗与留存指标</span>
+          </div>
+          <div class="mode-row" style="padding:10px 10px 0;">
+            <button class="mini-btn active" data-path="guild">军团建设</button>
+            <button class="mini-btn" data-path="gear">装备循环</button>
+            <button class="mini-btn" data-path="territory">领土争夺</button>
+          </div>
+          <div class="challenge-list" id="challengeList"></div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            战后复盘预测
+            <span class="subtle">结算后会写入最终值</span>
+          </div>
+          <div class="review-grid">
+            <div class="review-card"><span>贡献评分</span><b id="scoreText">B+</b></div>
+            <div class="review-card"><span>经济效率</span><b id="efficiencyText">72</b></div>
+            <div class="review-card"><span>次日回流</span><b id="retentionText">+6.4%</b></div>
+          </div>
+        </section>
+      </aside>
+    </section>
+
+    <section class="footer-strip">
+      <article class="logic-card">
+        <h3>真实战争逻辑</h3>
+        <p id="warLogic">城门路线换取突破速度，但会提高盾兵与器械损耗；补给预留越低，后半程战斗越容易崩线。</p>
+      </article>
+      <article class="logic-card">
+        <h3>社交生态</h3>
+        <p id="socialLogic">高器械投入会自然产生“谁带器械、谁保护器械、谁补线”的军团分工，带动语音协作和战后复盘。</p>
+      </article>
+      <article class="logic-card">
+        <h3>数据闭环</h3>
+        <p id="dataLogic">用单局消耗、兵团损耗、战后补给购买、次日参战率验证经济压力是否过高或过低。</p>
+      </article>
+    </section>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    const units = [
+      { id: "shield", name: "忠嗣卫队", icon: "盾", color: "#16a34a", cost: 7600, supply: 18, power: 72, loss: 11, role: "前排抗线", tip: "克制弓弩火力，适合城门强攻。" },
+      { id: "pike", name: "瑞士长戟", icon: "枪", color: "#0f766e", cost: 6400, supply: 14, power: 68, loss: 13, role: "反骑控线", tip: "保护器械与补给线，防止敌方骑兵切后。" },
+      { id: "crossbow", name: "神机五千营", icon: "弩", color: "#2563eb", cost: 5900, supply: 12, power: 64, loss: 9, role: "远程压制", tip: "压城墙窗口，降低工程队伤亡。" },
+      { id: "cavalry", name: "翼骑兵", icon: "骑", color: "#b45309", cost: 9400, supply: 22, power: 82, loss: 18, role: "侧翼冲击", tip: "高爆发高损耗，适合破门后扩大战果。" },
+      { id: "engineer", name: "攻城工程队", icon: "工", color: "#7c3aed", cost: 4800, supply: 16, power: 56, loss: 10, role: "器械维护", tip: "提升破城效率，但需要前排保护。" }
+    ];
+
+    const objectives = {
+      gate: {
+        name: "主城门",
+        risk: 1.00,
+        progress: 1.15,
+        social: "中",
+        tactic: "先用盾兵吃城门火力，弩兵压制城墙，工程队保留器械耐久。目标是把“高消耗破门”转成“可复盘的资源交换”。",
+        war: "城门路线换取突破速度，但会提高盾兵与器械损耗；补给预留越低，后半程战斗越容易崩线。",
+        sqlTag: "gate_push"
+      },
+      wall: {
+        name: "西侧城墙",
+        risk: .84,
+        progress: .92,
+        social: "中高",
+        tactic: "选择西侧城墙时，弩兵压制价值上升，工程队要围绕云梯窗口行动；牺牲推进速度换取更低正面损耗。",
+        war: "城墙路线强调火力压制与攀爬窗口，真实逻辑是用时间换空间，避免城门口形成拥堵伤亡。",
+        sqlTag: "wall_ladder"
+      },
+      tower: {
+        name: "攻城塔",
+        risk: .92,
+        progress: 1.28,
+        social: "高",
+        tactic: "攻城塔路线需要军团明确分工：盾兵护塔、工程队修塔、骑兵等待破口后进场，成本高但成功窗口稳定。",
+        war: "攻城塔是典型高前置成本方案，能减少反复试错，但一旦补给中断会造成更高沉没成本。",
+        sqlTag: "siege_tower"
+      },
+      supply: {
+        name: "补给营地",
+        risk: .70,
+        progress: .72,
+        social: "低",
+        tactic: "绕打补给营地会降低直接击杀，但可以压制敌方回防节奏，适合经济型赛季任务和低成本替代路径。",
+        war: "补给线目标不追求瞬间破城，而是通过后勤压力改变敌方行为，符合围城战里的消耗逻辑。",
+        sqlTag: "supply_raid"
+      }
+    };
+
+    const paths = {
+      guild: [
+        { title: "军团护送器械", score: "+社交", text: "鼓励老带新，完成后降低下次攻城器械成本。" },
+        { title: "集结补给车", score: "+留存", text: "把赛季日常和领土战绑定，形成固定上线理由。" },
+        { title: "战后复盘贡献", score: "+组织", text: "按保护、修复、补线等行为给非击杀玩家贡献感。" }
+      ],
+      gear: [
+        { title: "维修材料周常", score: "+消耗", text: "让装备维修成为可规划消耗，而不是失败惩罚。" },
+        { title: "低成本替代兵团", score: "+公平", text: "给轻度玩家提供可参与路线，避免赛季中后期断层。" },
+        { title: "器械耐久返还", score: "+正反馈", text: "鼓励合理使用器械，减少“舍不得用”的囤积行为。" }
+      ],
+      territory: [
+        { title: "据点补给税率", score: "+经济", text: "领土归属影响补给成本，把大战略反馈到单局战斗。" },
+        { title: "城防升级订单", score: "+目标", text: "让军团把资源投入到可见城防工事上。" },
+        { title: "跨军团协防", score: "+生态", text: "通过协防奖励推动联盟与外交，而不只是单团刷分。" }
+      ]
+    };
+
+    const stageCopy = {
+      prep: ["战前配置：把经济选择转成战场行为", "选择兵团、预算和攻城目标，系统实时给出风险、消耗、社交协作与数据验证口径。"],
+      battle: ["攻城进行：让战斗过程暴露经济代价", "推进时间、补给中断、器械修复会改变破城进度、银币消耗、兵团损耗与协作需求。"],
+      season: ["赛季经营：把单局消耗沉淀为长期目标", "切换挑战路径，观察军团建设、装备循环、领土争夺如何影响留存与经济回流。"],
+      review: ["战后复盘：用数据验证设计目标", "结算后把战斗行为转成贡献评分、经济效率和次日回流预测，形成完整闭环。"]
+    };
+
+    const state = {
+      stage: "prep",
+      budget: 42000,
+      reserve: 24,
+      gear: 2,
+      selected: ["shield", "crossbow", "engineer"],
+      objective: "gate",
+      path: "guild",
+      seconds: 0,
+      progress: 0,
+      morale: 78,
+      disruption: 0,
+      repairCount: 0,
+      settled: false,
+      events: [
+        { time: "00:00", text: "战前配置已载入：默认选择城门强攻路线。" }
+      ]
+    };
+
+    const $ = (selector) => document.querySelector(selector);
+    const $$ = (selector) => Array.from(document.querySelectorAll(selector));
+    const fmt = (n) => Math.round(n).toLocaleString("zh-CN");
+    const pct = (n) => `${Math.round(n)}%`;
+
+    function selectedUnits() {
+      return state.selected.map(id => units.find(unit => unit.id === id)).filter(Boolean);
+    }
+
+    function calc() {
+      const roster = selectedUnits();
+      const objective = objectives[state.objective];
+      const unitCost = roster.reduce((sum, unit) => sum + unit.cost, 0);
+      const supplyNeed = roster.reduce((sum, unit) => sum + unit.supply, 0);
+      const power = roster.reduce((sum, unit) => sum + unit.power, 0);
+      const baseLoss = roster.length ? roster.reduce((sum, unit) => sum + unit.loss, 0) / roster.length : 0;
+      const repairFund = state.budget * state.reserve / 100;
+      const gearCost = state.gear * 3700;
+      const disruptionCost = state.disruption * 1600;
+      const timeCost = Math.floor(state.seconds / 30) * (420 + state.gear * 70);
+      const spent = unitCost + gearCost + disruptionCost + timeCost;
+      const surplus = state.budget - repairFund - spent;
+      const reserveEffect = Math.max(0, 28 - state.reserve) * .7;
+      const gearRisk = Math.max(0, state.gear - 2) * 1.8;
+      const lossRate = Math.max(6, Math.min(46, (baseLoss * objective.risk) + reserveEffect + gearRisk + state.disruption * 4 - state.repairCount * 1.5));
+      const supplyTurns = Math.max(.8, ((state.budget * state.reserve / 100) / Math.max(1, supplyNeed * 420)) - state.disruption * .25 + state.repairCount * .12);
+      const progressPotential = Math.min(100, state.progress + Math.max(0, (power / 9 + state.gear * 8) * objective.progress / Math.max(1, state.selected.length)));
+      const economyEfficiency = Math.max(28, Math.min(96, 100 - (spent / state.budget * 58) - lossRate * .45 + state.progress * .16 + state.repairCount * 2));
+      const retention = Math.max(-8, Math.min(18, 3 + economyEfficiency / 18 + (state.path === "guild" ? 2.4 : 0) + (state.path === "territory" ? 1.4 : 0) - Math.max(0, -surplus) / 2400));
+      const riskIndex = Math.max(0, Math.min(100, 38 + lossRate * .9 + Math.max(0, -surplus) / 700 + state.disruption * 7 - supplyTurns * 4));
+      return { roster, objective, unitCost, supplyNeed, power, repairFund, gearCost, spent, surplus, lossRate, supplyTurns, progressPotential, economyEfficiency, retention, riskIndex };
+    }
+
+    function riskLabel(value) {
+      if (value < 42) return ["风险：低", "#16a34a"];
+      if (value < 68) return ["风险：中", "#d97706"];
+      return ["风险：高", "#dc2626"];
+    }
+
+    function grade(score) {
+      if (score >= 86) return "S";
+      if (score >= 78) return "A";
+      if (score >= 68) return "B+";
+      if (score >= 58) return "B";
+      return "C";
+    }
+
+    function logEvent(text) {
+      const time = formatClock(state.seconds);
+      state.events.unshift({ time, text });
+      state.events = state.events.slice(0, 8);
+      renderEventLog();
+    }
+
+    function formatClock(seconds) {
+      const m = String(Math.floor(seconds / 60)).padStart(2, "0");
+      const s = String(seconds % 60).padStart(2, "0");
+      return `${m}:${s}`;
+    }
+
+    function toast(text) {
+      const el = $("#toast");
+      el.textContent = text;
+      el.classList.add("show");
+      clearTimeout(window.__toastTimer);
+      window.__toastTimer = setTimeout(() => el.classList.remove("show"), 2200);
+    }
+
+    function renderUnits() {
+      const list = $("#unitList");
+      list.innerHTML = units.map(unit => {
+        const selected = state.selected.includes(unit.id);
+        return `
+          <button class="unit-card ${selected ? "selected" : ""}" data-unit="${unit.id}">
+            <span class="unit-token" style="background:${unit.color}">${unit.icon}</span>
+            <span>
+              <h3>${unit.name} · ${unit.role}</h3>
+              <p>${unit.tip}</p>
+            </span>
+            <span class="unit-cost">${fmt(unit.cost)}</span>
+          </button>
+        `;
+      }).join("");
+      $$(".unit-card").forEach(btn => {
+        btn.addEventListener("click", () => toggleUnit(btn.dataset.unit));
+      });
+    }
+
+    function renderFormation() {
+      const list = $("#formationList");
+      const roster = selectedUnits();
+      if (!roster.length) {
+        list.innerHTML = `<div class="empty">还没有选择兵团。至少选择 2 个兵团，右侧经济指标才有稳定参考。</div>`;
+        return;
+      }
+      list.innerHTML = roster.map((unit, index) => `
+        <div class="formation-item">
+          <span class="order">${index + 1}</span>
+          <span><b>${unit.name}</b><br><span class="subtle">${index === 0 ? "前排承伤" : index === roster.length - 1 ? "后排/器械保护" : "中段接战"}</span></span>
+          <span class="icon-btns">
+            <button class="icon-btn" data-move="up" data-id="${unit.id}" title="上移">↑</button>
+            <button class="icon-btn" data-move="down" data-id="${unit.id}" title="下移">↓</button>
+            <button class="icon-btn" data-move="remove" data-id="${unit.id}" title="移除">×</button>
+          </span>
+        </div>
+      `).join("");
+
+      $$(".icon-btn").forEach(btn => {
+        btn.addEventListener("click", (event) => {
+          event.stopPropagation();
+          moveUnit(btn.dataset.id, btn.dataset.move);
+        });
+      });
+    }
+
+    function renderChallenges() {
+      const list = $("#challengeList");
+      list.innerHTML = paths[state.path].map((item, index) => `
+        <article class="challenge ${index === 0 ? "active" : ""}">
+          <h3>${item.title}<span class="path-score">${item.score}</span></h3>
+          <p>${item.text}</p>
+        </article>
+      `).join("");
+    }
+
+    function renderEventLog() {
+      $("#eventLog").innerHTML = state.events.map(event => `
+        <div class="event"><b>${event.time}</b><span>${event.text}</span></div>
+      `).join("");
+    }
+
+    function renderSQL(metrics) {
+      const objective = objectives[state.objective];
+      $("#sqlBox").textContent =
+`-- 验证口径：${objective.name} / ${state.path}
+SELECT
+  season_week,
+  siege_route,
+  AVG(silver_spent) AS avg_silver_spent,
+  AVG(unit_loss_rate) AS avg_loss_rate,
+  AVG(next_day_return) AS d1_return
+FROM battle_economy_events
+WHERE season_id = 'S16'
+  AND route_tag = '${objective.sqlTag}'
+  AND budget_band = '${metrics.riskIndex < 42 ? "low_risk" : metrics.riskIndex < 68 ? "mid_risk" : "high_risk"}'
+GROUP BY season_week, siege_route
+HAVING COUNT(DISTINCT player_id) > 500;`;
+    }
+
+    function updateStageText() {
+      const copy = stageCopy[state.stage];
+      $("#stageTitle").textContent = copy[0];
+      $("#stageSubtitle").textContent = copy[1];
+      $$(".stage-tab").forEach(tab => tab.classList.toggle("active", tab.dataset.stage === state.stage));
+    }
+
+    function renderAll() {
+      const metrics = calc();
+      const [riskText, riskColor] = riskLabel(metrics.riskIndex);
+      $("#budgetText").textContent = fmt(state.budget);
+      $("#budgetRange").value = state.budget;
+      $("#reserveRange").value = state.reserve;
+      $("#gearRange").value = state.gear;
+      $("#budgetRangeValue").textContent = fmt(state.budget);
+      $("#reserveRangeValue").textContent = `${state.reserve}%`;
+      $("#gearRangeValue").textContent = `${state.gear}组`;
+      $("#riskBadge").textContent = riskText;
+      $("#riskBadge").style.background = riskColor;
+      $("#repairFund").textContent = fmt(metrics.repairFund);
+      $("#gearCost").textContent = fmt(metrics.gearCost);
+      $("#unitCost").textContent = fmt(metrics.unitCost);
+      $("#surplusText").textContent = fmt(metrics.surplus);
+      $("#surplusText").style.color = metrics.surplus < 0 ? "var(--red-hot)" : "var(--text)";
+
+      $("#battleClock").textContent = formatClock(state.seconds);
+      $("#guildMobilize").textContent = state.path === "guild" ? "78%" : state.path === "territory" ? "84%" : "66%";
+      $("#seasonStage").textContent = state.stage === "review" ? "S16 复盘日" : "S16 第3周";
+
+      $("#silverSpent").textContent = fmt(metrics.spent);
+      $("#silverTrend").textContent = metrics.surplus < 0 ? "预算已透支" : metrics.spent / state.budget > .78 ? "消耗偏高" : "消耗可控";
+      $("#silverTrend").classList.toggle("down", metrics.spent / state.budget > .78);
+      $("#lossRate").textContent = pct(metrics.lossRate);
+      $("#lossTrend").textContent = metrics.lossRate > 28 ? "伤亡压力偏高" : metrics.lossRate > 16 ? "接敌压力中等" : "损耗较低";
+      $("#lossTrend").classList.toggle("down", metrics.lossRate > 22);
+      $("#supplyTurns").textContent = `${metrics.supplyTurns.toFixed(1)}轮`;
+      $("#supplyTrend").textContent = metrics.supplyTurns < 2.4 ? "后半程有断补风险" : "足够打满主战线";
+      $("#supplyTrend").classList.toggle("down", metrics.supplyTurns < 2.4);
+      $("#socialNeed").textContent = metrics.objective.social;
+      $("#socialTrend").textContent = state.gear >= 3 ? "需要2名器械手" : "需要1名器械手";
+
+      $("#tacticText").textContent = metrics.objective.tactic;
+      $("#warLogic").textContent = metrics.objective.war;
+      $("#socialLogic").textContent = state.path === "guild"
+        ? "军团路径把器械护送、补给车、复盘贡献绑定为共同目标，减少单人刷分带来的社交断层。"
+        : state.path === "gear"
+          ? "装备循环路径把维修、返还、替代兵团做成经济缓冲，降低轻度玩家的赛季掉队风险。"
+          : "领土路径让据点税率、城防订单和协防奖励影响单局成本，把大战略反馈到战场选择。";
+      $("#dataLogic").textContent = `当前验证重点：${metrics.objective.name}路线下，银币消耗 ${fmt(metrics.spent)}、损耗 ${pct(metrics.lossRate)}、回流预测 ${metrics.retention.toFixed(1)}%。`;
+
+      $("#progressBar").style.width = `${Math.min(100, state.progress)}%`;
+      $("#progressText").textContent = `破城进度 ${Math.round(state.progress)}%，${state.progress >= 70 ? "已进入决胜窗口。" : state.progress >= 35 ? "正在形成接敌窗口。" : "还在前期压制阶段。"}`;
+      $("#mapWrap").classList.toggle("advanced", state.progress >= 35);
+      $("#mapWrap").classList.toggle("disrupted", state.disruption > 0);
+      $$(".objective").forEach(btn => btn.classList.toggle("active", btn.dataset.id === state.objective));
+
+      $("#loopText").textContent = `目标：控制${metrics.objective.name}路线的资源压力；行为：预算 ${fmt(state.budget)}、补给 ${state.reserve}%、器械 ${state.gear} 组、编队 ${metrics.roster.length} 队；验证：观察消耗、损耗、复购和次日参战。`;
+      $("#scoreText").textContent = grade(metrics.economyEfficiency + state.progress * .08);
+      $("#efficiencyText").textContent = Math.round(metrics.economyEfficiency);
+      $("#retentionText").textContent = `${metrics.retention >= 0 ? "+" : ""}${metrics.retention.toFixed(1)}%`;
+
+      renderSQL(metrics);
+      updateStageText();
+      renderUnits();
+      renderFormation();
+      renderChallenges();
+      renderEventLog();
+    }
+
+    function toggleUnit(id) {
+      const exists = state.selected.includes(id);
+      if (exists) {
+        state.selected = state.selected.filter(unitId => unitId !== id);
+        logEvent(`移除兵团：${units.find(unit => unit.id === id).name}，重新计算预算与损耗。`);
+      } else {
+        state.selected.push(id);
+        logEvent(`加入兵团：${units.find(unit => unit.id === id).name}，编队成本与补给需求上升。`);
+      }
+      renderAll();
+    }
+
+    function moveUnit(id, action) {
+      const index = state.selected.indexOf(id);
+      if (index < 0) return;
+      if (action === "remove") {
+        toggleUnit(id);
+        return;
+      }
+      const next = action === "up" ? index - 1 : index + 1;
+      if (next < 0 || next >= state.selected.length) return;
+      const copy = [...state.selected];
+      [copy[index], copy[next]] = [copy[next], copy[index]];
+      state.selected = copy;
+      logEvent(`调整阵型：${units.find(unit => unit.id === id).name}${action === "up" ? "前移" : "后撤"}。`);
+      renderAll();
+    }
+
+    function setPreset(preset) {
+      const presets = {
+        safe: { budget: 36000, reserve: 36, gear: 1, label: "保守补给：降低伤亡和透支风险。" },
+        balanced: { budget: 42000, reserve: 24, gear: 2, label: "均衡攻城：成本、破城速度和补给保持平衡。" },
+        rush: { budget: 56000, reserve: 14, gear: 4, label: "高压破城：提高破城速度，但后勤与沉没成本变高。" }
+      };
+      Object.assign(state, presets[preset]);
+      $$(".preset-row .mini-btn").forEach(btn => btn.classList.toggle("active", btn.dataset.preset === preset));
+      logEvent(presets[preset].label);
+      renderAll();
+      toast(presets[preset].label);
+    }
+
+    function advanceBattle() {
+      const metrics = calc();
+      state.stage = "battle";
+      state.seconds += 30;
+      const gain = Math.max(5, (metrics.power / 24 + state.gear * 4) * metrics.objective.progress - state.disruption * 2);
+      state.progress = Math.min(100, state.progress + gain);
+      state.morale = Math.max(18, state.morale - (metrics.lossRate > 26 ? 4 : 2));
+      logEvent(`推进30秒：${metrics.objective.name}路线推进 +${Math.round(gain)}%，损耗率估算 ${pct(metrics.lossRate)}。`);
+      renderAll();
+    }
+
+    function disruptSupply() {
+      state.stage = "battle";
+      state.disruption += 1;
+      state.progress = Math.max(0, state.progress - 5);
+      logEvent("敌方骑兵切入补给线：补给续航下降，器械维护成本上升。");
+      renderAll();
+      toast("补给中断已触发：右侧经济指标和地图路线已变红。");
+    }
+
+    function repairGear() {
+      state.stage = "battle";
+      state.repairCount += 1;
+      state.disruption = Math.max(0, state.disruption - 1);
+      state.progress = Math.min(100, state.progress + 6 + state.gear * 2);
+      logEvent("工程队完成器械修复：破城进度回升，损耗率小幅下降。");
+      renderAll();
+    }
+
+    function settleBattle() {
+      state.stage = "review";
+      state.settled = true;
+      if (state.progress < 62) state.progress = Math.min(100, state.progress + 18);
+      logEvent("战斗结算：生成贡献评分、经济效率和次日回流预测。");
+      renderAll();
+      toast("已进入战后复盘：可以讲“设计目标 -> 玩家行为 -> 数据验证”的闭环。");
+    }
+
+    function bindEvents() {
+      $$(".stage-tab").forEach(tab => {
+        tab.addEventListener("click", () => {
+          state.stage = tab.dataset.stage;
+          logEvent(`切换阶段：${tab.textContent}。`);
+          renderAll();
+        });
+      });
+
+      $("#budgetRange").addEventListener("input", event => {
+        state.budget = Number(event.target.value);
+        renderAll();
+      });
+      $("#budgetRange").addEventListener("change", () => logEvent(`调整军费上限至 ${fmt(state.budget)}。`));
+
+      $("#reserveRange").addEventListener("input", event => {
+        state.reserve = Number(event.target.value);
+        renderAll();
+      });
+      $("#reserveRange").addEventListener("change", () => logEvent(`调整补给预留至 ${state.reserve}%。`));
+
+      $("#gearRange").addEventListener("input", event => {
+        state.gear = Number(event.target.value);
+        renderAll();
+      });
+      $("#gearRange").addEventListener("change", () => logEvent(`调整器械投入至 ${state.gear} 组。`));
+
+      $$(".preset-row .mini-btn").forEach(btn => {
+        btn.addEventListener("click", () => setPreset(btn.dataset.preset));
+      });
+
+      $$(".objective").forEach(btn => {
+        btn.addEventListener("click", () => {
+          state.objective = btn.dataset.id;
+          state.stage = "prep";
+          logEvent(`切换攻城目标：${objectives[state.objective].name}。`);
+          renderAll();
+        });
+      });
+
+      $$(".mode-row .mini-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          state.path = btn.dataset.path;
+          state.stage = "season";
+          $$(".mode-row .mini-btn").forEach(item => item.classList.toggle("active", item === btn));
+          logEvent(`切换赛季路径：${btn.textContent}。`);
+          renderAll();
+        });
+      });
+
+      $("#advanceBtn").addEventListener("click", advanceBattle);
+      $("#disruptBtn").addEventListener("click", disruptSupply);
+      $("#repairBtn").addEventListener("click", repairGear);
+      $("#settleBtn").addEventListener("click", settleBattle);
+    }
+
+    bindEvents();
+    renderAll();
+  </script>
+</body>
+</html>

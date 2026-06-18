@@ -1,0 +1,16 @@
+{
+  "name": "我的策划档案",
+  "short_name": "策划档案",
+  "description": "个人作品集、游戏 Demo、音乐、图片收藏、私密发帖和评论区。",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#111316",
+  "theme_color": "#111316",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

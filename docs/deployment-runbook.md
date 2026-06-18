@@ -1,0 +1,75 @@
+# 上线运行手册
+
+这份手册用于把当前站点发布到公网，并启用“访客可浏览、只有站主可编辑”的权限链路。
+
+## 1. Supabase
+
+1. 新建 Supabase 项目。
+2. 打开 SQL Editor，先执行 `supabase/schema.sql`。
+3. 再执行 `supabase/seed-portfolio.sql`。
+4. 确认 Storage 中存在公开 bucket：`portfolio-public`。
+5. 在 Supabase Auth 中启用 Email provider。
+6. 在 Authentication URL Configuration 中加入线上域名，例如：
+   - `https://你的域名`
+   - `https://你的域名/#private`
+
+## 2. Vercel
+
+1. 新建 Vercel 项目并连接 GitHub 仓库。
+2. Framework Preset 选择 Vite。
+3. Build Command 使用 `npm run build`。
+4. Output Directory 使用 `dist`。
+5. 添加环境变量：
+   - `VITE_SUPABASE_URL`
+   - `VITE_SUPABASE_ANON_KEY`
+   - `VITE_SUPABASE_PUBLIC_BUCKET=portfolio-public`
+
+## 3. GitHub Actions 自动部署
+
+仓库已经包含：
+
+- `.github/workflows/ci.yml`
+- `.github/workflows/vercel-deploy.yml`
+
+在 GitHub 仓库的 Settings -> Secrets and variables -> Actions 添加：
+
+- `VITE_SUPABASE_URL`
+- `VITE_SUPABASE_ANON_KEY`
+- `VITE_SUPABASE_PUBLIC_BUCKET`
+- `VERCEL_TOKEN`
+- `VERCEL_ORG_ID`
+- `VERCEL_PROJECT_ID`
+
+配置完成后，推送到 `main` 会执行 CI 并部署到 Vercel；也可以手动运行 `Deploy to Vercel` workflow。
+
+## 4. 设置站主账号
+
+1. 打开线上网站，进入“私密发帖”或“我的策划档案”。
+2. 输入你的站主邮箱，发送 magic link。
+3. 完成邮箱登录。
+4. 回到 Supabase SQL Editor 执行：
+
+```sql
+update public.profiles
+set role = 'owner'
+where email = '你的邮箱';
+```
+
+完成后，访客只能浏览和评论；站主账号可以发私密帖、上传作品集文件、登记新作品条目。
+
+## 5. 发布前检查
+
+本地先跑：
+
+```bash
+npm run typecheck
+npm run lint
+npm run build
+```
+
+确认：
+
+- `dist/portfolio-assets` 存在。
+- `dist/_headers` 和 `dist/_redirects` 存在。
+- `supabase/seed-portfolio.sql` 包含 16 个作品条目。
+- 线上环境变量与 `.env.example` 一致。
