@@ -9,6 +9,8 @@ const failures = [];
 
 const checks = [
   { path: "/", type: "text/html", minBytes: 500 },
+  { path: "/404.html", type: "text/html", minBytes: 500 },
+  { path: "/.nojekyll", type: "application/octet-stream", minBytes: 0 },
   { path: "/sw.js", type: "text/javascript", minBytes: 100 },
   { path: "/_headers", type: "text/plain", minBytes: 10 },
   { path: "/_redirects", type: "text/plain", minBytes: 10 },

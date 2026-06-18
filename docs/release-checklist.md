@@ -20,6 +20,7 @@
 - [ ] `npm run pack:static`（需要手动上传静态包时）
 - [ ] `dist/portfolio-assets` 和 `public/portfolio-assets` 文件数一致。
 - [ ] `dist/_headers` 和 `dist/_redirects` 存在。
+- [ ] `dist/.nojekyll` 和 `dist/404.html` 存在。
 
 ## Supabase
 

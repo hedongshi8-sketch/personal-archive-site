@@ -88,6 +88,7 @@ where email = '你的邮箱';
 - 推送 `main` 后，`.github/workflows/github-pages.yml` 会构建并发布 `dist`。
 - 这条路线不需要 Vercel token，适合先把公开作品集放到公网。
 - 仓库 Settings -> Pages 的 Source 选择 GitHub Actions。
+- `public/.nojekyll` 和 `public/404.html` 已准备好，兼容 GitHub Pages 静态托管与直接路径访问。
 - Supabase 环境变量未配置时，站点会保持本地预览模式；公开作品集可浏览，站主在线编辑不会启用真实权限。
 
 ### Vercel

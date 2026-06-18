@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LinX | 页面跳转中</title>
+    <script>
+      const knownSections = new Set(["home", "docs", "demos", "music", "gallery", "private", "comments", "contact"]);
+      const segments = window.location.pathname.replace(/404\.html$/, "").split("/").filter(Boolean);
+      const sectionIndex = segments.findIndex((segment) => knownSections.has(segment));
+      const target = sectionIndex >= 0 ? segments[sectionIndex] : "home";
+      const baseSegments = sectionIndex >= 0 ? segments.slice(0, sectionIndex) : segments.slice(0, 1);
+      const basePath = `/${baseSegments.join("/")}${baseSegments.length > 0 ? "/" : ""}`;
+
+      window.location.replace(`${window.location.origin}${basePath}#${target}`);
+    </script>
+  </head>
+  <body>
+    <p>正在回到 LinX 策划档案...</p>
+  </body>
+</html>

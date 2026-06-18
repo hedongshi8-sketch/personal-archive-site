@@ -32,6 +32,7 @@
 2. 打开 GitHub 仓库 Settings -> Pages。
 3. Source 选择 GitHub Actions。
 4. 推送后 `.github/workflows/github-pages.yml` 会构建、冒烟测试、发布 `dist`。
+5. `public/.nojekyll` 和 `public/404.html` 会随构建进入 `dist`，用于兼容 GitHub Pages 静态托管。
 
 这条路线可以让访客在线浏览作品集和 demo；站主在线编辑、私密发帖和真实评论仍需要 Supabase 初始化与环境变量。
 

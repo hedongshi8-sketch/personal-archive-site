@@ -68,6 +68,8 @@ assert(exists("package.json"), "package.json exists");
 assert(exists("vercel.json"), "vercel.json exists");
 assert(exists("public/_headers"), "Cloudflare _headers exists");
 assert(exists("public/_redirects"), "Cloudflare _redirects exists");
+assert(exists("public/.nojekyll"), "GitHub Pages .nojekyll exists");
+assert(exists("public/404.html"), "GitHub Pages 404 fallback exists");
 assert(exists(".github/workflows/ci.yml"), "CI workflow exists");
 assert(exists(".github/workflows/vercel-deploy.yml"), "Vercel workflow exists");
 assert(exists(".github/workflows/github-pages.yml"), "GitHub Pages workflow exists");
