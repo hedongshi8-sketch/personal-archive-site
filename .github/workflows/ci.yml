@@ -37,3 +37,13 @@ jobs:
 
       - name: Release audit
         run: npm run audit:release
+
+      - name: Pack static release
+        run: npm run pack:static
+
+      - name: Upload static release
+        uses: actions/upload-artifact@v4
+        with:
+          name: personal-archive-site-static
+          path: release/
+          if-no-files-found: error

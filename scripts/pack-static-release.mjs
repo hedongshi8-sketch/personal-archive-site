@@ -1,6 +1,5 @@
 import fs from "node:fs";
 import path from "node:path";
-import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
@@ -25,11 +24,112 @@ function walkFiles(startDir) {
   return files;
 }
 
-function runPowerShell(command) {
-  execFileSync("powershell.exe", ["-NoProfile", "-Command", command], {
-    cwd: root,
-    stdio: "inherit",
-  });
+const crcTable = new Uint32Array(256);
+for (let i = 0; i < 256; i += 1) {
+  let crc = i;
+  for (let j = 0; j < 8; j += 1) {
+    crc = crc & 1 ? 0xedb88320 ^ (crc >>> 1) : crc >>> 1;
+  }
+  crcTable[i] = crc >>> 0;
+}
+
+function crc32(buffer) {
+  let crc = 0xffffffff;
+
+  for (const byte of buffer) {
+    crc = crcTable[(crc ^ byte) & 0xff] ^ (crc >>> 8);
+  }
+
+  return (crc ^ 0xffffffff) >>> 0;
+}
+
+function dosTimestamp(date) {
+  const year = Math.max(date.getFullYear(), 1980);
+  const dosTime = (date.getHours() << 11) | (date.getMinutes() << 5) | Math.floor(date.getSeconds() / 2);
+  const dosDate = ((year - 1980) << 9) | ((date.getMonth() + 1) << 5) | date.getDate();
+
+  return { dosDate, dosTime };
+}
+
+function uint16(value) {
+  const buffer = Buffer.alloc(2);
+  buffer.writeUInt16LE(value);
+  return buffer;
+}
+
+function uint32(value) {
+  const buffer = Buffer.alloc(4);
+  buffer.writeUInt32LE(value >>> 0);
+  return buffer;
+}
+
+function createZip(files, outputPath) {
+  const localParts = [];
+  const centralParts = [];
+  let offset = 0;
+
+  for (const file of files) {
+    const relativePath = path.relative(distDir, file).replace(/\\/g, "/");
+    const nameBuffer = Buffer.from(relativePath, "utf8");
+    const data = fs.readFileSync(file);
+    const stat = fs.statSync(file);
+    const checksum = crc32(data);
+    const { dosDate, dosTime } = dosTimestamp(stat.mtime);
+
+    const localHeader = Buffer.concat([
+      uint32(0x04034b50),
+      uint16(20),
+      uint16(0x0800),
+      uint16(0),
+      uint16(dosTime),
+      uint16(dosDate),
+      uint32(checksum),
+      uint32(data.length),
+      uint32(data.length),
+      uint16(nameBuffer.length),
+      uint16(0),
+      nameBuffer,
+    ]);
+
+    const centralHeader = Buffer.concat([
+      uint32(0x02014b50),
+      uint16(20),
+      uint16(20),
+      uint16(0x0800),
+      uint16(0),
+      uint16(dosTime),
+      uint16(dosDate),
+      uint32(checksum),
+      uint32(data.length),
+      uint32(data.length),
+      uint16(nameBuffer.length),
+      uint16(0),
+      uint16(0),
+      uint16(0),
+      uint16(0),
+      uint32(0),
+      uint32(offset),
+      nameBuffer,
+    ]);
+
+    localParts.push(localHeader, data);
+    centralParts.push(centralHeader);
+    offset += localHeader.length + data.length;
+  }
+
+  const centralDirectory = Buffer.concat(centralParts);
+  const endOfCentralDirectory = Buffer.concat([
+    uint32(0x06054b50),
+    uint16(0),
+    uint16(0),
+    uint16(files.length),
+    uint16(files.length),
+    uint32(centralDirectory.length),
+    uint32(offset),
+    uint16(0),
+  ]);
+
+  fs.writeFileSync(outputPath, Buffer.concat([...localParts, centralDirectory, endOfCentralDirectory]));
 }
 
 if (!fs.existsSync(path.join(distDir, "index.html"))) {
@@ -71,11 +171,7 @@ const manifest = {
 
 fs.writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
 
-const escapedDistDir = distDir.replace(/'/g, "''");
-const escapedZipPath = zipPath.replace(/'/g, "''");
-runPowerShell(
-  `Get-ChildItem -LiteralPath '${escapedDistDir}' | Compress-Archive -DestinationPath '${escapedZipPath}' -Force`,
-);
+createZip(files, zipPath);
 
 const zipBytes = fs.statSync(zipPath).size;
 console.log(`Packed ${files.length} files (${totalBytes} bytes) into:`);

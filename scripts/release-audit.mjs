@@ -86,6 +86,8 @@ assert(ciWorkflow.includes("npm run smoke:dist"), "CI runs dist smoke test");
 assert(vercelWorkflow.includes("npm run smoke:dist"), "Vercel deploy runs dist smoke test");
 assert(ciWorkflow.includes("npm run audit:release"), "CI runs release audit");
 assert(vercelWorkflow.includes("npm run audit:release"), "Vercel deploy runs release audit");
+assert(ciWorkflow.includes("npm run pack:static"), "CI packs static release");
+assert(ciWorkflow.includes("actions/upload-artifact@v4"), "CI uploads static release artifact");
 
 const gitignore = read(".gitignore");
 assert(gitignore.includes("node_modules/"), "node_modules ignored");
