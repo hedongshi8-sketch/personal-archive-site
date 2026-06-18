@@ -1,0 +1,151 @@
+import fs from "node:fs";
+import path from "node:path";
+import { execFileSync } from "node:child_process";
+
+const root = process.cwd();
+const failures = [];
+
+function exists(relativePath) {
+  return fs.existsSync(path.join(root, relativePath));
+}
+
+function read(relativePath) {
+  return fs.readFileSync(path.join(root, relativePath), "utf8");
+}
+
+function walkFiles(relativePath) {
+  const start = path.join(root, relativePath);
+  const files = [];
+
+  if (!fs.existsSync(start)) {
+    return files;
+  }
+
+  for (const entry of fs.readdirSync(start, { withFileTypes: true })) {
+    const fullPath = path.join(start, entry.name);
+    const childRelativePath = path.relative(root, fullPath).replace(/\\/g, "/");
+
+    if (entry.isDirectory()) {
+      files.push(...walkFiles(childRelativePath));
+    } else {
+      files.push(childRelativePath);
+    }
+  }
+
+  return files;
+}
+
+function sizeOf(relativePath) {
+  return fs.statSync(path.join(root, relativePath)).size;
+}
+
+function pass(label) {
+  console.log(`PASS ${label}`);
+}
+
+function fail(label, detail = "") {
+  failures.push(`${label}${detail ? `: ${detail}` : ""}`);
+  console.error(`FAIL ${label}${detail ? `: ${detail}` : ""}`);
+}
+
+function assert(condition, label, detail = "") {
+  if (condition) {
+    pass(label);
+  } else {
+    fail(label, detail);
+  }
+}
+
+function command(args) {
+  return execFileSync(args[0], args.slice(1), {
+    cwd: root,
+    encoding: "utf8",
+    stdio: ["ignore", "pipe", "pipe"],
+  }).trim();
+}
+
+assert(exists("package.json"), "package.json exists");
+assert(exists("vercel.json"), "vercel.json exists");
+assert(exists("public/_headers"), "Cloudflare _headers exists");
+assert(exists("public/_redirects"), "Cloudflare _redirects exists");
+assert(exists(".github/workflows/ci.yml"), "CI workflow exists");
+assert(exists(".github/workflows/vercel-deploy.yml"), "Vercel workflow exists");
+assert(exists("docs/deployment-runbook.md"), "deployment runbook exists");
+assert(exists("docs/release-checklist.md"), "release checklist exists");
+assert(exists("supabase/schema.sql"), "Supabase schema exists");
+assert(exists("supabase/seed-portfolio.sql"), "Supabase portfolio seed exists");
+
+const gitignore = read(".gitignore");
+assert(gitignore.includes("node_modules/"), "node_modules ignored");
+assert(gitignore.includes("dist/"), "dist ignored");
+assert(gitignore.includes(".env"), ".env ignored");
+
+const publicAssets = walkFiles("public/portfolio-assets");
+const distAssets = walkFiles("dist/portfolio-assets");
+const publicSize = publicAssets.reduce((sum, file) => sum + sizeOf(file), 0);
+const distSize = distAssets.reduce((sum, file) => sum + sizeOf(file), 0);
+
+assert(publicAssets.length === 87, "public portfolio asset count is 87", `${publicAssets.length}`);
+assert(distAssets.length === 87, "dist portfolio asset count is 87", `${distAssets.length}`);
+assert(publicSize === distSize, "portfolio asset byte size matches", `${publicSize} vs ${distSize}`);
+
+const seed = read("supabase/seed-portfolio.sql");
+const seedItems = [...seed.matchAll(/'::timestamptz/g)].length;
+assert(seedItems === 16, "portfolio seed item count is 16", `${seedItems}`);
+assert(seed.includes("on conflict (id) do update set"), "portfolio seed is rerunnable");
+
+const schema = read("supabase/schema.sql");
+assert(schema.includes("create policy \"owner can manage portfolio items\""), "owner portfolio RLS exists");
+assert(schema.includes("create policy \"owner can upload portfolio storage\""), "owner storage upload RLS exists");
+assert(schema.includes("create or replace function public.increment_comment_likes"), "safe like RPC exists");
+
+try {
+  const status = command(["git", "status", "--short"]);
+  assert(status === "", "git working tree is clean after commit", status);
+} catch (error) {
+  fail("git status can run", error.message);
+}
+
+try {
+  const branch = command(["git", "rev-parse", "--abbrev-ref", "HEAD"]);
+  assert(branch === "main", "git branch is main", branch);
+} catch (error) {
+  fail("git branch can be read", error.message);
+}
+
+try {
+  const remote = command(["git", "remote", "-v"]);
+  if (remote) {
+    pass("git remote configured");
+  } else {
+    console.warn("WARN git remote is not configured; push/deploy still needs a GitHub remote.");
+  }
+} catch (error) {
+  fail("git remote can be read", error.message);
+}
+
+const suspiciousPattern = /(SUPABASE_SERVICE_ROLE|VERCEL_TOKEN=|sb_secret|BEGIN PRIVATE KEY|password=)/;
+for (const file of walkFiles(".")) {
+  if (
+    file.startsWith(".git/") ||
+    file.startsWith("node_modules/") ||
+    file.startsWith("dist/") ||
+    file === "scripts/release-audit.mjs" ||
+    /\.(png|jpe?g|pdf|xlsx|docx|rar)$/i.test(file)
+  ) {
+    continue;
+  }
+
+  const text = read(file);
+  if (suspiciousPattern.test(text)) {
+    fail("no obvious secret patterns", file);
+    break;
+  }
+}
+
+if (failures.length > 0) {
+  console.error(`\nRelease audit failed with ${failures.length} issue(s).`);
+  process.exit(1);
+}
+
+console.log("\nRelease audit passed.");

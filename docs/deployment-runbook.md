@@ -65,6 +65,7 @@ where email = '你的邮箱';
 npm run typecheck
 npm run lint
 npm run build
+npm run audit:release
 ```
 
 确认：
