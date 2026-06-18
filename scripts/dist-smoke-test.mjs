@@ -39,6 +39,21 @@ const checks = [
     type: "application/pdf",
     minBytes: 1_000,
   },
+  {
+    path: "/portfolio-previews/barbarq-main-sheet.json",
+    type: "application/json",
+    minBytes: 1_000,
+  },
+  {
+    path: "/portfolio-previews/game-town-config-sheets.json",
+    type: "application/json",
+    minBytes: 10_000,
+  },
+  {
+    path: "/portfolio-previews/game-town-design-doc.json",
+    type: "application/json",
+    minBytes: 10_000,
+  },
 ];
 
 const mimeTypes = new Map([

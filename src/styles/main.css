@@ -813,6 +813,275 @@ p {
   font-size: 13px;
 }
 
+.structured-empty {
+  min-height: 300px;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 10px;
+  padding: 28px;
+  color: rgba(245, 243, 234, 0.74);
+  text-align: center;
+}
+
+.structured-empty svg {
+  color: var(--cyan);
+}
+
+.structured-empty span {
+  max-width: 360px;
+  font-size: 13px;
+}
+
+.excel-reader,
+.document-reader {
+  height: 100%;
+  min-height: 300px;
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr) auto auto;
+  background: #fffdf6;
+  color: var(--ink);
+}
+
+.excel-reader-head,
+.document-reader-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(30, 29, 25, 0.12);
+  background: #f8f2e6;
+}
+
+.excel-reader-head > div:first-child,
+.document-reader-head {
+  min-width: 0;
+}
+
+.excel-reader-head span,
+.document-reader-head span {
+  color: var(--cyan-dark);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.excel-reader-head strong,
+.document-reader-head strong {
+  display: block;
+  margin-top: 3px;
+  overflow-wrap: anywhere;
+  font-size: 14px;
+}
+
+.excel-stats {
+  flex: 0 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: flex-end;
+  align-content: start;
+}
+
+.excel-stats span {
+  border-radius: 5px;
+  padding: 4px 7px;
+  background: rgba(30, 29, 25, 0.08);
+  color: #4f4a41;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.excel-sheet-tabs {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(30, 29, 25, 0.1);
+  background: #fff9ef;
+}
+
+.excel-sheet-tabs button {
+  flex: 0 0 auto;
+  max-width: 260px;
+  min-height: 32px;
+  border: 1px solid rgba(30, 29, 25, 0.14);
+  border-radius: 6px;
+  padding: 0 10px;
+  background: rgba(255, 255, 255, 0.75);
+  color: #514c43;
+  font-size: 12px;
+  font-weight: 800;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.excel-sheet-tabs button.active {
+  border-color: rgba(33, 215, 222, 0.62);
+  background: rgba(33, 215, 222, 0.13);
+  color: #0c4e59;
+}
+
+.excel-table-shell,
+.doc-table-shell {
+  min-height: 0;
+  overflow: auto;
+}
+
+.excel-table,
+.doc-table {
+  width: max-content;
+  min-width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.excel-table th,
+.excel-table td,
+.doc-table th,
+.doc-table td {
+  max-width: 260px;
+  border: 1px solid rgba(30, 29, 25, 0.12);
+  padding: 7px 9px;
+  vertical-align: top;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.excel-table thead th,
+.excel-table tbody th {
+  position: sticky;
+  z-index: 1;
+  background: #efe7d7;
+  color: #615845;
+  font-weight: 900;
+  text-align: center;
+}
+
+.excel-table thead th {
+  top: 0;
+}
+
+.excel-table tbody th {
+  left: 0;
+  min-width: 42px;
+}
+
+.excel-table thead th:first-child {
+  left: 0;
+  z-index: 2;
+}
+
+.excel-table td {
+  min-width: 120px;
+  background: #fffdf7;
+}
+
+.preview-note {
+  margin: 0;
+  padding: 9px 12px;
+  border-top: 1px solid rgba(30, 29, 25, 0.1);
+  background: #f8f2e6;
+  color: #6f6658;
+  font-size: 12px;
+}
+
+.source-file-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 10px 12px;
+  border-top: 1px solid rgba(30, 29, 25, 0.1);
+  background: #fff9ef;
+}
+
+.source-file-links a {
+  border-radius: 5px;
+  padding: 5px 8px;
+  background: rgba(30, 29, 25, 0.07);
+  color: #3f3b33;
+  font-size: 12px;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.document-reader {
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+}
+
+.document-reader-head {
+  display: grid;
+  flex: 0 0 auto;
+}
+
+.document-blocks {
+  display: grid;
+  gap: 10px;
+  padding: 18px 20px 28px;
+}
+
+.document-blocks h3,
+.document-blocks h4 {
+  margin: 12px 0 0;
+  color: var(--ink);
+  line-height: 1.25;
+}
+
+.document-blocks h3 {
+  font-size: 20px;
+}
+
+.document-blocks h4 {
+  font-size: 16px;
+}
+
+.document-blocks p {
+  margin: 0;
+  color: #4f493f;
+  font-size: 14px;
+  line-height: 1.75;
+  white-space: pre-wrap;
+}
+
+.document-table-block {
+  display: grid;
+  gap: 0;
+}
+
+.doc-table {
+  background: #fffdf7;
+}
+
+.doc-table th {
+  background: #efe7d7;
+  color: #4f493f;
+  font-weight: 900;
+}
+
+.doc-table td {
+  color: #514b42;
+}
+
+.markdown-gap {
+  height: 6px;
+}
+
+.markdown-list-line {
+  display: flex;
+  gap: 8px;
+}
+
+.plain-text-reader pre {
+  margin: 0;
+  padding: 18px 20px 28px;
+  color: #4f493f;
+  font: 14px/1.75 inherit;
+  white-space: pre-wrap;
+}
+
 .portfolio-detail-actions {
   display: flex;
   flex-wrap: wrap;

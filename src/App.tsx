@@ -84,6 +84,64 @@ const sectionIds = ["home", "docs", "demos", "music", "gallery", "private", "com
 type SectionId = (typeof sectionIds)[number];
 type LoadState = "idle" | "loading" | "ready" | "error";
 
+type ExcelPreviewSheet = {
+  id: string;
+  workbookName: string;
+  sheetName: string;
+  rowCount: number;
+  columnCount: number;
+  truncatedRows: boolean;
+  truncatedColumns: boolean;
+  cells: string[][];
+};
+
+type ExcelPreviewData = {
+  kind: "excel";
+  title: string;
+  sourceFiles: string[];
+  sheetCount: number;
+  rowLimit: number;
+  columnLimit: number;
+  sheets: ExcelPreviewSheet[];
+};
+
+type DocumentPreviewBlock =
+  | {
+      type: "heading";
+      level: number;
+      text: string;
+    }
+  | {
+      type: "paragraph";
+      text: string;
+    }
+  | {
+      type: "table";
+      rowCount: number;
+      columnCount: number;
+      truncatedRows: boolean;
+      truncatedColumns: boolean;
+      rows: string[][];
+    };
+
+type DocumentPreviewData = {
+  kind: "document";
+  title: string;
+  sourceFile: string;
+  blockLimit: number;
+  truncatedBlocks: boolean;
+  blocks: DocumentPreviewBlock[];
+};
+
+type TextPreviewData = {
+  kind: "markdown" | "text";
+  title: string;
+  sourceFile: string;
+  content: string;
+};
+
+type StructuredPreviewData = ExcelPreviewData | DocumentPreviewData | TextPreviewData;
+
 const portfolioProjectOptions = Object.entries(portfolioProjectLabels).map(([id, label]) => ({
   id: id as Exclude<PortfolioProject, "all">,
   label,
@@ -230,9 +288,308 @@ function PortfolioIcon({ item }: { item: PortfolioItem }) {
   return <FileText size={18} />;
 }
 
+function isJsonPreview(item: PortfolioItem) {
+  return Boolean(item.previewUrl?.endsWith(".json"));
+}
+
+function getColumnLabel(index: number) {
+  let value = index + 1;
+  let label = "";
+
+  while (value > 0) {
+    const remainder = (value - 1) % 26;
+    label = String.fromCharCode(65 + remainder) + label;
+    value = Math.floor((value - 1) / 26);
+  }
+
+  return label;
+}
+
+function ExcelSheetPreview({ data }: { data: ExcelPreviewData }) {
+  const [activeSheetId, setActiveSheetId] = useState(data.sheets[0]?.id ?? "");
+
+  useEffect(() => {
+    setActiveSheetId(data.sheets[0]?.id ?? "");
+  }, [data]);
+
+  const activeSheet = data.sheets.find((sheet) => sheet.id === activeSheetId) ?? data.sheets[0];
+
+  if (!activeSheet) {
+    return (
+      <div className="structured-empty">
+        <FileSpreadsheet size={22} />
+        <strong>这个 Excel 暂时没有可显示的数据</strong>
+      </div>
+    );
+  }
+
+  const columnCount = Math.max(...activeSheet.cells.map((row) => row.length), 1);
+  const columnLabels = Array.from({ length: columnCount }, (_, index) => getColumnLabel(index));
+
+  return (
+    <div className="excel-reader">
+      <div className="excel-reader-head">
+        <div>
+          <span>站内 Excel 预览</span>
+          <strong>{activeSheet.workbookName}</strong>
+        </div>
+        <div className="excel-stats">
+          <span>{data.sheetCount} 张表</span>
+          <span>{activeSheet.rowCount} 行</span>
+          <span>{activeSheet.columnCount} 列</span>
+        </div>
+      </div>
+
+      <div className="excel-sheet-tabs" aria-label="Excel 工作表">
+        {data.sheets.map((sheet) => (
+          <button
+            className={clsx(activeSheet.id === sheet.id && "active")}
+            key={sheet.id}
+            onClick={() => setActiveSheetId(sheet.id)}
+            type="button"
+          >
+            {data.sheetCount > 1 ? `${sheet.workbookName.replace(/\.xlsx$/i, "")} / ` : null}
+            {sheet.sheetName}
+          </button>
+        ))}
+      </div>
+
+      <div className="excel-table-shell">
+        <table className="excel-table">
+          <thead>
+            <tr>
+              <th aria-label="行号" />
+              {columnLabels.map((label) => (
+                <th key={label}>{label}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {activeSheet.cells.map((row, rowIndex) => (
+              <tr key={`${activeSheet.id}-${rowIndex}`}>
+                <th>{rowIndex + 1}</th>
+                {columnLabels.map((label, columnIndex) => (
+                  <td key={`${label}-${columnIndex}`}>{row[columnIndex] || ""}</td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {activeSheet.truncatedRows || activeSheet.truncatedColumns ? (
+        <p className="preview-note">
+          为了保证网页打开速度，当前只展示前 {data.rowLimit} 行 / {data.columnLimit} 列；完整版本可通过下载文件查看。
+        </p>
+      ) : null}
+
+      {data.sourceFiles.length > 1 ? (
+        <div className="source-file-links" aria-label="配置表源文件">
+          {data.sourceFiles.map((file) => (
+            <a href={file} key={file} download>
+              {file.split("/").pop()}
+            </a>
+          ))}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function PreviewTable({ rows }: { rows: string[][] }) {
+  const columnCount = Math.max(...rows.map((row) => row.length), 1);
+
+  return (
+    <div className="doc-table-shell">
+      <table className="doc-table">
+        <tbody>
+          {rows.map((row, rowIndex) => (
+            <tr key={rowIndex}>
+              {Array.from({ length: columnCount }, (_, columnIndex) => {
+                const content = row[columnIndex] || "";
+                const Cell = rowIndex === 0 ? "th" : "td";
+
+                return <Cell key={columnIndex}>{content}</Cell>;
+              })}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function DocumentReader({ data }: { data: DocumentPreviewData }) {
+  return (
+    <article className="document-reader">
+      <div className="document-reader-head">
+        <span>站内文档预览</span>
+        <strong>{data.title}</strong>
+      </div>
+
+      <div className="document-blocks">
+        {data.blocks.map((block, index) => {
+          if (block.type === "heading") {
+            const Heading = block.level <= 2 ? "h3" : "h4";
+            return <Heading key={index}>{block.text}</Heading>;
+          }
+
+          if (block.type === "table") {
+            return (
+              <div className="document-table-block" key={index}>
+                <PreviewTable rows={block.rows} />
+                {block.truncatedRows || block.truncatedColumns ? (
+                  <p className="preview-note">表格较大，这里展示压缩后的前段内容。</p>
+                ) : null}
+              </div>
+            );
+          }
+
+          return <p key={index}>{block.text}</p>;
+        })}
+      </div>
+
+      {data.truncatedBlocks ? <p className="preview-note">文档很长，这里展示前 {data.blockLimit} 段内容。</p> : null}
+    </article>
+  );
+}
+
+function renderMarkdownLine(line: string, index: number) {
+  const trimmed = line.trim();
+
+  if (!trimmed) {
+    return <span className="markdown-gap" key={index} />;
+  }
+
+  const heading = /^(#{1,4})\s+(.+)$/.exec(trimmed);
+  if (heading) {
+    const Heading = heading[1].length <= 2 ? "h3" : "h4";
+    return <Heading key={index}>{heading[2]}</Heading>;
+  }
+
+  if (/^[-*]\s+/.test(trimmed)) {
+    return (
+      <p className="markdown-list-line" key={index}>
+        <span aria-hidden="true">•</span>
+        {trimmed.replace(/^[-*]\s+/, "")}
+      </p>
+    );
+  }
+
+  if (/^\d+[.)]\s+/.test(trimmed)) {
+    return (
+      <p className="markdown-list-line" key={index}>
+        {trimmed}
+      </p>
+    );
+  }
+
+  return <p key={index}>{trimmed.replace(/\*\*/g, "")}</p>;
+}
+
+function TextReader({ data }: { data: TextPreviewData }) {
+  return (
+    <article className={clsx("document-reader", data.kind === "text" && "plain-text-reader")}>
+      <div className="document-reader-head">
+        <span>{data.kind === "markdown" ? "站内 Markdown 预览" : "站内文本预览"}</span>
+        <strong>{data.title}</strong>
+      </div>
+
+      {data.kind === "markdown" ? (
+        <div className="document-blocks markdown-reader">
+          {data.content.split("\n").map((line, index) => renderMarkdownLine(line, index))}
+        </div>
+      ) : (
+        <pre>{data.content}</pre>
+      )}
+    </article>
+  );
+}
+
+function StructuredPortfolioPreview({ item }: { item: PortfolioItem }) {
+  const [state, setState] = useState<LoadState>("loading");
+  const [data, setData] = useState<StructuredPreviewData | null>(null);
+  const [errorMessage, setErrorMessage] = useState("");
+
+  useEffect(() => {
+    let active = true;
+
+    async function loadPreview() {
+      if (!item.previewUrl) {
+        setState("error");
+        setErrorMessage("缺少预览文件。");
+        return;
+      }
+
+      setState("loading");
+      setErrorMessage("");
+
+      try {
+        const response = await fetch(item.previewUrl);
+        if (!response.ok) {
+          throw new Error(`预览文件加载失败：${response.status}`);
+        }
+
+        const payload = (await response.json()) as StructuredPreviewData;
+        if (!active) {
+          return;
+        }
+
+        setData(payload);
+        setState("ready");
+      } catch (error) {
+        if (!active) {
+          return;
+        }
+
+        setState("error");
+        setErrorMessage(error instanceof Error ? error.message : "预览文件加载失败。");
+      }
+    }
+
+    void loadPreview();
+    return () => {
+      active = false;
+    };
+  }, [item.previewUrl]);
+
+  if (state === "loading") {
+    return (
+      <div className="structured-empty">
+        <PortfolioIcon item={item} />
+        <strong>正在载入站内预览...</strong>
+      </div>
+    );
+  }
+
+  if (state === "error" || !data) {
+    return (
+      <div className="structured-empty">
+        <PortfolioIcon item={item} />
+        <strong>站内预览暂时没有加载出来</strong>
+        <span>{errorMessage || "可以先打开原文件或下载查看。"}</span>
+      </div>
+    );
+  }
+
+  if (data.kind === "excel") {
+    return <ExcelSheetPreview data={data} />;
+  }
+
+  if (data.kind === "document") {
+    return <DocumentReader data={data} />;
+  }
+
+  return <TextReader data={data} />;
+}
+
 function PortfolioPreview({ item }: { item: PortfolioItem }) {
   if (item.previewUrl && item.kind === "image") {
     return <img src={item.previewUrl} alt={item.title} />;
+  }
+
+  if (item.previewUrl && isJsonPreview(item)) {
+    return <StructuredPortfolioPreview item={item} />;
   }
 
   if (item.previewUrl && (item.kind === "pdf" || item.kind === "html-prototype")) {
@@ -243,7 +600,7 @@ function PortfolioPreview({ item }: { item: PortfolioItem }) {
     <div className="portfolio-preview-empty">
       <PortfolioIcon item={item} />
       <strong>{item.kindLabel} 暂不做站内预览</strong>
-      <span>当前先提供公开下载入口；后续可接 Excel 只读表格预览。</span>
+      <span>当前先提供公开下载入口；后续可以继续补独立预览。</span>
     </div>
   );
 }
@@ -641,10 +998,16 @@ function DocsSection() {
               <PortfolioPreview item={activeItem} />
             </div>
             <div className="portfolio-detail-actions">
-              {activeItem.previewUrl ? (
+              {activeItem.previewUrl && !isJsonPreview(activeItem) ? (
                 <a className="ghost-button" href={activeItem.previewUrl} target="_blank" rel="noreferrer">
                   <ExternalLink size={16} />
                   打开预览
+                </a>
+              ) : null}
+              {isJsonPreview(activeItem) ? (
+                <a className="ghost-button" href={activeItem.publicUrl} target="_blank" rel="noreferrer">
+                  <ExternalLink size={16} />
+                  打开原文件
                 </a>
               ) : null}
               <a className="cyan-button" href={activeItem.publicUrl} download>

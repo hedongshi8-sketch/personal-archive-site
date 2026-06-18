@@ -94,6 +94,19 @@ type PortfolioItemRow = {
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
 const supabaseAssetBucket = import.meta.env.VITE_SUPABASE_PUBLIC_BUCKET || "portfolio-public";
+const baseUrl = import.meta.env.BASE_URL;
+
+function withBasePath(value: string | null | undefined) {
+  if (!value) {
+    return undefined;
+  }
+
+  if (value.startsWith("/portfolio-assets/") || value.startsWith("/portfolio-previews/")) {
+    return `${baseUrl}${value.replace(/^\/+/, "")}`;
+  }
+
+  return value;
+}
 
 function isLocalPreviewHost() {
   if (typeof window === "undefined") {
@@ -155,9 +168,9 @@ function mapPortfolioItem(row: PortfolioItemRow): PortfolioItem {
     kindLabel: portfolioKindLabels[row.kind],
     summary: row.summary,
     tags: row.tags,
-    publicUrl: row.public_url,
-    previewUrl: row.preview_url ?? undefined,
-    thumbnailUrl: row.thumbnail_url ?? undefined,
+    publicUrl: withBasePath(row.public_url) ?? row.public_url,
+    previewUrl: withBasePath(row.preview_url),
+    thumbnailUrl: withBasePath(row.thumbnail_url),
     sourcePath: row.source_path ?? "Supabase Storage",
     updatedAt: row.updated_at.slice(0, 10),
     featured: row.featured,

@@ -1,6 +1,9 @@
 /portfolio-assets/*
   Cache-Control: public, max-age=3600
 
+/portfolio-previews/*
+  Cache-Control: public, max-age=3600
+
 /assets/*
   Cache-Control: public, max-age=31536000, immutable
 

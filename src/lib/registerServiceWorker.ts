@@ -4,7 +4,7 @@ export function registerServiceWorker() {
   }
 
   window.addEventListener("load", () => {
-    navigator.serviceWorker.register("/sw.js").catch(() => {
+    navigator.serviceWorker.register(new URL("sw.js", window.location.href)).catch(() => {
       // The site remains fully usable if offline caching is unavailable.
     });
   });

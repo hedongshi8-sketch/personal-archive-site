@@ -95,9 +95,10 @@ npm run verify:supabase
 确认：
 
 - `dist/portfolio-assets` 存在。
+- `dist/portfolio-previews` 存在。
 - 关键公开路径、原型 iframe、PDF 和 Excel 文件通过 `npm run smoke:dist`。
 - `dist/_headers` 和 `dist/_redirects` 存在。
-- `supabase/seed-portfolio.sql` 包含 16 个作品条目。
+- `supabase/seed-portfolio.sql` 包含 19 个作品条目。
 - 线上环境变量与 `.env.example` 一致。
 - `npm run deploy:readiness` 没有 `BLOCK` 项；如果提示缺少 Git remote，先创建 GitHub 仓库并执行 `git remote add origin <repo-url>`。
 - 如需手动上传，`release/personal-archive-site-static.zip` 已由 `npm run pack:static` 生成。

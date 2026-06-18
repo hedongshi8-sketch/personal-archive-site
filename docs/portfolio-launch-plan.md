@@ -235,7 +235,7 @@ RLS 原则：
 尚需外部授权/人工操作：
 
 - 创建 Supabase 项目，在 SQL Editor 执行 `supabase/schema.sql`。
-- 执行 `supabase/seed-portfolio.sql`，把当前 16 个公开作品写入 `portfolio_items`。
+- 执行 `supabase/seed-portfolio.sql`，把当前 19 个公开作品写入 `portfolio_items`。
 - 创建公开 Storage bucket：`portfolio-public`。
 - 在部署平台配置 `.env.example` 中的环境变量。
 - 站主首次 magic link 登录后，将自己的 `profiles.role` 更新为 `owner`。

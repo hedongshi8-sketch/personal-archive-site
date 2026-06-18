@@ -8,6 +8,7 @@
 - lucide-react 图标系统
 - PWA 基础：manifest + service worker
 - 静态作品集资产：`public/portfolio-assets`
+- 站内作品预览：`public/portfolio-previews` 预生成 Excel / DOCX / Markdown / 文本阅读数据
 - Supabase-ready 后端：Auth、Postgres RLS、Storage、公开评论、站主私密发帖
 
 ## 本地运行
@@ -36,10 +37,10 @@ npm run verify:supabase
 ```
 
 构建产物在 `dist`。`vercel.json`、`public/_redirects`、`public/_headers` 已经为 Vercel / Cloudflare Pages 的 SPA 路由和静态资源缓存做好准备。
-`smoke:dist` 会在本地临时托管 `dist`，确认首页、原型 iframe、PDF 和 Excel 等关键公开路径可访问。
+`smoke:dist` 会在本地临时托管 `dist`，确认首页、原型 iframe、PDF、Excel 原文件和站内预览 JSON 等关键公开路径可访问。
 `deploy:readiness` 会检查 Git 远程、部署 CLI 和本地 Supabase 环境变量状态，帮助确认还差哪些外部授权。
 `pack:static` 会生成 `release/personal-archive-site-static.zip` 和 manifest，方便没有 CLI 时手动上传静态站点。
-`verify:remote` 会检查 GitHub Pages 默认公网 URL，确认首页、原型、PDF 和 Excel 可访问。
+`verify:remote` 会检查 GitHub Pages 默认公网 URL，确认首页、原型、PDF、Excel 和站内预览数据可访问。
 `verify:comments` / `verify:comments:remote` 会检查 GitHub Issues 评论桥是否进入本地构建和线上 bundle。
 `verify:supabase` 会在配置 Supabase 环境变量后检查公开作品、访客评论、点赞 RPC 和 owner-only RLS。
 
@@ -50,6 +51,8 @@ npm run verify:supabase
 - `barbarq`：野蛮人大作战 PDF 和 Excel
 - `system-planner`：系统策划作品集 PDF、Excel、HTML 原型和图片
 - `game-town`：游戏小镇 HTML 原型、文档、图片、配置表和归档包
+
+Excel、DOCX、Markdown 和文本类材料会额外生成到 `public/portfolio-previews`，档案页优先展示站内只读预览，下载入口作为备用。
 
 ## 启用站主权限
 
@@ -73,7 +76,7 @@ Supabase 侧步骤：
 
 1. 新建 Supabase 项目。
 2. 在 SQL Editor 执行 `supabase/schema.sql`。
-3. 再执行 `supabase/seed-portfolio.sql`，把当前 16 个公开作品写入 `portfolio_items`。
+3. 再执行 `supabase/seed-portfolio.sql`，把当前 19 个公开作品写入 `portfolio_items`。
 4. `schema.sql` 会创建公开 bucket：`portfolio-public`；如果 Supabase 控制台已存在同名 bucket，可直接复用。
 5. 用网站私密区发送 magic link 到你的站主邮箱并完成首次登录。
 6. 在 Supabase SQL Editor 把你的账号设成 owner：

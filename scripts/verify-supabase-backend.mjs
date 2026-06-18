@@ -40,11 +40,15 @@ if (!supabaseUrl || !supabaseAnonKey) {
 
   const { data: items, error: itemsError } = await supabase
     .from("portfolio_items")
-    .select("id,title,project_id,kind,public_url")
+    .select("id,title,project_id,kind,public_url,preview_url")
     .eq("published", true);
 
   assert(!itemsError, "published portfolio items are readable", itemsError?.message);
-  assert((items?.length ?? 0) === 16, "published portfolio item count is 16", `${items?.length ?? 0}`);
+  assert((items?.length ?? 0) === 19, "published portfolio item count is 19", `${items?.length ?? 0}`);
+  assert(
+    (items ?? []).some((item) => item.preview_url?.includes("/portfolio-previews/")),
+    "published portfolio items include in-site preview URLs",
+  );
 
   const commentBody = `Supabase smoke test ${new Date().toISOString()}`;
   const { data: comment, error: commentError } = await supabase

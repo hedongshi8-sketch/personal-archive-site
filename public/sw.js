@@ -1,7 +1,17 @@
 /* global self, caches, fetch, URL */
 
-const CACHE_NAME = "linx-archive-v2";
-const CORE_ASSETS = ["/", "/index.html", "/manifest.webmanifest", "/favicon.svg"];
+const CACHE_NAME = "linx-archive-v3";
+
+function sameScopePath(path) {
+  return new URL(path, self.registration.scope).href;
+}
+
+const CORE_ASSETS = [
+  sameScopePath("./"),
+  sameScopePath("index.html"),
+  sameScopePath("manifest.webmanifest"),
+  sameScopePath("favicon.svg"),
+];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(CORE_ASSETS)));
@@ -23,9 +33,11 @@ self.addEventListener("fetch", (event) => {
   }
 
   const requestUrl = new URL(event.request.url);
+  const isSameScope = requestUrl.href.startsWith(self.registration.scope);
+  const relativePath = isSameScope ? requestUrl.href.slice(self.registration.scope.length) : "";
   const isAppShell =
     event.request.mode === "navigate" ||
-    requestUrl.pathname === "/" ||
+    relativePath === "" ||
     requestUrl.pathname.endsWith(".html") ||
     requestUrl.pathname.endsWith(".js") ||
     requestUrl.pathname.endsWith(".css");
@@ -38,7 +50,7 @@ self.addEventListener("fetch", (event) => {
           caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
           return response;
         })
-        .catch(() => caches.match(event.request).then((cached) => cached || caches.match("/index.html"))),
+        .catch(() => caches.match(event.request).then((cached) => cached || caches.match(sameScopePath("index.html")))),
     );
     return;
   }
@@ -55,7 +67,7 @@ self.addEventListener("fetch", (event) => {
           caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
           return response;
         })
-        .catch(() => caches.match("/"));
+        .catch(() => caches.match(sameScopePath("./")));
     }),
   );
 });

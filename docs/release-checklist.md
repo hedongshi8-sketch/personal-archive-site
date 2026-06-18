@@ -20,6 +20,7 @@
 - [ ] `npm run deploy:readiness`
 - [ ] `npm run pack:static`（需要手动上传静态包时）
 - [ ] `dist/portfolio-assets` 和 `public/portfolio-assets` 文件数一致。
+- [ ] `dist/portfolio-previews` 和 `public/portfolio-previews` 文件数一致。
 - [ ] `dist/_headers` 和 `dist/_redirects` 存在。
 - [ ] `dist/.nojekyll` 和 `dist/404.html` 存在。
 
@@ -28,7 +29,7 @@
 - [ ] 已执行 `supabase/schema.sql`。
 - [ ] 已执行 `supabase/seed-portfolio.sql`。
 - [ ] `portfolio_projects` 有 3 条项目。
-- [ ] `portfolio_items` 有 16 条公开作品。
+- [ ] `portfolio_items` 有 19 条公开作品。
 - [ ] Storage bucket `portfolio-public` 存在且 public。
 - [ ] 站主邮箱首次 magic link 登录完成。
 - [ ] `profiles.role` 已将站主邮箱设置为 `owner`。
@@ -58,8 +59,9 @@
 - [ ] 公网 URL 可以打开首页。
 - [ ] `npm run verify:remote`
 - [ ] `npm run verify:comments:remote`
-- [ ] `/#docs` 可以看到 16 个作品。
-- [ ] `游戏小镇` 筛选显示 6 个作品，并能打开原型 iframe。
+- [ ] `/#docs` 可以看到 19 个作品。
+- [ ] `游戏小镇` 筛选显示 8 个作品，并能打开原型 iframe。
+- [ ] Excel、DOCX、Markdown 和文本作品可以在详情栏站内预览。
 - [ ] `可交互原型` 筛选和搜索 `战争` 正常。
 - [ ] 访客可以提交留言。
 - [ ] 未登录访客看不到可用的作品集编辑权限。

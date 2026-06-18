@@ -136,17 +136,26 @@ for (const key of [
 
 const publicAssets = walkFiles("public/portfolio-assets");
 const distAssets = walkFiles("dist/portfolio-assets");
+const publicPreviews = walkFiles("public/portfolio-previews");
+const distPreviews = walkFiles("dist/portfolio-previews");
 const publicSize = publicAssets.reduce((sum, file) => sum + sizeOf(file), 0);
 const distSize = distAssets.reduce((sum, file) => sum + sizeOf(file), 0);
+const publicPreviewSize = publicPreviews.reduce((sum, file) => sum + sizeOf(file), 0);
+const distPreviewSize = distPreviews.reduce((sum, file) => sum + sizeOf(file), 0);
 
 assert(publicAssets.length === 87, "public portfolio asset count is 87", `${publicAssets.length}`);
 assert(distAssets.length === 87, "dist portfolio asset count is 87", `${distAssets.length}`);
 assert(publicSize === distSize, "portfolio asset byte size matches", `${publicSize} vs ${distSize}`);
+assert(publicPreviews.length === 9, "public portfolio preview count is 9", `${publicPreviews.length}`);
+assert(distPreviews.length === 9, "dist portfolio preview count is 9", `${distPreviews.length}`);
+assert(publicPreviewSize === distPreviewSize, "portfolio preview byte size matches", `${publicPreviewSize} vs ${distPreviewSize}`);
 
 const seed = read("supabase/seed-portfolio.sql");
 const seedItems = [...seed.matchAll(/'::timestamptz/g)].length;
-assert(seedItems === 16, "portfolio seed item count is 16", `${seedItems}`);
+assert(seedItems === 19, "portfolio seed item count is 19", `${seedItems}`);
 assert(seed.includes("on conflict (id) do update set"), "portfolio seed is rerunnable");
+assert(seed.includes("/portfolio-previews/barbarq-main-sheet.json"), "portfolio seed includes Excel preview URLs");
+assert(seed.includes("/portfolio-previews/game-town-design-doc.json"), "portfolio seed includes document preview URLs");
 
 const schema = read("supabase/schema.sql");
 assert(schema.includes("create policy \"owner can manage portfolio items\""), "owner portfolio RLS exists");
@@ -156,6 +165,8 @@ assert(schema.includes("create or replace function public.increment_comment_like
 const appSource = read("src/App.tsx");
 assert(appSource.includes("https://utteranc.es/client.js"), "GitHub Issues comments bridge exists");
 assert(appSource.includes("site-comment"), "GitHub Issues comments are labeled");
+assert(appSource.includes("ExcelSheetPreview"), "Excel in-site preview reader exists");
+assert(appSource.includes("DocumentReader"), "document in-site preview reader exists");
 
 try {
   const status = command(["git", "status", "--short"]);
