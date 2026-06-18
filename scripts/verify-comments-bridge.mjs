@@ -113,7 +113,7 @@ async function readRemoteBundleText() {
     }
 
     indexHtml = await indexResponse.text();
-  } catch (error) {
+  } catch {
     console.warn(`WARN Node fetch failed for ${indexUrl.href}; falling back to PowerShell WebRequest.`);
     indexHtml = readUrlWithPowerShell(indexUrl);
   }
@@ -135,7 +135,7 @@ async function readRemoteBundleText() {
 
     pass(`remote app bundle fetched ${bundleUrl.href}`);
     return bundleResponse.text();
-  } catch (error) {
+  } catch {
     console.warn(`WARN Node fetch failed for ${bundleUrl.href}; falling back to PowerShell WebRequest.`);
     pass(`remote app bundle fetched ${bundleUrl.href}`);
     return readUrlWithPowerShell(bundleUrl);
