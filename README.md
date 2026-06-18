@@ -29,12 +29,14 @@ npm run smoke:dist
 npm run audit:release
 npm run deploy:readiness
 npm run pack:static
+npm run verify:remote
 ```
 
 构建产物在 `dist`。`vercel.json`、`public/_redirects`、`public/_headers` 已经为 Vercel / Cloudflare Pages 的 SPA 路由和静态资源缓存做好准备。
 `smoke:dist` 会在本地临时托管 `dist`，确认首页、原型 iframe、PDF 和 Excel 等关键公开路径可访问。
 `deploy:readiness` 会检查 Git 远程、部署 CLI 和本地 Supabase 环境变量状态，帮助确认还差哪些外部授权。
 `pack:static` 会生成 `release/personal-archive-site-static.zip` 和 manifest，方便没有 CLI 时手动上传静态站点。
+`verify:remote` 会检查 GitHub Pages 默认公网 URL，确认首页、原型、PDF 和 Excel 可访问。
 
 ## 作品集资产
 

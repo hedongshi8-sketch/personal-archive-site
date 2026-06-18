@@ -33,6 +33,7 @@
 3. Source 选择 GitHub Actions。
 4. 推送后 `.github/workflows/github-pages.yml` 会构建、冒烟测试、发布 `dist`。
 5. `public/.nojekyll` 和 `public/404.html` 会随构建进入 `dist`，用于兼容 GitHub Pages 静态托管。
+6. 发布完成后运行 `npm run verify:remote`，确认公网首页、原型、PDF 和 Excel 可访问。
 
 这条路线可以让访客在线浏览作品集和 demo；站主在线编辑、私密发帖和真实评论仍需要 Supabase 初始化与环境变量。
 
@@ -82,6 +83,7 @@ npm run smoke:dist
 npm run audit:release
 npm run deploy:readiness
 npm run pack:static
+npm run verify:remote
 ```
 
 确认：
@@ -93,3 +95,4 @@ npm run pack:static
 - 线上环境变量与 `.env.example` 一致。
 - `npm run deploy:readiness` 没有 `BLOCK` 项；如果提示缺少 Git remote，先创建 GitHub 仓库并执行 `git remote add origin <repo-url>`。
 - 如需手动上传，`release/personal-archive-site-static.zip` 已由 `npm run pack:static` 生成。
+- `npm run verify:remote` 通过；如果 GitHub Pages 仍是 404，先在仓库 Settings -> Pages 中选择 GitHub Actions。

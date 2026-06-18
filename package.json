@@ -12,7 +12,8 @@
     "smoke:dist": "node scripts/dist-smoke-test.mjs",
     "audit:release": "node scripts/release-audit.mjs",
     "deploy:readiness": "node scripts/deploy-readiness.mjs",
-    "pack:static": "node scripts/pack-static-release.mjs"
+    "pack:static": "node scripts/pack-static-release.mjs",
+    "verify:remote": "node scripts/verify-remote-release.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.108.2",
