@@ -102,6 +102,9 @@ assert(
   vercelWorkflow.includes("if: steps.vercel-secrets.outputs.configured == 'true'"),
   "Vercel deploy skips when secrets are missing",
 );
+for (const key of ["VITE_SUPABASE_URL", "VITE_SUPABASE_ANON_KEY", "VITE_SUPABASE_PUBLIC_BUCKET"]) {
+  assert(pagesWorkflow.includes(key), `GitHub Pages workflow passes ${key}`);
+}
 assert(ciWorkflow.includes("npm run pack:static"), "CI packs static release");
 assert(ciWorkflow.includes("actions/upload-artifact@v4"), "CI uploads static release artifact");
 assert(pagesWorkflow.includes("actions/deploy-pages@v4"), "GitHub Pages deploy action exists");
