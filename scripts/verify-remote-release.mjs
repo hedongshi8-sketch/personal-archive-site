@@ -39,6 +39,33 @@ function normalizeBaseUrl(value) {
   return value.endsWith("/") ? value : `${value}/`;
 }
 
+function sleep(ms) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
+
+async function fetchWithRetry(url, attempts = 3) {
+  let lastError;
+
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    try {
+      return await fetch(url, {
+        headers: {
+          "user-agent": "personal-archive-site-verifier",
+        },
+      });
+    } catch (error) {
+      lastError = error;
+      if (attempt < attempts) {
+        await sleep(1_500);
+      }
+    }
+  }
+
+  throw lastError;
+}
+
 try {
   const localHead = command(["git", "rev-parse", "HEAD"]);
   const remoteHead = command(["git", "rev-parse", "origin/main"]);
@@ -57,7 +84,7 @@ for (const check of checks) {
   const url = new URL(check.path, baseUrl);
 
   try {
-    const response = await fetch(url);
+    const response = await fetchWithRetry(url);
     const buffer = Buffer.from(await response.arrayBuffer());
     const contentType = response.headers.get("content-type") ?? "";
 
