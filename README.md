@@ -25,9 +25,12 @@ npm run dev
 npm run lint
 npm run typecheck
 npm run build
+npm run smoke:dist
+npm run audit:release
 ```
 
 构建产物在 `dist`。`vercel.json`、`public/_redirects`、`public/_headers` 已经为 Vercel / Cloudflare Pages 的 SPA 路由和静态资源缓存做好准备。
+`smoke:dist` 会在本地临时托管 `dist`，确认首页、原型 iframe、PDF 和 Excel 等关键公开路径可访问。
 
 ## 作品集资产
 

@@ -75,6 +75,14 @@ assert(exists("docs/release-checklist.md"), "release checklist exists");
 assert(exists("supabase/schema.sql"), "Supabase schema exists");
 assert(exists("supabase/seed-portfolio.sql"), "Supabase portfolio seed exists");
 
+const packageJson = JSON.parse(read("package.json"));
+assert(packageJson.scripts?.["smoke:dist"] === "node scripts/dist-smoke-test.mjs", "dist smoke script exists");
+
+const ciWorkflow = read(".github/workflows/ci.yml");
+const vercelWorkflow = read(".github/workflows/vercel-deploy.yml");
+assert(ciWorkflow.includes("npm run smoke:dist"), "CI runs dist smoke test");
+assert(vercelWorkflow.includes("npm run smoke:dist"), "Vercel deploy runs dist smoke test");
+
 const gitignore = read(".gitignore");
 assert(gitignore.includes("node_modules/"), "node_modules ignored");
 assert(gitignore.includes("dist/"), "dist ignored");
