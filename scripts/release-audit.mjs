@@ -82,6 +82,8 @@ const ciWorkflow = read(".github/workflows/ci.yml");
 const vercelWorkflow = read(".github/workflows/vercel-deploy.yml");
 assert(ciWorkflow.includes("npm run smoke:dist"), "CI runs dist smoke test");
 assert(vercelWorkflow.includes("npm run smoke:dist"), "Vercel deploy runs dist smoke test");
+assert(ciWorkflow.includes("npm run audit:release"), "CI runs release audit");
+assert(vercelWorkflow.includes("npm run audit:release"), "Vercel deploy runs release audit");
 
 const gitignore = read(".gitignore");
 assert(gitignore.includes("node_modules/"), "node_modules ignored");
@@ -115,7 +117,7 @@ try {
 }
 
 try {
-  const branch = command(["git", "rev-parse", "--abbrev-ref", "HEAD"]);
+  const branch = process.env.GITHUB_REF_NAME || command(["git", "rev-parse", "--abbrev-ref", "HEAD"]);
   assert(branch === "main", "git branch is main", branch);
 } catch (error) {
   fail("git branch can be read", error.message);

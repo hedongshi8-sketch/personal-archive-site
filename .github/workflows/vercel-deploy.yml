@@ -34,6 +34,9 @@ jobs:
       - name: Dist smoke test
         run: npm run smoke:dist
 
+      - name: Release audit
+        run: npm run audit:release
+
       - name: Deploy
         uses: amondnet/vercel-action@v25
         with:
