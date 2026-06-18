@@ -104,6 +104,7 @@ if (blockers.length > 0) {
   console.error("\nPublic deployment is not ready yet.");
   console.error("Next required action:");
   console.error("- Create/connect a GitHub repository, then run `git remote add origin <repo-url>` and push `main`.");
+  console.error("- After pushing, GitHub Pages can publish the static site without Vercel secrets.");
   process.exit(1);
 }
 

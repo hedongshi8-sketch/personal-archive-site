@@ -34,6 +34,7 @@
 ## 部署平台
 
 - [ ] GitHub 仓库已创建并推送 `main` 分支。
+- [ ] 如果先走 GitHub Pages：Settings -> Pages -> Source 已选择 GitHub Actions，`Deploy to GitHub Pages` workflow 已通过。
 - [ ] Vercel 项目已连接该 GitHub 仓库。
 - [ ] Vercel 环境变量已设置：
   - [ ] `VITE_SUPABASE_URL`

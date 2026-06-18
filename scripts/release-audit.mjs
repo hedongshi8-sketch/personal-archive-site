@@ -70,10 +70,13 @@ assert(exists("public/_headers"), "Cloudflare _headers exists");
 assert(exists("public/_redirects"), "Cloudflare _redirects exists");
 assert(exists(".github/workflows/ci.yml"), "CI workflow exists");
 assert(exists(".github/workflows/vercel-deploy.yml"), "Vercel workflow exists");
+assert(exists(".github/workflows/github-pages.yml"), "GitHub Pages workflow exists");
 assert(exists("docs/deployment-runbook.md"), "deployment runbook exists");
 assert(exists("docs/release-checklist.md"), "release checklist exists");
 assert(exists("supabase/schema.sql"), "Supabase schema exists");
 assert(exists("supabase/seed-portfolio.sql"), "Supabase portfolio seed exists");
+assert(read("README.md").includes("GitHub Pages"), "README documents GitHub Pages");
+assert(read("docs/deployment-runbook.md").includes("GitHub Pages"), "runbook documents GitHub Pages");
 
 const packageJson = JSON.parse(read("package.json"));
 assert(packageJson.scripts?.["smoke:dist"] === "node scripts/dist-smoke-test.mjs", "dist smoke script exists");
@@ -82,12 +85,16 @@ assert(packageJson.scripts?.["pack:static"] === "node scripts/pack-static-releas
 
 const ciWorkflow = read(".github/workflows/ci.yml");
 const vercelWorkflow = read(".github/workflows/vercel-deploy.yml");
+const pagesWorkflow = read(".github/workflows/github-pages.yml");
 assert(ciWorkflow.includes("npm run smoke:dist"), "CI runs dist smoke test");
 assert(vercelWorkflow.includes("npm run smoke:dist"), "Vercel deploy runs dist smoke test");
+assert(pagesWorkflow.includes("npm run smoke:dist"), "GitHub Pages deploy runs dist smoke test");
 assert(ciWorkflow.includes("npm run audit:release"), "CI runs release audit");
 assert(vercelWorkflow.includes("npm run audit:release"), "Vercel deploy runs release audit");
+assert(pagesWorkflow.includes("npm run audit:release"), "GitHub Pages deploy runs release audit");
 assert(ciWorkflow.includes("npm run pack:static"), "CI packs static release");
 assert(ciWorkflow.includes("actions/upload-artifact@v4"), "CI uploads static release artifact");
+assert(pagesWorkflow.includes("actions/deploy-pages@v4"), "GitHub Pages deploy action exists");
 
 const gitignore = read(".gitignore");
 assert(gitignore.includes("node_modules/"), "node_modules ignored");

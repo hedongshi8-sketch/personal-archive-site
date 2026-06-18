@@ -24,11 +24,23 @@
    - `VITE_SUPABASE_ANON_KEY`
    - `VITE_SUPABASE_PUBLIC_BUCKET=portfolio-public`
 
+## 2.1 GitHub Pages 备用静态发布
+
+如果暂时没有 Vercel token，可以先使用 GitHub Pages 发布公开作品集：
+
+1. 创建 GitHub 仓库并推送 `main`。
+2. 打开 GitHub 仓库 Settings -> Pages。
+3. Source 选择 GitHub Actions。
+4. 推送后 `.github/workflows/github-pages.yml` 会构建、冒烟测试、发布 `dist`。
+
+这条路线可以让访客在线浏览作品集和 demo；站主在线编辑、私密发帖和真实评论仍需要 Supabase 初始化与环境变量。
+
 ## 3. GitHub Actions 自动部署
 
 仓库已经包含：
 
 - `.github/workflows/ci.yml`
+- `.github/workflows/github-pages.yml`
 - `.github/workflows/vercel-deploy.yml`
 
 在 GitHub 仓库的 Settings -> Secrets and variables -> Actions 添加：

@@ -220,6 +220,7 @@ RLS 原则：
 - `E:\游戏小镇` 原型与系统策划 HTML 原型已可通过 iframe 预览。
 - `vercel.json`、`public/_headers`、`public/_redirects` 已配置静态部署。
 - `.github/workflows/ci.yml` 与 `.github/workflows/vercel-deploy.yml` 已配置，仓库推到 GitHub 并补齐 secrets 后可自动构建/部署。
+- `.github/workflows/github-pages.yml` 已配置，仓库推到 GitHub 并开启 Pages 的 GitHub Actions source 后，可先发布公开静态作品集。
 - `docs/deployment-runbook.md` 已整理 Supabase、Vercel、GitHub Actions、owner 初始化步骤。
 - `@supabase/supabase-js` 已接入，`src/lib/backendContract.ts` 会在存在 Supabase 环境变量时切到真实后端。
 - 策划档案页已具备 owner-only 管理面板，站主可以选择项目/类型、上传文件、填写标签并登记新作品。
@@ -239,4 +240,5 @@ RLS 原则：
 - 在部署平台配置 `.env.example` 中的环境变量。
 - 站主首次 magic link 登录后，将自己的 `profiles.role` 更新为 `owner`。
 - 创建或连接 GitHub 远程仓库，执行 `git remote add origin <repo-url>` 并推送 `main`。
+- 如果先走 GitHub Pages，在仓库 Settings -> Pages 中选择 GitHub Actions 作为 Source。
 - 登录 Vercel/Cloudflare/GitHub 后发布到公网；当前机器未检测到 Vercel/Cloudflare/GitHub/Netlify CLI。

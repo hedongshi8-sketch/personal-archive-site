@@ -83,6 +83,13 @@ where email = '你的邮箱';
 完整上线流程见 [docs/deployment-runbook.md](docs/deployment-runbook.md)。
 发布前后逐项验收见 [docs/release-checklist.md](docs/release-checklist.md)。
 
+### GitHub Pages
+
+- 推送 `main` 后，`.github/workflows/github-pages.yml` 会构建并发布 `dist`。
+- 这条路线不需要 Vercel token，适合先把公开作品集放到公网。
+- 仓库 Settings -> Pages 的 Source 选择 GitHub Actions。
+- Supabase 环境变量未配置时，站点会保持本地预览模式；公开作品集可浏览，站主在线编辑不会启用真实权限。
+
 ### Vercel
 
 - Build Command: `npm run build`
