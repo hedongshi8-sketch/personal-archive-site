@@ -16,6 +16,7 @@
 - [ ] `npm run build`
 - [ ] `npm run smoke:dist`
 - [ ] `npm run audit:release`
+- [ ] `npm run verify:comments`
 - [ ] `npm run deploy:readiness`
 - [ ] `npm run pack:static`（需要手动上传静态包时）
 - [ ] `dist/portfolio-assets` 和 `public/portfolio-assets` 文件数一致。
@@ -56,6 +57,7 @@
 
 - [ ] 公网 URL 可以打开首页。
 - [ ] `npm run verify:remote`
+- [ ] `npm run verify:comments:remote`
 - [ ] `/#docs` 可以看到 16 个作品。
 - [ ] `游戏小镇` 筛选显示 6 个作品，并能打开原型 iframe。
 - [ ] `可交互原型` 筛选和搜索 `战争` 正常。

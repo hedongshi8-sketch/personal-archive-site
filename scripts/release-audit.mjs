@@ -86,6 +86,11 @@ assert(packageJson.scripts?.["smoke:dist"] === "node scripts/dist-smoke-test.mjs
 assert(packageJson.scripts?.["deploy:readiness"] === "node scripts/deploy-readiness.mjs", "deploy readiness script exists");
 assert(packageJson.scripts?.["pack:static"] === "node scripts/pack-static-release.mjs", "static pack script exists");
 assert(packageJson.scripts?.["verify:remote"] === "node scripts/verify-remote-release.mjs", "remote verification script exists");
+assert(packageJson.scripts?.["verify:comments"] === "node scripts/verify-comments-bridge.mjs", "comments bridge verification script exists");
+assert(
+  packageJson.scripts?.["verify:comments:remote"] === "node scripts/verify-comments-bridge.mjs --remote",
+  "remote comments bridge verification script exists",
+);
 assert(packageJson.scripts?.["verify:supabase"] === "node scripts/verify-supabase-backend.mjs", "Supabase verification script exists");
 
 const ciWorkflow = read(".github/workflows/ci.yml");
@@ -94,6 +99,9 @@ const pagesWorkflow = read(".github/workflows/github-pages.yml");
 assert(ciWorkflow.includes("npm run smoke:dist"), "CI runs dist smoke test");
 assert(vercelWorkflow.includes("npm run smoke:dist"), "Vercel deploy runs dist smoke test");
 assert(pagesWorkflow.includes("npm run smoke:dist"), "GitHub Pages deploy runs dist smoke test");
+assert(ciWorkflow.includes("npm run verify:comments"), "CI verifies comments bridge");
+assert(vercelWorkflow.includes("npm run verify:comments"), "Vercel deploy verifies comments bridge");
+assert(pagesWorkflow.includes("npm run verify:comments"), "GitHub Pages deploy verifies comments bridge");
 assert(ciWorkflow.includes("npm run audit:release"), "CI runs release audit");
 assert(vercelWorkflow.includes("npm run audit:release"), "Vercel deploy runs release audit");
 assert(pagesWorkflow.includes("npm run audit:release"), "GitHub Pages deploy runs release audit");
@@ -144,6 +152,10 @@ const schema = read("supabase/schema.sql");
 assert(schema.includes("create policy \"owner can manage portfolio items\""), "owner portfolio RLS exists");
 assert(schema.includes("create policy \"owner can upload portfolio storage\""), "owner storage upload RLS exists");
 assert(schema.includes("create or replace function public.increment_comment_likes"), "safe like RPC exists");
+
+const appSource = read("src/App.tsx");
+assert(appSource.includes("https://utteranc.es/client.js"), "GitHub Issues comments bridge exists");
+assert(appSource.includes("site-comment"), "GitHub Issues comments are labeled");
 
 try {
   const status = command(["git", "status", "--short"]);

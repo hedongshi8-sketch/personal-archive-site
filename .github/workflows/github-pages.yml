@@ -46,6 +46,9 @@ jobs:
       - name: Dist smoke test
         run: npm run smoke:dist
 
+      - name: Comments bridge verification
+        run: npm run verify:comments
+
       - name: Release audit
         run: npm run audit:release
 

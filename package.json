@@ -14,6 +14,8 @@
     "deploy:readiness": "node scripts/deploy-readiness.mjs",
     "pack:static": "node scripts/pack-static-release.mjs",
     "verify:remote": "node scripts/verify-remote-release.mjs",
+    "verify:comments": "node scripts/verify-comments-bridge.mjs",
+    "verify:comments:remote": "node scripts/verify-comments-bridge.mjs --remote",
     "verify:supabase": "node scripts/verify-supabase-backend.mjs"
   },
   "dependencies": {

@@ -30,6 +30,8 @@ npm run audit:release
 npm run deploy:readiness
 npm run pack:static
 npm run verify:remote
+npm run verify:comments
+npm run verify:comments:remote
 npm run verify:supabase
 ```
 
@@ -38,6 +40,7 @@ npm run verify:supabase
 `deploy:readiness` 会检查 Git 远程、部署 CLI 和本地 Supabase 环境变量状态，帮助确认还差哪些外部授权。
 `pack:static` 会生成 `release/personal-archive-site-static.zip` 和 manifest，方便没有 CLI 时手动上传静态站点。
 `verify:remote` 会检查 GitHub Pages 默认公网 URL，确认首页、原型、PDF 和 Excel 可访问。
+`verify:comments` / `verify:comments:remote` 会检查 GitHub Issues 评论桥是否进入本地构建和线上 bundle。
 `verify:supabase` 会在配置 Supabase 环境变量后检查公开作品、访客评论、点赞 RPC 和 owner-only RLS。
 
 ## 作品集资产
