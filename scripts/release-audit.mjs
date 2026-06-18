@@ -77,6 +77,7 @@ assert(exists("supabase/seed-portfolio.sql"), "Supabase portfolio seed exists");
 
 const packageJson = JSON.parse(read("package.json"));
 assert(packageJson.scripts?.["smoke:dist"] === "node scripts/dist-smoke-test.mjs", "dist smoke script exists");
+assert(packageJson.scripts?.["deploy:readiness"] === "node scripts/deploy-readiness.mjs", "deploy readiness script exists");
 
 const ciWorkflow = read(".github/workflows/ci.yml");
 const vercelWorkflow = read(".github/workflows/vercel-deploy.yml");
@@ -118,7 +119,11 @@ try {
 
 try {
   const branch = process.env.GITHUB_REF_NAME || command(["git", "rev-parse", "--abbrev-ref", "HEAD"]);
-  assert(branch === "main", "git branch is main", branch);
+  if (process.env.GITHUB_EVENT_NAME === "pull_request") {
+    pass("git branch check skipped for pull request");
+  } else {
+    assert(branch === "main", "git branch is main", branch);
+  }
 } catch (error) {
   fail("git branch can be read", error.message);
 }

@@ -16,6 +16,7 @@
 - [ ] `npm run build`
 - [ ] `npm run smoke:dist`
 - [ ] `npm run audit:release`
+- [ ] `npm run deploy:readiness`
 - [ ] `dist/portfolio-assets` 和 `public/portfolio-assets` 文件数一致。
 - [ ] `dist/_headers` 和 `dist/_redirects` 存在。
 

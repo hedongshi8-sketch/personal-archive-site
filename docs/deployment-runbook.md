@@ -67,6 +67,7 @@ npm run lint
 npm run build
 npm run smoke:dist
 npm run audit:release
+npm run deploy:readiness
 ```
 
 确认：
@@ -76,3 +77,4 @@ npm run audit:release
 - `dist/_headers` 和 `dist/_redirects` 存在。
 - `supabase/seed-portfolio.sql` 包含 16 个作品条目。
 - 线上环境变量与 `.env.example` 一致。
+- `npm run deploy:readiness` 没有 `BLOCK` 项；如果提示缺少 Git remote，先创建 GitHub 仓库并执行 `git remote add origin <repo-url>`。

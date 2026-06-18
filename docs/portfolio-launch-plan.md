@@ -227,6 +227,9 @@ RLS 原则：
 - 留言墙已具备昵称、留言发布、点赞后端接口；Supabase 模式下走 `public_comments` 和 `increment_comment_likes`。
 - `supabase/schema.sql` 已包含 profiles 自动创建、owner RLS、公开评论、作品集表和资源表。
 - `npm run typecheck`、`npm run lint`、`npm run build` 已通过。
+- 本地 Git 仓库已初始化在 `main` 分支，并已提交作品集、发布审计、dist 冒烟检查和 CI 发布门禁。
+- `npm run smoke:dist` 已覆盖首页、静态部署配置、游戏小镇原型、系统策划原型、野蛮人大作战 Excel 和作品集 PDF 的构建后可访问性。
+- `npm run audit:release` 已检查资产数量、Supabase RLS、种子数量、CI/部署门禁、密钥模式和 Git 工作区状态。
 
 尚需外部授权/人工操作：
 
@@ -235,4 +238,5 @@ RLS 原则：
 - 创建公开 Storage bucket：`portfolio-public`。
 - 在部署平台配置 `.env.example` 中的环境变量。
 - 站主首次 magic link 登录后，将自己的 `profiles.role` 更新为 `owner`。
-- 登录 Vercel/Cloudflare/GitHub 后发布到公网；当前机器未检测到 Vercel/Cloudflare CLI，当前目录也不是 git 仓库。
+- 创建或连接 GitHub 远程仓库，执行 `git remote add origin <repo-url>` 并推送 `main`。
+- 登录 Vercel/Cloudflare/GitHub 后发布到公网；当前机器未检测到 Vercel/Cloudflare/GitHub/Netlify CLI。
