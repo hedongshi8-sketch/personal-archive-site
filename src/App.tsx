@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type CSSProperties, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import clsx from "clsx";
 import {
   ArrowRight,
@@ -50,6 +50,7 @@ import { useLocalStorage } from "./hooks/useLocalStorage";
 import mediaSheet from "./assets/media-sheet.png";
 
 const galleryFilters = ["全部", "角色", "场景", "物件", "UI/界面", "概念"];
+const githubCommentsRepo = import.meta.env.VITE_GITHUB_COMMENTS_REPO || "hedongshi8-sketch/personal-archive-site";
 
 function MediaTile({
   tile,
@@ -993,6 +994,51 @@ function PrivateSection() {
   );
 }
 
+function GitHubIssueComments() {
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const [loadError, setLoadError] = useState(false);
+
+  useEffect(() => {
+    if (!containerRef.current) {
+      return;
+    }
+
+    containerRef.current.replaceChildren();
+    setLoadError(false);
+
+    const script = document.createElement("script");
+    script.src = "https://utteranc.es/client.js";
+    script.async = true;
+    script.crossOrigin = "anonymous";
+    script.setAttribute("repo", githubCommentsRepo);
+    script.setAttribute("issue-term", "pathname");
+    script.setAttribute("label", "site-comment");
+    script.setAttribute("theme", "github-light");
+    script.setAttribute("loading", "lazy");
+    script.onerror = () => setLoadError(true);
+
+    containerRef.current.append(script);
+
+    return () => {
+      script.remove();
+    };
+  }, []);
+
+  return (
+    <div className="github-comments-panel" aria-label="GitHub Issues 评论">
+      <div>
+        <span>公网评论桥</span>
+        <strong>GitHub Issues 持久留言</strong>
+      </div>
+      <p>
+        当前 GitHub Pages 版本还没接 Supabase，下面的评论面板会把公开留言保存到仓库 Issues；安装 Utterances App 后访客即可用 GitHub 账号评论。
+      </p>
+      {loadError ? <p className="backend-status">GitHub 评论面板加载失败，可以刷新页面后重试。</p> : null}
+      <div ref={containerRef} className="github-comments-frame" />
+    </div>
+  );
+}
+
 function CommentsSection() {
   const [comments, setComments] = useLocalStorage<Comment[]>("linx_comments", seedComments);
   const [commentBody, setCommentBody] = useState("");
@@ -1098,6 +1144,7 @@ function CommentsSection() {
         </button>
       </div>
       {statusMessage ? <p className="backend-status">{statusMessage}</p> : null}
+      {siteBackend.mode === "supabase" ? null : <GitHubIssueComments />}
       <div className="comment-list">
         {comments.map((comment) => (
           <article className="comment-row" key={comment.id}>

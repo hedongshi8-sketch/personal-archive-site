@@ -46,9 +46,11 @@
   - [ ] `VITE_SUPABASE_URL`
   - [ ] `VITE_SUPABASE_ANON_KEY`
   - [ ] `VITE_SUPABASE_PUBLIC_BUCKET`
+  - [ ] `VITE_GITHUB_COMMENTS_REPO`
   - [ ] `VERCEL_TOKEN`
   - [ ] `VERCEL_ORG_ID`
   - [ ] `VERCEL_PROJECT_ID`
+- [ ] 如果 Supabase 还没启用公网评论：Utterances App 已安装并授权仓库。
 
 ## 线上验收
 

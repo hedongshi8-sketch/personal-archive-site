@@ -1404,6 +1404,52 @@ p {
   background: rgba(255, 255, 255, 0.48);
 }
 
+.github-comments-panel {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 16px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.github-comments-panel > div:first-child {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.github-comments-panel span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.github-comments-panel strong {
+  color: var(--ink);
+  font-size: 15px;
+}
+
+.github-comments-panel p {
+  margin: 0;
+  color: #5f5a50;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.github-comments-frame {
+  min-height: 80px;
+}
+
+.github-comments-frame:empty::before {
+  content: "GitHub 评论面板加载中";
+  display: block;
+  color: var(--muted);
+  font-size: 13px;
+}
+
 .comment-list {
   display: grid;
   max-height: 52vh;
@@ -1659,6 +1705,7 @@ p {
   .portfolio-login-row,
   .portfolio-upload-row,
   .comment-form,
+  .github-comments-panel > div:first-child,
   .composer-bottom {
     grid-template-columns: 1fr;
   }

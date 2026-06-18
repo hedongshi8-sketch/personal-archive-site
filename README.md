@@ -63,6 +63,7 @@ npm run verify:supabase
 VITE_SUPABASE_URL=https://your-project.supabase.co
 VITE_SUPABASE_ANON_KEY=your-anon-public-key
 VITE_SUPABASE_PUBLIC_BUCKET=portfolio-public
+VITE_GITHUB_COMMENTS_REPO=hedongshi8-sketch/personal-archive-site
 ```
 
 Supabase 侧步骤：
@@ -93,6 +94,8 @@ npm run verify:supabase
 
 这样外部访客可以浏览作品集和评论，只有 `profiles.role = 'owner'` 的账号能写入私密发帖和管理资源。
 
+如果暂时还没接 Supabase，留言墙会额外显示 GitHub Issues 评论面板。到 <https://github.com/apps/utterances> 安装 Utterances App，并授权 `personal-archive-site` 仓库后，访客可以用 GitHub 账号留下公网持久评论。
+
 ## 部署
 
 完整上线流程见 [docs/deployment-runbook.md](docs/deployment-runbook.md)。
@@ -105,6 +108,7 @@ npm run verify:supabase
 - 仓库 Settings -> Pages 的 Source 选择 GitHub Actions。
 - `public/.nojekyll` 和 `public/404.html` 已准备好，兼容 GitHub Pages 静态托管与直接路径访问。
 - Supabase 环境变量未配置时，站点会保持本地预览模式；公开作品集可浏览，站主在线编辑不会启用真实权限。
+- Supabase 未启用前，留言墙可以通过 Utterances + GitHub Issues 承接公网评论。
 
 ### Vercel
 

@@ -105,6 +105,8 @@ assert(
 for (const key of ["VITE_SUPABASE_URL", "VITE_SUPABASE_ANON_KEY", "VITE_SUPABASE_PUBLIC_BUCKET"]) {
   assert(pagesWorkflow.includes(key), `GitHub Pages workflow passes ${key}`);
 }
+assert(pagesWorkflow.includes("VITE_GITHUB_COMMENTS_REPO"), "GitHub Pages workflow passes VITE_GITHUB_COMMENTS_REPO");
+assert(vercelWorkflow.includes("VITE_GITHUB_COMMENTS_REPO"), "Vercel workflow passes VITE_GITHUB_COMMENTS_REPO");
 assert(ciWorkflow.includes("npm run pack:static"), "CI packs static release");
 assert(ciWorkflow.includes("actions/upload-artifact@v4"), "CI uploads static release artifact");
 assert(pagesWorkflow.includes("actions/deploy-pages@v4"), "GitHub Pages deploy action exists");
@@ -115,7 +117,12 @@ assert(gitignore.includes("dist/"), "dist ignored");
 assert(gitignore.includes(".env"), ".env ignored");
 
 const envExample = read(".env.example");
-for (const key of ["VITE_SUPABASE_URL", "VITE_SUPABASE_ANON_KEY", "VITE_SUPABASE_PUBLIC_BUCKET"]) {
+for (const key of [
+  "VITE_SUPABASE_URL",
+  "VITE_SUPABASE_ANON_KEY",
+  "VITE_SUPABASE_PUBLIC_BUCKET",
+  "VITE_GITHUB_COMMENTS_REPO",
+]) {
   assert(envExample.includes(key), `.env.example documents ${key}`);
 }
 

@@ -23,6 +23,7 @@
    - `VITE_SUPABASE_URL`
    - `VITE_SUPABASE_ANON_KEY`
    - `VITE_SUPABASE_PUBLIC_BUCKET=portfolio-public`
+   - `VITE_GITHUB_COMMENTS_REPO=hedongshi8-sketch/personal-archive-site`
 
 ## 2.1 GitHub Pages 备用静态发布
 
@@ -36,6 +37,7 @@
 6. 发布完成后运行 `npm run verify:remote`，确认公网首页、原型、PDF 和 Excel 可访问。
 
 这条路线可以让访客在线浏览作品集和 demo；站主在线编辑、私密发帖和真实评论仍需要 Supabase 初始化与环境变量。
+如果要在 Supabase 前先启用公网评论，打开 <https://github.com/apps/utterances>，安装到 `personal-archive-site` 仓库；留言墙会使用 GitHub Issues 保存评论。
 
 ## 3. GitHub Actions 自动部署
 
@@ -50,6 +52,7 @@
 - `VITE_SUPABASE_URL`
 - `VITE_SUPABASE_ANON_KEY`
 - `VITE_SUPABASE_PUBLIC_BUCKET`
+- `VITE_GITHUB_COMMENTS_REPO`
 - `VERCEL_TOKEN`
 - `VERCEL_ORG_ID`
 - `VERCEL_PROJECT_ID`
