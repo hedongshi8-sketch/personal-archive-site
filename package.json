@@ -9,6 +9,7 @@
     "preview": "vite preview --host 0.0.0.0",
     "lint": "eslint .",
     "typecheck": "tsc -b",
+    "smoke:dist": "node scripts/dist-smoke-test.mjs",
     "audit:release": "node scripts/release-audit.mjs"
   },
   "dependencies": {

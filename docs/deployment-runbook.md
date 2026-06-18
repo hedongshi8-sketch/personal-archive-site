@@ -65,12 +65,14 @@ where email = '你的邮箱';
 npm run typecheck
 npm run lint
 npm run build
+npm run smoke:dist
 npm run audit:release
 ```
 
 确认：
 
 - `dist/portfolio-assets` 存在。
+- 关键公开路径、原型 iframe、PDF 和 Excel 文件通过 `npm run smoke:dist`。
 - `dist/_headers` 和 `dist/_redirects` 存在。
 - `supabase/seed-portfolio.sql` 包含 16 个作品条目。
 - 线上环境变量与 `.env.example` 一致。
