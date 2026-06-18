@@ -95,6 +95,14 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
 const supabaseAssetBucket = import.meta.env.VITE_SUPABASE_PUBLIC_BUCKET || "portfolio-public";
 
+function isLocalPreviewHost() {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  return ["localhost", "127.0.0.1", "::1"].includes(window.location.hostname);
+}
+
 function requireSupabaseResult<T>(data: T | null, error: { message: string } | null): T {
   if (error) {
     throw new Error(error.message);
@@ -161,6 +169,10 @@ export class LocalPreviewBackend implements SiteBackend {
   readonly mode = "local" as const;
 
   async getCurrentUser() {
+    if (!isLocalPreviewHost()) {
+      return null;
+    }
+
     return {
       id: "local-owner",
       email: "owner@example.local",

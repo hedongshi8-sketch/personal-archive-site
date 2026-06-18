@@ -979,7 +979,7 @@ function PrivateSection() {
       </div>
       {statusMessage ? <p className="backend-status">{statusMessage}</p> : null}
       <div className="post-stack">
-        {posts.slice(0, 3).map((post) => (
+        {(isOwner ? posts : []).slice(0, 3).map((post) => (
           <article key={post.id} className="mini-post">
             <div>
               <strong>{post.title}</strong>
