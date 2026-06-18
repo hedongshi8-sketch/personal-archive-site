@@ -68,6 +68,7 @@ npm run build
 npm run smoke:dist
 npm run audit:release
 npm run deploy:readiness
+npm run pack:static
 ```
 
 确认：
@@ -78,3 +79,4 @@ npm run deploy:readiness
 - `supabase/seed-portfolio.sql` 包含 16 个作品条目。
 - 线上环境变量与 `.env.example` 一致。
 - `npm run deploy:readiness` 没有 `BLOCK` 项；如果提示缺少 Git remote，先创建 GitHub 仓库并执行 `git remote add origin <repo-url>`。
+- 如需手动上传，`release/personal-archive-site-static.zip` 已由 `npm run pack:static` 生成。

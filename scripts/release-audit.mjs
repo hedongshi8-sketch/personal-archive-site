@@ -78,6 +78,7 @@ assert(exists("supabase/seed-portfolio.sql"), "Supabase portfolio seed exists");
 const packageJson = JSON.parse(read("package.json"));
 assert(packageJson.scripts?.["smoke:dist"] === "node scripts/dist-smoke-test.mjs", "dist smoke script exists");
 assert(packageJson.scripts?.["deploy:readiness"] === "node scripts/deploy-readiness.mjs", "deploy readiness script exists");
+assert(packageJson.scripts?.["pack:static"] === "node scripts/pack-static-release.mjs", "static pack script exists");
 
 const ciWorkflow = read(".github/workflows/ci.yml");
 const vercelWorkflow = read(".github/workflows/vercel-deploy.yml");

@@ -28,11 +28,13 @@ npm run build
 npm run smoke:dist
 npm run audit:release
 npm run deploy:readiness
+npm run pack:static
 ```
 
 构建产物在 `dist`。`vercel.json`、`public/_redirects`、`public/_headers` 已经为 Vercel / Cloudflare Pages 的 SPA 路由和静态资源缓存做好准备。
 `smoke:dist` 会在本地临时托管 `dist`，确认首页、原型 iframe、PDF 和 Excel 等关键公开路径可访问。
 `deploy:readiness` 会检查 Git 远程、部署 CLI 和本地 Supabase 环境变量状态，帮助确认还差哪些外部授权。
+`pack:static` 会生成 `release/personal-archive-site-static.zip` 和 manifest，方便没有 CLI 时手动上传静态站点。
 
 ## 作品集资产
 
@@ -95,5 +97,17 @@ where email = '你的邮箱';
 - Build Output Directory: `dist`
 - Environment Variables: 填 `.env.example` 中的三个 Supabase 变量
 - `_headers` 和 `_redirects` 会随 Vite 构建复制到 `dist`
+
+### 手动上传静态包
+
+如果暂时不走 GitHub 自动部署，可以先运行：
+
+```bash
+npm run build
+npm run smoke:dist
+npm run pack:static
+```
+
+然后把 `release/personal-archive-site-static.zip` 上传到支持静态站点导入的平台。这个方式可以公开浏览作品集，但在线编辑、私密发帖和评论仍需要 Supabase 环境变量与数据库初始化完成。
 
 真正上线需要登录你的 Vercel / Cloudflare / GitHub 账号后发布。当前仓库已经具备静态展示和 Supabase 权限接入骨架。
