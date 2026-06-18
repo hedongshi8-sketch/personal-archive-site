@@ -55,6 +55,31 @@ function normalizeBaseUrl(value) {
   return value.endsWith("/") ? value : `${value}/`;
 }
 
+function sleep(ms) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
+
+async function fetchWithRetry(url, attempts = 3) {
+  let lastError;
+
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    try {
+      return await fetch(url, {
+        headers: { "user-agent": "personal-archive-site-comments-verifier" },
+      });
+    } catch (error) {
+      lastError = error;
+      if (attempt < attempts) {
+        await sleep(1_500);
+      }
+    }
+  }
+
+  throw lastError;
+}
+
 function command(args) {
   return execFileSync(args[0], args.slice(1), {
     cwd: root,
@@ -63,18 +88,36 @@ function command(args) {
   }).trim();
 }
 
+function readUrlWithPowerShell(url) {
+  const script = [
+    "$ProgressPreference='SilentlyContinue'",
+    `[Console]::OutputEncoding=[Text.UTF8Encoding]::new($false)`,
+    `$response=Invoke-WebRequest -Uri '${url.href.replace(/'/g, "''")}' -UseBasicParsing -TimeoutSec 30`,
+    "if($response.StatusCode -ne 200){ throw \"expected 200, got $($response.StatusCode)\" }",
+    "$response.Content",
+  ].join("; ");
+
+  return command(["powershell.exe", "-NoProfile", "-Command", script]);
+}
+
 async function readRemoteBundleText() {
   const baseUrl = normalizeBaseUrl(siteUrl);
   const indexUrl = new URL("", baseUrl);
-  const indexResponse = await fetch(indexUrl, {
-    headers: { "user-agent": "personal-archive-site-comments-verifier" },
-  });
+  let indexHtml;
 
-  if (!indexResponse.ok) {
-    throw new Error(`expected ${indexUrl.href} to return 200, got ${indexResponse.status}`);
+  try {
+    const indexResponse = await fetchWithRetry(indexUrl);
+
+    if (!indexResponse.ok) {
+      throw new Error(`expected ${indexUrl.href} to return 200, got ${indexResponse.status}`);
+    }
+
+    indexHtml = await indexResponse.text();
+  } catch (error) {
+    console.warn(`WARN Node fetch failed for ${indexUrl.href}; falling back to PowerShell WebRequest.`);
+    indexHtml = readUrlWithPowerShell(indexUrl);
   }
 
-  const indexHtml = await indexResponse.text();
   const scriptMatch = indexHtml.match(/<script[^>]+src="([^"]+index-[^"]+\.js)"[^>]*>/);
 
   if (!scriptMatch?.[1]) {
@@ -82,16 +125,21 @@ async function readRemoteBundleText() {
   }
 
   const bundleUrl = new URL(scriptMatch[1], baseUrl);
-  const bundleResponse = await fetch(bundleUrl, {
-    headers: { "user-agent": "personal-archive-site-comments-verifier" },
-  });
 
-  if (!bundleResponse.ok) {
-    throw new Error(`expected ${bundleUrl.href} to return 200, got ${bundleResponse.status}`);
+  try {
+    const bundleResponse = await fetchWithRetry(bundleUrl);
+
+    if (!bundleResponse.ok) {
+      throw new Error(`expected ${bundleUrl.href} to return 200, got ${bundleResponse.status}`);
+    }
+
+    pass(`remote app bundle fetched ${bundleUrl.href}`);
+    return bundleResponse.text();
+  } catch (error) {
+    console.warn(`WARN Node fetch failed for ${bundleUrl.href}; falling back to PowerShell WebRequest.`);
+    pass(`remote app bundle fetched ${bundleUrl.href}`);
+    return readUrlWithPowerShell(bundleUrl);
   }
-
-  pass(`remote app bundle fetched ${bundleUrl.href}`);
-  return bundleResponse.text();
 }
 
 function readDistBundleText() {
