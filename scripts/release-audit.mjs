@@ -236,6 +236,9 @@ assert(appSource.includes("DocumentReader"), "document in-site preview reader ex
 assert(appSource.includes("function MusicSection"), "music upload section exists");
 assert(appSource.includes("function GallerySection"), "gallery upload section exists");
 assert(appSource.includes("function NotesSection"), "reading notes section exists");
+assert(appSource.includes("updateMusicTrack") && appSource.includes("deleteMusicTrack"), "music owner edit/delete UI exists");
+assert(appSource.includes("updateGalleryItem") && appSource.includes("deleteGalleryItem"), "gallery owner edit/delete UI exists");
+assert(appSource.includes("updateOwnerPost") && appSource.includes("deleteOwnerPost"), "owner post edit/delete UI exists");
 assert(appSource.includes("checkHumanGate"), "anti-spam human gate exists");
 assert(appSource.includes("BackgroundMusicDock"), "background music dock exists");
 

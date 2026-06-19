@@ -115,6 +115,8 @@ export type SiteBackend = {
   uploadProfileAvatar(file: File): Promise<{ publicUrl: string; storagePath: string }>;
   listOwnerPosts(): Promise<OwnerPost[]>;
   createOwnerPost(input: Pick<OwnerPost, "title" | "body" | "visibility">): Promise<OwnerPost>;
+  updateOwnerPost(id: string, input: Pick<OwnerPost, "title" | "body" | "visibility">): Promise<OwnerPost>;
+  deleteOwnerPost(id: string): Promise<void>;
   listComments(): Promise<Comment[]>;
   createComment(input: CommentInput): Promise<Comment>;
   likeComment(id: string, likes: number): Promise<void>;
@@ -124,8 +126,12 @@ export type SiteBackend = {
   uploadAsset(file: File, kind: AssetRecord["kind"]): Promise<AssetRecord>;
   listMusicTracks(): Promise<MusicTrack[]>;
   createMusicTrack(input: MusicTrackInput): Promise<MusicTrack>;
+  updateMusicTrack(id: string, input: MusicTrackInput): Promise<MusicTrack>;
+  deleteMusicTrack(id: string): Promise<void>;
   listGalleryItems(): Promise<GalleryItem[]>;
   createGalleryItem(input: GalleryItemInput): Promise<GalleryItem>;
+  updateGalleryItem(id: string, input: GalleryItemInput): Promise<GalleryItem>;
+  deleteGalleryItem(id: string): Promise<void>;
   listReadingNotes(): Promise<ReadingNote[]>;
   createReadingNote(input: ReadingNoteInput): Promise<ReadingNote>;
   updateReadingNote(id: string, input: ReadingNoteInput): Promise<ReadingNote>;
@@ -479,6 +485,20 @@ export class LocalPreviewBackend implements SiteBackend {
     };
   }
 
+  async updateOwnerPost(id: string, input: Pick<OwnerPost, "title" | "body" | "visibility">) {
+    return {
+      id,
+      title: input.title,
+      body: input.body,
+      visibility: input.visibility,
+      createdAt: getReadableNow(),
+    };
+  }
+
+  async deleteOwnerPost() {
+    return;
+  }
+
   async listComments() {
     return [];
   }
@@ -558,6 +578,24 @@ export class LocalPreviewBackend implements SiteBackend {
     };
   }
 
+  async updateMusicTrack(id: string, input: MusicTrackInput) {
+    return {
+      id,
+      title: input.title,
+      artist: input.artist,
+      mood: input.mood,
+      duration: input.duration || "本地音频",
+      audioUrl: input.audioUrl,
+      coverUrl: input.coverUrl,
+      isBackground: input.isBackground,
+      createdAt: new Date().toISOString().slice(0, 10),
+    };
+  }
+
+  async deleteMusicTrack() {
+    return;
+  }
+
   async listGalleryItems() {
     return galleryItems;
   }
@@ -572,6 +610,22 @@ export class LocalPreviewBackend implements SiteBackend {
       isCover: input.isCover,
       createdAt: new Date().toISOString().slice(0, 10),
     };
+  }
+
+  async updateGalleryItem(id: string, input: GalleryItemInput) {
+    return {
+      id,
+      title: input.title,
+      category: input.category,
+      description: input.description,
+      imageUrl: input.imageUrl,
+      isCover: input.isCover,
+      createdAt: new Date().toISOString().slice(0, 10),
+    };
+  }
+
+  async deleteGalleryItem() {
+    return;
   }
 
   async listReadingNotes() {
@@ -771,6 +825,33 @@ export class SupabaseBackend implements SiteBackend {
     return mapOwnerPost(requireSupabaseResult(data, error));
   }
 
+  async updateOwnerPost(id: string, input: Pick<OwnerPost, "title" | "body" | "visibility">) {
+    requireOwner(await this.getCurrentUser(), "只有站主账号可以修改动态。");
+
+    const { data, error } = await this.client
+      .from("owner_posts")
+      .update({
+        title: input.title,
+        body: input.body,
+        visibility: input.visibility,
+      })
+      .eq("id", id)
+      .select("id,title,body,visibility,created_at")
+      .single<OwnerPostRow>();
+
+    return mapOwnerPost(requireSupabaseResult(data, error));
+  }
+
+  async deleteOwnerPost(id: string) {
+    requireOwner(await this.getCurrentUser(), "只有站主账号可以删除动态。");
+
+    const { error } = await this.client.from("owner_posts").delete().eq("id", id);
+
+    if (error) {
+      throw new Error(error.message);
+    }
+  }
+
   async listComments() {
     const { data, error } = await this.client
       .from("public_comments")
@@ -947,6 +1028,37 @@ export class SupabaseBackend implements SiteBackend {
     return mapMusicTrack(requireSupabaseResult(data, error));
   }
 
+  async updateMusicTrack(id: string, input: MusicTrackInput) {
+    requireOwner(await this.getCurrentUser(), "只有站主账号可以修改音乐。");
+
+    const { data, error } = await this.client
+      .from("music_tracks")
+      .update({
+        title: input.title,
+        artist: input.artist,
+        mood: input.mood,
+        duration: input.duration || null,
+        audio_url: input.audioUrl,
+        cover_url: input.coverUrl || null,
+        is_background: input.isBackground ?? false,
+      })
+      .eq("id", id)
+      .select("id,title,artist,mood,duration,audio_url,cover_url,is_background,created_at")
+      .single<MusicTrackRow>();
+
+    return mapMusicTrack(requireSupabaseResult(data, error));
+  }
+
+  async deleteMusicTrack(id: string) {
+    requireOwner(await this.getCurrentUser(), "只有站主账号可以删除音乐。");
+
+    const { error } = await this.client.from("music_tracks").delete().eq("id", id);
+
+    if (error) {
+      throw new Error(error.message);
+    }
+  }
+
   async listGalleryItems() {
     const { data, error } = await this.client
       .from("gallery_items")
@@ -976,6 +1088,35 @@ export class SupabaseBackend implements SiteBackend {
       .single<GalleryItemRow>();
 
     return mapGalleryItem(requireSupabaseResult(data, error));
+  }
+
+  async updateGalleryItem(id: string, input: GalleryItemInput) {
+    requireOwner(await this.getCurrentUser(), "只有站主账号可以修改图片。");
+
+    const { data, error } = await this.client
+      .from("gallery_items")
+      .update({
+        title: input.title,
+        category: input.category,
+        description: input.description || null,
+        image_url: input.imageUrl,
+        is_cover: input.isCover ?? false,
+      })
+      .eq("id", id)
+      .select("id,title,category,description,image_url,is_cover,created_at")
+      .single<GalleryItemRow>();
+
+    return mapGalleryItem(requireSupabaseResult(data, error));
+  }
+
+  async deleteGalleryItem(id: string) {
+    requireOwner(await this.getCurrentUser(), "只有站主账号可以删除图片。");
+
+    const { error } = await this.client.from("gallery_items").delete().eq("id", id);
+
+    if (error) {
+      throw new Error(error.message);
+    }
   }
 
   async listReadingNotes() {

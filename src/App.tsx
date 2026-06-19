@@ -281,6 +281,28 @@ function readingNoteToDraft(note: ReadingNote): ReadingNoteInput {
   };
 }
 
+function musicTrackToDraft(track: MusicTrack): MusicTrackInput {
+  return {
+    title: track.title,
+    artist: track.artist,
+    mood: track.mood,
+    duration: track.duration,
+    audioUrl: track.audioUrl ?? "",
+    coverUrl: track.coverUrl ?? "",
+    isBackground: track.isBackground ?? false,
+  };
+}
+
+function galleryItemToDraft(item: GalleryItem): GalleryItemInput {
+  return {
+    title: item.title,
+    category: item.category,
+    description: item.description ?? "",
+    imageUrl: item.imageUrl ?? "",
+    isCover: item.isCover ?? false,
+  };
+}
+
 function makeFileTitle(file: File) {
   return file.name.replace(/\.[^.]+$/, "");
 }
@@ -1746,13 +1768,17 @@ function MusicSection({
   const [tracks, setTracks] = useState<MusicTrack[]>(musicTracks);
   const [activeTrackId, setActiveTrackId] = useState(musicTracks[0].id);
   const [draft, setDraft] = useState<MusicTrackInput>(defaultMusicDraft);
+  const [editingTrackId, setEditingTrackId] = useState<string | null>(null);
   const [statusMessage, setStatusMessage] = useState("");
   const [loadState, setLoadState] = useState<LoadState>("idle");
+  const [saveState, setSaveState] = useState<"idle" | "saving">("idle");
+  const [deletingTrackId, setDeletingTrackId] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const isOwner = currentUser?.role === "owner";
   const isSupabase = siteBackend.mode === "supabase";
   const activeTrack = tracks.find((track) => track.id === activeTrackId) ?? tracks[0];
+  const editingTrack = editingTrackId ? tracks.find((track) => track.id === editingTrackId) : null;
 
   useEffect(() => {
     let active = true;
@@ -1840,7 +1866,22 @@ function MusicSection({
     }
   }
 
-  async function createTrack() {
+  function resetMusicDraft() {
+    setDraft(defaultMusicDraft);
+    setEditingTrackId(null);
+  }
+
+  function startEditingTrack(track: MusicTrack = activeTrack) {
+    if (!track) {
+      return;
+    }
+
+    setDraft(musicTrackToDraft(track));
+    setEditingTrackId(track.id);
+    setStatusMessage(`正在编辑《${track.title}》，改完后点保存修改。`);
+  }
+
+  async function saveTrack() {
     if (!isOwner) {
       setStatusMessage("只有站主账号可以登记音乐。");
       return;
@@ -1857,7 +1898,8 @@ function MusicSection({
     }
 
     try {
-      const nextTrack = await siteBackend.createMusicTrack({
+      setSaveState("saving");
+      const payload: MusicTrackInput = {
         ...draft,
         title,
         artist,
@@ -1865,8 +1907,17 @@ function MusicSection({
         audioUrl,
         coverUrl: draft.coverUrl?.trim() || undefined,
         duration: draft.duration?.trim() || undefined,
-      });
-      setTracks((current) => [nextTrack, ...current]);
+      };
+
+      const nextTrack = editingTrackId
+        ? await siteBackend.updateMusicTrack(editingTrackId, payload)
+        : await siteBackend.createMusicTrack(payload);
+
+      setTracks((current) =>
+        editingTrackId
+          ? current.map((track) => (track.id === editingTrackId ? nextTrack : track))
+          : [nextTrack, ...current],
+      );
       setActiveTrackId(nextTrack.id);
 
       if (draft.isBackground && nextTrack.audioUrl) {
@@ -1879,16 +1930,49 @@ function MusicSection({
         onSettingsChange(nextSettings);
       }
 
-      setDraft(defaultMusicDraft);
+      resetMusicDraft();
       setStatusMessage(
-        draft.isBackground
-          ? "音乐已保存，并更新为全站背景音乐。"
-          : isSupabase
-            ? "音乐已写入 Supabase。"
-            : "本地预览已新增音乐。",
+        editingTrackId
+          ? "音乐信息已更新。"
+          : draft.isBackground
+            ? "音乐已保存，并更新为全站背景音乐。"
+            : isSupabase
+              ? "音乐已写入 Supabase。"
+              : "本地预览已新增音乐。",
       );
     } catch (error) {
-      setStatusMessage(error instanceof Error ? error.message : "新增音乐失败。");
+      setStatusMessage(error instanceof Error ? error.message : "保存音乐失败。");
+    } finally {
+      setSaveState("idle");
+    }
+  }
+
+  async function deleteTrack(track: MusicTrack = activeTrack) {
+    if (!isOwner || !track) {
+      setStatusMessage("只有站主账号可以删除音乐。");
+      return;
+    }
+
+    if (!window.confirm(`确定删除《${track.title}》这首音乐吗？`)) {
+      return;
+    }
+
+    try {
+      setDeletingTrackId(track.id);
+      await siteBackend.deleteMusicTrack(track.id);
+      setTracks((current) => {
+        const nextTracks = current.filter((item) => item.id !== track.id);
+        setActiveTrackId(nextTracks[0]?.id ?? "");
+        return nextTracks;
+      });
+      if (editingTrackId === track.id) {
+        resetMusicDraft();
+      }
+      setStatusMessage("音乐已删除。");
+    } catch (error) {
+      setStatusMessage(error instanceof Error ? error.message : "删除音乐失败。");
+    } finally {
+      setDeletingTrackId(null);
     }
   }
 
@@ -2050,11 +2134,27 @@ function MusicSection({
       <div className="owner-upload-panel music-upload-panel">
         <div className="portfolio-admin-head">
           <span>{isSupabase ? "Supabase Storage" : localPreviewLabel}</span>
-          <strong>{isOwner ? "站主音乐上传入口" : "访客只能试听公开歌单"}</strong>
+          <strong>{editingTrack ? "编辑当前音乐" : isOwner ? "站主音乐上传入口" : "访客只能试听公开歌单"}</strong>
         </div>
         <BackendModeNotice isSupabase={isSupabase} />
         {isOwner ? (
           <>
+            <div className="owner-management-strip">
+              <span>{activeTrack ? `当前：${activeTrack.title}` : "当前没有音乐"}</span>
+              <button className="ghost-button" disabled={!activeTrack || saveState === "saving"} onClick={() => startEditingTrack()} type="button">
+                <Edit3 size={15} />
+                编辑当前
+              </button>
+              <button
+                className="ghost-button danger"
+                disabled={!activeTrack || deletingTrackId === activeTrack?.id}
+                onClick={() => void deleteTrack()}
+                type="button"
+              >
+                <Trash2 size={15} />
+                删除当前
+              </button>
+            </div>
             <div className="owner-upload-grid">
               <label>
                 <span>歌名</span>
@@ -2100,8 +2200,13 @@ function MusicSection({
                 <span>上传封面</span>
                 <input accept="image/*" onChange={(event) => void handleMusicCover(event.target.files?.[0] ?? null)} type="file" />
               </label>
-              <button className="cyan-button" onClick={createTrack} type="button">
-                保存音乐
+              <button className="ghost-button" disabled={saveState === "saving"} onClick={resetMusicDraft} type="button">
+                <X size={15} />
+                {editingTrack ? "取消编辑" : "清空"}
+              </button>
+              <button className="cyan-button" disabled={saveState === "saving"} onClick={saveTrack} type="button">
+                <Check size={16} />
+                {saveState === "saving" ? "保存中..." : editingTrack ? "保存修改" : "保存音乐"}
               </button>
             </div>
             <label className="owner-toggle-row">
@@ -2133,11 +2238,15 @@ function GallerySection({
   const [filter, setFilter] = useState("全部");
   const [items, setItems] = useState<GalleryItem[]>(galleryItems);
   const [draft, setDraft] = useState<GalleryItemInput>(defaultGalleryDraft);
+  const [editingGalleryItemId, setEditingGalleryItemId] = useState<string | null>(null);
   const [statusMessage, setStatusMessage] = useState("");
   const [loadState, setLoadState] = useState<LoadState>("idle");
+  const [saveState, setSaveState] = useState<"idle" | "saving">("idle");
+  const [deletingGalleryItemId, setDeletingGalleryItemId] = useState<string | null>(null);
 
   const isOwner = currentUser?.role === "owner";
   const isSupabase = siteBackend.mode === "supabase";
+  const editingGalleryItem = editingGalleryItemId ? items.find((item) => item.id === editingGalleryItemId) : null;
 
   const filteredItems = useMemo(() => {
     if (filter === "全部") {
@@ -2208,7 +2317,18 @@ function GallerySection({
     }
   }
 
-  async function createGalleryEntry() {
+  function resetGalleryDraft() {
+    setDraft(defaultGalleryDraft);
+    setEditingGalleryItemId(null);
+  }
+
+  function startEditingGalleryItem(item: GalleryItem) {
+    setDraft(galleryItemToDraft(item));
+    setEditingGalleryItemId(item.id);
+    setStatusMessage(`正在编辑「${item.title}」，改完后点保存修改。`);
+  }
+
+  async function saveGalleryEntry() {
     if (!isOwner) {
       setStatusMessage("只有站主账号可以登记图片。");
       return;
@@ -2222,15 +2342,23 @@ function GallerySection({
     }
 
     try {
-      const nextItem = await siteBackend.createGalleryItem({
+      setSaveState("saving");
+      const payload: GalleryItemInput = {
         title,
         category: draft.category.trim() || "概念",
         description: draft.description?.trim() || undefined,
         imageUrl,
         isCover: draft.isCover,
-      });
-      setItems((current) => [nextItem, ...current]);
-      setDraft(defaultGalleryDraft);
+      };
+      const nextItem = editingGalleryItemId
+        ? await siteBackend.updateGalleryItem(editingGalleryItemId, payload)
+        : await siteBackend.createGalleryItem(payload);
+      setItems((current) =>
+        editingGalleryItemId
+          ? current.map((item) => (item.id === editingGalleryItemId ? nextItem : item))
+          : [nextItem, ...current],
+      );
+      resetGalleryDraft();
 
       if (nextItem.isCover && nextItem.imageUrl) {
         const nextSettings = await siteBackend.updateSiteSettings({
@@ -2240,9 +2368,42 @@ function GallerySection({
         onSettingsChange(nextSettings);
       }
 
-      setStatusMessage(nextItem.isCover ? "图片已保存，并更新为首页封面。" : "图片已加入图库。");
+      setStatusMessage(
+        editingGalleryItemId
+          ? "图片信息已更新。"
+          : nextItem.isCover
+            ? "图片已保存，并更新为首页封面。"
+            : "图片已加入图库。",
+      );
     } catch (error) {
-      setStatusMessage(error instanceof Error ? error.message : "新增图片失败。");
+      setStatusMessage(error instanceof Error ? error.message : "保存图片失败。");
+    } finally {
+      setSaveState("idle");
+    }
+  }
+
+  async function deleteGalleryItem(item: GalleryItem) {
+    if (!isOwner) {
+      setStatusMessage("只有站主账号可以删除图片。");
+      return;
+    }
+
+    if (!window.confirm(`确定删除「${item.title}」这张图片吗？`)) {
+      return;
+    }
+
+    try {
+      setDeletingGalleryItemId(item.id);
+      await siteBackend.deleteGalleryItem(item.id);
+      setItems((current) => current.filter((candidate) => candidate.id !== item.id));
+      if (editingGalleryItemId === item.id) {
+        resetGalleryDraft();
+      }
+      setStatusMessage("图片已删除。");
+    } catch (error) {
+      setStatusMessage(error instanceof Error ? error.message : "删除图片失败。");
+    } finally {
+      setDeletingGalleryItemId(null);
     }
   }
 
@@ -2267,8 +2428,24 @@ function GallerySection({
       </div>
       <div className="gallery-grid">
         {filteredItems.map((item) => (
-          <article key={item.id} className={clsx("gallery-card", item.isCover && "cover-selected")}>
+          <article key={item.id} className={clsx("gallery-card", item.isCover && "cover-selected", editingGalleryItemId === item.id && "is-editing")}>
             <MediaTile tile={item.tile ?? 4} imageUrl={item.imageUrl} />
+            {isOwner ? (
+              <div className="gallery-admin-actions" aria-label={`${item.title} 管理`}>
+                <button aria-label={`编辑 ${item.title}`} disabled={saveState === "saving"} onClick={() => startEditingGalleryItem(item)} type="button">
+                  <Edit3 size={14} />
+                </button>
+                <button
+                  aria-label={`删除 ${item.title}`}
+                  className="danger"
+                  disabled={deletingGalleryItemId === item.id}
+                  onClick={() => void deleteGalleryItem(item)}
+                  type="button"
+                >
+                  <Trash2 size={14} />
+                </button>
+              </div>
+            ) : null}
             <span>{item.title}</span>
             {item.description ? <p>{item.description}</p> : null}
             {item.isCover || (Boolean(settings.heroCoverUrl) && settings.heroCoverUrl === item.imageUrl) ? (
@@ -2280,7 +2457,7 @@ function GallerySection({
       <div className="owner-upload-panel gallery-upload-panel">
         <div className="portfolio-admin-head">
           <span>{isSupabase ? "Supabase Storage" : localPreviewLabel}</span>
-          <strong>{isOwner ? "站主图片上传入口" : "访客只能浏览公开图库"}</strong>
+          <strong>{editingGalleryItem ? "编辑图库图片" : isOwner ? "站主图片上传入口" : "访客只能浏览公开图库"}</strong>
         </div>
         <BackendModeNotice isSupabase={isSupabase} />
         {isOwner ? (
@@ -2320,8 +2497,13 @@ function GallerySection({
                 <span>上传图片</span>
                 <input accept="image/*" onChange={(event) => void handleGalleryImage(event.target.files?.[0] ?? null)} type="file" />
               </label>
-              <button className="cyan-button" onClick={createGalleryEntry} type="button">
-                保存图片
+              <button className="ghost-button" disabled={saveState === "saving"} onClick={resetGalleryDraft} type="button">
+                <X size={15} />
+                {editingGalleryItem ? "取消编辑" : "清空"}
+              </button>
+              <button className="cyan-button" disabled={saveState === "saving"} onClick={saveGalleryEntry} type="button">
+                <Check size={16} />
+                {saveState === "saving" ? "保存中..." : editingGalleryItem ? "保存修改" : "保存图片"}
               </button>
             </div>
             <label className="owner-toggle-row">
@@ -2811,11 +2993,15 @@ function PrivateSection({ currentUser }: { currentUser: AuthUser | null }) {
   const [posts, setPosts] = useLocalStorage<OwnerPost[]>("linx_owner_posts", seedOwnerPosts);
   const [titleDraft, setTitleDraft] = useState("");
   const [draft, setDraft] = useState("");
+  const [editingPostId, setEditingPostId] = useState<string | null>(null);
   const [loadState, setLoadState] = useState<LoadState>("idle");
+  const [saveState, setSaveState] = useState<"idle" | "saving">("idle");
+  const [deletingPostId, setDeletingPostId] = useState<string | null>(null);
   const [statusMessage, setStatusMessage] = useState("");
 
   const isOwner = currentUser?.role === "owner";
   const isSupabase = siteBackend.mode === "supabase";
+  const editingPost = editingPostId ? posts.find((post) => post.id === editingPostId) : null;
 
   useEffect(() => {
     let active = true;
@@ -2851,7 +3037,20 @@ function PrivateSection({ currentUser }: { currentUser: AuthUser | null }) {
     };
   }, [setPosts]);
 
-  async function publishPost() {
+  function resetPostDraft() {
+    setTitleDraft("");
+    setDraft("");
+    setEditingPostId(null);
+  }
+
+  function startEditingPost(post: OwnerPost) {
+    setTitleDraft(post.title);
+    setDraft(post.body);
+    setEditingPostId(post.id);
+    setStatusMessage(`正在编辑「${post.title}」。`);
+  }
+
+  async function savePost() {
     const body = draft.trim();
     if (!body) {
       return;
@@ -2863,17 +3062,51 @@ function PrivateSection({ currentUser }: { currentUser: AuthUser | null }) {
     }
 
     try {
-      const nextPost = await siteBackend.createOwnerPost({
+      setSaveState("saving");
+      const payload = {
         title: titleDraft.trim() || "站主更新",
         body,
         visibility: "public",
-      });
-      setPosts((current) => [nextPost, ...current]);
-      setTitleDraft("");
-      setDraft("");
-      setStatusMessage(isSupabase ? "已发布到站主动态。" : "本地预览已保存。");
+      } as const;
+      const nextPost = editingPostId
+        ? await siteBackend.updateOwnerPost(editingPostId, payload)
+        : await siteBackend.createOwnerPost(payload);
+      setPosts((current) =>
+        editingPostId
+          ? current.map((post) => (post.id === editingPostId ? nextPost : post))
+          : [nextPost, ...current],
+      );
+      resetPostDraft();
+      setStatusMessage(editingPostId ? "动态已更新。" : isSupabase ? "已发布到站主动态。" : "本地预览已保存。");
     } catch (error) {
-      setStatusMessage(error instanceof Error ? error.message : "发布失败。");
+      setStatusMessage(error instanceof Error ? error.message : "保存动态失败。");
+    } finally {
+      setSaveState("idle");
+    }
+  }
+
+  async function deletePost(post: OwnerPost) {
+    if (!isOwner) {
+      setStatusMessage("只有站主账号可以删除动态。");
+      return;
+    }
+
+    if (!window.confirm(`确定删除「${post.title}」这条动态吗？`)) {
+      return;
+    }
+
+    try {
+      setDeletingPostId(post.id);
+      await siteBackend.deleteOwnerPost(post.id);
+      setPosts((current) => current.filter((candidate) => candidate.id !== post.id));
+      if (editingPostId === post.id) {
+        resetPostDraft();
+      }
+      setStatusMessage("动态已删除。");
+    } catch (error) {
+      setStatusMessage(error instanceof Error ? error.message : "删除动态失败。");
+    } finally {
+      setDeletingPostId(null);
     }
   }
 
@@ -2905,7 +3138,7 @@ function PrivateSection({ currentUser }: { currentUser: AuthUser | null }) {
         <div className="private-composer">
         <div className="composer-lock">
           <LockKeyhole size={18} />
-          <span>站主可发布，访客可阅读</span>
+          <span>{editingPost ? "正在编辑已发布动态" : "站主可发布，访客可阅读"}</span>
         </div>
         <input
           className="post-title-input"
@@ -2934,8 +3167,13 @@ function PrivateSection({ currentUser }: { currentUser: AuthUser | null }) {
             })}
           </div>
           <span>{draft.length} / 2000</span>
-          <button className="cyan-button" disabled={!isOwner || loadState === "loading"} onClick={publishPost} type="button">
-            发布动态
+          <button className="ghost-button" disabled={saveState === "saving"} onClick={resetPostDraft} type="button">
+            <X size={15} />
+            {editingPost ? "取消编辑" : "清空"}
+          </button>
+          <button className="cyan-button" disabled={!isOwner || loadState === "loading" || saveState === "saving"} onClick={savePost} type="button">
+            <Check size={16} />
+            {saveState === "saving" ? "保存中..." : editingPost ? "保存修改" : "发布动态"}
           </button>
         </div>
         </div>
@@ -2943,12 +3181,24 @@ function PrivateSection({ currentUser }: { currentUser: AuthUser | null }) {
       {statusMessage ? <p className="backend-status">{statusMessage}</p> : null}
       <div className="post-stack">
         {posts.slice(0, 6).map((post) => (
-          <article key={post.id} className="mini-post">
+          <article key={post.id} className={clsx("mini-post", editingPostId === post.id && "is-editing")}>
             <div>
               <strong>{post.title}</strong>
               <time>{post.createdAt}</time>
             </div>
             <p>{post.body}</p>
+            {isOwner ? (
+              <div className="mini-post-actions">
+                <button disabled={saveState === "saving"} onClick={() => startEditingPost(post)} type="button">
+                  <Edit3 size={14} />
+                  编辑
+                </button>
+                <button className="danger" disabled={deletingPostId === post.id} onClick={() => void deletePost(post)} type="button">
+                  <Trash2 size={14} />
+                  删除
+                </button>
+              </div>
+            ) : null}
           </article>
         ))}
       </div>
