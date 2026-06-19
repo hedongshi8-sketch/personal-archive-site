@@ -34,6 +34,7 @@
 - [ ] `npm run verify:owner-backend`
 - [ ] `npm run verify:smtp`
 - [ ] `npm run verify:auth-email`
+- [ ] `npm run verify:mail-dns`
 
 ## 线上平台
 

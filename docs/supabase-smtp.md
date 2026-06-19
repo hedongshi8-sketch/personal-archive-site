@@ -97,6 +97,17 @@ auth.example.com
 
 DNS 生效有时需要几分钟到 24 小时。记录没验证通过时，先检查 Cloudflare 里记录的 `Name`、`Type`、`Value` 有没有多写或少写域名后缀。
 
+你也可以在本地检查 DNS 是否大致生效：
+
+```powershell
+$env:MAIL_DOMAIN="example.com"
+$env:MAIL_SUBDOMAIN="auth.example.com"
+$env:SITE_DOMAIN="www.example.com"
+npm run verify:mail-dns
+```
+
+如果只是先做邮件，`SITE_DOMAIN` 可以不设；脚本会把网站自定义域名 CNAME 当作可选项。
+
 ### 4. 创建 Resend API key
 
 1. 在 Resend 进入 `API Keys`。

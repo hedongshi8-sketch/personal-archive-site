@@ -83,6 +83,7 @@ npm run verify:supabase
 npm run verify:owner-backend
 npm run verify:smtp
 npm run verify:auth-email
+npm run verify:mail-dns
 ```
 
 `verify:supabase` 和 `verify:owner-backend` 需要本地或部署环境已经配置 Supabase 变量。线上发布后再跑：
@@ -90,6 +91,8 @@ npm run verify:auth-email
 `verify:smtp` 需要当前终端设置 `SMTP_HOST`、`SMTP_PORT`、`SMTP_USER`、`SMTP_PASS`、`SMTP_FROM`、`SMTP_TO`，只用于验证邮件服务商的 SMTP 账号能真实发测试邮件。
 
 `verify:auth-email` 需要当前终端设置 `AUTH_EMAIL_TO`，用于触发 Supabase Auth 注册确认邮件，确认 Custom SMTP 已经被 Supabase 用起来。
+
+`verify:mail-dns` 需要当前终端设置 `MAIL_DOMAIN`，用于检查 Resend/Cloudflare 的发信 DNS 记录是否生效。
 
 ```bash
 npm run verify:remote

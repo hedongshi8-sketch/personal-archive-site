@@ -90,6 +90,7 @@ assert(read("docs/deployment-runbook.md").includes("Custom SMTP"), "runbook docu
 assert(read("docs/release-checklist.md").includes("Custom SMTP"), "release checklist includes Custom SMTP");
 assert(read("docs/supabase-smtp.md").includes("从买域名到 SMTP 配完"), "SMTP docs include domain purchase flow");
 assert(read("docs/supabase-smtp.md").includes("verify:auth-email"), "SMTP docs include Supabase auth email verification");
+assert(read("docs/supabase-smtp.md").includes("verify:mail-dns"), "SMTP docs include mail DNS verification");
 
 const packageJson = JSON.parse(read("package.json"));
 assert(packageJson.scripts?.["smoke:dist"] === "node scripts/dist-smoke-test.mjs", "dist smoke script exists");
@@ -115,6 +116,7 @@ assert(
   packageJson.scripts?.["verify:auth-email"] === "node scripts/verify-supabase-auth-email.mjs",
   "Supabase auth email verification script exists",
 );
+assert(packageJson.scripts?.["verify:mail-dns"] === "node scripts/verify-mail-dns.mjs", "mail DNS verification script exists");
 assert(
   packageJson.scripts?.["sql:supabase-upgrade"] === "node scripts/compose-supabase-upgrade-sql.mjs",
   "Supabase upgrade SQL composer script exists",
