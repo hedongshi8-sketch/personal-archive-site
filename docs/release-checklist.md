@@ -30,6 +30,8 @@
 - [ ] 已执行 `supabase/seed-portfolio.sql`。
 - [ ] `portfolio_projects` 有 3 条项目。
 - [ ] `portfolio_items` 有 19 条公开作品。
+- [ ] `music_tracks`、`gallery_items`、`reading_notes`、`site_settings` 表已创建。
+- [ ] 评论插入策略包含 `client_elapsed_ms` 和 `honeypot` 防刷字段。
 - [ ] Storage bucket `portfolio-public` 存在且 public。
 - [ ] 站主邮箱首次 magic link 登录完成。
 - [ ] `profiles.role` 已将站主邮箱设置为 `owner`。
@@ -64,6 +66,10 @@
 - [ ] Excel、DOCX、Markdown 和文本作品可以在详情栏站内预览。
 - [ ] `可交互原型` 筛选和搜索 `战争` 正常。
 - [ ] 访客可以提交留言。
+- [ ] 留言墙错误答案或提交过快会被拦截。
 - [ ] 未登录访客看不到可用的作品集编辑权限。
 - [ ] 站主登录后可以进入私密发帖区。
 - [ ] 站主登录后可以上传作品集文件并登记新作品。
+- [ ] 站主登录后可以上传音乐并设置全站背景音乐。
+- [ ] 站主登录后可以上传图片并修改首页封面。
+- [ ] `/#notes` 可以浏览书摘心得，站主登录后可以发布书籍/视频心得。

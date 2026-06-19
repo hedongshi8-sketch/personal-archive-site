@@ -1,5 +1,6 @@
 import {
   Archive,
+  BookOpenText,
   Gamepad2,
   Headphones,
   Images,
@@ -39,10 +40,49 @@ export type Playlist = {
   tile: number;
 };
 
+export type MusicTrack = {
+  id: string;
+  title: string;
+  artist: string;
+  mood: string;
+  duration: string;
+  tile?: number;
+  audioUrl?: string;
+  coverUrl?: string;
+  isBackground?: boolean;
+  createdAt?: string;
+};
+
 export type GalleryItem = {
+  id: string;
   title: string;
   category: string;
-  tile: number;
+  tile?: number;
+  description?: string;
+  imageUrl?: string;
+  isCover?: boolean;
+  createdAt?: string;
+};
+
+export type ReadingNote = {
+  id: string;
+  kind: "book" | "video";
+  title: string;
+  creator: string;
+  sourceUrl?: string;
+  coverUrl?: string;
+  quote: string;
+  reflection: string;
+  tags: string[];
+  createdAt: string;
+};
+
+export type SiteSettings = {
+  heroCoverUrl?: string;
+  backgroundMusicUrl?: string;
+  backgroundMusicTitle?: string;
+  backgroundMusicEnabled: boolean;
+  updatedAt?: string;
 };
 
 export type Comment = {
@@ -68,6 +108,7 @@ export const navItems: NavItem[] = [
   { id: "demos", label: "游戏 Demo", icon: Gamepad2 },
   { id: "music", label: "音乐雷达", icon: Headphones },
   { id: "gallery", label: "灵感图库", icon: Images },
+  { id: "notes", label: "书摘心得", icon: BookOpenText },
   { id: "private", label: "私密发帖", icon: LockKeyhole },
   { id: "comments", label: "留言墙", icon: MessageCircle },
   { id: "contact", label: "合作与联系", icon: UserRound },
@@ -142,14 +183,82 @@ export const playlists: Playlist[] = [
   { title: "故检与坍塌", count: 27, tile: 7 },
 ];
 
-export const galleryItems: GalleryItem[] = [
-  { title: "水城废墟", category: "场景", tile: 4 },
-  { title: "峡谷机关", category: "场景", tile: 0 },
-  { title: "旅者草图", category: "角色", tile: 5 },
-  { title: "雨巷灯火", category: "氛围", tile: 6 },
-  { title: "边境山脉", category: "概念", tile: 7 },
-  { title: "模块化建筑", category: "UI/界面", tile: 8 },
+export const musicTracks: MusicTrack[] = [
+  {
+    id: "seed-sable-drift",
+    title: "Sable Drift",
+    artist: "Floating Points",
+    mood: "氛围 / 电子 / 夜间工作",
+    duration: "06:41",
+    tile: 3,
+    isBackground: true,
+  },
+  {
+    id: "seed-quiet-loop",
+    title: "Quiet Loop",
+    artist: "Archive Radio",
+    mood: "系统策划 / 专注",
+    duration: "04:18",
+    tile: 4,
+  },
+  {
+    id: "seed-boss-room",
+    title: "Boss Room Sketch",
+    artist: "Combat Notes",
+    mood: "战斗节奏 / 压迫感",
+    duration: "03:52",
+    tile: 2,
+  },
 ];
+
+export const galleryItems: GalleryItem[] = [
+  { id: "seed-water-ruins", title: "水城废墟", category: "场景", tile: 4, description: "废墟、水路和探索动线参考。" },
+  { id: "seed-canyon-device", title: "峡谷机关", category: "场景", tile: 0, description: "峡谷垂直空间与机关节奏。" },
+  { id: "seed-traveler-sketch", title: "旅者草图", category: "角色", tile: 5, description: "角色剪影与装备层次。" },
+  { id: "seed-rain-lane", title: "雨巷灯火", category: "氛围", tile: 6, description: "湿润夜景和引导光源。" },
+  { id: "seed-border-range", title: "边境山脉", category: "概念", tile: 7, description: "远景地标与区域边界。" },
+  { id: "seed-modular-building", title: "模块化建筑", category: "UI/界面", tile: 8, description: "组件化空间与建造反馈。" },
+];
+
+export const readingNotes: ReadingNote[] = [
+  {
+    id: "seed-art-of-game-design",
+    kind: "book",
+    title: "The Art of Game Design",
+    creator: "Jesse Schell",
+    quote: "把体验拆成可以被反复审视的镜头。",
+    reflection: "适合做策划复盘清单：每个系统都要回到玩家体验，而不是停在功能描述。",
+    tags: ["体验设计", "系统拆解", "复盘"],
+    createdAt: "2026-06-19",
+  },
+  {
+    id: "seed-level-design-workshop",
+    kind: "video",
+    title: "Level Design Workshop",
+    creator: "GDC Talk",
+    sourceUrl: "https://www.youtube.com/",
+    quote: "关卡不是路线，而是一组被安排好的选择压力。",
+    reflection: "对开放世界引导很有用：可以把目标、风险、奖励做成可视化节奏点。",
+    tags: ["关卡", "引导", "节奏"],
+    createdAt: "2026-06-19",
+  },
+  {
+    id: "seed-rules-of-play",
+    kind: "book",
+    title: "Rules of Play",
+    creator: "Katie Salen / Eric Zimmerman",
+    quote: "规则要服务于可被玩家感知的意义。",
+    reflection: "提醒我写数值和经济系统时，把反馈闭环写清楚，避免只有表格没有行为。",
+    tags: ["规则", "反馈", "经济系统"],
+    createdAt: "2026-06-19",
+  },
+];
+
+export const defaultSiteSettings: SiteSettings = {
+  backgroundMusicTitle: "Sable Drift",
+  backgroundMusicEnabled: false,
+  updatedAt: "2026-06-19",
+};
 
 export const seedComments: Comment[] = [
   {
@@ -191,8 +300,9 @@ export const seedOwnerPosts: OwnerPost[] = [
 export const backendRoadmap = [
   "Supabase Auth：只允许站主进入私密发帖区",
   "Postgres + RLS：公开评论可读写，私密帖子仅 owner 可见",
-  "对象存储：上传策划 PDF、Demo 包、图片收藏原图",
-  "Edge Functions：评论审核、邮件通知、Webhook 自动发布",
+  "对象存储：上传策划 PDF、Demo 包、音乐、封面和图片收藏原图",
+  "轻量防刷：留言表单包含数学验证、蜜罐字段和提交时间检查",
+  "Edge Functions：高级评论审核、邮件通知、Webhook 自动发布",
 ];
 
 export const ownerActions = [

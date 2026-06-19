@@ -9,7 +9,7 @@
 - PWA 基础：manifest + service worker
 - 静态作品集资产：`public/portfolio-assets`
 - 站内作品预览：`public/portfolio-previews` 预生成 Excel / DOCX / Markdown / 文本阅读数据
-- Supabase-ready 后端：Auth、Postgres RLS、Storage、公开评论、站主私密发帖
+- Supabase-ready 后端：Auth、Postgres RLS、Storage、公开评论、站主私密发帖、作品/音乐/图片/书摘上传和站点设置
 
 ## 本地运行
 
@@ -42,7 +42,7 @@ npm run verify:supabase
 `pack:static` 会生成 `release/personal-archive-site-static.zip` 和 manifest，方便没有 CLI 时手动上传静态站点。
 `verify:remote` 会检查 GitHub Pages 默认公网 URL，确认首页、原型、PDF、Excel 和站内预览数据可访问。
 `verify:comments` / `verify:comments:remote` 会检查 GitHub Issues 评论桥是否进入本地构建和线上 bundle。
-`verify:supabase` 会在配置 Supabase 环境变量后检查公开作品、访客评论、点赞 RPC 和 owner-only RLS。
+`verify:supabase` 会在配置 Supabase 环境变量后检查公开作品、访客评论验证、点赞 RPC、音乐/图库/书摘公开读取和 owner-only RLS。
 
 ## 作品集资产
 
@@ -61,6 +61,10 @@ Excel、DOCX、Markdown 和文本类材料会额外生成到 `public/portfolio-p
 - 没有 Supabase 环境变量时：自动使用本地预览模式，方便开发和静态展示。
 - 配置 Supabase 后：私密发帖、公开评论、点赞、资源上传接口切换到 Supabase。
 - 策划档案页包含 owner-only 管理面板；owner 可以上传作品集文件并登记新作品条目。
+- 音乐页包含 owner-only 上传入口；owner 可以上传音频、封面，并设置全站背景音乐。
+- 图库页包含 owner-only 上传入口；owner 可以上传图片、分类整理，并设置首页封面。
+- 书摘心得页包含 owner-only 发布入口；owner 可以上传封面，登记策划书籍和视频心得。
+- 留言墙包含轻量防刷：算术验证、隐藏蜜罐和最短提交耗时；更强防护可后续接 Edge Function / Turnstile。
 - 真实权限由 `supabase/schema.sql` 的 Auth + RLS + profile role 控制。
 
 部署前复制 `.env.example`，在本地或部署平台填入：
@@ -98,7 +102,7 @@ set VITE_SUPABASE_PUBLIC_BUCKET=portfolio-public
 npm run verify:supabase
 ```
 
-这样外部访客可以浏览作品集和评论，只有 `profiles.role = 'owner'` 的账号能写入私密发帖和管理资源。
+这样外部访客可以浏览作品集、音乐、图库、书摘和评论，只有 `profiles.role = 'owner'` 的账号能写入私密发帖、上传资源和修改封面/背景音乐。
 
 如果暂时还没接 Supabase，留言墙会额外显示 GitHub Issues 评论面板。到 <https://github.com/apps/utterances> 安装 Utterances App，并授权 `personal-archive-site` 仓库后，访客可以用 GitHub 账号留下公网持久评论。
 
@@ -113,7 +117,7 @@ npm run verify:supabase
 - 这条路线不需要 Vercel token，适合先把公开作品集放到公网。
 - 仓库 Settings -> Pages 的 Source 选择 GitHub Actions。
 - `public/.nojekyll` 和 `public/404.html` 已准备好，兼容 GitHub Pages 静态托管与直接路径访问。
-- Supabase 环境变量未配置时，站点会保持本地预览模式；公开作品集可浏览，站主在线编辑不会启用真实权限。
+- Supabase 环境变量未配置时，站点会保持本地预览模式；公开作品集可浏览，本地上传只存在当前浏览器预览里，不会写入线上数据库。
 - Supabase 未启用前，留言墙可以通过 Utterances + GitHub Issues 承接公网评论。
 
 ### Vercel

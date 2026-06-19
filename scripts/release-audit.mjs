@@ -161,12 +161,33 @@ const schema = read("supabase/schema.sql");
 assert(schema.includes("create policy \"owner can manage portfolio items\""), "owner portfolio RLS exists");
 assert(schema.includes("create policy \"owner can upload portfolio storage\""), "owner storage upload RLS exists");
 assert(schema.includes("create or replace function public.increment_comment_likes"), "safe like RPC exists");
+for (const table of ["music_tracks", "gallery_items", "reading_notes", "site_settings"]) {
+  assert(schema.includes(`create table public.${table}`), `Supabase ${table} table exists`);
+}
+for (const policy of [
+  "owner can manage music tracks",
+  "owner can manage gallery items",
+  "owner can manage reading notes",
+  "owner can manage site settings",
+  "published music tracks are public",
+  "published gallery items are public",
+  "published reading notes are public",
+]) {
+  assert(schema.includes(`create policy "${policy}"`), `${policy} RLS exists`);
+}
+assert(schema.includes("client_elapsed_ms >= 2000"), "comment verification delay policy exists");
+assert(schema.includes("honeypot = ''"), "comment honeypot policy exists");
 
 const appSource = read("src/App.tsx");
 assert(appSource.includes("https://utteranc.es/client.js"), "GitHub Issues comments bridge exists");
 assert(appSource.includes("site-comment"), "GitHub Issues comments are labeled");
 assert(appSource.includes("ExcelSheetPreview"), "Excel in-site preview reader exists");
 assert(appSource.includes("DocumentReader"), "document in-site preview reader exists");
+assert(appSource.includes("function MusicSection"), "music upload section exists");
+assert(appSource.includes("function GallerySection"), "gallery upload section exists");
+assert(appSource.includes("function NotesSection"), "reading notes section exists");
+assert(appSource.includes("checkHumanGate"), "anti-spam human gate exists");
+assert(appSource.includes("BackgroundMusicDock"), "background music dock exists");
 
 try {
   const status = command(["git", "status", "--short"]);

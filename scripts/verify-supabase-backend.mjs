@@ -50,12 +50,43 @@ if (!supabaseUrl || !supabaseAnonKey) {
     "published portfolio items include in-site preview URLs",
   );
 
+  const { error: settingsError } = await supabase
+    .from("site_settings")
+    .select("id,hero_cover_url,background_music_url,background_music_enabled")
+    .limit(1);
+
+  assert(!settingsError, "public site settings are readable", settingsError?.message);
+
+  const publicTables = [
+    ["music_tracks", "published music tracks are readable"],
+    ["gallery_items", "published gallery items are readable"],
+    ["reading_notes", "published reading notes are readable"],
+  ];
+
+  for (const [tableName, label] of publicTables) {
+    const { error } = await supabase.from(tableName).select("id").eq("published", true).limit(1);
+    assert(!error, label, error?.message);
+  }
+
+  const { error: fastCommentError } = await supabase
+    .from("public_comments")
+    .insert({
+      author: "验收访客",
+      body: "this comment should be blocked by verification",
+      client_elapsed_ms: 0,
+      honeypot: "",
+    });
+
+  assert(Boolean(fastCommentError), "anonymous fast comment is blocked by verification policy");
+
   const commentBody = `Supabase smoke test ${new Date().toISOString()}`;
   const { data: comment, error: commentError } = await supabase
     .from("public_comments")
     .insert({
       author: "验收访客",
       body: commentBody,
+      client_elapsed_ms: 2400,
+      honeypot: "",
     })
     .select("id,author,body,likes")
     .single();
@@ -88,6 +119,56 @@ if (!supabaseUrl || !supabaseAnonKey) {
     });
 
   assert(Boolean(blockedInsertError), "anonymous visitor cannot create portfolio item");
+
+  const protectedInserts = [
+    [
+      "music_tracks",
+      {
+        title: "anonymous music should fail",
+        artist: "RLS smoke test",
+        mood: "blocked",
+        audio_url: "https://example.com/blocked.mp3",
+        published: true,
+      },
+      "anonymous visitor cannot create music track",
+    ],
+    [
+      "gallery_items",
+      {
+        title: "anonymous image should fail",
+        category: "概念",
+        image_url: "https://example.com/blocked.png",
+        published: true,
+      },
+      "anonymous visitor cannot create gallery item",
+    ],
+    [
+      "reading_notes",
+      {
+        kind: "book",
+        title: "anonymous note should fail",
+        creator: "RLS smoke test",
+        quote: "blocked",
+        reflection: "blocked",
+        tags: [],
+        published: true,
+      },
+      "anonymous visitor cannot create reading note",
+    ],
+    [
+      "site_settings",
+      {
+        id: "main",
+        background_music_enabled: true,
+      },
+      "anonymous visitor cannot update site settings",
+    ],
+  ];
+
+  for (const [tableName, payload, label] of protectedInserts) {
+    const { error } = await supabase.from(tableName).insert(payload);
+    assert(Boolean(error), label);
+  }
 
   const { data: publicUrlData } = supabase.storage.from(bucketName).getPublicUrl("healthcheck.txt");
   assert(Boolean(publicUrlData.publicUrl), "public storage bucket URL can be generated");

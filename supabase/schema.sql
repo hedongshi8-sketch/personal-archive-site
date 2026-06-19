@@ -1,6 +1,15 @@
 create type public.site_role as enum ('owner', 'visitor');
 create type public.owner_post_visibility as enum ('private', 'draft');
-create type public.asset_kind as enum ('design-doc', 'game-demo', 'music-cover', 'gallery-image');
+create type public.asset_kind as enum (
+  'design-doc',
+  'game-demo',
+  'music-cover',
+  'gallery-image',
+  'music-audio',
+  'site-cover',
+  'reading-cover'
+);
+create type public.reading_note_kind as enum ('book', 'video');
 create type public.portfolio_kind as enum (
   'pdf',
   'excel',
@@ -34,6 +43,8 @@ create table public.public_comments (
   body text not null,
   likes integer not null default 0,
   approved boolean not null default true,
+  client_elapsed_ms integer not null default 0,
+  honeypot text not null default '',
   created_at timestamptz not null default now()
 );
 
@@ -87,6 +98,61 @@ create table public.portfolio_files (
   created_at timestamptz not null default now()
 );
 
+create table public.music_tracks (
+  id uuid primary key default gen_random_uuid(),
+  owner_id uuid references public.profiles(id) on delete set null,
+  title text not null,
+  artist text not null default '',
+  mood text not null default '',
+  duration text,
+  audio_url text not null,
+  cover_url text,
+  is_background boolean not null default false,
+  published boolean not null default true,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table public.gallery_items (
+  id uuid primary key default gen_random_uuid(),
+  owner_id uuid references public.profiles(id) on delete set null,
+  title text not null,
+  category text not null default '概念',
+  description text,
+  image_url text not null,
+  is_cover boolean not null default false,
+  published boolean not null default true,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table public.reading_notes (
+  id uuid primary key default gen_random_uuid(),
+  owner_id uuid references public.profiles(id) on delete set null,
+  kind public.reading_note_kind not null,
+  title text not null,
+  creator text not null,
+  source_url text,
+  cover_url text,
+  quote text not null,
+  reflection text not null,
+  tags text[] not null default '{}',
+  published boolean not null default true,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table public.site_settings (
+  id text primary key default 'main',
+  owner_id uuid references public.profiles(id) on delete set null,
+  hero_cover_url text,
+  background_music_url text,
+  background_music_title text,
+  background_music_enabled boolean not null default false,
+  updated_at timestamptz not null default now(),
+  constraint site_settings_singleton check (id = 'main')
+);
+
 alter table public.profiles enable row level security;
 alter table public.owner_posts enable row level security;
 alter table public.public_comments enable row level security;
@@ -94,12 +160,19 @@ alter table public.assets enable row level security;
 alter table public.portfolio_projects enable row level security;
 alter table public.portfolio_items enable row level security;
 alter table public.portfolio_files enable row level security;
+alter table public.music_tracks enable row level security;
+alter table public.gallery_items enable row level security;
+alter table public.reading_notes enable row level security;
+alter table public.site_settings enable row level security;
 
 create index portfolio_items_project_id_idx on public.portfolio_items(project_id);
 create index portfolio_items_kind_idx on public.portfolio_items(kind);
 create index portfolio_items_published_updated_idx on public.portfolio_items(published, updated_at desc);
 create index portfolio_files_item_id_idx on public.portfolio_files(item_id);
 create index public_comments_approved_created_idx on public.public_comments(approved, created_at desc);
+create index music_tracks_published_created_idx on public.music_tracks(published, created_at desc);
+create index gallery_items_published_created_idx on public.gallery_items(published, created_at desc);
+create index reading_notes_published_created_idx on public.reading_notes(published, created_at desc);
 
 insert into storage.buckets (id, name, public)
 values ('portfolio-public', 'portfolio-public', true)
@@ -163,7 +236,12 @@ using (approved = true);
 
 create policy "visitors can create comments"
 on public.public_comments for insert
-with check (length(author) between 1 and 80 and length(body) between 1 and 1200);
+with check (
+  length(author) between 1 and 80
+  and length(body) between 1 and 1200
+  and honeypot = ''
+  and client_elapsed_ms >= 2000
+);
 
 create policy "owner can moderate comments"
 on public.public_comments for update
@@ -260,6 +338,91 @@ using (
 )
 with check (
   exists (
+    select 1 from public.profiles
+    where profiles.id = auth.uid()
+      and profiles.role = 'owner'
+  )
+);
+
+create policy "published music tracks are public"
+on public.music_tracks for select
+using (published = true);
+
+create policy "owner can manage music tracks"
+on public.music_tracks for all
+using (
+  exists (
+    select 1 from public.profiles
+    where profiles.id = auth.uid()
+      and profiles.role = 'owner'
+  )
+)
+with check (
+  exists (
+    select 1 from public.profiles
+    where profiles.id = auth.uid()
+      and profiles.role = 'owner'
+  )
+);
+
+create policy "published gallery items are public"
+on public.gallery_items for select
+using (published = true);
+
+create policy "owner can manage gallery items"
+on public.gallery_items for all
+using (
+  exists (
+    select 1 from public.profiles
+    where profiles.id = auth.uid()
+      and profiles.role = 'owner'
+  )
+)
+with check (
+  exists (
+    select 1 from public.profiles
+    where profiles.id = auth.uid()
+      and profiles.role = 'owner'
+  )
+);
+
+create policy "published reading notes are public"
+on public.reading_notes for select
+using (published = true);
+
+create policy "owner can manage reading notes"
+on public.reading_notes for all
+using (
+  exists (
+    select 1 from public.profiles
+    where profiles.id = auth.uid()
+      and profiles.role = 'owner'
+  )
+)
+with check (
+  exists (
+    select 1 from public.profiles
+    where profiles.id = auth.uid()
+      and profiles.role = 'owner'
+  )
+);
+
+create policy "site settings are public"
+on public.site_settings for select
+using (id = 'main');
+
+create policy "owner can manage site settings"
+on public.site_settings for all
+using (
+  exists (
+    select 1 from public.profiles
+    where profiles.id = auth.uid()
+      and profiles.role = 'owner'
+  )
+)
+with check (
+  id = 'main'
+  and exists (
     select 1 from public.profiles
     where profiles.id = auth.uid()
       and profiles.role = 'owner'

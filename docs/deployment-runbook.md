@@ -36,7 +36,7 @@
 5. `public/.nojekyll` 和 `public/404.html` 会随构建进入 `dist`，用于兼容 GitHub Pages 静态托管。
 6. 发布完成后运行 `npm run verify:remote`，确认公网首页、原型、PDF 和 Excel 可访问。
 
-这条路线可以让访客在线浏览作品集和 demo；站主在线编辑、私密发帖和真实评论仍需要 Supabase 初始化与环境变量。
+这条路线可以让访客在线浏览作品集、demo、音乐、图库和书摘；站主在线编辑、持久上传、私密发帖、封面/背景音乐设置和真实评论仍需要 Supabase 初始化与环境变量。
 如果要在 Supabase 前先启用公网评论，打开 <https://github.com/apps/utterances>，安装到 `personal-archive-site` 仓库；留言墙会使用 GitHub Issues 保存评论。
 
 ## 3. GitHub Actions 自动部署
@@ -72,7 +72,7 @@ set role = 'owner'
 where email = '你的邮箱';
 ```
 
-完成后，访客只能浏览和评论；站主账号可以发私密帖、上传作品集文件、登记新作品条目。
+完成后，访客只能浏览和评论；站主账号可以发私密帖、上传作品集文件、登记新作品条目、上传音乐、设置背景音乐、上传图片、修改首页封面、发布书摘心得。
 
 ## 5. 发布前检查
 
@@ -99,9 +99,11 @@ npm run verify:supabase
 - 关键公开路径、原型 iframe、PDF 和 Excel 文件通过 `npm run smoke:dist`。
 - `dist/_headers` 和 `dist/_redirects` 存在。
 - `supabase/seed-portfolio.sql` 包含 19 个作品条目。
+- `supabase/schema.sql` 包含 `music_tracks`、`gallery_items`、`reading_notes`、`site_settings` 和评论防刷字段。
 - 线上环境变量与 `.env.example` 一致。
 - `npm run deploy:readiness` 没有 `BLOCK` 项；如果提示缺少 Git remote，先创建 GitHub 仓库并执行 `git remote add origin <repo-url>`。
 - 如需手动上传，`release/personal-archive-site-static.zip` 已由 `npm run pack:static` 生成。
 - `npm run verify:remote` 通过；如果 GitHub Pages 仍是 404，先在仓库 Settings -> Pages 中选择 GitHub Actions。
 - `npm run verify:comments:remote` 通过；如果失败，确认最新 Pages 已部署并且 Utterances 配置仍在 bundle 中。
 - 配置 Supabase 后，`npm run verify:supabase` 通过。
+  这一步会验证访客可读公开音乐/图片/书摘，但不能匿名写入站主资源。

@@ -19,22 +19,31 @@ import {
   Play,
   Search,
   Send,
+  ShieldCheck,
   Shuffle,
   SkipBack,
   SkipForward,
   Upload,
+  Volume2,
 } from "lucide-react";
 import {
   backendRoadmap,
+  defaultSiteSettings,
   galleryItems,
   gameDemos,
+  musicTracks,
   navItems,
   ownerActions,
   playlists,
+  readingNotes,
   seedComments,
   seedOwnerPosts,
   type Comment,
+  type GalleryItem,
+  type MusicTrack,
   type OwnerPost,
+  type ReadingNote,
+  type SiteSettings,
 } from "./data/siteData";
 import {
   portfolioFilters,
@@ -45,7 +54,14 @@ import {
   type PortfolioKind,
   type PortfolioProject,
 } from "./data/portfolioItems";
-import { siteBackend, type AuthUser, type PortfolioItemInput } from "./lib/backendContract";
+import {
+  siteBackend,
+  type AuthUser,
+  type GalleryItemInput,
+  type MusicTrackInput,
+  type PortfolioItemInput,
+  type ReadingNoteInput,
+} from "./lib/backendContract";
 import { useLocalStorage } from "./hooks/useLocalStorage";
 import mediaSheet from "./assets/media-sheet.png";
 
@@ -54,10 +70,12 @@ const githubCommentsRepo = import.meta.env.VITE_GITHUB_COMMENTS_REPO || "hedongs
 
 function MediaTile({
   tile,
+  imageUrl,
   className,
   children,
 }: {
   tile: number;
+  imageUrl?: string;
   className?: string;
   children?: ReactNode;
 }) {
@@ -69,7 +87,8 @@ function MediaTile({
       className={clsx("media-tile", className)}
       style={
         {
-          "--media-image": `url(${mediaSheet})`,
+          "--media-image": `url(${imageUrl || mediaSheet})`,
+          "--media-size": imageUrl ? "cover" : "300% 300%",
           "--media-x": `${x * 50}%`,
           "--media-y": `${y * 50}%`,
         } as CSSProperties
@@ -80,9 +99,45 @@ function MediaTile({
   );
 }
 
-const sectionIds = ["home", "docs", "demos", "music", "gallery", "private", "comments", "contact"] as const;
+const sectionIds = ["home", "docs", "demos", "music", "gallery", "notes", "private", "comments", "contact"] as const;
 type SectionId = (typeof sectionIds)[number];
 type LoadState = "idle" | "loading" | "ready" | "error";
+type HumanGateState = {
+  left: number;
+  right: number;
+  answer: string;
+  honeypot: string;
+  createdAt: number;
+};
+
+const defaultMusicDraft: MusicTrackInput = {
+  title: "",
+  artist: "",
+  mood: "",
+  duration: "",
+  audioUrl: "",
+  coverUrl: "",
+  isBackground: false,
+};
+
+const defaultGalleryDraft: GalleryItemInput = {
+  title: "",
+  category: "概念",
+  description: "",
+  imageUrl: "",
+  isCover: false,
+};
+
+const defaultReadingDraft: ReadingNoteInput = {
+  kind: "book",
+  title: "",
+  creator: "",
+  sourceUrl: "",
+  coverUrl: "",
+  quote: "",
+  reflection: "",
+  tags: [],
+};
 
 type ExcelPreviewSheet = {
   id: string;
@@ -164,6 +219,41 @@ const defaultPortfolioDraft: PortfolioItemInput = {
   featured: false,
 };
 
+function createHumanGate(): HumanGateState {
+  return {
+    left: 2 + Math.floor(Math.random() * 7),
+    right: 3 + Math.floor(Math.random() * 6),
+    answer: "",
+    honeypot: "",
+    createdAt: Date.now(),
+  };
+}
+
+function checkHumanGate(gate: HumanGateState) {
+  const answer = Number(gate.answer.trim());
+  const spentEnoughTime = Date.now() - gate.createdAt >= 2200;
+  return gate.honeypot.trim() === "" && spentEnoughTime && answer === gate.left + gate.right;
+}
+
+function parseTags(value: string) {
+  return value
+    .split(/[,，]/)
+    .map((tag) => tag.trim())
+    .filter(Boolean);
+}
+
+function makeFileTitle(file: File) {
+  return file.name.replace(/\.[^.]+$/, "");
+}
+
+function isLocalRuntimeHost() {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  return ["localhost", "127.0.0.1", "::1"].includes(window.location.hostname);
+}
+
 function getSectionFromLocation(): SectionId {
   if (typeof window === "undefined") {
     return "home";
@@ -234,7 +324,7 @@ function MobileNav({ activeSection }: { activeSection: SectionId }) {
         <span>LinX</span>
       </a>
       <nav>
-        {navItems.slice(1, 7).map((item) => (
+        {navItems.slice(1, 8).map((item) => (
           <a
             className={clsx(activeSection === item.id && "active")}
             href={`#${item.id}`}
@@ -605,7 +695,7 @@ function PortfolioPreview({ item }: { item: PortfolioItem }) {
   );
 }
 
-function HeroSection() {
+function HeroSection({ settings }: { settings: SiteSettings }) {
   return (
     <section className="screen-section hero-section" id="home">
       <div className="hero-copy">
@@ -638,7 +728,7 @@ function HeroSection() {
             L
           </div>
         </div>
-        <MediaTile tile={0} className="hero-media">
+        <MediaTile tile={0} imageUrl={settings.heroCoverUrl} className="hero-media">
           <div className="hero-media-caption">
             <span>Archive OS</span>
             <strong>策划文档 · 原型记录 · 灵感索引</strong>
@@ -646,6 +736,57 @@ function HeroSection() {
         </MediaTile>
       </div>
     </section>
+  );
+}
+
+function BackgroundMusicDock({ settings }: { settings: SiteSettings }) {
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [playing, setPlaying] = useState(false);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) {
+      return;
+    }
+
+    if (!settings.backgroundMusicEnabled || !settings.backgroundMusicUrl) {
+      audio.pause();
+      setPlaying(false);
+    }
+  }, [settings.backgroundMusicEnabled, settings.backgroundMusicUrl]);
+
+  async function toggleBackgroundMusic() {
+    const audio = audioRef.current;
+    if (!audio || !settings.backgroundMusicUrl) {
+      return;
+    }
+
+    if (playing) {
+      audio.pause();
+      setPlaying(false);
+      return;
+    }
+
+    try {
+      await audio.play();
+      setPlaying(true);
+    } catch {
+      setPlaying(false);
+    }
+  }
+
+  if (!settings.backgroundMusicEnabled || !settings.backgroundMusicUrl) {
+    return null;
+  }
+
+  return (
+    <div className="background-music-dock" aria-label="网站背景音乐">
+      <audio ref={audioRef} src={settings.backgroundMusicUrl} loop preload="none" />
+      <button onClick={toggleBackgroundMusic} type="button" aria-label={playing ? "暂停背景音乐" : "播放背景音乐"}>
+        {playing ? <Pause size={16} fill="currentColor" /> : <Volume2 size={16} />}
+      </button>
+      <span>{settings.backgroundMusicTitle || "背景音乐"}</span>
+    </div>
   );
 }
 
@@ -1072,23 +1213,227 @@ function DemosSection() {
   );
 }
 
-function MusicSection() {
+function MusicSection({
+  settings,
+  onSettingsChange,
+}: {
+  settings: SiteSettings;
+  onSettingsChange: (settings: SiteSettings) => void;
+}) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [favorite, setFavorite] = useLocalStorage("linx_music_favorite", true);
+  const [tracks, setTracks] = useState<MusicTrack[]>(musicTracks);
+  const [activeTrackId, setActiveTrackId] = useState(musicTracks[0].id);
+  const [user, setUser] = useState<AuthUser | null>(null);
+  const [draft, setDraft] = useState<MusicTrackInput>(defaultMusicDraft);
+  const [statusMessage, setStatusMessage] = useState("");
+  const [loadState, setLoadState] = useState<LoadState>("idle");
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  const isOwner = user?.role === "owner";
+  const isSupabase = siteBackend.mode === "supabase";
+  const activeTrack = tracks.find((track) => track.id === activeTrackId) ?? tracks[0];
+
+  useEffect(() => {
+    let active = true;
+
+    async function loadMusicWorkbench() {
+      setLoadState("loading");
+      setStatusMessage("");
+
+      try {
+        const [currentUser, remoteTracks, remoteSettings] = await Promise.all([
+          siteBackend.getCurrentUser(),
+          siteBackend.listMusicTracks(),
+          siteBackend.getSiteSettings(),
+        ]);
+
+        if (!active) {
+          return;
+        }
+
+        setUser(currentUser);
+        if (remoteTracks.length > 0) {
+          setTracks(remoteTracks);
+          setActiveTrackId(remoteTracks[0].id);
+        }
+        onSettingsChange(remoteSettings);
+        setLoadState("ready");
+      } catch (error) {
+        if (!active) {
+          return;
+        }
+
+        setLoadState("error");
+        setStatusMessage(error instanceof Error ? error.message : "音乐数据加载失败，已使用本地歌单。");
+      }
+    }
+
+    void loadMusicWorkbench();
+    return () => {
+      active = false;
+    };
+  }, [onSettingsChange]);
+
+  useEffect(() => {
+    setIsPlaying(false);
+    audioRef.current?.pause();
+  }, [activeTrackId]);
+
+  async function handleMusicFile(file: File | null) {
+    if (!file) {
+      return;
+    }
+
+    if (!isOwner) {
+      setStatusMessage("只有站主账号可以上传音乐。");
+      return;
+    }
+
+    try {
+      const uploaded = await siteBackend.uploadAsset(file, "music-audio");
+      setDraft((current) => ({
+        ...current,
+        title: current.title || makeFileTitle(file),
+        audioUrl: uploaded.url,
+      }));
+      setStatusMessage(isSupabase ? "音乐文件已上传。" : "本地音乐预览已准备好。");
+    } catch (error) {
+      setStatusMessage(error instanceof Error ? error.message : "音乐上传失败。");
+    }
+  }
+
+  async function handleMusicCover(file: File | null) {
+    if (!file) {
+      return;
+    }
+
+    if (!isOwner) {
+      setStatusMessage("只有站主账号可以上传封面。");
+      return;
+    }
+
+    try {
+      const uploaded = await siteBackend.uploadAsset(file, "music-cover");
+      setDraft((current) => ({ ...current, coverUrl: uploaded.url }));
+      setStatusMessage(isSupabase ? "音乐封面已上传。" : "本地封面预览已准备好。");
+    } catch (error) {
+      setStatusMessage(error instanceof Error ? error.message : "封面上传失败。");
+    }
+  }
+
+  async function createTrack() {
+    if (!isOwner) {
+      setStatusMessage("只有站主账号可以登记音乐。");
+      return;
+    }
+
+    const title = draft.title.trim();
+    const artist = draft.artist.trim() || "私人歌单";
+    const mood = draft.mood.trim() || "未分类";
+    const audioUrl = draft.audioUrl.trim();
+
+    if (!title || !audioUrl) {
+      setStatusMessage("至少需要标题和音频文件。");
+      return;
+    }
+
+    try {
+      const nextTrack = await siteBackend.createMusicTrack({
+        ...draft,
+        title,
+        artist,
+        mood,
+        audioUrl,
+        coverUrl: draft.coverUrl?.trim() || undefined,
+        duration: draft.duration?.trim() || undefined,
+      });
+      setTracks((current) => [nextTrack, ...current]);
+      setActiveTrackId(nextTrack.id);
+
+      if (draft.isBackground && nextTrack.audioUrl) {
+        const nextSettings = await siteBackend.updateSiteSettings({
+          ...settings,
+          backgroundMusicUrl: nextTrack.audioUrl,
+          backgroundMusicTitle: nextTrack.title,
+          backgroundMusicEnabled: true,
+        });
+        onSettingsChange(nextSettings);
+      }
+
+      setDraft(defaultMusicDraft);
+      setStatusMessage(
+        draft.isBackground
+          ? "音乐已保存，并更新为全站背景音乐。"
+          : isSupabase
+            ? "音乐已写入 Supabase。"
+            : "本地预览已新增音乐。",
+      );
+    } catch (error) {
+      setStatusMessage(error instanceof Error ? error.message : "新增音乐失败。");
+    }
+  }
+
+  async function saveBackgroundMusic(track: MusicTrack = activeTrack) {
+    if (!isOwner) {
+      setStatusMessage("只有站主账号可以设置背景音乐。");
+      return;
+    }
+
+    if (!track.audioUrl) {
+      setStatusMessage("这首歌没有音频文件，不能设为背景音乐。");
+      return;
+    }
+
+    try {
+      const nextSettings = await siteBackend.updateSiteSettings({
+        ...settings,
+        backgroundMusicUrl: track.audioUrl,
+        backgroundMusicTitle: track.title,
+        backgroundMusicEnabled: true,
+      });
+      onSettingsChange(nextSettings);
+      setStatusMessage("全站背景音乐已更新。");
+    } catch (error) {
+      setStatusMessage(error instanceof Error ? error.message : "背景音乐设置失败。");
+    }
+  }
+
+  async function toggleTrackPlayback() {
+    const audio = audioRef.current;
+    if (!audio || !activeTrack?.audioUrl) {
+      setIsPlaying((current) => !current);
+      return;
+    }
+
+    if (isPlaying) {
+      audio.pause();
+      setIsPlaying(false);
+      return;
+    }
+
+    try {
+      await audio.play();
+      setIsPlaying(true);
+    } catch (error) {
+      setIsPlaying(false);
+      setStatusMessage(error instanceof Error ? error.message : "浏览器阻止了自动播放，请再点一次播放。");
+    }
+  }
 
   return (
     <section className="screen-section music-section" id="music">
       <ScreenIntro
         title="音乐雷达"
-        description="这一屏只负责音乐：当前播放、波形、收藏和歌单队列都围绕听感展开。"
-        action="查看歌单"
+        description="这里可以公开展示歌单；站主登录后可以上传音乐、封面，并把任意一首设为全站背景音乐。"
       />
       <div className="player-surface">
-        <MediaTile tile={3} className="album-art" />
+        <audio ref={audioRef} src={activeTrack?.audioUrl} onEnded={() => setIsPlaying(false)} preload="metadata" />
+        <MediaTile tile={activeTrack?.tile ?? 3} imageUrl={activeTrack?.coverUrl} className="album-art" />
         <div className="track-copy">
           <span>Now Playing</span>
-          <h3>Sable Drift</h3>
-          <p>Floating Points</p>
+          <h3>{activeTrack?.title ?? "Sable Drift"}</h3>
+          <p>{activeTrack?.artist ?? "Floating Points"} · {activeTrack?.mood ?? "氛围"}</p>
         </div>
         <button
           className={clsx("heart-button", favorite && "liked")}
@@ -1107,11 +1452,11 @@ function MusicSection() {
           ))}
         </div>
         <div className="progress-row">
-          <span>02:31</span>
+          <span>{activeTrack?.audioUrl ? "在线" : "示例"}</span>
           <div className="progress-track">
             <span />
           </div>
-          <span>06:41</span>
+          <span>{activeTrack?.duration ?? "06:41"}</span>
         </div>
         <div className="player-controls">
           <button type="button" aria-label="随机播放">
@@ -1122,7 +1467,7 @@ function MusicSection() {
           </button>
           <button
             className="primary-play"
-            onClick={() => setIsPlaying((current) => !current)}
+            onClick={() => void toggleTrackPlayback()}
             type="button"
             aria-label={isPlaying ? "暂停" : "播放"}
           >
@@ -1131,40 +1476,243 @@ function MusicSection() {
           <button type="button" aria-label="下一首">
             <SkipForward size={20} fill="currentColor" />
           </button>
+          <button
+            className="ghost-icon-button"
+            onClick={() => void saveBackgroundMusic()}
+            disabled={!isOwner || !activeTrack?.audioUrl}
+            type="button"
+            aria-label="设为全站背景音乐"
+          >
+            <Volume2 size={18} />
+          </button>
         </div>
       </div>
       <div className="playlist-panel">
-        {playlists.map((playlist) => (
-          <button className="playlist-row" type="button" key={playlist.title}>
-            <MediaTile tile={playlist.tile} />
+        {tracks.map((track) => (
+          <button
+            className={clsx("playlist-row", activeTrack?.id === track.id && "selected")}
+            type="button"
+            key={track.id}
+            onClick={() => setActiveTrackId(track.id)}
+          >
+            <MediaTile tile={track.tile ?? 3} imageUrl={track.coverUrl} />
             <span>
-              <strong>{playlist.title}</strong>
-              <small>{playlist.count} 首</small>
+              <strong>{track.title}</strong>
+              <small>{track.artist} · {track.duration}</small>
             </span>
             <Play size={16} fill="currentColor" />
           </button>
         ))}
+        <div className="playlist-mini-row">
+          {playlists.map((playlist) => (
+            <span key={playlist.title}>{playlist.title} · {playlist.count} 首</span>
+          ))}
+        </div>
+      </div>
+      <div className="owner-upload-panel music-upload-panel">
+        <div className="portfolio-admin-head">
+          <span>{isSupabase ? "Supabase Storage" : "Local Preview"}</span>
+          <strong>{isOwner ? "站主音乐上传入口" : "访客只能试听公开歌单"}</strong>
+        </div>
+        {isOwner ? (
+          <>
+            <div className="owner-upload-grid">
+              <label>
+                <span>歌名</span>
+                <input
+                  value={draft.title}
+                  onChange={(event) => setDraft((current) => ({ ...current, title: event.target.value }))}
+                  placeholder="音乐标题"
+                />
+              </label>
+              <label>
+                <span>作者 / 来源</span>
+                <input
+                  value={draft.artist}
+                  onChange={(event) => setDraft((current) => ({ ...current, artist: event.target.value }))}
+                  placeholder="作者、OST 或歌单来源"
+                />
+              </label>
+              <label>
+                <span>氛围标签</span>
+                <input
+                  value={draft.mood}
+                  onChange={(event) => setDraft((current) => ({ ...current, mood: event.target.value }))}
+                  placeholder="战斗 / 氛围 / 专注"
+                />
+              </label>
+              <label>
+                <span>时长</span>
+                <input
+                  value={draft.duration}
+                  onChange={(event) => setDraft((current) => ({ ...current, duration: event.target.value }))}
+                  placeholder="03:45"
+                />
+              </label>
+            </div>
+            <div className="portfolio-upload-row">
+              <label className="portfolio-file-picker">
+                <Upload size={16} />
+                <span>上传音频</span>
+                <input accept="audio/*" onChange={(event) => void handleMusicFile(event.target.files?.[0] ?? null)} type="file" />
+              </label>
+              <label className="portfolio-file-picker">
+                <ImageIcon size={16} />
+                <span>上传封面</span>
+                <input accept="image/*" onChange={(event) => void handleMusicCover(event.target.files?.[0] ?? null)} type="file" />
+              </label>
+              <button className="cyan-button" onClick={createTrack} type="button">
+                保存音乐
+              </button>
+            </div>
+            <label className="owner-toggle-row">
+              <input
+                checked={draft.isBackground}
+                onChange={(event) => setDraft((current) => ({ ...current, isBackground: event.target.checked }))}
+                type="checkbox"
+              />
+              <span>保存后也作为背景音乐候选</span>
+            </label>
+          </>
+        ) : null}
+        {loadState === "loading" ? <p className="backend-status">正在同步音乐...</p> : null}
+        {statusMessage ? <p className="backend-status">{statusMessage}</p> : null}
       </div>
     </section>
   );
 }
 
-function GallerySection() {
+function GallerySection({
+  settings,
+  onSettingsChange,
+}: {
+  settings: SiteSettings;
+  onSettingsChange: (settings: SiteSettings) => void;
+}) {
   const [filter, setFilter] = useState("全部");
+  const [items, setItems] = useState<GalleryItem[]>(galleryItems);
+  const [user, setUser] = useState<AuthUser | null>(null);
+  const [draft, setDraft] = useState<GalleryItemInput>(defaultGalleryDraft);
+  const [statusMessage, setStatusMessage] = useState("");
+  const [loadState, setLoadState] = useState<LoadState>("idle");
+
+  const isOwner = user?.role === "owner";
+  const isSupabase = siteBackend.mode === "supabase";
+
   const filteredItems = useMemo(() => {
     if (filter === "全部") {
-      return galleryItems;
+      return items;
     }
 
-    return galleryItems.filter((item) => item.category === filter);
-  }, [filter]);
+    return items.filter((item) => item.category === filter);
+  }, [filter, items]);
+
+  useEffect(() => {
+    let active = true;
+
+    async function loadGalleryWorkbench() {
+      setLoadState("loading");
+      setStatusMessage("");
+
+      try {
+        const [currentUser, remoteItems, remoteSettings] = await Promise.all([
+          siteBackend.getCurrentUser(),
+          siteBackend.listGalleryItems(),
+          siteBackend.getSiteSettings(),
+        ]);
+
+        if (!active) {
+          return;
+        }
+
+        setUser(currentUser);
+        if (remoteItems.length > 0) {
+          setItems(remoteItems);
+        }
+        onSettingsChange(remoteSettings);
+        setLoadState("ready");
+      } catch (error) {
+        if (!active) {
+          return;
+        }
+
+        setLoadState("error");
+        setStatusMessage(error instanceof Error ? error.message : "图库加载失败，已使用本地图片。");
+      }
+    }
+
+    void loadGalleryWorkbench();
+    return () => {
+      active = false;
+    };
+  }, [onSettingsChange]);
+
+  async function handleGalleryImage(file: File | null) {
+    if (!file) {
+      return;
+    }
+
+    if (!isOwner) {
+      setStatusMessage("只有站主账号可以上传图片。");
+      return;
+    }
+
+    try {
+      const uploaded = await siteBackend.uploadAsset(file, draft.isCover ? "site-cover" : "gallery-image");
+      setDraft((current) => ({
+        ...current,
+        title: current.title || makeFileTitle(file),
+        imageUrl: uploaded.url,
+      }));
+      setStatusMessage(isSupabase ? "图片已上传。" : "本地图片预览已准备好。");
+    } catch (error) {
+      setStatusMessage(error instanceof Error ? error.message : "图片上传失败。");
+    }
+  }
+
+  async function createGalleryEntry() {
+    if (!isOwner) {
+      setStatusMessage("只有站主账号可以登记图片。");
+      return;
+    }
+
+    const title = draft.title.trim();
+    const imageUrl = draft.imageUrl.trim();
+    if (!title || !imageUrl) {
+      setStatusMessage("至少需要标题和图片文件。");
+      return;
+    }
+
+    try {
+      const nextItem = await siteBackend.createGalleryItem({
+        title,
+        category: draft.category.trim() || "概念",
+        description: draft.description?.trim() || undefined,
+        imageUrl,
+        isCover: draft.isCover,
+      });
+      setItems((current) => [nextItem, ...current]);
+      setDraft(defaultGalleryDraft);
+
+      if (nextItem.isCover && nextItem.imageUrl) {
+        const nextSettings = await siteBackend.updateSiteSettings({
+          ...settings,
+          heroCoverUrl: nextItem.imageUrl,
+        });
+        onSettingsChange(nextSettings);
+      }
+
+      setStatusMessage(nextItem.isCover ? "图片已保存，并更新为首页封面。" : "图片已加入图库。");
+    } catch (error) {
+      setStatusMessage(error instanceof Error ? error.message : "新增图片失败。");
+    }
+  }
 
   return (
     <section className="screen-section gallery-section" id="gallery">
       <ScreenIntro
         title="灵感图库"
-        description="图片收藏拥有完整画廊空间，按角色、场景、物件、UI 和概念快速筛选。"
-        action="查看全部图片"
+        description="图片收藏拥有完整画廊空间；站主可以上传图片、分类整理，并把任意图片设为首页封面。"
       />
       <div className="filter-row" role="tablist" aria-label="图库筛选">
         {galleryFilters.map((item) => (
@@ -1181,11 +1729,326 @@ function GallerySection() {
       </div>
       <div className="gallery-grid">
         {filteredItems.map((item) => (
-          <article key={item.title} className="gallery-card">
-            <MediaTile tile={item.tile} />
+          <article key={item.id} className={clsx("gallery-card", item.isCover && "cover-selected")}>
+            <MediaTile tile={item.tile ?? 4} imageUrl={item.imageUrl} />
             <span>{item.title}</span>
+            {item.description ? <p>{item.description}</p> : null}
+            {item.isCover || (Boolean(settings.heroCoverUrl) && settings.heroCoverUrl === item.imageUrl) ? (
+              <small>首页封面</small>
+            ) : null}
           </article>
         ))}
+      </div>
+      <div className="owner-upload-panel gallery-upload-panel">
+        <div className="portfolio-admin-head">
+          <span>{isSupabase ? "Supabase Storage" : "Local Preview"}</span>
+          <strong>{isOwner ? "站主图片上传入口" : "访客只能浏览公开图库"}</strong>
+        </div>
+        {isOwner ? (
+          <>
+            <div className="owner-upload-grid">
+              <label>
+                <span>标题</span>
+                <input
+                  value={draft.title}
+                  onChange={(event) => setDraft((current) => ({ ...current, title: event.target.value }))}
+                  placeholder="图片标题"
+                />
+              </label>
+              <label>
+                <span>分类</span>
+                <select
+                  value={draft.category}
+                  onChange={(event) => setDraft((current) => ({ ...current, category: event.target.value }))}
+                >
+                  {galleryFilters.filter((item) => item !== "全部").map((item) => (
+                    <option key={item} value={item}>{item}</option>
+                  ))}
+                </select>
+              </label>
+            </div>
+            <label>
+              <span>描述</span>
+              <textarea
+                value={draft.description}
+                onChange={(event) => setDraft((current) => ({ ...current, description: event.target.value }))}
+                placeholder="这张图为什么值得收藏"
+              />
+            </label>
+            <div className="portfolio-upload-row">
+              <label className="portfolio-file-picker">
+                <ImageIcon size={16} />
+                <span>上传图片</span>
+                <input accept="image/*" onChange={(event) => void handleGalleryImage(event.target.files?.[0] ?? null)} type="file" />
+              </label>
+              <button className="cyan-button" onClick={createGalleryEntry} type="button">
+                保存图片
+              </button>
+            </div>
+            <label className="owner-toggle-row">
+              <input
+                checked={draft.isCover}
+                onChange={(event) => setDraft((current) => ({ ...current, isCover: event.target.checked }))}
+                type="checkbox"
+              />
+              <span>同时设置为网站首页封面</span>
+            </label>
+          </>
+        ) : null}
+        {loadState === "loading" ? <p className="backend-status">正在同步图库...</p> : null}
+        {statusMessage ? <p className="backend-status">{statusMessage}</p> : null}
+      </div>
+    </section>
+  );
+}
+
+function NotesSection() {
+  const [notes, setNotes] = useState<ReadingNote[]>(readingNotes);
+  const [activeKind, setActiveKind] = useState<"all" | ReadingNote["kind"]>("all");
+  const [user, setUser] = useState<AuthUser | null>(null);
+  const [draft, setDraft] = useState<ReadingNoteInput>(defaultReadingDraft);
+  const [tagInput, setTagInput] = useState("");
+  const [statusMessage, setStatusMessage] = useState("");
+  const [loadState, setLoadState] = useState<LoadState>("idle");
+
+  const isOwner = user?.role === "owner";
+  const isSupabase = siteBackend.mode === "supabase";
+  const filteredNotes = useMemo(() => {
+    if (activeKind === "all") {
+      return notes;
+    }
+
+    return notes.filter((note) => note.kind === activeKind);
+  }, [activeKind, notes]);
+
+  useEffect(() => {
+    let active = true;
+
+    async function loadNotesWorkbench() {
+      setLoadState("loading");
+      setStatusMessage("");
+
+      try {
+        const [currentUser, remoteNotes] = await Promise.all([
+          siteBackend.getCurrentUser(),
+          siteBackend.listReadingNotes(),
+        ]);
+
+        if (!active) {
+          return;
+        }
+
+        setUser(currentUser);
+        if (remoteNotes.length > 0) {
+          setNotes(remoteNotes);
+        }
+        setLoadState("ready");
+      } catch (error) {
+        if (!active) {
+          return;
+        }
+
+        setLoadState("error");
+        setStatusMessage(error instanceof Error ? error.message : "书摘心得加载失败，已使用本地数据。");
+      }
+    }
+
+    void loadNotesWorkbench();
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  async function handleReadingCover(file: File | null) {
+    if (!file) {
+      return;
+    }
+
+    if (!isOwner) {
+      setStatusMessage("只有站主账号可以上传书摘封面。");
+      return;
+    }
+
+    try {
+      const uploaded = await siteBackend.uploadAsset(file, "reading-cover");
+      setDraft((current) => ({ ...current, coverUrl: uploaded.url }));
+      setStatusMessage(isSupabase ? "封面已上传。" : "本地封面预览已准备好。");
+    } catch (error) {
+      setStatusMessage(error instanceof Error ? error.message : "封面上传失败。");
+    }
+  }
+
+  async function createReadingNote() {
+    if (!isOwner) {
+      setStatusMessage("只有站主账号可以发布书摘心得。");
+      return;
+    }
+
+    const title = draft.title.trim();
+    const creator = draft.creator.trim();
+    const quote = draft.quote.trim();
+    const reflection = draft.reflection.trim();
+
+    if (!title || !creator || !quote || !reflection) {
+      setStatusMessage("标题、作者/来源、摘录和心得都需要填写。");
+      return;
+    }
+
+    try {
+      const nextNote = await siteBackend.createReadingNote({
+        ...draft,
+        title,
+        creator,
+        quote,
+        reflection,
+        sourceUrl: draft.sourceUrl?.trim() || undefined,
+        coverUrl: draft.coverUrl?.trim() || undefined,
+        tags: parseTags(tagInput),
+      });
+      setNotes((current) => [nextNote, ...current]);
+      setDraft(defaultReadingDraft);
+      setTagInput("");
+      setStatusMessage(isSupabase ? "书摘心得已写入 Supabase。" : "本地预览已新增书摘心得。");
+    } catch (error) {
+      setStatusMessage(error instanceof Error ? error.message : "新增书摘心得失败。");
+    }
+  }
+
+  return (
+    <section className="screen-section notes-section" id="notes">
+      <ScreenIntro
+        title="书摘心得"
+        description="这里放策划书籍、设计文章和视频课程的摘录与复盘，方便 HR 看到你的学习路径和方法论。"
+      />
+      <div className="notes-workbench">
+        <div className="filter-row" role="tablist" aria-label="书摘筛选">
+          {[
+            { id: "all", label: "全部" },
+            { id: "book", label: "书籍" },
+            { id: "video", label: "视频" },
+          ].map((item) => (
+            <button
+              className={clsx(activeKind === item.id && "active")}
+              key={item.id}
+              onClick={() => setActiveKind(item.id as "all" | ReadingNote["kind"])}
+              type="button"
+              role="tab"
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
+
+        <div className="notes-grid">
+          {filteredNotes.map((note) => (
+            <article className="note-card" key={note.id}>
+              {note.coverUrl ? <img src={note.coverUrl} alt={note.title} /> : <MediaTile tile={note.kind === "book" ? 1 : 2} />}
+              <div>
+                <span>{note.kind === "book" ? "策划书籍" : "视频心得"}</span>
+                <h3>{note.title}</h3>
+                <p>{note.creator}</p>
+              </div>
+              <blockquote>{note.quote}</blockquote>
+              <p>{note.reflection}</p>
+              <div className="tag-row">
+                {note.tags.map((tag) => (
+                  <span key={tag}>{tag}</span>
+                ))}
+              </div>
+              {note.sourceUrl ? (
+                <a href={note.sourceUrl} target="_blank" rel="noreferrer">
+                  <ExternalLink size={15} />
+                  打开来源
+                </a>
+              ) : null}
+            </article>
+          ))}
+        </div>
+      </div>
+
+      <div className="owner-upload-panel notes-upload-panel">
+        <div className="portfolio-admin-head">
+          <span>{isSupabase ? "Supabase RLS" : "Local Preview"}</span>
+          <strong>{isOwner ? "站主书摘发布入口" : "访客只能阅读公开心得"}</strong>
+        </div>
+        {isOwner ? (
+          <>
+            <div className="owner-upload-grid">
+              <label>
+                <span>类型</span>
+                <select
+                  value={draft.kind}
+                  onChange={(event) =>
+                    setDraft((current) => ({ ...current, kind: event.target.value as ReadingNote["kind"] }))
+                  }
+                >
+                  <option value="book">书籍</option>
+                  <option value="video">视频</option>
+                </select>
+              </label>
+              <label>
+                <span>标题</span>
+                <input
+                  value={draft.title}
+                  onChange={(event) => setDraft((current) => ({ ...current, title: event.target.value }))}
+                  placeholder="书名或视频标题"
+                />
+              </label>
+              <label>
+                <span>作者 / 来源</span>
+                <input
+                  value={draft.creator}
+                  onChange={(event) => setDraft((current) => ({ ...current, creator: event.target.value }))}
+                  placeholder="作者、频道或课程来源"
+                />
+              </label>
+              <label>
+                <span>来源链接</span>
+                <input
+                  value={draft.sourceUrl}
+                  onChange={(event) => setDraft((current) => ({ ...current, sourceUrl: event.target.value }))}
+                  placeholder="可选"
+                />
+              </label>
+            </div>
+            <label>
+              <span>摘录</span>
+              <textarea
+                value={draft.quote}
+                onChange={(event) => setDraft((current) => ({ ...current, quote: event.target.value }))}
+                placeholder="摘一句最值得记住的话"
+              />
+            </label>
+            <label>
+              <span>心得</span>
+              <textarea
+                value={draft.reflection}
+                onChange={(event) => setDraft((current) => ({ ...current, reflection: event.target.value }))}
+                placeholder="这段内容如何影响你的策划方法"
+              />
+            </label>
+            <label>
+              <span>标签</span>
+              <input
+                value={tagInput}
+                onChange={(event) => setTagInput(event.target.value)}
+                placeholder="体验设计, 关卡, 系统"
+              />
+            </label>
+            <div className="portfolio-upload-row">
+              <label className="portfolio-file-picker">
+                <ImageIcon size={16} />
+                <span>上传封面</span>
+                <input accept="image/*" onChange={(event) => void handleReadingCover(event.target.files?.[0] ?? null)} type="file" />
+              </label>
+              <button className="cyan-button" onClick={createReadingNote} type="button">
+                发布心得
+              </button>
+            </div>
+          </>
+        ) : null}
+        {loadState === "loading" ? <p className="backend-status">正在同步书摘...</p> : null}
+        {statusMessage ? <p className="backend-status">{statusMessage}</p> : null}
       </div>
     </section>
   );
@@ -1360,9 +2223,10 @@ function PrivateSection() {
 function GitHubIssueComments() {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [loadError, setLoadError] = useState(false);
+  const localPreview = isLocalRuntimeHost();
 
   useEffect(() => {
-    if (!containerRef.current) {
+    if (!containerRef.current || localPreview) {
       return;
     }
 
@@ -1380,12 +2244,15 @@ function GitHubIssueComments() {
     script.setAttribute("loading", "lazy");
     script.onerror = () => setLoadError(true);
 
-    containerRef.current.append(script);
+    const timeoutId = window.setTimeout(() => {
+      containerRef.current?.append(script);
+    }, 350);
 
     return () => {
+      window.clearTimeout(timeoutId);
       script.remove();
     };
-  }, []);
+  }, [localPreview]);
 
   return (
     <div className="github-comments-panel" aria-label="GitHub Issues 评论">
@@ -1397,7 +2264,11 @@ function GitHubIssueComments() {
         当前 GitHub Pages 版本还没接 Supabase，下面的评论面板会把公开留言保存到仓库 Issues；安装 Utterances App 后访客即可用 GitHub 账号评论。
       </p>
       {loadError ? <p className="backend-status">GitHub 评论面板加载失败，可以刷新页面后重试。</p> : null}
-      <div ref={containerRef} className="github-comments-frame" />
+      {localPreview ? (
+        <p className="backend-status">本地预览不加载外部 GitHub 评论脚本；线上 GitHub Pages 会自动加载。</p>
+      ) : (
+        <div ref={containerRef} className="github-comments-frame" />
+      )}
     </div>
   );
 }
@@ -1408,6 +2279,7 @@ function CommentsSection() {
   const [author, setAuthor] = useLocalStorage("linx_comment_author", "访客");
   const [loadState, setLoadState] = useState<LoadState>("idle");
   const [statusMessage, setStatusMessage] = useState("");
+  const [gate, setGate] = useState<HumanGateState>(() => createHumanGate());
 
   useEffect(() => {
     let active = true;
@@ -1450,13 +2322,21 @@ function CommentsSection() {
       return;
     }
 
+    if (!checkHumanGate(gate)) {
+      setStatusMessage("验证没有通过：请完成算术题，停留两秒后再提交。");
+      return;
+    }
+
     try {
       const nextComment = await siteBackend.createComment({
         author: authorName,
         body,
+        verificationElapsedMs: Date.now() - gate.createdAt,
+        honeypot: gate.honeypot,
       });
       setComments((current) => [nextComment, ...current]);
       setCommentBody("");
+      setGate(createHumanGate());
       setStatusMessage(siteBackend.mode === "supabase" ? "留言已发布。" : "本地预览留言已保存。");
     } catch (error) {
       setStatusMessage(error instanceof Error ? error.message : "留言发布失败。");
@@ -1484,8 +2364,7 @@ function CommentsSection() {
     <section className="screen-section comments-section" id="comments">
       <ScreenIntro
         title="留言墙"
-        description="访客评论也独占一屏，输入、历史评论、点赞和回复入口都留在同一个交流场里。"
-        action="查看全部留言"
+        description="访客评论也独占一屏，提交前会经过轻量验证，降低刷屏和脚本灌水风险。"
       />
       <div className="comment-form">
         <div className="comment-avatar">你</div>
@@ -1501,6 +2380,24 @@ function CommentsSection() {
           disabled={loadState === "loading"}
           placeholder="分享你的想法或反馈..."
         />
+        <label className="human-gate">
+          <ShieldCheck size={16} />
+          <span>{gate.left} + {gate.right} =</span>
+          <input
+            value={gate.answer}
+            onChange={(event) => setGate((current) => ({ ...current, answer: event.target.value }))}
+            inputMode="numeric"
+            placeholder="答案"
+          />
+          <input
+            className="human-gate-trap"
+            value={gate.honeypot}
+            onChange={(event) => setGate((current) => ({ ...current, honeypot: event.target.value }))}
+            tabIndex={-1}
+            autoComplete="off"
+            aria-hidden="true"
+          />
+        </label>
         <button className="cyan-button" disabled={loadState === "loading"} onClick={publishComment} type="button">
           <Send size={17} />
           发表评论
@@ -1560,6 +2457,29 @@ function ContactSection() {
 
 export function App() {
   const [activeSection, setActiveSection] = useState<SectionId>(() => getSectionFromLocation());
+  const [siteSettings, setSiteSettings] = useState<SiteSettings>(defaultSiteSettings);
+
+  useEffect(() => {
+    let active = true;
+
+    async function loadSiteSettings() {
+      try {
+        const settings = await siteBackend.getSiteSettings();
+        if (active) {
+          setSiteSettings(settings);
+        }
+      } catch {
+        if (active) {
+          setSiteSettings(defaultSiteSettings);
+        }
+      }
+    }
+
+    void loadSiteSettings();
+    return () => {
+      active = false;
+    };
+  }, []);
 
   useEffect(() => {
     const handleRouteChange = () => {
@@ -1577,11 +2497,12 @@ export function App() {
   }, []);
 
   const activeScreen = {
-    home: <HeroSection />,
+    home: <HeroSection settings={siteSettings} />,
     docs: <DocsSection />,
     demos: <DemosSection />,
-    music: <MusicSection />,
-    gallery: <GallerySection />,
+    music: <MusicSection settings={siteSettings} onSettingsChange={setSiteSettings} />,
+    gallery: <GallerySection settings={siteSettings} onSettingsChange={setSiteSettings} />,
+    notes: <NotesSection />,
     private: <PrivateSection />,
     comments: <CommentsSection />,
     contact: <ContactSection />,
@@ -1594,6 +2515,7 @@ export function App() {
         <MobileNav activeSection={activeSection} />
         {activeScreen}
       </main>
+      <BackgroundMusicDock settings={siteSettings} />
     </div>
   );
 }

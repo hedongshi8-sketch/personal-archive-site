@@ -7,7 +7,18 @@ import {
   type PortfolioKind,
   type PortfolioProject,
 } from "../data/portfolioItems";
-import type { Comment, OwnerPost } from "../data/siteData";
+import {
+  defaultSiteSettings,
+  galleryItems,
+  musicTracks,
+  readingNotes,
+  type Comment,
+  type GalleryItem,
+  type MusicTrack,
+  type OwnerPost,
+  type ReadingNote,
+  type SiteSettings,
+} from "../data/siteData";
 import { getReadableNow } from "./format";
 
 export type AuthUser = {
@@ -18,7 +29,7 @@ export type AuthUser = {
 
 export type AssetRecord = {
   id: string;
-  kind: "design-doc" | "game-demo" | "music-cover" | "gallery-image";
+  kind: "design-doc" | "game-demo" | "music-cover" | "gallery-image" | "music-audio" | "site-cover" | "reading-cover";
   title: string;
   url: string;
   storagePath: string;
@@ -38,6 +49,40 @@ export type PortfolioItemInput = {
   featured?: boolean;
 };
 
+export type MusicTrackInput = {
+  title: string;
+  artist: string;
+  mood: string;
+  duration?: string;
+  audioUrl: string;
+  coverUrl?: string;
+  isBackground?: boolean;
+};
+
+export type GalleryItemInput = {
+  title: string;
+  category: string;
+  description?: string;
+  imageUrl: string;
+  isCover?: boolean;
+};
+
+export type ReadingNoteInput = {
+  kind: ReadingNote["kind"];
+  title: string;
+  creator: string;
+  sourceUrl?: string;
+  coverUrl?: string;
+  quote: string;
+  reflection: string;
+  tags: string[];
+};
+
+export type CommentInput = Pick<Comment, "author" | "body"> & {
+  verificationElapsedMs?: number;
+  honeypot?: string;
+};
+
 export type SiteBackend = {
   readonly mode: "local" | "supabase";
   getCurrentUser(): Promise<AuthUser | null>;
@@ -46,12 +91,20 @@ export type SiteBackend = {
   listOwnerPosts(): Promise<OwnerPost[]>;
   createOwnerPost(input: Pick<OwnerPost, "title" | "body" | "visibility">): Promise<OwnerPost>;
   listComments(): Promise<Comment[]>;
-  createComment(input: Pick<Comment, "author" | "body">): Promise<Comment>;
+  createComment(input: CommentInput): Promise<Comment>;
   likeComment(id: string, likes: number): Promise<void>;
   listPortfolioItems(): Promise<PortfolioItem[]>;
   createPortfolioItem(input: PortfolioItemInput): Promise<PortfolioItem>;
   uploadPortfolioFile(file: File, kind: PortfolioKind): Promise<{ publicUrl: string; storagePath: string }>;
   uploadAsset(file: File, kind: AssetRecord["kind"]): Promise<AssetRecord>;
+  listMusicTracks(): Promise<MusicTrack[]>;
+  createMusicTrack(input: MusicTrackInput): Promise<MusicTrack>;
+  listGalleryItems(): Promise<GalleryItem[]>;
+  createGalleryItem(input: GalleryItemInput): Promise<GalleryItem>;
+  listReadingNotes(): Promise<ReadingNote[]>;
+  createReadingNote(input: ReadingNoteInput): Promise<ReadingNote>;
+  getSiteSettings(): Promise<SiteSettings>;
+  updateSiteSettings(input: Partial<SiteSettings>): Promise<SiteSettings>;
 };
 
 type ProfileRow = {
@@ -88,6 +141,50 @@ type PortfolioItemRow = {
   thumbnail_url: string | null;
   source_path: string | null;
   featured: boolean;
+  updated_at: string;
+};
+
+type MusicTrackRow = {
+  id: string;
+  title: string;
+  artist: string;
+  mood: string;
+  duration: string | null;
+  audio_url: string | null;
+  cover_url: string | null;
+  is_background: boolean;
+  created_at: string;
+};
+
+type GalleryItemRow = {
+  id: string;
+  title: string;
+  category: string;
+  description: string | null;
+  image_url: string | null;
+  is_cover: boolean;
+  created_at: string;
+};
+
+type ReadingNoteRow = {
+  id: string;
+  kind: "book" | "video";
+  title: string;
+  creator: string;
+  source_url: string | null;
+  cover_url: string | null;
+  quote: string;
+  reflection: string;
+  tags: string[];
+  created_at: string;
+};
+
+type SiteSettingsRow = {
+  id: string;
+  hero_cover_url: string | null;
+  background_music_url: string | null;
+  background_music_title: string | null;
+  background_music_enabled: boolean;
   updated_at: string;
 };
 
@@ -178,6 +275,65 @@ function mapPortfolioItem(row: PortfolioItemRow): PortfolioItem {
   };
 }
 
+function mapMusicTrack(row: MusicTrackRow): MusicTrack {
+  return {
+    id: row.id,
+    title: row.title,
+    artist: row.artist,
+    mood: row.mood,
+    duration: row.duration ?? "未知",
+    audioUrl: row.audio_url ?? undefined,
+    coverUrl: row.cover_url ?? undefined,
+    isBackground: row.is_background,
+    createdAt: row.created_at.slice(0, 10),
+  };
+}
+
+function mapGalleryItem(row: GalleryItemRow): GalleryItem {
+  return {
+    id: row.id,
+    title: row.title,
+    category: row.category,
+    description: row.description ?? undefined,
+    imageUrl: row.image_url ?? undefined,
+    isCover: row.is_cover,
+    createdAt: row.created_at.slice(0, 10),
+  };
+}
+
+function mapReadingNote(row: ReadingNoteRow): ReadingNote {
+  return {
+    id: row.id,
+    kind: row.kind,
+    title: row.title,
+    creator: row.creator,
+    sourceUrl: row.source_url ?? undefined,
+    coverUrl: row.cover_url ?? undefined,
+    quote: row.quote,
+    reflection: row.reflection,
+    tags: row.tags,
+    createdAt: row.created_at.slice(0, 10),
+  };
+}
+
+function mapSiteSettings(row: SiteSettingsRow): SiteSettings {
+  return {
+    heroCoverUrl: row.hero_cover_url ?? undefined,
+    backgroundMusicUrl: row.background_music_url ?? undefined,
+    backgroundMusicTitle: row.background_music_title ?? undefined,
+    backgroundMusicEnabled: row.background_music_enabled,
+    updatedAt: row.updated_at,
+  };
+}
+
+function requireOwner(user: AuthUser | null, message: string) {
+  if (!user || user.role !== "owner") {
+    throw new Error(message);
+  }
+
+  return user;
+}
+
 export class LocalPreviewBackend implements SiteBackend {
   readonly mode = "local" as const;
 
@@ -219,7 +375,7 @@ export class LocalPreviewBackend implements SiteBackend {
     return [];
   }
 
-  async createComment(input: Pick<Comment, "author" | "body">) {
+  async createComment(input: CommentInput) {
     return {
       id: `local-${Date.now()}`,
       author: input.author,
@@ -273,6 +429,64 @@ export class LocalPreviewBackend implements SiteBackend {
       url: URL.createObjectURL(file),
       storagePath: `local-preview/${kind}/${file.name}`,
       createdAt: new Date().toISOString(),
+    };
+  }
+
+  async listMusicTracks() {
+    return musicTracks;
+  }
+
+  async createMusicTrack(input: MusicTrackInput) {
+    return {
+      id: `local-music-${Date.now()}`,
+      title: input.title,
+      artist: input.artist,
+      mood: input.mood,
+      duration: input.duration || "本地音频",
+      audioUrl: input.audioUrl,
+      coverUrl: input.coverUrl,
+      isBackground: input.isBackground,
+      createdAt: new Date().toISOString().slice(0, 10),
+    };
+  }
+
+  async listGalleryItems() {
+    return galleryItems;
+  }
+
+  async createGalleryItem(input: GalleryItemInput) {
+    return {
+      id: `local-gallery-${Date.now()}`,
+      title: input.title,
+      category: input.category,
+      description: input.description,
+      imageUrl: input.imageUrl,
+      isCover: input.isCover,
+      createdAt: new Date().toISOString().slice(0, 10),
+    };
+  }
+
+  async listReadingNotes() {
+    return readingNotes;
+  }
+
+  async createReadingNote(input: ReadingNoteInput) {
+    return {
+      id: `local-note-${Date.now()}`,
+      ...input,
+      createdAt: new Date().toISOString().slice(0, 10),
+    };
+  }
+
+  async getSiteSettings() {
+    return defaultSiteSettings;
+  }
+
+  async updateSiteSettings(input: Partial<SiteSettings>) {
+    return {
+      ...defaultSiteSettings,
+      ...input,
+      updatedAt: new Date().toISOString(),
     };
   }
 }
@@ -341,15 +555,12 @@ export class SupabaseBackend implements SiteBackend {
 
   async createOwnerPost(input: Pick<OwnerPost, "title" | "body" | "visibility">) {
     const user = await this.getCurrentUser();
-
-    if (!user || user.role !== "owner") {
-      throw new Error("只有站主账号可以发布私密内容。");
-    }
+    const owner = requireOwner(user, "只有站主账号可以发布私密内容。");
 
     const { data, error } = await this.client
       .from("owner_posts")
       .insert({
-        owner_id: user.id,
+        owner_id: owner.id,
         title: input.title,
         body: input.body,
         visibility: input.visibility,
@@ -370,12 +581,14 @@ export class SupabaseBackend implements SiteBackend {
     return requireSupabaseResult(data as CommentRow[] | null, error).map(mapComment);
   }
 
-  async createComment(input: Pick<Comment, "author" | "body">) {
+  async createComment(input: CommentInput) {
     const { data, error } = await this.client
       .from("public_comments")
       .insert({
         author: input.author,
         body: input.body,
+        client_elapsed_ms: input.verificationElapsedMs ?? 0,
+        honeypot: input.honeypot ?? "",
       })
       .select("id,author,body,likes,created_at")
       .single<CommentRow>();
@@ -405,15 +618,12 @@ export class SupabaseBackend implements SiteBackend {
 
   async createPortfolioItem(input: PortfolioItemInput) {
     const user = await this.getCurrentUser();
-
-    if (!user || user.role !== "owner") {
-      throw new Error("只有站主账号可以编辑作品集。");
-    }
+    const owner = requireOwner(user, "只有站主账号可以编辑作品集。");
 
     const { data, error } = await this.client
       .from("portfolio_items")
       .insert({
-        owner_id: user.id,
+        owner_id: owner.id,
         project_id: input.project,
         title: input.title,
         kind: input.kind,
@@ -435,9 +645,7 @@ export class SupabaseBackend implements SiteBackend {
   async uploadPortfolioFile(file: File, kind: PortfolioKind) {
     const user = await this.getCurrentUser();
 
-    if (!user || user.role !== "owner") {
-      throw new Error("只有站主账号可以上传作品集文件。");
-    }
+    requireOwner(user, "只有站主账号可以上传作品集文件。");
 
     const storagePath = `portfolio/${kind}/${Date.now()}-${file.name}`;
     const { error } = await this.client.storage
@@ -457,10 +665,7 @@ export class SupabaseBackend implements SiteBackend {
 
   async uploadAsset(file: File, kind: AssetRecord["kind"]) {
     const user = await this.getCurrentUser();
-
-    if (!user || user.role !== "owner") {
-      throw new Error("只有站主账号可以上传作品资源。");
-    }
+    const owner = requireOwner(user, "只有站主账号可以上传作品资源。");
 
     const storagePath = `${kind}/${Date.now()}-${file.name}`;
     const { error: uploadError } = await this.client.storage
@@ -475,7 +680,7 @@ export class SupabaseBackend implements SiteBackend {
     const { data, error } = await this.client
       .from("assets")
       .insert({
-        owner_id: user.id,
+        owner_id: owner.id,
         kind,
         title: file.name,
         storage_path: storagePath,
@@ -500,6 +705,137 @@ export class SupabaseBackend implements SiteBackend {
       storagePath: record.storage_path,
       createdAt: record.created_at,
     };
+  }
+
+  async listMusicTracks() {
+    const { data, error } = await this.client
+      .from("music_tracks")
+      .select("id,title,artist,mood,duration,audio_url,cover_url,is_background,created_at")
+      .eq("published", true)
+      .order("is_background", { ascending: false })
+      .order("created_at", { ascending: false });
+
+    return requireSupabaseResult(data as MusicTrackRow[] | null, error).map(mapMusicTrack);
+  }
+
+  async createMusicTrack(input: MusicTrackInput) {
+    const user = requireOwner(await this.getCurrentUser(), "只有站主账号可以上传音乐。");
+
+    const { data, error } = await this.client
+      .from("music_tracks")
+      .insert({
+        owner_id: user.id,
+        title: input.title,
+        artist: input.artist,
+        mood: input.mood,
+        duration: input.duration || null,
+        audio_url: input.audioUrl,
+        cover_url: input.coverUrl || null,
+        is_background: input.isBackground ?? false,
+        published: true,
+      })
+      .select("id,title,artist,mood,duration,audio_url,cover_url,is_background,created_at")
+      .single<MusicTrackRow>();
+
+    return mapMusicTrack(requireSupabaseResult(data, error));
+  }
+
+  async listGalleryItems() {
+    const { data, error } = await this.client
+      .from("gallery_items")
+      .select("id,title,category,description,image_url,is_cover,created_at")
+      .eq("published", true)
+      .order("is_cover", { ascending: false })
+      .order("created_at", { ascending: false });
+
+    return requireSupabaseResult(data as GalleryItemRow[] | null, error).map(mapGalleryItem);
+  }
+
+  async createGalleryItem(input: GalleryItemInput) {
+    const user = requireOwner(await this.getCurrentUser(), "只有站主账号可以上传图片。");
+
+    const { data, error } = await this.client
+      .from("gallery_items")
+      .insert({
+        owner_id: user.id,
+        title: input.title,
+        category: input.category,
+        description: input.description || null,
+        image_url: input.imageUrl,
+        is_cover: input.isCover ?? false,
+        published: true,
+      })
+      .select("id,title,category,description,image_url,is_cover,created_at")
+      .single<GalleryItemRow>();
+
+    return mapGalleryItem(requireSupabaseResult(data, error));
+  }
+
+  async listReadingNotes() {
+    const { data, error } = await this.client
+      .from("reading_notes")
+      .select("id,kind,title,creator,source_url,cover_url,quote,reflection,tags,created_at")
+      .eq("published", true)
+      .order("created_at", { ascending: false });
+
+    return requireSupabaseResult(data as ReadingNoteRow[] | null, error).map(mapReadingNote);
+  }
+
+  async createReadingNote(input: ReadingNoteInput) {
+    const user = requireOwner(await this.getCurrentUser(), "只有站主账号可以发布书摘心得。");
+
+    const { data, error } = await this.client
+      .from("reading_notes")
+      .insert({
+        owner_id: user.id,
+        kind: input.kind,
+        title: input.title,
+        creator: input.creator,
+        source_url: input.sourceUrl || null,
+        cover_url: input.coverUrl || null,
+        quote: input.quote,
+        reflection: input.reflection,
+        tags: input.tags,
+        published: true,
+      })
+      .select("id,kind,title,creator,source_url,cover_url,quote,reflection,tags,created_at")
+      .single<ReadingNoteRow>();
+
+    return mapReadingNote(requireSupabaseResult(data, error));
+  }
+
+  async getSiteSettings() {
+    const { data, error } = await this.client
+      .from("site_settings")
+      .select("id,hero_cover_url,background_music_url,background_music_title,background_music_enabled,updated_at")
+      .eq("id", "main")
+      .maybeSingle<SiteSettingsRow>();
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    return data ? mapSiteSettings(data) : defaultSiteSettings;
+  }
+
+  async updateSiteSettings(input: Partial<SiteSettings>) {
+    const user = requireOwner(await this.getCurrentUser(), "只有站主账号可以修改网站封面和背景音乐。");
+
+    const { data, error } = await this.client
+      .from("site_settings")
+      .upsert({
+        id: "main",
+        owner_id: user.id,
+        hero_cover_url: input.heroCoverUrl ?? null,
+        background_music_url: input.backgroundMusicUrl ?? null,
+        background_music_title: input.backgroundMusicTitle ?? null,
+        background_music_enabled: input.backgroundMusicEnabled ?? false,
+        updated_at: new Date().toISOString(),
+      })
+      .select("id,hero_cover_url,background_music_url,background_music_title,background_music_enabled,updated_at")
+      .single<SiteSettingsRow>();
+
+    return mapSiteSettings(requireSupabaseResult(data, error));
   }
 }
 
