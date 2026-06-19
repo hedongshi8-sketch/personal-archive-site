@@ -76,6 +76,7 @@ assert(exists(".github/workflows/github-pages.yml"), "GitHub Pages workflow exis
 assert(exists("docs/deployment-runbook.md"), "deployment runbook exists");
 assert(exists("docs/release-checklist.md"), "release checklist exists");
 assert(exists("docs/development-maintenance.md"), "development maintenance docs exist");
+assert(exists("docs/supabase-smtp.md"), "Supabase SMTP docs exist");
 assert(exists(".env.example"), ".env.example exists");
 assert(exists("supabase/schema.sql"), "Supabase schema exists");
 assert(exists("supabase/seed-portfolio.sql"), "Supabase portfolio seed exists");
@@ -84,6 +85,9 @@ assert(exists("supabase/account-editing-check.sql"), "Supabase account editing c
 assert(exists("scripts/compose-supabase-upgrade-sql.mjs"), "Supabase upgrade SQL composer exists");
 assert(read("README.md").includes("GitHub Pages"), "README documents GitHub Pages");
 assert(read("docs/deployment-runbook.md").includes("GitHub Pages"), "runbook documents GitHub Pages");
+assert(read("README.md").includes("docs/supabase-smtp.md"), "README links Supabase SMTP docs");
+assert(read("docs/deployment-runbook.md").includes("Custom SMTP"), "runbook documents Custom SMTP");
+assert(read("docs/release-checklist.md").includes("Custom SMTP"), "release checklist includes Custom SMTP");
 
 const packageJson = JSON.parse(read("package.json"));
 assert(packageJson.scripts?.["smoke:dist"] === "node scripts/dist-smoke-test.mjs", "dist smoke script exists");
@@ -104,6 +108,7 @@ assert(
   packageJson.scripts?.["verify:owner-backend:remote"] === "node scripts/verify-owner-backend-ready.mjs --remote",
   "remote owner backend verification script exists",
 );
+assert(packageJson.scripts?.["verify:smtp"] === "node scripts/verify-smtp.mjs", "SMTP verification script exists");
 assert(
   packageJson.scripts?.["sql:supabase-upgrade"] === "node scripts/compose-supabase-upgrade-sql.mjs",
   "Supabase upgrade SQL composer script exists",

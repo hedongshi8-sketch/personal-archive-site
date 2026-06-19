@@ -10,7 +10,8 @@
 4. 执行 `supabase/seed-portfolio.sql`。
 5. 确认 Storage 里有 public bucket：`portfolio-public`。
 6. 在 Authentication -> Providers 里启用 Email provider，允许邮箱密码登录/注册。
-7. 在 Authentication -> URL Configuration 里加入线上域名，例如：
+7. 按 [Supabase SMTP 邮件配置](supabase-smtp.md) 配好 Custom SMTP；不要依赖 Supabase 默认发信服务做正式注册确认。
+8. 在 Authentication -> URL Configuration 里加入线上域名，例如：
    - `https://hedongshi8-sketch.github.io`
    - `https://hedongshi8-sketch.github.io/personal-archive-site/`
 
@@ -65,15 +66,19 @@ npm run audit:release
 npm run deploy:readiness
 npm run verify:supabase
 npm run verify:owner-backend
+npm run verify:smtp
 ```
 
 `verify:supabase` 和 `verify:owner-backend` 依赖 `.env.local` 里的 Supabase 配置。未配置时失败是正常的，代表线上持久化能力还没接通。
+
+`verify:smtp` 依赖当前终端的 SMTP 环境变量，只用于确认邮件服务商能真实发信；这些密钥不要写进仓库。
 
 ## 6. 验收重点
 
 - 游客能打开首页、作品集、音乐、图库、书摘、站主动态和留言墙。
 - 游客不能看到作品上传、音乐上传、图库上传、书摘发布和首页编辑入口。
 - 新用户能邮箱密码注册，设置用户名和头像。
+- 新用户注册确认邮件能收到，点击确认链接后可以登录。
 - 登录用户能留言，未登录用户不能留言。
 - 站主能进入编辑模式，点击标题/品牌/首页介绍修改文字，点击头像/封面上传图片。
 - 站主能发布站主动态，访客能看到公开动态。

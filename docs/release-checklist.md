@@ -28,9 +28,11 @@
 - [ ] `owner_posts` 使用 `public` / `draft` 可见性。
 - [ ] `public_comments` 有 `author_id` 和 `avatar_url`，插入策略要求登录用户。
 - [ ] Storage bucket `portfolio-public` 存在且为 public。
+- [ ] Custom SMTP 已配置，注册确认邮件能真实送达。
 - [ ] 站主账号已注册，并在 `profiles.role` 中设为 `owner`。
 - [ ] `npm run verify:supabase`
 - [ ] `npm run verify:owner-backend`
+- [ ] `npm run verify:smtp`
 
 ## 线上平台
 
@@ -50,6 +52,7 @@
 - [ ] 访客可以浏览首页、作品集、Demo、音乐、图库、书摘、站主动态和留言列表。
 - [ ] 访客看不到编辑模式入口。
 - [ ] 访客注册账号后可以设置用户名和头像。
+- [ ] 注册确认邮件能收到；点击确认链接后可登录。
 - [ ] 未登录用户不能发表留言。
 - [ ] 已登录用户能发表留言，留言显示账号用户名和头像。
 - [ ] 刷新页面后，已登录账号自动恢复。

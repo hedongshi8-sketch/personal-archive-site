@@ -19,6 +19,7 @@
     "verify:supabase": "node scripts/verify-supabase-backend.mjs",
     "verify:owner-backend": "node scripts/verify-owner-backend-ready.mjs",
     "verify:owner-backend:remote": "node scripts/verify-owner-backend-ready.mjs --remote",
+    "verify:smtp": "node scripts/verify-smtp.mjs",
     "sql:supabase-upgrade": "node scripts/compose-supabase-upgrade-sql.mjs"
   },
   "dependencies": {
