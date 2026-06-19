@@ -1828,6 +1828,22 @@ p {
   margin: 10px 0 0;
 }
 
+.backend-mode-notice {
+  margin: 0;
+  border: 1px solid rgba(255, 125, 99, 0.22);
+  border-radius: 6px;
+  padding: 9px 10px;
+  background: rgba(255, 125, 99, 0.08);
+  color: #6d5144;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.backend-mode-notice span {
+  display: block;
+  margin-top: 4px;
+}
+
 .mini-post {
   border: 1px solid rgba(30, 29, 25, 0.12);
   border-radius: 7px;

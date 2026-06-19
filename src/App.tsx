@@ -67,6 +67,7 @@ import mediaSheet from "./assets/media-sheet.png";
 
 const galleryFilters = ["全部", "角色", "场景", "物件", "UI/界面", "概念"];
 const githubCommentsRepo = import.meta.env.VITE_GITHUB_COMMENTS_REPO || "hedongshi8-sketch/personal-archive-site";
+const localPreviewLabel = "Local Preview · 不会写入线上";
 
 function MediaTile({
   tile,
@@ -359,6 +360,17 @@ function ScreenIntro({
         </button>
       ) : null}
     </div>
+  );
+}
+
+function BackendModeNotice({ isSupabase, children }: { isSupabase: boolean; children?: ReactNode }) {
+  return (
+    <p className="backend-mode-notice">
+      {isSupabase
+        ? "Supabase 已接入：站主登录后上传会持久保存。"
+        : "当前是静态/本地预览：可以试表单，但上传内容不会永久保存到线上。"}
+      {children ? <span>{children}</span> : null}
+    </p>
   );
 }
 
@@ -963,9 +975,10 @@ function DocsSection() {
         </div>
         <div className="portfolio-admin">
           <div className="portfolio-admin-head">
-            <span>{isSupabase ? "Supabase 权限" : "Local Preview"}</span>
+            <span>{isSupabase ? "Supabase 权限" : localPreviewLabel}</span>
             <strong>{isOwner ? "站主编辑入口已开启" : "公开浏览模式"}</strong>
           </div>
+          <BackendModeNotice isSupabase={isSupabase} />
           {isSupabase && !isOwner ? (
             <div className="portfolio-login-row">
               <input
@@ -1511,9 +1524,10 @@ function MusicSection({
       </div>
       <div className="owner-upload-panel music-upload-panel">
         <div className="portfolio-admin-head">
-          <span>{isSupabase ? "Supabase Storage" : "Local Preview"}</span>
+          <span>{isSupabase ? "Supabase Storage" : localPreviewLabel}</span>
           <strong>{isOwner ? "站主音乐上传入口" : "访客只能试听公开歌单"}</strong>
         </div>
+        <BackendModeNotice isSupabase={isSupabase} />
         {isOwner ? (
           <>
             <div className="owner-upload-grid">
@@ -1741,9 +1755,10 @@ function GallerySection({
       </div>
       <div className="owner-upload-panel gallery-upload-panel">
         <div className="portfolio-admin-head">
-          <span>{isSupabase ? "Supabase Storage" : "Local Preview"}</span>
+          <span>{isSupabase ? "Supabase Storage" : localPreviewLabel}</span>
           <strong>{isOwner ? "站主图片上传入口" : "访客只能浏览公开图库"}</strong>
         </div>
+        <BackendModeNotice isSupabase={isSupabase} />
         {isOwner ? (
           <>
             <div className="owner-upload-grid">
@@ -1968,9 +1983,10 @@ function NotesSection() {
 
       <div className="owner-upload-panel notes-upload-panel">
         <div className="portfolio-admin-head">
-          <span>{isSupabase ? "Supabase RLS" : "Local Preview"}</span>
+          <span>{isSupabase ? "Supabase RLS" : localPreviewLabel}</span>
           <strong>{isOwner ? "站主书摘发布入口" : "访客只能阅读公开心得"}</strong>
         </div>
+        <BackendModeNotice isSupabase={isSupabase} />
         {isOwner ? (
           <>
             <div className="owner-upload-grid">
@@ -2170,7 +2186,7 @@ function PrivateSection() {
       ) : (
         <div className="owner-login">
           <div>
-            <span>Local Preview</span>
+            <span>{localPreviewLabel}</span>
             <strong>本地预览模式，部署后填 Supabase 环境变量启用真实权限。</strong>
           </div>
         </div>

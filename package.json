@@ -16,7 +16,9 @@
     "verify:remote": "node scripts/verify-remote-release.mjs",
     "verify:comments": "node scripts/verify-comments-bridge.mjs",
     "verify:comments:remote": "node scripts/verify-comments-bridge.mjs --remote",
-    "verify:supabase": "node scripts/verify-supabase-backend.mjs"
+    "verify:supabase": "node scripts/verify-supabase-backend.mjs",
+    "verify:owner-backend": "node scripts/verify-owner-backend-ready.mjs",
+    "verify:owner-backend:remote": "node scripts/verify-owner-backend-ready.mjs --remote"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.108.2",

@@ -92,6 +92,14 @@ assert(
   "remote comments bridge verification script exists",
 );
 assert(packageJson.scripts?.["verify:supabase"] === "node scripts/verify-supabase-backend.mjs", "Supabase verification script exists");
+assert(
+  packageJson.scripts?.["verify:owner-backend"] === "node scripts/verify-owner-backend-ready.mjs",
+  "owner backend verification script exists",
+);
+assert(
+  packageJson.scripts?.["verify:owner-backend:remote"] === "node scripts/verify-owner-backend-ready.mjs --remote",
+  "remote owner backend verification script exists",
+);
 
 const ciWorkflow = read(".github/workflows/ci.yml");
 const vercelWorkflow = read(".github/workflows/vercel-deploy.yml");

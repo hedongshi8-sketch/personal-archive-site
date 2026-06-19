@@ -36,6 +36,8 @@
 - [ ] 站主邮箱首次 magic link 登录完成。
 - [ ] `profiles.role` 已将站主邮箱设置为 `owner`。
 - [ ] `npm run verify:supabase`
+- [ ] `npm run verify:owner-backend`
+- [ ] `npm run verify:owner-backend:remote`
 
 ## 部署平台
 
@@ -73,3 +75,4 @@
 - [ ] 站主登录后可以上传音乐并设置全站背景音乐。
 - [ ] 站主登录后可以上传图片并修改首页封面。
 - [ ] `/#notes` 可以浏览书摘心得，站主登录后可以发布书籍/视频心得。
+- [ ] 上述上传在刷新页面后仍存在，确认不是 Local Preview 临时数据。

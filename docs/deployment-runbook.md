@@ -90,6 +90,8 @@ npm run verify:remote
 npm run verify:comments
 npm run verify:comments:remote
 npm run verify:supabase
+npm run verify:owner-backend
+npm run verify:owner-backend:remote
 ```
 
 确认：
@@ -107,3 +109,5 @@ npm run verify:supabase
 - `npm run verify:comments:remote` 通过；如果失败，确认最新 Pages 已部署并且 Utterances 配置仍在 bundle 中。
 - 配置 Supabase 后，`npm run verify:supabase` 通过。
   这一步会验证访客可读公开音乐/图片/书摘，但不能匿名写入站主资源。
+- `npm run verify:owner-backend:remote` 通过。
+  这一步会验证线上 bundle 已经带 Supabase 配置，并且 owner 上传相关表和 Storage 可用。未通过时，网站仍是静态作品集，不算完成在线上传。

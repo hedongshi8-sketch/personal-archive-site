@@ -34,6 +34,8 @@ npm run verify:remote
 npm run verify:comments
 npm run verify:comments:remote
 npm run verify:supabase
+npm run verify:owner-backend
+npm run verify:owner-backend:remote
 ```
 
 构建产物在 `dist`。`vercel.json`、`public/_redirects`、`public/_headers` 已经为 Vercel / Cloudflare Pages 的 SPA 路由和静态资源缓存做好准备。
@@ -43,6 +45,7 @@ npm run verify:supabase
 `verify:remote` 会检查 GitHub Pages 默认公网 URL，确认首页、原型、PDF、Excel 和站内预览数据可访问。
 `verify:comments` / `verify:comments:remote` 会检查 GitHub Issues 评论桥是否进入本地构建和线上 bundle。
 `verify:supabase` 会在配置 Supabase 环境变量后检查公开作品、访客评论验证、点赞 RPC、音乐/图库/书摘公开读取和 owner-only RLS。
+`verify:owner-backend` / `verify:owner-backend:remote` 专门验收“站主上传是否会在线上持久保存”：未配置 Supabase 时会失败，这是预期的阻断。
 
 ## 作品集资产
 
@@ -100,9 +103,11 @@ set VITE_SUPABASE_URL=https://your-project.supabase.co
 set VITE_SUPABASE_ANON_KEY=your-anon-public-key
 set VITE_SUPABASE_PUBLIC_BUCKET=portfolio-public
 npm run verify:supabase
+npm run verify:owner-backend
+npm run verify:owner-backend:remote
 ```
 
-这样外部访客可以浏览作品集、音乐、图库、书摘和评论，只有 `profiles.role = 'owner'` 的账号能写入私密发帖、上传资源和修改封面/背景音乐。
+这三个命令都通过后，才代表外部访客可以浏览作品集、音乐、图库、书摘和评论，且只有 `profiles.role = 'owner'` 的账号能写入私密发帖、上传资源和修改封面/背景音乐。
 
 如果暂时还没接 Supabase，留言墙会额外显示 GitHub Issues 评论面板。到 <https://github.com/apps/utterances> 安装 Utterances App，并授权 `personal-archive-site` 仓库后，访客可以用 GitHub 账号留下公网持久评论。
 
@@ -118,6 +123,7 @@ npm run verify:supabase
 - 仓库 Settings -> Pages 的 Source 选择 GitHub Actions。
 - `public/.nojekyll` 和 `public/404.html` 已准备好，兼容 GitHub Pages 静态托管与直接路径访问。
 - Supabase 环境变量未配置时，站点会保持本地预览模式；公开作品集可浏览，本地上传只存在当前浏览器预览里，不会写入线上数据库。
+- 真实在线上传的验收标准是 `npm run verify:owner-backend:remote` 通过。
 - Supabase 未启用前，留言墙可以通过 Utterances + GitHub Issues 承接公网评论。
 
 ### Vercel
