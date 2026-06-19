@@ -10,7 +10,7 @@
 - 静态作品集资源：`public/portfolio-assets`
 - 站内作品预览：`public/portfolio-previews` 里的 Excel / DOCX / Markdown / 文本预览数据
 - Supabase 后端：Auth 账号密码登录、Postgres RLS、Storage、用户资料、站主动态、留言、作品/音乐/图片/书摘上传和站点设置
-- Supabase Auth 邮件：Custom SMTP 发送注册确认/重发确认邮件，配置看 [docs/supabase-smtp.md](docs/supabase-smtp.md)
+- Supabase Auth 邮件：先用 Gmail 免费 SMTP 跑通注册确认/重发确认邮件，后续可换自有域名，配置看 [docs/supabase-smtp.md](docs/supabase-smtp.md)
 
 ## 本地运行
 
@@ -34,7 +34,7 @@ npm run dev
 2. 在 SQL Editor 执行 `supabase/schema.sql`。
 3. 执行 `supabase/seed-portfolio.sql`，写入当前 19 个公开作品条目。
 4. 确认 Storage bucket `portfolio-public` 存在且为 public。
-5. 按 [docs/supabase-smtp.md](docs/supabase-smtp.md) 配好 Custom SMTP，否则注册确认邮件可能收不到。
+5. 按 [docs/supabase-smtp.md](docs/supabase-smtp.md) 先配好 Gmail 免费 SMTP，否则注册确认邮件可能收不到。
 6. 在网站上用邮箱密码注册你的站主账号；如果收到 Supabase 确认邮件，先点确认链接，再回到网站登录一次。
 7. 回到 Supabase SQL Editor 执行 `supabase/set-owner.sql`，或手动执行：
 

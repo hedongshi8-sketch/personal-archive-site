@@ -10,7 +10,7 @@
 4. 执行 `supabase/seed-portfolio.sql`。
 5. 确认 Storage 里有 public bucket：`portfolio-public`。
 6. 在 Authentication -> Providers 里启用 Email provider，允许邮箱密码登录/注册。
-7. 按 [Supabase SMTP 邮件配置](supabase-smtp.md) 配好 Custom SMTP；不要依赖 Supabase 默认发信服务做正式注册确认。
+7. 按 [Supabase SMTP 邮件配置](supabase-smtp.md) 先配好 Gmail 免费 SMTP；它也是 Custom SMTP，不要依赖 Supabase 默认发信服务做正式注册确认。
 8. 在 Authentication -> URL Configuration 里加入线上域名，例如：
    - `https://hedongshi8-sketch.github.io`
    - `https://hedongshi8-sketch.github.io/personal-archive-site/`

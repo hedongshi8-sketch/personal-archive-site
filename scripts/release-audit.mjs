@@ -88,7 +88,8 @@ assert(read("docs/deployment-runbook.md").includes("GitHub Pages"), "runbook doc
 assert(read("README.md").includes("docs/supabase-smtp.md"), "README links Supabase SMTP docs");
 assert(read("docs/deployment-runbook.md").includes("Custom SMTP"), "runbook documents Custom SMTP");
 assert(read("docs/release-checklist.md").includes("Custom SMTP"), "release checklist includes Custom SMTP");
-assert(read("docs/supabase-smtp.md").includes("从买域名到 SMTP 配完"), "SMTP docs include domain purchase flow");
+assert(read("docs/supabase-smtp.md").includes("Gmail App Password"), "SMTP docs include Gmail free setup");
+assert(read("docs/supabase-smtp.md").includes("从买域名到正式 SMTP 配完"), "SMTP docs include domain purchase flow");
 assert(read("docs/supabase-smtp.md").includes("verify:auth-email"), "SMTP docs include Supabase auth email verification");
 assert(read("docs/supabase-smtp.md").includes("verify:mail-dns"), "SMTP docs include mail DNS verification");
 

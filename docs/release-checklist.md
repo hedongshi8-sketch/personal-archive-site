@@ -28,7 +28,7 @@
 - [ ] `owner_posts` 使用 `public` / `draft` 可见性。
 - [ ] `public_comments` 有 `author_id` 和 `avatar_url`，插入策略要求登录用户。
 - [ ] Storage bucket `portfolio-public` 存在且为 public。
-- [ ] Custom SMTP 已配置，注册确认邮件能真实送达。
+- [ ] Gmail 免费 SMTP 或正式 Custom SMTP 已配置，注册确认邮件能真实送达。
 - [ ] 站主账号已注册，并在 `profiles.role` 中设为 `owner`。
 - [ ] `npm run verify:supabase`
 - [ ] `npm run verify:owner-backend`
