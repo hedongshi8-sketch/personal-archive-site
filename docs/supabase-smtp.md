@@ -51,7 +51,33 @@ $env:GMAIL_SMTP_PORT="587"
 npm run verify:gmail-smtp
 ```
 
-测通后，再把同一组 Gmail SMTP 参数填到 Supabase `Authentication -> Email -> SMTP Settings`。
+测通后，可以手动把同一组 Gmail SMTP 参数填到 Supabase `Authentication -> Email -> SMTP Settings`，也可以用脚本自动配置。
+
+自动配置需要一个 Supabase Personal Access Token，权限要能写 Auth 配置：
+
+1. 打开 https://supabase.com/dashboard/account/tokens
+2. 创建一个新的 access token，例如命名为 `personal-archive-smtp-setup`
+3. 只在当前 PowerShell 终端临时设置，不要写进 `.env` 或仓库
+
+```powershell
+$env:SUPABASE_ACCESS_TOKEN="你的 Supabase access token"
+$env:GMAIL_APP_PASSWORD="你的 Gmail App Password"
+npm run supabase:configure-gmail-smtp
+```
+
+脚本会从 `VITE_SUPABASE_URL` 自动识别项目 ref，然后调用 Supabase Management API 写入：
+
+```text
+Host          = smtp.gmail.com
+Port          = 465
+Username      = hedongshi8@gmail.com
+Password      = Gmail App Password
+Sender email  = hedongshi8@gmail.com
+Sender name   = 个人策划档案
+Site URL      = https://hedongshi8-sketch.github.io/personal-archive-site/
+```
+
+如果你更想手动配置，Supabase 后台仍然按上面的字段填即可。
 
 ## 正式方案：Resend + 自有域名
 

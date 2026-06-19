@@ -115,6 +115,10 @@ assert(
 assert(packageJson.scripts?.["verify:smtp"] === "node scripts/verify-smtp.mjs", "SMTP verification script exists");
 assert(packageJson.scripts?.["verify:gmail-smtp"] === "node scripts/verify-gmail-smtp.mjs", "Gmail SMTP verification script exists");
 assert(
+  packageJson.scripts?.["supabase:configure-gmail-smtp"] === "node scripts/configure-supabase-gmail-smtp.mjs",
+  "Supabase Gmail SMTP configuration script exists",
+);
+assert(
   packageJson.scripts?.["verify:auth-email"] === "node scripts/verify-supabase-auth-email.mjs",
   "Supabase auth email verification script exists",
 );

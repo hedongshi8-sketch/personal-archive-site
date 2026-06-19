@@ -23,6 +23,7 @@
     "verify:gmail-smtp": "node scripts/verify-gmail-smtp.mjs",
     "verify:auth-email": "node scripts/verify-supabase-auth-email.mjs",
     "verify:mail-dns": "node scripts/verify-mail-dns.mjs",
+    "supabase:configure-gmail-smtp": "node scripts/configure-supabase-gmail-smtp.mjs",
     "sql:supabase-upgrade": "node scripts/compose-supabase-upgrade-sql.mjs"
   },
   "dependencies": {

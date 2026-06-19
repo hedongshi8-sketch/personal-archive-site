@@ -67,6 +67,7 @@ npm run deploy:readiness
 npm run verify:supabase
 npm run verify:owner-backend
 npm run verify:gmail-smtp
+npm run supabase:configure-gmail-smtp
 npm run verify:smtp
 npm run verify:auth-email
 npm run verify:mail-dns
@@ -75,6 +76,8 @@ npm run verify:mail-dns
 `verify:supabase` 和 `verify:owner-backend` 依赖 `.env.local` 里的 Supabase 配置。未配置时失败是正常的，代表线上持久化能力还没接通。
 
 `verify:gmail-smtp` 依赖当前终端的 `GMAIL_APP_PASSWORD`，用于确认 Gmail 免费 SMTP 能真实发信。`verify:smtp` 是通用 SMTP 检查，依赖当前终端的 SMTP 环境变量；这些密钥不要写进仓库。
+
+`supabase:configure-gmail-smtp` 依赖当前终端的 `SUPABASE_ACCESS_TOKEN` 和 `GMAIL_APP_PASSWORD`，用于自动配置 Supabase Auth Custom SMTP；这些密钥只放在当前终端，不要写入文件。
 
 `verify:auth-email` 依赖当前终端的 `AUTH_EMAIL_TO`，用于确认 Supabase Auth 能真实触发注册确认邮件。
 
