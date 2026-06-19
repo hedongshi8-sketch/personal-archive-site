@@ -24,17 +24,37 @@ function assert(condition, label, detail = "") {
   }
 }
 
-async function fetchText(url) {
-  const response = await fetch(url, { redirect: "follow" });
-  if (!response.ok) {
-    throw new Error(`${url} returned ${response.status}`);
+async function fetchText(url, attempts = 3) {
+  let lastError;
+
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    try {
+      const response = await fetch(url, { redirect: "follow" });
+      if (!response.ok) {
+        throw new Error(`${url} returned ${response.status}`);
+      }
+
+      return response.text();
+    } catch (error) {
+      lastError = error;
+      if (attempt < attempts) {
+        await new Promise((resolve) => setTimeout(resolve, attempt * 1200));
+      }
+    }
   }
 
-  return response.text();
+  throw lastError;
 }
 
 async function checkRemoteBundle() {
-  const html = await fetchText(remoteUrl);
+  let html = "";
+  try {
+    html = await fetchText(remoteUrl);
+  } catch (error) {
+    fail("remote site is reachable for owner backend check", error instanceof Error ? error.message : String(error));
+    return;
+  }
+
   const scriptPath = html.match(/assets\/[^"']+\.js/)?.[0];
 
   assert(Boolean(scriptPath), "remote app bundle script is discoverable");
@@ -42,8 +62,23 @@ async function checkRemoteBundle() {
     return;
   }
 
-  const bundle = await fetchText(new URL(scriptPath, remoteUrl).toString());
-  assert(/https:\/\/[^"']*supabase\.co/.test(bundle), "remote bundle includes Supabase project URL");
+  let bundle = "";
+  try {
+    bundle = await fetchText(new URL(scriptPath, remoteUrl).toString());
+  } catch (error) {
+    fail("remote app bundle is reachable for owner backend check", error instanceof Error ? error.message : String(error));
+    return;
+  }
+  const hasRemoteSupabaseUrl = /https:\/\/[^"']*supabase\.co/.test(bundle);
+  assert(hasRemoteSupabaseUrl, "remote bundle includes Supabase project URL");
+
+  if (!hasRemoteSupabaseUrl) {
+    fail(
+      "remote owner backend is active",
+      "GitHub Pages was built without VITE_SUPABASE_URL, so owner uploads cannot persist online yet",
+    );
+    return;
+  }
 
   for (const token of [
     "portfolio_items",
