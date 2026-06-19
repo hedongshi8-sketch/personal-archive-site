@@ -3,7 +3,9 @@ import clsx from "clsx";
 import {
   ArrowRight,
   Bell,
+  BookOpenText,
   Camera,
+  CalendarDays,
   Check,
   Code2,
   Download,
@@ -20,13 +22,16 @@ import {
   MessageCircle,
   Moon,
   Pause,
+  PenLine,
   Play,
+  Quote,
   Search,
   Send,
   ShieldCheck,
   Shuffle,
   SkipBack,
   SkipForward,
+  Tags,
   Upload,
   Volume2,
 } from "lucide-react";
@@ -70,6 +75,7 @@ import { useLocalStorage } from "./hooks/useLocalStorage";
 import mediaSheet from "./assets/media-sheet.png";
 
 const galleryFilters = ["全部", "角色", "场景", "物件", "UI/界面", "概念"];
+const readingQuickTags = ["体验设计", "关卡节奏", "系统拆解", "叙事反馈", "用户心理", "经济循环"];
 const githubCommentsRepo = import.meta.env.VITE_GITHUB_COMMENTS_REPO || "hedongshi8-sketch/personal-archive-site";
 const localPreviewLabel = "Local Preview · 不会写入线上";
 
@@ -2330,6 +2336,14 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
 
   const isOwner = currentUser?.role === "owner";
   const isSupabase = siteBackend.mode === "supabase";
+  const draftTags = useMemo(() => parseTags(tagInput), [tagInput]);
+  const noteStats = useMemo(() => {
+    const bookCount = notes.filter((note) => note.kind === "book").length;
+    const videoCount = notes.length - bookCount;
+    const tagCount = new Set(notes.flatMap((note) => note.tags)).size;
+
+    return { bookCount, videoCount, tagCount };
+  }, [notes]);
   const filteredNotes = useMemo(() => {
     if (activeKind === "all") {
       return notes;
@@ -2337,6 +2351,8 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
 
     return notes.filter((note) => note.kind === activeKind);
   }, [activeKind, notes]);
+  const canPublish = Boolean(draft.title.trim() && draft.creator.trim() && draft.quote.trim());
+  const quoteLength = draft.quote.trim().length;
 
   useEffect(() => {
     let active = true;
@@ -2391,6 +2407,16 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
     }
   }
 
+  function toggleQuickTag(tag: string) {
+    const tags = new Set(parseTags(tagInput));
+    if (tags.has(tag)) {
+      tags.delete(tag);
+    } else {
+      tags.add(tag);
+    }
+    setTagInput([...tags].join(", "));
+  }
+
   async function createReadingNote() {
     if (!isOwner) {
       setStatusMessage("只有站主账号可以发布书摘心得。");
@@ -2402,8 +2428,8 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
     const quote = draft.quote.trim();
     const reflection = draft.reflection.trim();
 
-    if (!title || !creator || !quote || !reflection) {
-      setStatusMessage("标题、作者/来源、摘录和心得都需要填写。");
+    if (!title || !creator || !quote) {
+      setStatusMessage("书籍名称、作者/来源和喜欢的段落都需要填写。");
       return;
     }
 
@@ -2413,10 +2439,10 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
         title,
         creator,
         quote,
-        reflection,
+        reflection: reflection || "",
         sourceUrl: draft.sourceUrl?.trim() || undefined,
         coverUrl: draft.coverUrl?.trim() || undefined,
-        tags: parseTags(tagInput),
+        tags: draftTags,
       });
       setNotes((current) => [nextNote, ...current]);
       setDraft(defaultReadingDraft);
@@ -2429,140 +2455,220 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
 
   return (
     <section className="screen-section notes-section" id="notes">
-      <ScreenIntro
-        title="书摘心得"
-        description="这里放策划书籍、设计文章和视频课程的摘录与复盘，方便 HR 看到你的学习路径和方法论。"
-      />
+      <aside className="notes-rail">
+        <ScreenIntro
+          title="书摘心得"
+          description="把读到的好段落沉淀成可检索的策划方法库：书名、来源、摘录、心得和标签都能被稳定保存。"
+        />
+        <div className="notes-stat-grid" aria-label="书摘统计">
+          <span>
+            <strong>{notes.length}</strong>
+            全部摘录
+          </span>
+          <span>
+            <strong>{noteStats.bookCount}</strong>
+            书籍
+          </span>
+          <span>
+            <strong>{noteStats.videoCount}</strong>
+            视频
+          </span>
+          <span>
+            <strong>{noteStats.tagCount}</strong>
+            标签
+          </span>
+        </div>
+        <div className="notes-archive-mark">
+          <BookOpenText size={18} />
+          <span>{isOwner ? "站主发布通道已开启" : "公开阅读模式"}</span>
+        </div>
+      </aside>
       <div className="notes-workbench">
-        <div className="filter-row" role="tablist" aria-label="书摘筛选">
-          {[
-            { id: "all", label: "全部" },
-            { id: "book", label: "书籍" },
-            { id: "video", label: "视频" },
-          ].map((item) => (
-            <button
-              className={clsx(activeKind === item.id && "active")}
-              key={item.id}
-              onClick={() => setActiveKind(item.id as "all" | ReadingNote["kind"])}
-              type="button"
-              role="tab"
-            >
-              {item.label}
-            </button>
-          ))}
+        <div className="notes-command">
+          <div className="filter-row" role="tablist" aria-label="书摘筛选">
+            {[
+              { id: "all", label: "全部" },
+              { id: "book", label: "书籍" },
+              { id: "video", label: "视频" },
+            ].map((item) => (
+              <button
+                className={clsx(activeKind === item.id && "active")}
+                key={item.id}
+                onClick={() => setActiveKind(item.id as "all" | ReadingNote["kind"])}
+                type="button"
+                role="tab"
+                aria-selected={activeKind === item.id}
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
+          {loadState === "loading" ? <span className="notes-sync-state">正在同步书摘...</span> : null}
         </div>
 
-        <div className="notes-grid">
-          {filteredNotes.map((note) => (
-            <article className="note-card" key={note.id}>
-              {note.coverUrl ? <img src={note.coverUrl} alt={note.title} /> : <MediaTile tile={note.kind === "book" ? 1 : 2} />}
-              <div>
-                <span>{note.kind === "book" ? "策划书籍" : "视频心得"}</span>
-                <h3>{note.title}</h3>
-                <p>{note.creator}</p>
+        <div className={clsx("notes-layout", isOwner && "has-composer")}>
+          <div className="notes-grid">
+            {filteredNotes.length > 0 ? (
+              filteredNotes.map((note) => (
+                <article className="note-card" key={note.id}>
+                  <div className="note-cover-wrap">
+                    {note.coverUrl ? (
+                      <img src={note.coverUrl} alt={note.title} />
+                    ) : (
+                      <MediaTile tile={note.kind === "book" ? 1 : 2} />
+                    )}
+                    <span className="note-kind">{note.kind === "book" ? "书籍" : "视频"}</span>
+                  </div>
+                  <div className="note-card-body">
+                    <div className="note-meta-line">
+                      <span>
+                        <BookOpenText size={13} />
+                        {note.creator}
+                      </span>
+                      <time dateTime={note.createdAt}>
+                        <CalendarDays size={13} />
+                        {note.createdAt}
+                      </time>
+                    </div>
+                    <h3>{note.title}</h3>
+                    <blockquote>
+                      <Quote size={18} />
+                      <span>{note.quote}</span>
+                    </blockquote>
+                    {note.reflection.trim() ? <p className="note-reflection">{note.reflection}</p> : null}
+                    {note.tags.length > 0 ? (
+                      <div className="tag-row">
+                        {note.tags.map((tag) => (
+                          <span key={tag}>{tag}</span>
+                        ))}
+                      </div>
+                    ) : null}
+                    {note.sourceUrl ? (
+                      <a className="note-source-link" href={note.sourceUrl} target="_blank" rel="noreferrer">
+                        <ExternalLink size={15} />
+                        打开来源
+                      </a>
+                    ) : null}
+                  </div>
+                </article>
+              ))
+            ) : (
+              <div className="notes-empty-state">
+                <BookOpenText size={28} />
+                <strong>这个筛选下还没有书摘</strong>
+                <span>切换分类，或用站主账号发布新的摘录。</span>
               </div>
-              <blockquote>{note.quote}</blockquote>
-              <p>{note.reflection}</p>
-              <div className="tag-row">
-                {note.tags.map((tag) => (
-                  <span key={tag}>{tag}</span>
+            )}
+          </div>
+
+          {isOwner ? (
+            <div className="owner-upload-panel notes-upload-panel reading-composer">
+              <div className="portfolio-admin-head">
+                <span>{isSupabase ? "Supabase RLS · 线上保存" : localPreviewLabel}</span>
+                <strong>站主书摘发布入口</strong>
+              </div>
+              <BackendModeNotice isSupabase={isSupabase} />
+
+              <div className="reading-draft-preview">
+                <span>
+                  <PenLine size={14} />
+                  即将发布
+                </span>
+                <strong>{draft.title.trim() || "未命名书摘"}</strong>
+                <p>{draft.quote.trim() || "复制或输入你喜欢的一段书中内容，这里会实时预览。"}</p>
+              </div>
+
+              <div className="owner-upload-grid">
+                <label>
+                  <span>类型</span>
+                  <select
+                    value={draft.kind}
+                    onChange={(event) =>
+                      setDraft((current) => ({ ...current, kind: event.target.value as ReadingNote["kind"] }))
+                    }
+                  >
+                    <option value="book">书籍</option>
+                    <option value="video">视频</option>
+                  </select>
+                </label>
+                <label>
+                  <span>书籍名称</span>
+                  <input
+                    value={draft.title}
+                    onChange={(event) => setDraft((current) => ({ ...current, title: event.target.value }))}
+                    placeholder="例如：体验引擎"
+                  />
+                </label>
+                <label>
+                  <span>作者 / 来源</span>
+                  <input
+                    value={draft.creator}
+                    onChange={(event) => setDraft((current) => ({ ...current, creator: event.target.value }))}
+                    placeholder="作者、频道或课程来源"
+                  />
+                </label>
+                <label>
+                  <span>来源链接</span>
+                  <input
+                    value={draft.sourceUrl}
+                    onChange={(event) => setDraft((current) => ({ ...current, sourceUrl: event.target.value }))}
+                    placeholder="可选"
+                  />
+                </label>
+              </div>
+
+              <label className="reading-wide-field">
+                <span>喜欢的段落</span>
+                <textarea
+                  value={draft.quote}
+                  onChange={(event) => setDraft((current) => ({ ...current, quote: event.target.value }))}
+                  placeholder="把你看到的书中段落复制到这里"
+                />
+              </label>
+              <label className="reading-wide-field">
+                <span>心得评论</span>
+                <textarea
+                  value={draft.reflection}
+                  onChange={(event) => setDraft((current) => ({ ...current, reflection: event.target.value }))}
+                  placeholder="可选：这段话对你的策划方法有什么启发？"
+                />
+              </label>
+
+              <label className="reading-wide-field">
+                <span>标签</span>
+                <input
+                  value={tagInput}
+                  onChange={(event) => setTagInput(event.target.value)}
+                  placeholder="体验设计, 关卡, 系统"
+                />
+              </label>
+              <div className="reading-quick-tags" aria-label="快速标签">
+                {readingQuickTags.map((tag) => (
+                  <button className={clsx(draftTags.includes(tag) && "active")} key={tag} onClick={() => toggleQuickTag(tag)} type="button">
+                    <Tags size={12} />
+                    {tag}
+                  </button>
                 ))}
               </div>
-              {note.sourceUrl ? (
-                <a href={note.sourceUrl} target="_blank" rel="noreferrer">
-                  <ExternalLink size={15} />
-                  打开来源
-                </a>
-              ) : null}
-            </article>
-          ))}
-        </div>
-      </div>
 
-      <div className="owner-upload-panel notes-upload-panel">
-        <div className="portfolio-admin-head">
-          <span>{isSupabase ? "Supabase RLS" : localPreviewLabel}</span>
-          <strong>{isOwner ? "站主书摘发布入口" : "访客只能阅读公开心得"}</strong>
+              <div className="portfolio-upload-row reading-action-row">
+                <label className="portfolio-file-picker">
+                  <ImageIcon size={16} />
+                  <span>{draft.coverUrl ? "封面已就绪" : "上传封面"}</span>
+                  <input accept="image/*" onChange={(event) => void handleReadingCover(event.target.files?.[0] ?? null)} type="file" />
+                </label>
+                <div className="reading-count">
+                  <strong>{quoteLength}</strong>
+                  段落字数
+                </div>
+                <button className="cyan-button" disabled={!canPublish || loadState === "loading"} onClick={createReadingNote} type="button">
+                  发布到书摘
+                </button>
+              </div>
+              {statusMessage ? <p className="backend-status">{statusMessage}</p> : null}
+            </div>
+          ) : null}
         </div>
-        <BackendModeNotice isSupabase={isSupabase} />
-        {isOwner ? (
-          <>
-            <div className="owner-upload-grid">
-              <label>
-                <span>类型</span>
-                <select
-                  value={draft.kind}
-                  onChange={(event) =>
-                    setDraft((current) => ({ ...current, kind: event.target.value as ReadingNote["kind"] }))
-                  }
-                >
-                  <option value="book">书籍</option>
-                  <option value="video">视频</option>
-                </select>
-              </label>
-              <label>
-                <span>标题</span>
-                <input
-                  value={draft.title}
-                  onChange={(event) => setDraft((current) => ({ ...current, title: event.target.value }))}
-                  placeholder="书名或视频标题"
-                />
-              </label>
-              <label>
-                <span>作者 / 来源</span>
-                <input
-                  value={draft.creator}
-                  onChange={(event) => setDraft((current) => ({ ...current, creator: event.target.value }))}
-                  placeholder="作者、频道或课程来源"
-                />
-              </label>
-              <label>
-                <span>来源链接</span>
-                <input
-                  value={draft.sourceUrl}
-                  onChange={(event) => setDraft((current) => ({ ...current, sourceUrl: event.target.value }))}
-                  placeholder="可选"
-                />
-              </label>
-            </div>
-            <label>
-              <span>摘录</span>
-              <textarea
-                value={draft.quote}
-                onChange={(event) => setDraft((current) => ({ ...current, quote: event.target.value }))}
-                placeholder="摘一句最值得记住的话"
-              />
-            </label>
-            <label>
-              <span>心得</span>
-              <textarea
-                value={draft.reflection}
-                onChange={(event) => setDraft((current) => ({ ...current, reflection: event.target.value }))}
-                placeholder="这段内容如何影响你的策划方法"
-              />
-            </label>
-            <label>
-              <span>标签</span>
-              <input
-                value={tagInput}
-                onChange={(event) => setTagInput(event.target.value)}
-                placeholder="体验设计, 关卡, 系统"
-              />
-            </label>
-            <div className="portfolio-upload-row">
-              <label className="portfolio-file-picker">
-                <ImageIcon size={16} />
-                <span>上传封面</span>
-                <input accept="image/*" onChange={(event) => void handleReadingCover(event.target.files?.[0] ?? null)} type="file" />
-              </label>
-              <button className="cyan-button" onClick={createReadingNote} type="button">
-                发布心得
-              </button>
-            </div>
-          </>
-        ) : null}
-        {loadState === "loading" ? <p className="backend-status">正在同步书摘...</p> : null}
-        {statusMessage ? <p className="backend-status">{statusMessage}</p> : null}
       </div>
     </section>
   );

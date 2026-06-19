@@ -239,6 +239,13 @@ $env:AUTH_EMAIL_TO="hedongshi8@gmail.com"
 npm run verify:auth-email
 ```
 
+脚本默认只触发一次新的注册确认邮件，避免立刻重发时撞上 Supabase 的安全冷却时间。如果你要专门测试“重发确认邮件”，等冷却时间结束后再加：
+
+```powershell
+$env:AUTH_EMAIL_RESEND="true"
+npm run verify:auth-email
+```
+
 这个脚本会用当前 `.env` 里的 Supabase 项目创建一个测试注册邮箱，例如：
 
 ```text

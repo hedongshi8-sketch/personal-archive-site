@@ -5,7 +5,7 @@ const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY;
 const siteUrl = process.env.SITE_URL || "https://hedongshi8-sketch.github.io/personal-archive-site/";
 const targetEmail = process.env.AUTH_EMAIL_TO || process.env.SMTP_TO;
 const testPassword = process.env.AUTH_EMAIL_TEST_PASSWORD || `Test-${Date.now()}-aA1!`;
-const runSignup = process.env.AUTH_EMAIL_SIGNUP === "true";
+const shouldResend = process.env.AUTH_EMAIL_RESEND === "true";
 const failures = [];
 
 function pass(label) {
@@ -79,13 +79,16 @@ if (failures.length === 0) {
     assert(!error, "Supabase signUp request accepted", error?.message);
     assert(Boolean(data?.user), "Supabase returned a test auth user");
 
-    if (data?.session) {
+    if (error || !data?.user) {
+      console.log("Supabase did not create a test user, so no confirmation email was triggered in this run.");
+      console.log("If the detail says rate limit, wait for the Supabase email cooldown and run the command again.");
+    } else if (data.session) {
       console.warn("WARN Supabase returned a session immediately. Email confirmation may be disabled for this project.");
     } else {
       pass("Supabase expects email confirmation before login");
     }
 
-    if (!runSignup) {
+    if (!error && data?.user && shouldResend) {
       const { error: resendError } = await supabase.auth.resend({
         type: "signup",
         email: testEmail,
@@ -95,9 +98,14 @@ if (failures.length === 0) {
       });
 
       assert(!resendError, "Supabase resend confirmation request accepted", resendError?.message);
+    } else if (!error && data?.user) {
+      pass("Supabase initial confirmation email request was triggered");
+      console.log("Skipping immediate resend check. Set AUTH_EMAIL_RESEND=true to test resend after the cooldown.");
     }
 
-    console.log(`Check the inbox for ${redactEmail(testEmail)}. If your mail provider supports plus aliases, it should arrive in ${redactEmail(targetEmail)}.`);
+    if (!error && data?.user) {
+      console.log(`Check the inbox for ${redactEmail(testEmail)}. If your mail provider supports plus aliases, it should arrive in ${redactEmail(targetEmail)}.`);
+    }
   } catch (error) {
     fail("Supabase auth email request completed", error instanceof Error ? error.message : String(error));
   }
