@@ -2191,7 +2191,8 @@ function PrivateSection() {
           </div>
         </div>
       )}
-      <div className="private-composer">
+      {isOwner ? (
+        <div className="private-composer">
         <div className="composer-lock">
           <LockKeyhole size={18} />
           <span>{isOwner ? "仅自己可见" : "需要站主权限"}</span>
@@ -2219,7 +2220,8 @@ function PrivateSection() {
             发布到私密区
           </button>
         </div>
-      </div>
+        </div>
+      ) : null}
       {statusMessage ? <p className="backend-status">{statusMessage}</p> : null}
       <div className="post-stack">
         {(isOwner ? posts : []).slice(0, 3).map((post) => (

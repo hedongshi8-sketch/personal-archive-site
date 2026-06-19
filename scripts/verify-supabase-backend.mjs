@@ -1,4 +1,4 @@
-import { createClient } from "@supabase/supabase-js";
+import { createVerificationClient } from "./create-verification-client.mjs";
 
 const supabaseUrl = process.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY;
@@ -28,7 +28,7 @@ if (!supabaseUrl || !supabaseAnonKey) {
     "set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY before running this check",
   );
 } else {
-  const supabase = createClient(supabaseUrl, supabaseAnonKey);
+  const supabase = createVerificationClient(supabaseUrl, supabaseAnonKey);
 
   const { data: projects, error: projectsError } = await supabase
     .from("portfolio_projects")

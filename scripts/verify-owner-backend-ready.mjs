@@ -1,4 +1,4 @@
-import { createClient } from "@supabase/supabase-js";
+import { createVerificationClient } from "./create-verification-client.mjs";
 
 const supabaseUrl = process.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY;
@@ -106,7 +106,7 @@ async function checkSupabaseBackend() {
     return;
   }
 
-  const supabase = createClient(supabaseUrl, supabaseAnonKey);
+  const supabase = createVerificationClient(supabaseUrl, supabaseAnonKey);
   const publicTables = [
     ["portfolio_items", "id"],
     ["music_tracks", "id"],
