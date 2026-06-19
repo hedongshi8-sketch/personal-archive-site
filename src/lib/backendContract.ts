@@ -128,6 +128,8 @@ export type SiteBackend = {
   createGalleryItem(input: GalleryItemInput): Promise<GalleryItem>;
   listReadingNotes(): Promise<ReadingNote[]>;
   createReadingNote(input: ReadingNoteInput): Promise<ReadingNote>;
+  updateReadingNote(id: string, input: ReadingNoteInput): Promise<ReadingNote>;
+  deleteReadingNote(id: string): Promise<void>;
   getSiteSettings(): Promise<SiteSettings>;
   updateSiteSettings(input: Partial<SiteSettings>): Promise<SiteSettings>;
 };
@@ -584,6 +586,18 @@ export class LocalPreviewBackend implements SiteBackend {
     };
   }
 
+  async updateReadingNote(id: string, input: ReadingNoteInput) {
+    return {
+      id,
+      ...input,
+      createdAt: new Date().toISOString().slice(0, 10),
+    };
+  }
+
+  async deleteReadingNote() {
+    return;
+  }
+
   async getSiteSettings() {
     return localSiteSettings;
   }
@@ -995,6 +1009,39 @@ export class SupabaseBackend implements SiteBackend {
       .single<ReadingNoteRow>();
 
     return mapReadingNote(requireSupabaseResult(data, error));
+  }
+
+  async updateReadingNote(id: string, input: ReadingNoteInput) {
+    requireOwner(await this.getCurrentUser(), "只有站主账号可以修改书摘心得。");
+
+    const { data, error } = await this.client
+      .from("reading_notes")
+      .update({
+        kind: input.kind,
+        title: input.title,
+        creator: input.creator,
+        source_url: input.sourceUrl || null,
+        cover_url: input.coverUrl || null,
+        quote: input.quote,
+        reflection: input.reflection,
+        tags: input.tags,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", id)
+      .select("id,kind,title,creator,source_url,cover_url,quote,reflection,tags,created_at")
+      .single<ReadingNoteRow>();
+
+    return mapReadingNote(requireSupabaseResult(data, error));
+  }
+
+  async deleteReadingNote(id: string) {
+    requireOwner(await this.getCurrentUser(), "只有站主账号可以删除书摘心得。");
+
+    const { error } = await this.client.from("reading_notes").delete().eq("id", id);
+
+    if (error) {
+      throw new Error(error.message);
+    }
   }
 
   async getSiteSettings() {

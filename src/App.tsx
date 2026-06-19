@@ -32,8 +32,10 @@ import {
   SkipBack,
   SkipForward,
   Tags,
+  Trash2,
   Upload,
   Volume2,
+  X,
 } from "lucide-react";
 import {
   backendRoadmap,
@@ -264,6 +266,19 @@ function parseTags(value: string) {
     .split(/[,，]/)
     .map((tag) => tag.trim())
     .filter(Boolean);
+}
+
+function readingNoteToDraft(note: ReadingNote): ReadingNoteInput {
+  return {
+    kind: note.kind,
+    title: note.title,
+    creator: note.creator,
+    sourceUrl: note.sourceUrl ?? "",
+    coverUrl: note.coverUrl ?? "",
+    quote: note.quote,
+    reflection: note.reflection,
+    tags: note.tags,
+  };
 }
 
 function makeFileTitle(file: File) {
@@ -2329,14 +2344,19 @@ function GallerySection({
 function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
   const [notes, setNotes] = useState<ReadingNote[]>(readingNotes);
   const [activeKind, setActiveKind] = useState<"all" | ReadingNote["kind"]>("all");
+  const [activeTag, setActiveTag] = useState("all");
   const [draft, setDraft] = useState<ReadingNoteInput>(defaultReadingDraft);
   const [tagInput, setTagInput] = useState("");
+  const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
   const [statusMessage, setStatusMessage] = useState("");
   const [loadState, setLoadState] = useState<LoadState>("idle");
+  const [saveState, setSaveState] = useState<"idle" | "saving">("idle");
+  const [deletingNoteId, setDeletingNoteId] = useState<string | null>(null);
 
   const isOwner = currentUser?.role === "owner";
   const isSupabase = siteBackend.mode === "supabase";
   const draftTags = useMemo(() => parseTags(tagInput), [tagInput]);
+  const availableTags = useMemo(() => [...new Set(notes.flatMap((note) => note.tags))].slice(0, 12), [notes]);
   const noteStats = useMemo(() => {
     const bookCount = notes.filter((note) => note.kind === "book").length;
     const videoCount = notes.length - bookCount;
@@ -2345,12 +2365,13 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
     return { bookCount, videoCount, tagCount };
   }, [notes]);
   const filteredNotes = useMemo(() => {
-    if (activeKind === "all") {
-      return notes;
-    }
-
-    return notes.filter((note) => note.kind === activeKind);
-  }, [activeKind, notes]);
+    return notes.filter((note) => {
+      const kindMatches = activeKind === "all" || note.kind === activeKind;
+      const tagMatches = activeTag === "all" || note.tags.includes(activeTag);
+      return kindMatches && tagMatches;
+    });
+  }, [activeKind, activeTag, notes]);
+  const editingNote = editingNoteId ? notes.find((note) => note.id === editingNoteId) : null;
   const canPublish = Boolean(draft.title.trim() && draft.creator.trim() && draft.quote.trim());
   const quoteLength = draft.quote.trim().length;
 
@@ -2368,7 +2389,7 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
           return;
         }
 
-        if (remoteNotes.length > 0) {
+        if (remoteNotes.length > 0 || siteBackend.mode === "supabase") {
           setNotes(remoteNotes);
         }
         setLoadState("ready");
@@ -2387,6 +2408,12 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
       active = false;
     };
   }, []);
+
+  useEffect(() => {
+    if (activeTag !== "all" && !availableTags.includes(activeTag)) {
+      setActiveTag("all");
+    }
+  }, [activeTag, availableTags]);
 
   async function handleReadingCover(file: File | null) {
     if (!file) {
@@ -2417,7 +2444,20 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
     setTagInput([...tags].join(", "));
   }
 
-  async function createReadingNote() {
+  function resetReadingDraft() {
+    setDraft(defaultReadingDraft);
+    setTagInput("");
+    setEditingNoteId(null);
+  }
+
+  function startEditingNote(note: ReadingNote) {
+    setDraft(readingNoteToDraft(note));
+    setTagInput(note.tags.join(", "));
+    setEditingNoteId(note.id);
+    setStatusMessage(`正在编辑《${note.title}》，改完后点保存修改。`);
+  }
+
+  async function saveReadingNote() {
     if (!isOwner) {
       setStatusMessage("只有站主账号可以发布书摘心得。");
       return;
@@ -2433,23 +2473,61 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
       return;
     }
 
+    const payload: ReadingNoteInput = {
+      ...draft,
+      title,
+      creator,
+      quote,
+      reflection: reflection || "",
+      sourceUrl: draft.sourceUrl?.trim() || undefined,
+      coverUrl: draft.coverUrl?.trim() || undefined,
+      tags: draftTags,
+    };
+
     try {
-      const nextNote = await siteBackend.createReadingNote({
-        ...draft,
-        title,
-        creator,
-        quote,
-        reflection: reflection || "",
-        sourceUrl: draft.sourceUrl?.trim() || undefined,
-        coverUrl: draft.coverUrl?.trim() || undefined,
-        tags: draftTags,
-      });
+      setSaveState("saving");
+
+      if (editingNoteId) {
+        const updatedNote = await siteBackend.updateReadingNote(editingNoteId, payload);
+        setNotes((current) => current.map((note) => (note.id === editingNoteId ? updatedNote : note)));
+        resetReadingDraft();
+        setStatusMessage(isSupabase ? "书摘修改已同步到线上。" : "本地预览已更新书摘。");
+        return;
+      }
+
+      const nextNote = await siteBackend.createReadingNote(payload);
       setNotes((current) => [nextNote, ...current]);
-      setDraft(defaultReadingDraft);
-      setTagInput("");
+      resetReadingDraft();
       setStatusMessage(isSupabase ? "书摘心得已写入 Supabase。" : "本地预览已新增书摘心得。");
     } catch (error) {
-      setStatusMessage(error instanceof Error ? error.message : "新增书摘心得失败。");
+      setStatusMessage(error instanceof Error ? error.message : "保存书摘心得失败。");
+    } finally {
+      setSaveState("idle");
+    }
+  }
+
+  async function deleteReadingNote(note: ReadingNote) {
+    if (!isOwner) {
+      setStatusMessage("只有站主账号可以删除书摘心得。");
+      return;
+    }
+
+    if (!window.confirm(`确定删除《${note.title}》这条书摘吗？`)) {
+      return;
+    }
+
+    try {
+      setDeletingNoteId(note.id);
+      await siteBackend.deleteReadingNote(note.id);
+      setNotes((current) => current.filter((item) => item.id !== note.id));
+      if (editingNoteId === note.id) {
+        resetReadingDraft();
+      }
+      setStatusMessage(isSupabase ? "书摘已从线上删除。" : "本地预览已删除书摘。");
+    } catch (error) {
+      setStatusMessage(error instanceof Error ? error.message : "删除书摘心得失败。");
+    } finally {
+      setDeletingNoteId(null);
     }
   }
 
@@ -2503,14 +2581,27 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
               </button>
             ))}
           </div>
+          {availableTags.length > 0 ? (
+            <div className="notes-tag-filter" aria-label="书摘标签筛选">
+              <button className={clsx(activeTag === "all" && "active")} onClick={() => setActiveTag("all")} type="button">
+                全部标签
+              </button>
+              {availableTags.map((tag) => (
+                <button className={clsx(activeTag === tag && "active")} key={tag} onClick={() => setActiveTag(tag)} type="button">
+                  {tag}
+                </button>
+              ))}
+            </div>
+          ) : null}
           {loadState === "loading" ? <span className="notes-sync-state">正在同步书摘...</span> : null}
+          {!isOwner && statusMessage ? <span className="notes-sync-state">{statusMessage}</span> : null}
         </div>
 
         <div className={clsx("notes-layout", isOwner && "has-composer")}>
           <div className="notes-grid">
             {filteredNotes.length > 0 ? (
               filteredNotes.map((note) => (
-                <article className="note-card" key={note.id}>
+                <article className={clsx("note-card", editingNoteId === note.id && "is-editing")} key={note.id}>
                   <div className="note-cover-wrap">
                     {note.coverUrl ? (
                       <img src={note.coverUrl} alt={note.title} />
@@ -2518,6 +2609,27 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
                       <MediaTile tile={note.kind === "book" ? 1 : 2} />
                     )}
                     <span className="note-kind">{note.kind === "book" ? "书籍" : "视频"}</span>
+                    {isOwner ? (
+                      <div className="note-admin-actions" aria-label={`${note.title} 管理`}>
+                        <button
+                          aria-label={`编辑 ${note.title}`}
+                          disabled={saveState === "saving"}
+                          onClick={() => startEditingNote(note)}
+                          type="button"
+                        >
+                          <Edit3 size={14} />
+                        </button>
+                        <button
+                          aria-label={`删除 ${note.title}`}
+                          className="danger"
+                          disabled={deletingNoteId === note.id}
+                          onClick={() => void deleteReadingNote(note)}
+                          type="button"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    ) : null}
                   </div>
                   <div className="note-card-body">
                     <div className="note-meta-line">
@@ -2537,9 +2649,11 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
                     </blockquote>
                     {note.reflection.trim() ? <p className="note-reflection">{note.reflection}</p> : null}
                     {note.tags.length > 0 ? (
-                      <div className="tag-row">
+                      <div className="tag-row note-tags">
                         {note.tags.map((tag) => (
-                          <span key={tag}>{tag}</span>
+                          <button className={clsx(activeTag === tag && "active")} key={tag} onClick={() => setActiveTag(tag)} type="button">
+                            {tag}
+                          </button>
                         ))}
                       </div>
                     ) : null}
@@ -2565,14 +2679,14 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
             <div className="owner-upload-panel notes-upload-panel reading-composer">
               <div className="portfolio-admin-head">
                 <span>{isSupabase ? "Supabase RLS · 线上保存" : localPreviewLabel}</span>
-                <strong>站主书摘发布入口</strong>
+                <strong>{editingNote ? "编辑已发布书摘" : "站主书摘发布入口"}</strong>
               </div>
               <BackendModeNotice isSupabase={isSupabase} />
 
               <div className="reading-draft-preview">
                 <span>
-                  <PenLine size={14} />
-                  即将发布
+                  {editingNote ? <Edit3 size={14} /> : <PenLine size={14} />}
+                  {editingNote ? "正在编辑" : "即将发布"}
                 </span>
                 <strong>{draft.title.trim() || "未命名书摘"}</strong>
                 <p>{draft.quote.trim() || "复制或输入你喜欢的一段书中内容，这里会实时预览。"}</p>
@@ -2592,7 +2706,7 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
                   </select>
                 </label>
                 <label>
-                  <span>书籍名称</span>
+                  <span>书籍 / 作品名称</span>
                   <input
                     value={draft.title}
                     onChange={(event) => setDraft((current) => ({ ...current, title: event.target.value }))}
@@ -2626,7 +2740,7 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
                 />
               </label>
               <label className="reading-wide-field">
-                <span>心得评论</span>
+                <span>心得评论（可选）</span>
                 <textarea
                   value={draft.reflection}
                   onChange={(event) => setDraft((current) => ({ ...current, reflection: event.target.value }))}
@@ -2651,6 +2765,20 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
                 ))}
               </div>
 
+              {draft.coverUrl ? (
+                <div className="reading-cover-preview">
+                  <img src={draft.coverUrl} alt="书摘封面预览" />
+                  <div>
+                    <strong>封面预览</strong>
+                    <span>保存后会展示在公开书摘卡片上。</span>
+                  </div>
+                  <button className="ghost-button" onClick={() => setDraft((current) => ({ ...current, coverUrl: "" }))} type="button">
+                    <X size={15} />
+                    移除
+                  </button>
+                </div>
+              ) : null}
+
               <div className="portfolio-upload-row reading-action-row">
                 <label className="portfolio-file-picker">
                   <ImageIcon size={16} />
@@ -2661,8 +2789,13 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
                   <strong>{quoteLength}</strong>
                   段落字数
                 </div>
-                <button className="cyan-button" disabled={!canPublish || loadState === "loading"} onClick={createReadingNote} type="button">
-                  发布到书摘
+                <button className="ghost-button" disabled={saveState === "saving"} onClick={resetReadingDraft} type="button">
+                  <X size={15} />
+                  {editingNote ? "取消编辑" : "清空"}
+                </button>
+                <button className="cyan-button" disabled={!canPublish || loadState === "loading" || saveState === "saving"} onClick={saveReadingNote} type="button">
+                  <Check size={16} />
+                  {saveState === "saving" ? "保存中..." : editingNote ? "保存修改" : "发布到书摘"}
                 </button>
               </div>
               {statusMessage ? <p className="backend-status">{statusMessage}</p> : null}
