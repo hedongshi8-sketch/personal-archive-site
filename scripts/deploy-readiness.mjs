@@ -1,6 +1,8 @@
+import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
-import { execFileSync } from "node:child_process";
+
+import "./load-local-env.mjs";
 
 const root = process.cwd();
 const blockers = [];
@@ -32,16 +34,6 @@ function block(label, detail = "") {
   console.error(`BLOCK ${label}${detail ? `: ${detail}` : ""}`);
 }
 
-function readEnvFile() {
-  const envPath = path.join(root, ".env");
-
-  if (!fs.existsSync(envPath)) {
-    return null;
-  }
-
-  return fs.readFileSync(envPath, "utf8");
-}
-
 const remote = command(["git", "remote", "-v"]);
 if (remote) {
   pass("git remote configured");
@@ -68,8 +60,7 @@ if (availableCli.length > 0) {
   warn("deployment CLIs unavailable", "publish through provider web UI or install/auth a CLI");
 }
 
-const envText = readEnvFile();
-if (!envText) {
+if (!fs.existsSync(path.join(root, ".env")) && !fs.existsSync(path.join(root, ".env.local"))) {
   warn(".env missing", "local Supabase preview will stay in fallback mode");
 } else {
   const requiredEnv = [
@@ -79,8 +70,7 @@ if (!envText) {
   ];
 
   for (const key of requiredEnv) {
-    const configured = new RegExp(`^${key}=.+`, "m").test(envText);
-    if (configured) {
+    if (process.env[key]) {
       pass(`${key} configured locally`);
     } else {
       warn(`${key} missing locally`);
