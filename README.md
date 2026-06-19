@@ -81,6 +81,7 @@ npm run audit:release
 npm run deploy:readiness
 npm run verify:supabase
 npm run verify:owner-backend
+npm run verify:gmail-smtp
 npm run verify:smtp
 npm run verify:auth-email
 npm run verify:mail-dns
@@ -88,7 +89,7 @@ npm run verify:mail-dns
 
 `verify:supabase` 和 `verify:owner-backend` 需要本地或部署环境已经配置 Supabase 变量。线上发布后再跑：
 
-`verify:smtp` 需要当前终端设置 `SMTP_HOST`、`SMTP_PORT`、`SMTP_USER`、`SMTP_PASS`、`SMTP_FROM`、`SMTP_TO`，只用于验证邮件服务商的 SMTP 账号能真实发测试邮件。
+`verify:gmail-smtp` 需要当前终端设置 `GMAIL_APP_PASSWORD`，用于快速验证 Gmail 免费 SMTP。`verify:smtp` 是通用 SMTP 验证命令，需要当前终端设置 `SMTP_HOST`、`SMTP_PORT`、`SMTP_USER`、`SMTP_PASS`、`SMTP_FROM`、`SMTP_TO`。
 
 `verify:auth-email` 需要当前终端设置 `AUTH_EMAIL_TO`，用于触发 Supabase Auth 注册确认邮件，确认 Custom SMTP 已经被 Supabase 用起来。
 

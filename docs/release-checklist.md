@@ -32,7 +32,7 @@
 - [ ] 站主账号已注册，并在 `profiles.role` 中设为 `owner`。
 - [ ] `npm run verify:supabase`
 - [ ] `npm run verify:owner-backend`
-- [ ] `npm run verify:smtp`
+- [ ] `npm run verify:gmail-smtp` 或正式 SMTP 的 `npm run verify:smtp`
 - [ ] `npm run verify:auth-email`
 - [ ] `npm run verify:mail-dns`
 

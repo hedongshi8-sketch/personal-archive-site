@@ -113,6 +113,7 @@ assert(
   "remote owner backend verification script exists",
 );
 assert(packageJson.scripts?.["verify:smtp"] === "node scripts/verify-smtp.mjs", "SMTP verification script exists");
+assert(packageJson.scripts?.["verify:gmail-smtp"] === "node scripts/verify-gmail-smtp.mjs", "Gmail SMTP verification script exists");
 assert(
   packageJson.scripts?.["verify:auth-email"] === "node scripts/verify-supabase-auth-email.mjs",
   "Supabase auth email verification script exists",

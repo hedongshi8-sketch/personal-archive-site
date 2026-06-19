@@ -37,17 +37,11 @@ Password   = Gmail App Password
 Sender     = 个人策划档案 <hedongshi8@gmail.com>
 ```
 
-本地先测 Gmail SMTP：
+本地先测 Gmail SMTP。只需要给当前 PowerShell 终端设置 Gmail App Password：
 
 ```powershell
-$env:SMTP_HOST="smtp.gmail.com"
-$env:SMTP_PORT="465"
-$env:SMTP_SECURE="true"
-$env:SMTP_USER="hedongshi8@gmail.com"
-$env:SMTP_PASS="你的 Gmail App Password"
-$env:SMTP_FROM="个人策划档案 <hedongshi8@gmail.com>"
-$env:SMTP_TO="hedongshi8@gmail.com"
-npm run verify:smtp
+$env:GMAIL_APP_PASSWORD="你的 Gmail App Password"
+npm run verify:gmail-smtp
 ```
 
 测通后，再把同一组 Gmail SMTP 参数填到 Supabase `Authentication -> Email -> SMTP Settings`。
