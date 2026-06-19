@@ -443,19 +443,47 @@ function useAuthSession() {
 
     setAuthState("loading");
     try {
-      const nextUser = input.mode === "signup"
-        ? await siteBackend.signUpWithPassword({
-            email,
-            password,
-            username: input.username.trim() || email.split("@")[0],
-          })
-        : await siteBackend.signInWithPassword({ email, password });
+      if (input.mode === "signup") {
+        const result = await siteBackend.signUpWithPassword({
+          email,
+          password,
+          username: input.username.trim() || email.split("@")[0],
+        });
+        setUser(result.user);
+        setAuthState("ready");
+        setAuthMessage(
+          result.needsEmailConfirmation
+            ? "账号已创建，但还需要邮箱确认。请打开邮箱里的确认邮件，点确认链接后再回来登录。"
+            : "账号已创建并登录。以后会自动保持登录。",
+        );
+        return;
+      }
+
+      const nextUser = await siteBackend.signInWithPassword({ email, password });
       setUser(nextUser);
       setAuthState("ready");
-      setAuthMessage(input.mode === "signup" ? "账号已创建。以后会自动保持登录。" : "登录成功。以后会自动保持登录。");
+      setAuthMessage("登录成功。以后会自动保持登录。");
     } catch (error) {
       setAuthState("error");
       setAuthMessage(error instanceof Error ? error.message : "登录失败。");
+    }
+  }
+
+  async function resendConfirmation(email: string) {
+    const normalizedEmail = email.trim();
+    if (!normalizedEmail) {
+      setAuthMessage("请先填写邮箱。");
+      return;
+    }
+
+    setAuthState("loading");
+    try {
+      await siteBackend.resendConfirmationEmail(normalizedEmail);
+      setAuthState("ready");
+      setAuthMessage("确认邮件已重新发送。请打开邮箱，点确认链接后再回来登录。");
+    } catch (error) {
+      setAuthState("error");
+      setAuthMessage(error instanceof Error ? error.message : "确认邮件发送失败。");
     }
   }
 
@@ -488,7 +516,7 @@ function useAuthSession() {
     return siteBackend.uploadProfileAvatar(file);
   }
 
-  return { user, setUser, authState, authMessage, setAuthMessage, signIn, signOut, updateUserProfile, uploadProfileAvatar };
+  return { user, setUser, authState, authMessage, setAuthMessage, signIn, signOut, updateUserProfile, uploadProfileAvatar, resendConfirmation };
 }
 
 function AccountPanel({
@@ -499,6 +527,7 @@ function AccountPanel({
   onSignOut,
   onProfileUpdate,
   onAvatarUpload,
+  onResendConfirmation,
 }: {
   user: AuthUser | null;
   authState: LoadState;
@@ -507,6 +536,7 @@ function AccountPanel({
   onSignOut: () => Promise<void>;
   onProfileUpdate: (input: { username: string; avatarUrl?: string }) => Promise<AuthUser>;
   onAvatarUpload: (file: File) => Promise<{ publicUrl: string; storagePath: string }>;
+  onResendConfirmation: (email: string) => Promise<void>;
 }) {
   const [draft, setDraft] = useState<AccountDraft>(defaultAccountDraft);
   const [profileName, setProfileName] = useState(user?.username ?? "");
@@ -622,6 +652,9 @@ function AccountPanel({
         onClick={() => setDraft((current) => ({ ...current, mode: current.mode === "signup" ? "signin" : "signup" }))}
       >
         {draft.mode === "signup" ? "已有账号" : "注册账号"}
+      </button>
+      <button className="ghost-button" disabled={busy} onClick={() => void onResendConfirmation(draft.email)} type="button">
+        重发确认邮件
       </button>
       {authMessage ? <p className="backend-status">{authMessage}</p> : null}
     </div>
@@ -2745,6 +2778,7 @@ function CommentsSection({
   onSignOut,
   onProfileUpdate,
   onAvatarUpload,
+  onResendConfirmation,
 }: {
   currentUser: AuthUser | null;
   authState: LoadState;
@@ -2753,6 +2787,7 @@ function CommentsSection({
   onSignOut: () => Promise<void>;
   onProfileUpdate: (input: { username: string; avatarUrl?: string }) => Promise<AuthUser>;
   onAvatarUpload: (file: File) => Promise<{ publicUrl: string; storagePath: string }>;
+  onResendConfirmation: (email: string) => Promise<void>;
 }) {
   const [comments, setComments] = useLocalStorage<Comment[]>("linx_comments", seedComments);
   const [commentBody, setCommentBody] = useState("");
@@ -2862,6 +2897,7 @@ function CommentsSection({
           onSignOut={onSignOut}
           onProfileUpdate={onProfileUpdate}
           onAvatarUpload={onAvatarUpload}
+          onResendConfirmation={onResendConfirmation}
         />
       ) : null}
       <div className="comment-form">
@@ -3027,6 +3063,7 @@ export function App() {
         onSignOut={auth.signOut}
         onProfileUpdate={auth.updateUserProfile}
         onAvatarUpload={auth.uploadProfileAvatar}
+        onResendConfirmation={auth.resendConfirmation}
       />
     ),
     contact: <ContactSection />,
@@ -3046,6 +3083,7 @@ export function App() {
             onSignOut={auth.signOut}
             onProfileUpdate={auth.updateUserProfile}
             onAvatarUpload={auth.uploadProfileAvatar}
+            onResendConfirmation={auth.resendConfirmation}
           />
           {currentUser?.role === "owner" ? (
             <button className={clsx("ghost-button", editMode && "active")} onClick={() => setEditMode((enabled) => !enabled)} type="button">

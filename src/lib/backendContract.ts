@@ -35,6 +35,11 @@ export type AuthCredentials = {
   username?: string;
 };
 
+export type AuthResult = {
+  user: AuthUser | null;
+  needsEmailConfirmation?: boolean;
+};
+
 export type AssetRecord = {
   id: string;
   kind:
@@ -103,7 +108,8 @@ export type SiteBackend = {
   readonly mode: "local" | "supabase";
   getCurrentUser(): Promise<AuthUser | null>;
   signInWithPassword(input: AuthCredentials): Promise<AuthUser | null>;
-  signUpWithPassword(input: AuthCredentials): Promise<AuthUser | null>;
+  signUpWithPassword(input: AuthCredentials): Promise<AuthResult>;
+  resendConfirmationEmail(email: string): Promise<void>;
   signOut(): Promise<void>;
   updateProfile(input: { username: string; avatarUrl?: string }): Promise<AuthUser>;
   uploadProfileAvatar(file: File): Promise<{ publicUrl: string; storagePath: string }>;
@@ -368,6 +374,40 @@ function requireOwner(user: AuthUser | null, message: string) {
   return user;
 }
 
+function getAuthRedirectUrl() {
+  if (typeof window === "undefined") {
+    return undefined;
+  }
+
+  return `${window.location.origin}${window.location.pathname}`;
+}
+
+function getFriendlyAuthError(message: string) {
+  const normalized = message.toLowerCase();
+
+  if (normalized.includes("invalid login credentials")) {
+    return "邮箱或密码不对；如果你刚注册，请先去邮箱里点确认邮件，再回来登录。";
+  }
+
+  if (normalized.includes("email not confirmed") || normalized.includes("confirm")) {
+    return "这个邮箱还没有确认。请先打开确认邮件，点确认链接后再登录。";
+  }
+
+  if (normalized.includes("already registered") || normalized.includes("user already registered")) {
+    return "这个邮箱已经注册过了。请直接登录；如果忘了密码，可以走 Supabase 后台重置。";
+  }
+
+  if (normalized.includes("password")) {
+    return "密码没有通过要求，建议至少 6 位，并避免太简单。";
+  }
+
+  if (normalized.includes("rate limit")) {
+    return "请求太频繁了，稍等一会儿再试。";
+  }
+
+  return message;
+}
+
 let localSiteSettings: SiteSettings = defaultSiteSettings;
 
 export class LocalPreviewBackend implements SiteBackend {
@@ -392,7 +432,14 @@ export class LocalPreviewBackend implements SiteBackend {
   }
 
   async signUpWithPassword() {
-    return this.getCurrentUser();
+    return {
+      user: await this.getCurrentUser(),
+      needsEmailConfirmation: false,
+    };
+  }
+
+  async resendConfirmationEmail() {
+    return;
   }
 
   async signOut() {
@@ -592,17 +639,18 @@ export class SupabaseBackend implements SiteBackend {
     });
 
     if (error) {
-      throw new Error(error.message);
+      throw new Error(getFriendlyAuthError(error.message));
     }
 
     return this.getCurrentUser();
   }
 
   async signUpWithPassword(input: AuthCredentials) {
-    const { error } = await this.client.auth.signUp({
+    const { data, error } = await this.client.auth.signUp({
       email: input.email,
       password: input.password,
       options: {
+        emailRedirectTo: getAuthRedirectUrl(),
         data: {
           username: input.username || input.email.split("@")[0],
         },
@@ -610,10 +658,28 @@ export class SupabaseBackend implements SiteBackend {
     });
 
     if (error) {
-      throw new Error(error.message);
+      throw new Error(getFriendlyAuthError(error.message));
     }
 
-    return this.getCurrentUser();
+    const currentUser = await this.getCurrentUser();
+    return {
+      user: currentUser,
+      needsEmailConfirmation: Boolean(data.user && !data.session && !currentUser),
+    };
+  }
+
+  async resendConfirmationEmail(email: string) {
+    const { error } = await this.client.auth.resend({
+      type: "signup",
+      email,
+      options: {
+        emailRedirectTo: getAuthRedirectUrl(),
+      },
+    });
+
+    if (error) {
+      throw new Error(getFriendlyAuthError(error.message));
+    }
   }
 
   async signOut() {

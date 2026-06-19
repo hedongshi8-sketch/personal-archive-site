@@ -23,7 +23,7 @@ npm run dev
 ## Supabase 权限模型
 
 - 所有人都能浏览公开作品、音乐、图库、书摘、站主动态和已审核留言。
-- 访客需要注册/登录账号后，才能设置用户名头像并在留言墙留言。
+- 访客需要注册/登录账号后，才能设置用户名头像并在留言墙留言；如果 Supabase 开启邮箱确认，注册后要先点确认邮件再登录。
 - 只有 `profiles.role = 'owner'` 的账号能进入编辑模式、上传资源、发布站主动态、修改首页标题、品牌名、头像和封面。
 - Supabase Auth 会在浏览器保存 session，登录过一次后再次打开网站会自动读取当前账号。
 
@@ -33,7 +33,7 @@ npm run dev
 2. 在 SQL Editor 执行 `supabase/schema.sql`。
 3. 执行 `supabase/seed-portfolio.sql`，写入当前 19 个公开作品条目。
 4. 确认 Storage bucket `portfolio-public` 存在且为 public。
-5. 在网站上用邮箱密码注册你的站主账号。
+5. 在网站上用邮箱密码注册你的站主账号；如果收到 Supabase 确认邮件，先点确认链接，再回到网站登录一次。
 6. 回到 Supabase SQL Editor 执行 `supabase/set-owner.sql`，或手动执行：
 
 ```sql
