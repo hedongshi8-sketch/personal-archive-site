@@ -44,6 +44,13 @@ $env:GMAIL_APP_PASSWORD="你的 Gmail App Password"
 npm run verify:gmail-smtp
 ```
 
+这个命令默认会先试 `465/TLS`，失败后自动试 `587/STARTTLS`。如果你只想测某一个端口，可以临时加：
+
+```powershell
+$env:GMAIL_SMTP_PORT="587"
+npm run verify:gmail-smtp
+```
+
 测通后，再把同一组 Gmail SMTP 参数填到 Supabase `Authentication -> Email -> SMTP Settings`。
 
 ## 正式方案：Resend + 自有域名
