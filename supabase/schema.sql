@@ -1,5 +1,5 @@
 create type public.site_role as enum ('owner', 'visitor');
-create type public.owner_post_visibility as enum ('private', 'draft');
+create type public.owner_post_visibility as enum ('public', 'draft');
 create type public.asset_kind as enum (
   'design-doc',
   'game-demo',
@@ -7,6 +7,7 @@ create type public.asset_kind as enum (
   'gallery-image',
   'music-audio',
   'site-cover',
+  'site-avatar',
   'reading-cover'
 );
 create type public.reading_note_kind as enum ('book', 'video');
@@ -24,6 +25,8 @@ create type public.portfolio_kind as enum (
 create table public.profiles (
   id uuid primary key references auth.users(id) on delete cascade,
   email text not null,
+  username text not null default '',
+  avatar_url text,
   role public.site_role not null default 'visitor',
   created_at timestamptz not null default now()
 );
@@ -33,13 +36,15 @@ create table public.owner_posts (
   owner_id uuid not null references public.profiles(id) on delete cascade,
   title text not null,
   body text not null,
-  visibility public.owner_post_visibility not null default 'private',
+  visibility public.owner_post_visibility not null default 'public',
   created_at timestamptz not null default now()
 );
 
 create table public.public_comments (
   id uuid primary key default gen_random_uuid(),
+  author_id uuid references public.profiles(id) on delete set null,
   author text not null,
+  avatar_url text,
   body text not null,
   likes integer not null default 0,
   approved boolean not null default true,
@@ -145,6 +150,11 @@ create table public.reading_notes (
 create table public.site_settings (
   id text primary key default 'main',
   owner_id uuid references public.profiles(id) on delete set null,
+  brand_name text not null default 'LinX',
+  brand_subtitle text not null default '游戏策划 / 关卡设计',
+  hero_title text not null default '这里不只是一座策划档案馆。',
+  hero_description text not null default '这是我的个人网站：作品、Demo、音乐、图片、书摘、灵感和阶段性更新都会慢慢放进来。HR 可以快速看作品，朋友也可以登录留言。',
+  site_avatar_url text,
   hero_cover_url text,
   background_music_url text,
   background_music_title text,
@@ -169,6 +179,8 @@ create index portfolio_items_project_id_idx on public.portfolio_items(project_id
 create index portfolio_items_kind_idx on public.portfolio_items(kind);
 create index portfolio_items_published_updated_idx on public.portfolio_items(published, updated_at desc);
 create index portfolio_files_item_id_idx on public.portfolio_files(item_id);
+create index profiles_role_idx on public.profiles(role);
+create index public_comments_author_id_idx on public.public_comments(author_id) where author_id is not null;
 create index public_comments_approved_created_idx on public.public_comments(approved, created_at desc);
 create index music_tracks_published_created_idx on public.music_tracks(published, created_at desc);
 create index gallery_items_published_created_idx on public.gallery_items(published, created_at desc);
@@ -185,8 +197,13 @@ security definer
 set search_path = public
 as $$
 begin
-  insert into public.profiles (id, email, role)
-  values (new.id, coalesce(new.email, ''), 'visitor')
+  insert into public.profiles (id, email, username, role)
+  values (
+    new.id,
+    coalesce(new.email, ''),
+    coalesce(new.raw_user_meta_data->>'username', split_part(coalesce(new.email, ''), '@', 1), '访客'),
+    'visitor'
+  )
   on conflict (id) do nothing;
   return new;
 end;
@@ -195,6 +212,34 @@ $$;
 create trigger on_auth_user_created
 after insert on auth.users
 for each row execute function public.handle_new_user();
+
+create or replace function public.update_own_profile(next_username text, next_avatar_url text)
+returns public.profiles
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  updated_profile public.profiles;
+begin
+  if (select auth.uid()) is null then
+    raise exception 'Authentication required.';
+  end if;
+
+  update public.profiles
+  set
+    username = left(trim(coalesce(next_username, '')), 40),
+    avatar_url = nullif(trim(coalesce(next_avatar_url, '')), '')
+  where id = (select auth.uid())
+  returning * into updated_profile;
+
+  if updated_profile.id is null then
+    raise exception 'Profile not found.';
+  end if;
+
+  return updated_profile;
+end;
+$$;
 
 create or replace function public.increment_comment_likes(comment_id uuid)
 returns integer
@@ -213,7 +258,11 @@ create policy "profiles can read own profile"
 on public.profiles for select
 using (auth.uid() = id);
 
-create policy "owner can manage private posts"
+create policy "public profiles are readable for signed in users"
+on public.profiles for select
+using ((select auth.uid()) is not null);
+
+create policy "owner can manage public updates"
 on public.owner_posts for all
 using (
   exists (
@@ -230,13 +279,19 @@ with check (
   )
 );
 
+create policy "published owner posts are public"
+on public.owner_posts for select
+using (visibility = 'public');
+
 create policy "approved comments are public"
 on public.public_comments for select
 using (approved = true);
 
-create policy "visitors can create comments"
+create policy "signed in users can create comments"
 on public.public_comments for insert
 with check (
+  (select auth.uid()) = author_id
+  and
   length(author) between 1 and 80
   and length(body) between 1 and 1200
   and honeypot = ''
@@ -437,10 +492,13 @@ create policy "owner can upload portfolio storage"
 on storage.objects for insert
 with check (
   bucket_id = 'portfolio-public'
-  and exists (
-    select 1 from public.profiles
-    where profiles.id = auth.uid()
-      and profiles.role = 'owner'
+  and (
+    name like 'profile-avatars/' || auth.uid()::text || '/%'
+    or exists (
+      select 1 from public.profiles
+      where profiles.id = auth.uid()
+        and profiles.role = 'owner'
+    )
   )
 );
 
@@ -448,18 +506,24 @@ create policy "owner can update portfolio storage"
 on storage.objects for update
 using (
   bucket_id = 'portfolio-public'
-  and exists (
-    select 1 from public.profiles
-    where profiles.id = auth.uid()
-      and profiles.role = 'owner'
+  and (
+    name like 'profile-avatars/' || auth.uid()::text || '/%'
+    or exists (
+      select 1 from public.profiles
+      where profiles.id = auth.uid()
+        and profiles.role = 'owner'
+    )
   )
 )
 with check (
   bucket_id = 'portfolio-public'
-  and exists (
-    select 1 from public.profiles
-    where profiles.id = auth.uid()
-      and profiles.role = 'owner'
+  and (
+    name like 'profile-avatars/' || auth.uid()::text || '/%'
+    or exists (
+      select 1 from public.profiles
+      where profiles.id = auth.uid()
+        and profiles.role = 'owner'
+    )
   )
 );
 

@@ -4,7 +4,7 @@ import {
   Gamepad2,
   Headphones,
   Images,
-  LockKeyhole,
+  ListChecks,
   MessageCircle,
   Send,
   Sparkles,
@@ -78,6 +78,11 @@ export type ReadingNote = {
 };
 
 export type SiteSettings = {
+  brandName: string;
+  brandSubtitle: string;
+  heroTitle: string;
+  heroDescription: string;
+  siteAvatarUrl?: string;
   heroCoverUrl?: string;
   backgroundMusicUrl?: string;
   backgroundMusicTitle?: string;
@@ -99,7 +104,7 @@ export type OwnerPost = {
   title: string;
   body: string;
   createdAt: string;
-  visibility: "private" | "draft";
+  visibility: "public" | "draft";
 };
 
 export const navItems: NavItem[] = [
@@ -109,7 +114,7 @@ export const navItems: NavItem[] = [
   { id: "music", label: "音乐雷达", icon: Headphones },
   { id: "gallery", label: "灵感图库", icon: Images },
   { id: "notes", label: "书摘心得", icon: BookOpenText },
-  { id: "private", label: "私密发帖", icon: LockKeyhole },
+  { id: "private", label: "站主动态", icon: Send },
   { id: "comments", label: "留言墙", icon: MessageCircle },
   { id: "contact", label: "合作与联系", icon: UserRound },
 ];
@@ -255,6 +260,10 @@ export const readingNotes: ReadingNote[] = [
 ];
 
 export const defaultSiteSettings: SiteSettings = {
+  brandName: "LinX",
+  brandSubtitle: "游戏策划 / 关卡设计",
+  heroTitle: "这里不只是一座策划档案馆。",
+  heroDescription: "这是我的个人网站：作品、Demo、音乐、图片、书摘、灵感和阶段性更新都会慢慢放进来。HR 可以快速看作品，朋友也可以登录留言。",
   backgroundMusicTitle: "Sable Drift",
   backgroundMusicEnabled: false,
   updatedAt: "2026-06-19",
@@ -289,17 +298,18 @@ export const seedComments: Comment[] = [
 
 export const seedOwnerPosts: OwnerPost[] = [
   {
-    id: "private-seed",
+    id: "owner-update-seed",
     title: "下一轮更新清单",
     body: "整理 Demo 下载入口、补充 3 份策划 PDF、把留言墙接到真实数据库。",
     createdAt: "2026-06-16 12:00",
-    visibility: "private",
+    visibility: "public",
   },
 ];
 
 export const backendRoadmap = [
-  "Supabase Auth：只允许站主进入私密发帖区",
-  "Postgres + RLS：公开评论可读写，私密帖子仅 owner 可见",
+  "Supabase Auth：账号密码登录，浏览器会自动保留 session",
+  "Postgres + RLS：站主动态公开可读，只有 owner 可发布",
+  "Profiles：访客可设置用户名和头像，登录后才可留言",
   "对象存储：上传策划 PDF、Demo 包、音乐、封面和图片收藏原图",
   "轻量防刷：留言表单包含数学验证、蜜罐字段和提交时间检查",
   "Edge Functions：高级评论审核、邮件通知、Webhook 自动发布",
@@ -309,5 +319,5 @@ export const ownerActions = [
   { label: "发布想法", icon: Send },
   { label: "上传图片", icon: Images },
   { label: "嵌入代码", icon: Archive },
-  { label: "待办清单", icon: LockKeyhole },
+  { label: "待办清单", icon: ListChecks },
 ];

@@ -24,12 +24,28 @@ import { getReadableNow } from "./format";
 export type AuthUser = {
   id: string;
   email: string;
+  username: string;
+  avatarUrl?: string;
   role: "owner" | "visitor";
+};
+
+export type AuthCredentials = {
+  email: string;
+  password: string;
+  username?: string;
 };
 
 export type AssetRecord = {
   id: string;
-  kind: "design-doc" | "game-demo" | "music-cover" | "gallery-image" | "music-audio" | "site-cover" | "reading-cover";
+  kind:
+    | "design-doc"
+    | "game-demo"
+    | "music-cover"
+    | "gallery-image"
+    | "music-audio"
+    | "site-cover"
+    | "site-avatar"
+    | "reading-cover";
   title: string;
   url: string;
   storagePath: string;
@@ -86,8 +102,11 @@ export type CommentInput = Pick<Comment, "author" | "body"> & {
 export type SiteBackend = {
   readonly mode: "local" | "supabase";
   getCurrentUser(): Promise<AuthUser | null>;
-  signInOwner(email: string): Promise<void>;
+  signInWithPassword(input: AuthCredentials): Promise<AuthUser | null>;
+  signUpWithPassword(input: AuthCredentials): Promise<AuthUser | null>;
   signOut(): Promise<void>;
+  updateProfile(input: { username: string; avatarUrl?: string }): Promise<AuthUser>;
+  uploadProfileAvatar(file: File): Promise<{ publicUrl: string; storagePath: string }>;
   listOwnerPosts(): Promise<OwnerPost[]>;
   createOwnerPost(input: Pick<OwnerPost, "title" | "body" | "visibility">): Promise<OwnerPost>;
   listComments(): Promise<Comment[]>;
@@ -110,6 +129,8 @@ export type SiteBackend = {
 type ProfileRow = {
   id: string;
   email: string;
+  username: string;
+  avatar_url: string | null;
   role: "owner" | "visitor";
 };
 
@@ -117,13 +138,15 @@ type OwnerPostRow = {
   id: string;
   title: string;
   body: string;
-  visibility: "private" | "draft";
+  visibility: "public" | "draft";
   created_at: string;
 };
 
 type CommentRow = {
   id: string;
+  author_id: string | null;
   author: string;
+  avatar_url: string | null;
   body: string;
   likes: number;
   created_at: string;
@@ -181,6 +204,11 @@ type ReadingNoteRow = {
 
 type SiteSettingsRow = {
   id: string;
+  brand_name: string | null;
+  brand_subtitle: string | null;
+  hero_title: string | null;
+  hero_description: string | null;
+  site_avatar_url: string | null;
   hero_cover_url: string | null;
   background_music_url: string | null;
   background_music_title: string | null;
@@ -191,6 +219,7 @@ type SiteSettingsRow = {
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
 const supabaseAssetBucket = import.meta.env.VITE_SUPABASE_PUBLIC_BUCKET || "portfolio-public";
+const forceLocalPreview = import.meta.env.VITE_FORCE_LOCAL_PREVIEW === "true";
 const baseUrl = import.meta.env.BASE_URL;
 
 function withBasePath(value: string | null | undefined) {
@@ -248,7 +277,7 @@ function mapComment(row: CommentRow): Comment {
   return {
     id: row.id,
     author: row.author,
-    avatar: row.author.trim().slice(0, 1) || "访",
+    avatar: row.avatar_url || row.author.trim().slice(0, 1) || "访",
     body: row.body,
     time: formatRelativeTime(row.created_at),
     likes: row.likes,
@@ -318,6 +347,11 @@ function mapReadingNote(row: ReadingNoteRow): ReadingNote {
 
 function mapSiteSettings(row: SiteSettingsRow): SiteSettings {
   return {
+    brandName: row.brand_name || defaultSiteSettings.brandName,
+    brandSubtitle: row.brand_subtitle || defaultSiteSettings.brandSubtitle,
+    heroTitle: row.hero_title || defaultSiteSettings.heroTitle,
+    heroDescription: row.hero_description || defaultSiteSettings.heroDescription,
+    siteAvatarUrl: row.site_avatar_url ?? undefined,
     heroCoverUrl: row.hero_cover_url ?? undefined,
     backgroundMusicUrl: row.background_music_url ?? undefined,
     backgroundMusicTitle: row.background_music_title ?? undefined,
@@ -334,6 +368,8 @@ function requireOwner(user: AuthUser | null, message: string) {
   return user;
 }
 
+let localSiteSettings: SiteSettings = defaultSiteSettings;
+
 export class LocalPreviewBackend implements SiteBackend {
   readonly mode = "local" as const;
 
@@ -345,16 +381,39 @@ export class LocalPreviewBackend implements SiteBackend {
     return {
       id: "local-owner",
       email: "owner@example.local",
+      username: "Local Owner",
+      avatarUrl: undefined,
       role: "owner" as const,
     };
   }
 
-  async signInOwner() {
-    return;
+  async signInWithPassword() {
+    return this.getCurrentUser();
+  }
+
+  async signUpWithPassword() {
+    return this.getCurrentUser();
   }
 
   async signOut() {
     return;
+  }
+
+  async updateProfile(input: { username: string; avatarUrl?: string }) {
+    return {
+      id: "local-owner",
+      email: "owner@example.local",
+      username: input.username,
+      avatarUrl: input.avatarUrl,
+      role: "owner" as const,
+    };
+  }
+
+  async uploadProfileAvatar(file: File) {
+    return {
+      publicUrl: URL.createObjectURL(file),
+      storagePath: `local-preview/profile-avatars/${file.name}`,
+    };
   }
 
   async listOwnerPosts() {
@@ -479,15 +538,16 @@ export class LocalPreviewBackend implements SiteBackend {
   }
 
   async getSiteSettings() {
-    return defaultSiteSettings;
+    return localSiteSettings;
   }
 
   async updateSiteSettings(input: Partial<SiteSettings>) {
-    return {
-      ...defaultSiteSettings,
+    localSiteSettings = {
+      ...localSiteSettings,
       ...input,
       updatedAt: new Date().toISOString(),
     };
+    return localSiteSettings;
   }
 }
 
@@ -508,7 +568,7 @@ export class SupabaseBackend implements SiteBackend {
 
     const { data, error: profileError } = await this.client
       .from("profiles")
-      .select("id,email,role")
+      .select("id,email,username,avatar_url,role")
       .eq("id", user.id)
       .maybeSingle<ProfileRow>();
 
@@ -519,21 +579,41 @@ export class SupabaseBackend implements SiteBackend {
     return {
       id: user.id,
       email: user.email ?? data?.email ?? "",
+      username: data?.username || user.user_metadata?.username || (user.email ?? "visitor").split("@")[0],
+      avatarUrl: data?.avatar_url ?? undefined,
       role: data?.role ?? "visitor",
     };
   }
 
-  async signInOwner(email: string) {
-    const { error } = await this.client.auth.signInWithOtp({
-      email,
+  async signInWithPassword(input: AuthCredentials) {
+    const { error } = await this.client.auth.signInWithPassword({
+      email: input.email,
+      password: input.password,
+    });
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    return this.getCurrentUser();
+  }
+
+  async signUpWithPassword(input: AuthCredentials) {
+    const { error } = await this.client.auth.signUp({
+      email: input.email,
+      password: input.password,
       options: {
-        emailRedirectTo: `${window.location.origin}${window.location.pathname}#private`,
+        data: {
+          username: input.username || input.email.split("@")[0],
+        },
       },
     });
 
     if (error) {
       throw new Error(error.message);
     }
+
+    return this.getCurrentUser();
   }
 
   async signOut() {
@@ -544,10 +624,50 @@ export class SupabaseBackend implements SiteBackend {
     }
   }
 
+  async updateProfile(input: { username: string; avatarUrl?: string }) {
+    const { data, error } = await this.client.rpc("update_own_profile", {
+      next_username: input.username,
+      next_avatar_url: input.avatarUrl ?? "",
+    });
+
+    const profile = requireSupabaseResult(data as ProfileRow | null, error);
+    return {
+      id: profile.id,
+      email: profile.email,
+      username: profile.username,
+      avatarUrl: profile.avatar_url ?? undefined,
+      role: profile.role,
+    };
+  }
+
+  async uploadProfileAvatar(file: File) {
+    const user = await this.getCurrentUser();
+    if (!user) {
+      throw new Error("请先登录账号，再上传头像。");
+    }
+
+    const extension = file.name.split(".").pop()?.toLowerCase() || "png";
+    const storagePath = `profile-avatars/${user.id}/${Date.now()}.${extension}`;
+    const { error } = await this.client.storage
+      .from(supabaseAssetBucket)
+      .upload(storagePath, file, { upsert: true });
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    const { data } = this.client.storage.from(supabaseAssetBucket).getPublicUrl(storagePath);
+    return {
+      publicUrl: data.publicUrl,
+      storagePath,
+    };
+  }
+
   async listOwnerPosts() {
     const { data, error } = await this.client
       .from("owner_posts")
       .select("id,title,body,visibility,created_at")
+      .eq("visibility", "public")
       .order("created_at", { ascending: false });
 
     return requireSupabaseResult(data as OwnerPostRow[] | null, error).map(mapOwnerPost);
@@ -555,7 +675,7 @@ export class SupabaseBackend implements SiteBackend {
 
   async createOwnerPost(input: Pick<OwnerPost, "title" | "body" | "visibility">) {
     const user = await this.getCurrentUser();
-    const owner = requireOwner(user, "只有站主账号可以发布私密内容。");
+    const owner = requireOwner(user, "只有站主账号可以发布动态。");
 
     const { data, error } = await this.client
       .from("owner_posts")
@@ -574,7 +694,7 @@ export class SupabaseBackend implements SiteBackend {
   async listComments() {
     const { data, error } = await this.client
       .from("public_comments")
-      .select("id,author,body,likes,created_at")
+      .select("id,author_id,author,avatar_url,body,likes,created_at")
       .eq("approved", true)
       .order("created_at", { ascending: false });
 
@@ -582,15 +702,22 @@ export class SupabaseBackend implements SiteBackend {
   }
 
   async createComment(input: CommentInput) {
+    const user = await this.getCurrentUser();
+    if (!user) {
+      throw new Error("请先登录账号，再留言。");
+    }
+
     const { data, error } = await this.client
       .from("public_comments")
       .insert({
-        author: input.author,
+        author_id: user.id,
+        author: user.username || input.author || user.email.split("@")[0],
+        avatar_url: user.avatarUrl ?? null,
         body: input.body,
         client_elapsed_ms: input.verificationElapsedMs ?? 0,
         honeypot: input.honeypot ?? "",
       })
-      .select("id,author,body,likes,created_at")
+      .select("id,author_id,author,avatar_url,body,likes,created_at")
       .single<CommentRow>();
 
     return mapComment(requireSupabaseResult(data, error));
@@ -807,7 +934,7 @@ export class SupabaseBackend implements SiteBackend {
   async getSiteSettings() {
     const { data, error } = await this.client
       .from("site_settings")
-      .select("id,hero_cover_url,background_music_url,background_music_title,background_music_enabled,updated_at")
+      .select("id,brand_name,brand_subtitle,hero_title,hero_description,site_avatar_url,hero_cover_url,background_music_url,background_music_title,background_music_enabled,updated_at")
       .eq("id", "main")
       .maybeSingle<SiteSettingsRow>();
 
@@ -820,19 +947,29 @@ export class SupabaseBackend implements SiteBackend {
 
   async updateSiteSettings(input: Partial<SiteSettings>) {
     const user = requireOwner(await this.getCurrentUser(), "只有站主账号可以修改网站封面和背景音乐。");
+    const currentSettings = await this.getSiteSettings();
+    const nextSettings = {
+      ...currentSettings,
+      ...input,
+    };
 
     const { data, error } = await this.client
       .from("site_settings")
       .upsert({
         id: "main",
         owner_id: user.id,
-        hero_cover_url: input.heroCoverUrl ?? null,
-        background_music_url: input.backgroundMusicUrl ?? null,
-        background_music_title: input.backgroundMusicTitle ?? null,
-        background_music_enabled: input.backgroundMusicEnabled ?? false,
+        brand_name: nextSettings.brandName,
+        brand_subtitle: nextSettings.brandSubtitle,
+        hero_title: nextSettings.heroTitle,
+        hero_description: nextSettings.heroDescription,
+        site_avatar_url: nextSettings.siteAvatarUrl ?? null,
+        hero_cover_url: nextSettings.heroCoverUrl ?? null,
+        background_music_url: nextSettings.backgroundMusicUrl ?? null,
+        background_music_title: nextSettings.backgroundMusicTitle ?? null,
+        background_music_enabled: nextSettings.backgroundMusicEnabled,
         updated_at: new Date().toISOString(),
       })
-      .select("id,hero_cover_url,background_music_url,background_music_title,background_music_enabled,updated_at")
+      .select("id,brand_name,brand_subtitle,hero_title,hero_description,site_avatar_url,hero_cover_url,background_music_url,background_music_title,background_music_enabled,updated_at")
       .single<SiteSettingsRow>();
 
     return mapSiteSettings(requireSupabaseResult(data, error));
@@ -840,6 +977,8 @@ export class SupabaseBackend implements SiteBackend {
 }
 
 export const siteBackend: SiteBackend =
-  supabaseUrl && supabaseAnonKey
-    ? new SupabaseBackend(createClient(supabaseUrl, supabaseAnonKey))
-    : new LocalPreviewBackend();
+  forceLocalPreview && isLocalPreviewHost()
+    ? new LocalPreviewBackend()
+    : supabaseUrl && supabaseAnonKey
+      ? new SupabaseBackend(createClient(supabaseUrl, supabaseAnonKey))
+      : new LocalPreviewBackend();

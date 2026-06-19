@@ -24,6 +24,10 @@ function assert(condition, label, detail = "") {
   }
 }
 
+function isNetworkError(error) {
+  return /fetch failed|failed to fetch|networkerror/i.test(error?.message ?? "");
+}
+
 async function fetchText(url, attempts = 3) {
   let lastError;
 
@@ -81,12 +85,18 @@ async function checkRemoteBundle() {
   }
 
   for (const token of [
+    "signInWithPassword",
+    "signUpWithPassword",
+    "update_own_profile",
     "portfolio_items",
     "music_tracks",
     "gallery_items",
     "reading_notes",
     "site_settings",
+    "owner_posts",
     "client_elapsed_ms",
+    "brand_name",
+    "hero_title",
   ]) {
     assert(bundle.includes(token), `remote bundle includes ${token} integration`);
   }
@@ -94,7 +104,7 @@ async function checkRemoteBundle() {
 
 async function expectAnonymousInsertBlocked(client, tableName, payload, label) {
   const { error } = await client.from(tableName).insert(payload);
-  assert(Boolean(error), label);
+  assert(Boolean(error) && !isNetworkError(error), label, error?.message);
 }
 
 async function checkSupabaseBackend() {
@@ -112,13 +122,36 @@ async function checkSupabaseBackend() {
     ["music_tracks", "id"],
     ["gallery_items", "id"],
     ["reading_notes", "id"],
-    ["site_settings", "id"],
+    [
+      "site_settings",
+      "id,brand_name,brand_subtitle,hero_title,hero_description,site_avatar_url,hero_cover_url,background_music_url,background_music_title,background_music_enabled",
+    ],
+    ["owner_posts", "id,title,visibility"],
   ];
 
   for (const [tableName, columns] of publicTables) {
     const { error } = await supabase.from(tableName).select(columns).limit(1);
     assert(!error, `${tableName} is readable with anon key`, error?.message);
   }
+
+  const { error: publicOwnerPostsError } = await supabase
+    .from("owner_posts")
+    .select("id,title,visibility")
+    .eq("visibility", "public")
+    .limit(1);
+  assert(!publicOwnerPostsError, "public owner updates use public visibility", publicOwnerPostsError?.message);
+
+  await expectAnonymousInsertBlocked(
+    supabase,
+    "public_comments",
+    {
+      author: "anonymous visitor",
+      body: "this comment should be blocked because comments require auth",
+      client_elapsed_ms: 2400,
+      honeypot: "",
+    },
+    "anonymous visitor cannot create public comment",
+  );
 
   await expectAnonymousInsertBlocked(
     supabase,
@@ -198,6 +231,7 @@ await checkSupabaseBackend();
 if (failures.length > 0) {
   console.error(`\nOwner backend readiness failed with ${failures.length} issue(s).`);
   console.error("The public site can still work as a static portfolio, but owner uploads will not persist online yet.");
+  console.error("If the database checks fail, run supabase/migrations/20260619_account_editing.sql in the Supabase SQL Editor, then run supabase/set-owner.sql after your owner account exists.");
   process.exit(1);
 }
 

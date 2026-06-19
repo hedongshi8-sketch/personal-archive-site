@@ -1,4 +1,4 @@
--- Run after the owner email has signed in once through magic link.
+-- Run after the owner email has registered or signed in once with password auth.
 -- Replace the email value before executing.
 
 update public.profiles

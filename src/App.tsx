@@ -3,14 +3,18 @@ import clsx from "clsx";
 import {
   ArrowRight,
   Bell,
+  Camera,
+  Check,
   Code2,
   Download,
+  Edit3,
   ExternalLink,
   FileSpreadsheet,
   FileText,
   Heart,
   ImageIcon,
   LockKeyhole,
+  LogOut,
   Mail,
   Menu,
   MessageCircle,
@@ -110,6 +114,12 @@ type HumanGateState = {
   honeypot: string;
   createdAt: number;
 };
+type AccountDraft = {
+  email: string;
+  password: string;
+  username: string;
+  mode: "signin" | "signup";
+};
 
 const defaultMusicDraft: MusicTrackInput = {
   title: "",
@@ -138,6 +148,13 @@ const defaultReadingDraft: ReadingNoteInput = {
   quote: "",
   reflection: "",
   tags: [],
+};
+
+const defaultAccountDraft: AccountDraft = {
+  email: "",
+  password: "",
+  username: "",
+  mode: "signin",
 };
 
 type ExcelPreviewSheet = {
@@ -265,7 +282,15 @@ function getSectionFromLocation(): SectionId {
   return sectionIds.includes(requested as SectionId) ? (requested as SectionId) : "home";
 }
 
-function Sidebar({ activeSection }: { activeSection: SectionId }) {
+function Sidebar({
+  activeSection,
+  settings,
+  onToggleTheme,
+}: {
+  activeSection: SectionId;
+  settings: SiteSettings;
+  onToggleTheme: () => void;
+}) {
   return (
     <aside className="sidebar" aria-label="主导航">
       <a className="brand" href="#home">
@@ -273,8 +298,8 @@ function Sidebar({ activeSection }: { activeSection: SectionId }) {
           <span />
         </div>
         <div>
-          <strong>LinX</strong>
-          <small>游戏策划 / 关卡设计</small>
+          <strong>{settings.brandName}</strong>
+          <small>{settings.brandSubtitle}</small>
         </div>
       </a>
 
@@ -302,27 +327,27 @@ function Sidebar({ activeSection }: { activeSection: SectionId }) {
         </div>
         <div className="clock-copy">深夜 01:37</div>
         <div className="utility-row">
-          <button type="button" aria-label="切换夜间模式">
+          <button onClick={onToggleTheme} type="button" aria-label="切换夜间模式">
             <Moon size={18} />
           </button>
-          <button type="button" aria-label="打开命令面板">
+          <a href="#home" aria-label="回到首页">
             <Code2 size={18} />
-          </button>
-          <button type="button" aria-label="上传内容">
+          </a>
+          <a href="#docs" aria-label="上传内容">
             <Upload size={18} />
-          </button>
+          </a>
         </div>
       </div>
     </aside>
   );
 }
 
-function MobileNav({ activeSection }: { activeSection: SectionId }) {
+function MobileNav({ activeSection, settings }: { activeSection: SectionId; settings: SiteSettings }) {
   return (
     <div className="mobile-nav-strip" aria-label="移动端导航">
       <a className="mobile-brand" href="#home">
         <Menu size={18} />
-        <span>LinX</span>
+        <span>{settings.brandName}</span>
       </a>
       <nav>
         {navItems.slice(1, 8).map((item) => (
@@ -344,20 +369,22 @@ function ScreenIntro({
   title,
   description,
   action,
+  actionHref,
 }: {
   title: string;
   description: string;
   action?: string;
+  actionHref?: string;
 }) {
   return (
     <div className="screen-intro">
       <h2>{title}</h2>
       <p>{description}</p>
       {action ? (
-        <button className="text-action" type="button">
+        <a className="text-action" href={actionHref ?? "#home"}>
           {action}
           <ArrowRight size={17} />
-        </button>
+        </a>
       ) : null}
     </div>
   );
@@ -371,6 +398,353 @@ function BackendModeNotice({ isSupabase, children }: { isSupabase: boolean; chil
         : "当前是静态/本地预览：可以试表单，但上传内容不会永久保存到线上。"}
       {children ? <span>{children}</span> : null}
     </p>
+  );
+}
+
+function useAuthSession() {
+  const [user, setUser] = useState<AuthUser | null>(null);
+  const [authState, setAuthState] = useState<LoadState>("idle");
+  const [authMessage, setAuthMessage] = useState("");
+
+  useEffect(() => {
+    let active = true;
+
+    async function loadUser() {
+      setAuthState("loading");
+      try {
+        const currentUser = await siteBackend.getCurrentUser();
+        if (!active) {
+          return;
+        }
+        setUser(currentUser);
+        setAuthState("ready");
+      } catch (error) {
+        if (!active) {
+          return;
+        }
+        setAuthState("error");
+        setAuthMessage(error instanceof Error ? error.message : "账号状态读取失败。");
+      }
+    }
+
+    void loadUser();
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  async function signIn(input: AccountDraft) {
+    const email = input.email.trim();
+    const password = input.password;
+    if (!email || !password) {
+      setAuthMessage("请填写邮箱和密码。");
+      return;
+    }
+
+    setAuthState("loading");
+    try {
+      const nextUser = input.mode === "signup"
+        ? await siteBackend.signUpWithPassword({
+            email,
+            password,
+            username: input.username.trim() || email.split("@")[0],
+          })
+        : await siteBackend.signInWithPassword({ email, password });
+      setUser(nextUser);
+      setAuthState("ready");
+      setAuthMessage(input.mode === "signup" ? "账号已创建。以后会自动保持登录。" : "登录成功。以后会自动保持登录。");
+    } catch (error) {
+      setAuthState("error");
+      setAuthMessage(error instanceof Error ? error.message : "登录失败。");
+    }
+  }
+
+  async function signOut() {
+    setAuthState("loading");
+    try {
+      await siteBackend.signOut();
+      setUser(null);
+      setAuthState("ready");
+      setAuthMessage("已退出登录。");
+    } catch (error) {
+      setAuthState("error");
+      setAuthMessage(error instanceof Error ? error.message : "退出失败。");
+    }
+  }
+
+  async function updateUserProfile(input: { username: string; avatarUrl?: string }) {
+    if (!input.username.trim()) {
+      setAuthMessage("用户名不能为空。");
+      throw new Error("用户名不能为空。");
+    }
+
+    const nextUser = await siteBackend.updateProfile(input);
+    setUser(nextUser);
+    setAuthMessage("资料已更新。");
+    return nextUser;
+  }
+
+  async function uploadProfileAvatar(file: File) {
+    return siteBackend.uploadProfileAvatar(file);
+  }
+
+  return { user, setUser, authState, authMessage, setAuthMessage, signIn, signOut, updateUserProfile, uploadProfileAvatar };
+}
+
+function AccountPanel({
+  user,
+  authState,
+  authMessage,
+  onSubmit,
+  onSignOut,
+  onProfileUpdate,
+  onAvatarUpload,
+}: {
+  user: AuthUser | null;
+  authState: LoadState;
+  authMessage: string;
+  onSubmit: (input: AccountDraft) => Promise<void>;
+  onSignOut: () => Promise<void>;
+  onProfileUpdate: (input: { username: string; avatarUrl?: string }) => Promise<AuthUser>;
+  onAvatarUpload: (file: File) => Promise<{ publicUrl: string; storagePath: string }>;
+}) {
+  const [draft, setDraft] = useState<AccountDraft>(defaultAccountDraft);
+  const [profileName, setProfileName] = useState(user?.username ?? "");
+  const [profileBusy, setProfileBusy] = useState(false);
+  const busy = authState === "loading";
+
+  useEffect(() => {
+    setProfileName(user?.username ?? "");
+  }, [user?.username]);
+
+  async function saveProfile(nextAvatarUrl = user?.avatarUrl) {
+    if (!user) {
+      return;
+    }
+
+    setProfileBusy(true);
+    try {
+      await onProfileUpdate({
+        username: profileName.trim() || user.username || user.email.split("@")[0],
+        avatarUrl: nextAvatarUrl,
+      });
+    } finally {
+      setProfileBusy(false);
+    }
+  }
+
+  async function handleAvatarFile(file: File | null) {
+    if (!file || !user) {
+      return;
+    }
+
+    setProfileBusy(true);
+    try {
+      const uploaded = await onAvatarUpload(file);
+      await onProfileUpdate({
+        username: profileName.trim() || user.username || user.email.split("@")[0],
+        avatarUrl: uploaded.publicUrl,
+      });
+    } finally {
+      setProfileBusy(false);
+    }
+  }
+
+  if (user) {
+    return (
+      <div className="account-panel">
+        <label className="account-avatar-picker" title="更换头像">
+          <span className="comment-avatar">
+            {user.avatarUrl ? <img src={user.avatarUrl} alt="" /> : (user.username || user.email).slice(0, 1)}
+          </span>
+          <Camera size={14} />
+          <input accept="image/*" disabled={profileBusy} onChange={(event) => void handleAvatarFile(event.target.files?.[0] ?? null)} type="file" />
+        </label>
+        <div className="account-profile-fields">
+          <span>{user.role === "owner" ? "站主账号" : "访客账号"}</span>
+          <input
+            value={profileName}
+            onBlur={() => void saveProfile()}
+            onChange={(event) => setProfileName(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === "Enter") {
+                event.currentTarget.blur();
+              }
+            }}
+            disabled={profileBusy}
+            aria-label="用户名"
+          />
+          <small>{user.email}</small>
+        </div>
+        <button className="ghost-icon-button" disabled={profileBusy} onClick={() => void saveProfile()} type="button" aria-label="保存资料">
+          <Check size={16} />
+        </button>
+        <button className="ghost-button" disabled={busy} onClick={() => void onSignOut()} type="button">
+          <LogOut size={16} />
+          退出
+        </button>
+        {authMessage ? <p className="backend-status">{authMessage}</p> : null}
+      </div>
+    );
+  }
+
+  return (
+    <div className="account-panel account-panel-form">
+      <div>
+        <span>账号登录</span>
+        <strong>{draft.mode === "signup" ? "创建账号后才能留言" : "登录后自动保持在线"}</strong>
+      </div>
+      <input
+        value={draft.email}
+        onChange={(event) => setDraft((current) => ({ ...current, email: event.target.value }))}
+        placeholder="邮箱"
+        type="email"
+      />
+      <input
+        value={draft.password}
+        onChange={(event) => setDraft((current) => ({ ...current, password: event.target.value }))}
+        placeholder="密码"
+        type="password"
+      />
+      {draft.mode === "signup" ? (
+        <input
+          value={draft.username}
+          onChange={(event) => setDraft((current) => ({ ...current, username: event.target.value }))}
+          placeholder="用户名"
+        />
+      ) : null}
+      <button className="cyan-button" disabled={busy} onClick={() => void onSubmit(draft)} type="button">
+        {draft.mode === "signup" ? "注册" : "登录"}
+      </button>
+      <button
+        className="ghost-button"
+        type="button"
+        onClick={() => setDraft((current) => ({ ...current, mode: current.mode === "signup" ? "signin" : "signup" }))}
+      >
+        {draft.mode === "signup" ? "已有账号" : "注册账号"}
+      </button>
+      {authMessage ? <p className="backend-status">{authMessage}</p> : null}
+    </div>
+  );
+}
+
+function avatarContent(value: string | undefined, fallback = "访") {
+  if (value && /^(https?:|blob:|data:)/.test(value)) {
+    return <img src={value} alt="" />;
+  }
+
+  return (value || fallback).trim().slice(0, 1) || fallback;
+}
+
+function EditableText({
+  as,
+  value,
+  editMode,
+  multiline = false,
+  className,
+  label,
+  onSave,
+}: {
+  as: "h1" | "p" | "strong" | "span";
+  value: string;
+  editMode: boolean;
+  multiline?: boolean;
+  className?: string;
+  label: string;
+  onSave: (value: string) => Promise<void>;
+}) {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(value);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    setDraft(value);
+  }, [value]);
+
+  async function commit() {
+    const nextValue = draft.trim();
+    if (!nextValue || nextValue === value) {
+      setDraft(value);
+      setEditing(false);
+      return;
+    }
+
+    setSaving(true);
+    try {
+      await onSave(nextValue);
+      setEditing(false);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  const Tag = as;
+
+  if (!editMode) {
+    return <Tag className={className}>{value}</Tag>;
+  }
+
+  if (editing) {
+    const editor = multiline ? (
+      <textarea
+        autoFocus
+        className="editable-field editable-field-textarea"
+        value={draft}
+        disabled={saving}
+        aria-label={label}
+        onBlur={() => void commit()}
+        onChange={(event) => setDraft(event.target.value)}
+        onKeyDown={(event) => {
+          if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
+            event.currentTarget.blur();
+          }
+          if (event.key === "Escape") {
+            setDraft(value);
+            setEditing(false);
+          }
+        }}
+      />
+    ) : (
+      <input
+        autoFocus
+        className="editable-field"
+        value={draft}
+        disabled={saving}
+        aria-label={label}
+        onBlur={() => void commit()}
+        onChange={(event) => setDraft(event.target.value)}
+        onKeyDown={(event) => {
+          if (event.key === "Enter") {
+            event.currentTarget.blur();
+          }
+          if (event.key === "Escape") {
+            setDraft(value);
+            setEditing(false);
+          }
+        }}
+      />
+    );
+
+    return <div className={clsx("editable-shell", className)}>{editor}</div>;
+  }
+
+  return (
+    <Tag
+      className={clsx(className, "editable-display")}
+      role="button"
+      tabIndex={0}
+      title={`点击编辑${label}`}
+      onClick={() => setEditing(true)}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          setEditing(true);
+        }
+      }}
+    >
+      {value}
+      <Edit3 size={16} aria-hidden="true" />
+    </Tag>
   );
 }
 
@@ -707,12 +1081,76 @@ function PortfolioPreview({ item }: { item: PortfolioItem }) {
   );
 }
 
-function HeroSection({ settings }: { settings: SiteSettings }) {
+function HeroSection({
+  settings,
+  currentUser,
+  editMode,
+  onEditModeChange,
+  onSettingsChange,
+}: {
+  settings: SiteSettings;
+  currentUser: AuthUser | null;
+  editMode: boolean;
+  onEditModeChange: (enabled: boolean) => void;
+  onSettingsChange: (settings: SiteSettings) => void;
+}) {
+  const [statusMessage, setStatusMessage] = useState("");
+  const isOwner = currentUser?.role === "owner";
+
+  async function saveSettings(patch: Partial<SiteSettings>) {
+    if (!isOwner) {
+      setStatusMessage("只有站主账号可以编辑首页。");
+      return;
+    }
+
+    try {
+      const nextSettings = await siteBackend.updateSiteSettings({
+        ...settings,
+        ...patch,
+      });
+      onSettingsChange(nextSettings);
+      setStatusMessage("首页设置已保存。");
+    } catch (error) {
+      setStatusMessage(error instanceof Error ? error.message : "首页设置保存失败。");
+    }
+  }
+
+  async function uploadHeroImage(file: File | null, kind: "site-cover" | "site-avatar") {
+    if (!file) {
+      return;
+    }
+
+    if (!isOwner) {
+      setStatusMessage("只有站主账号可以上传首页图片。");
+      return;
+    }
+
+    try {
+      const uploaded = await siteBackend.uploadAsset(file, kind);
+      await saveSettings(kind === "site-cover" ? { heroCoverUrl: uploaded.url } : { siteAvatarUrl: uploaded.url });
+    } catch (error) {
+      setStatusMessage(error instanceof Error ? error.message : "图片上传失败。");
+    }
+  }
+
   return (
-    <section className="screen-section hero-section" id="home">
+    <section className={clsx("screen-section hero-section", editMode && "is-editing")} id="home">
       <div className="hero-copy">
-        <h1>夜深了，继续打磨好玩的世界。</h1>
-        <p>这里是我的策划档案馆：每一屏只展开一个主题，文档、Demo、音乐、图片、私密记录和留言都各自拥有完整空间。</p>
+        <EditableText
+          as="h1"
+          value={settings.heroTitle}
+          editMode={editMode}
+          label="首页标题"
+          onSave={(value) => saveSettings({ heroTitle: value })}
+        />
+        <EditableText
+          as="p"
+          value={settings.heroDescription}
+          editMode={editMode}
+          multiline
+          label="首页介绍"
+          onSave={(value) => saveSettings({ heroDescription: value })}
+        />
         <div className="hero-actions">
           <a className="cyan-button" href="#docs">
             进入档案
@@ -721,6 +1159,19 @@ function HeroSection({ settings }: { settings: SiteSettings }) {
             去留言墙
           </a>
         </div>
+        {isOwner ? (
+          <div className="edit-mode-toolbar">
+            <button
+              className={clsx("ghost-button", editMode && "active")}
+              onClick={() => onEditModeChange(!editMode)}
+              type="button"
+            >
+              <Edit3 size={16} />
+              {editMode ? "退出编辑模式" : "进入编辑模式"}
+            </button>
+            {statusMessage ? <p className="backend-status">{statusMessage}</p> : null}
+          </div>
+        ) : null}
       </div>
 
       <div className="hero-console">
@@ -730,20 +1181,47 @@ function HeroSection({ settings }: { settings: SiteSettings }) {
           <kbd>⌘K</kbd>
         </label>
         <div className="hero-toolbar">
-          <button type="button" aria-label="通知">
+          <button onClick={() => { window.location.hash = "private"; }} type="button" aria-label="查看站主动态">
             <Bell size={21} />
           </button>
-          <button type="button" aria-label="邮件">
+          <button onClick={() => { window.location.hash = "contact"; }} type="button" aria-label="联系">
             <Mail size={21} />
           </button>
-          <div className="avatar" aria-label="站主头像">
-            L
-          </div>
+          {editMode ? (
+            <label className="avatar editable-media" aria-label="上传站主头像" title="点击更换头像">
+              {avatarContent(settings.siteAvatarUrl, settings.brandName)}
+              <Camera size={16} />
+              <input accept="image/*" onChange={(event) => void uploadHeroImage(event.target.files?.[0] ?? null, "site-avatar")} type="file" />
+            </label>
+          ) : (
+            <div className="avatar" aria-label="站主头像">
+              {avatarContent(settings.siteAvatarUrl, settings.brandName)}
+            </div>
+          )}
         </div>
         <MediaTile tile={0} imageUrl={settings.heroCoverUrl} className="hero-media">
+          {editMode ? (
+            <label className="cover-edit-button">
+              <Camera size={16} />
+              <span>更换封面</span>
+              <input accept="image/*" onChange={(event) => void uploadHeroImage(event.target.files?.[0] ?? null, "site-cover")} type="file" />
+            </label>
+          ) : null}
           <div className="hero-media-caption">
-            <span>Archive OS</span>
-            <strong>策划文档 · 原型记录 · 灵感索引</strong>
+            <EditableText
+              as="span"
+              value={settings.brandName}
+              editMode={editMode}
+              label="网站名称"
+              onSave={(value) => saveSettings({ brandName: value })}
+            />
+            <EditableText
+              as="strong"
+              value={settings.brandSubtitle}
+              editMode={editMode}
+              label="网站副标题"
+              onSave={(value) => saveSettings({ brandSubtitle: value })}
+            />
           </div>
         </MediaTile>
       </div>
@@ -802,20 +1280,18 @@ function BackgroundMusicDock({ settings }: { settings: SiteSettings }) {
   );
 }
 
-function DocsSection() {
+function DocsSection({ currentUser }: { currentUser: AuthUser | null }) {
   const [activeFilter, setActiveFilter] = useState<(typeof portfolioFilters)[number]["id"]>("all");
   const [query, setQuery] = useState("");
   const [items, setItems] = useState<PortfolioItem[]>(portfolioItems);
   const [activeId, setActiveId] = useState(portfolioItems.find((item) => item.featured)?.id ?? portfolioItems[0].id);
-  const [user, setUser] = useState<AuthUser | null>(null);
-  const [ownerEmail, setOwnerEmail] = useState("");
   const [draft, setDraft] = useState<PortfolioItemInput>(defaultPortfolioDraft);
   const [tagInput, setTagInput] = useState("");
   const [uploading, setUploading] = useState(false);
   const [docsState, setDocsState] = useState<LoadState>("idle");
   const [statusMessage, setStatusMessage] = useState("");
 
-  const isOwner = user?.role === "owner";
+  const isOwner = currentUser?.role === "owner";
   const isSupabase = siteBackend.mode === "supabase";
 
   const filteredItems = useMemo(() => {
@@ -848,16 +1324,12 @@ function DocsSection() {
       setStatusMessage("");
 
       try {
-        const [currentUser, remoteItems] = await Promise.all([
-          siteBackend.getCurrentUser(),
-          siteBackend.listPortfolioItems(),
-        ]);
+        const remoteItems = await siteBackend.listPortfolioItems();
 
         if (!active) {
           return;
         }
 
-        setUser(currentUser);
         if (remoteItems.length > 0) {
           setItems(remoteItems);
         }
@@ -877,21 +1349,6 @@ function DocsSection() {
       active = false;
     };
   }, []);
-
-  async function requestPortfolioLogin() {
-    const email = ownerEmail.trim();
-    if (!email) {
-      setStatusMessage("先填写站主邮箱。");
-      return;
-    }
-
-    try {
-      await siteBackend.signInOwner(email);
-      setStatusMessage("登录链接已发送，请在邮箱里完成验证。");
-    } catch (error) {
-      setStatusMessage(error instanceof Error ? error.message : "登录链接发送失败。");
-    }
-  }
 
   async function handlePortfolioFile(file: File | null) {
     if (!file) {
@@ -979,19 +1436,7 @@ function DocsSection() {
             <strong>{isOwner ? "站主编辑入口已开启" : "公开浏览模式"}</strong>
           </div>
           <BackendModeNotice isSupabase={isSupabase} />
-          {isSupabase && !isOwner ? (
-            <div className="portfolio-login-row">
-              <input
-                value={ownerEmail}
-                onChange={(event) => setOwnerEmail(event.target.value)}
-                placeholder="站主邮箱"
-                type="email"
-              />
-              <button className="ghost-button" onClick={requestPortfolioLogin} type="button">
-                发送登录链接
-              </button>
-            </div>
-          ) : null}
+          {!isOwner ? <p className="backend-status">登录站主账号后，这里会自动出现上传和登记入口。</p> : null}
           {isOwner ? (
             <div className="portfolio-editor">
               <div className="portfolio-editor-grid">
@@ -1182,7 +1627,12 @@ function DocsSection() {
 
 function DemosSection() {
   const [activeTitle, setActiveTitle] = useState(gameDemos[0].title);
+  const [playMessage, setPlayMessage] = useState("");
   const activeDemo = gameDemos.find((demo) => demo.title === activeTitle) ?? gameDemos[0];
+
+  function playActiveDemo() {
+    setPlayMessage(`已切到 ${activeDemo.title} 演示位。`);
+  }
 
   return (
     <section className="screen-section demos-section" id="demos">
@@ -1190,16 +1640,18 @@ function DemosSection() {
         title="游戏 Demo"
         description="Demo 区独占一屏，主舞台放当前选中的原型，其它 Demo 作为可切换的播放队列。"
         action="打开 Demo 库"
+        actionHref="#demos"
       />
       <div className="demo-stage">
         <MediaTile tile={activeDemo.tile} className="demo-feature">
-          <button className="play-orb" type="button" aria-label={`播放 ${activeDemo.title}`}>
+          <button className="play-orb" type="button" aria-label={`播放 ${activeDemo.title}`} onClick={playActiveDemo}>
             <Play size={34} fill="currentColor" />
           </button>
         </MediaTile>
         <div className="demo-feature-copy">
           <h3>{activeDemo.title}</h3>
           <p>{activeDemo.description}</p>
+          {playMessage ? <p className="demo-play-message">{playMessage}</p> : null}
           <div className="meta-row">
             <span>{activeDemo.platform}</span>
             <time>{activeDemo.duration}</time>
@@ -1229,21 +1681,22 @@ function DemosSection() {
 function MusicSection({
   settings,
   onSettingsChange,
+  currentUser,
 }: {
   settings: SiteSettings;
   onSettingsChange: (settings: SiteSettings) => void;
+  currentUser: AuthUser | null;
 }) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [favorite, setFavorite] = useLocalStorage("linx_music_favorite", true);
   const [tracks, setTracks] = useState<MusicTrack[]>(musicTracks);
   const [activeTrackId, setActiveTrackId] = useState(musicTracks[0].id);
-  const [user, setUser] = useState<AuthUser | null>(null);
   const [draft, setDraft] = useState<MusicTrackInput>(defaultMusicDraft);
   const [statusMessage, setStatusMessage] = useState("");
   const [loadState, setLoadState] = useState<LoadState>("idle");
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  const isOwner = user?.role === "owner";
+  const isOwner = currentUser?.role === "owner";
   const isSupabase = siteBackend.mode === "supabase";
   const activeTrack = tracks.find((track) => track.id === activeTrackId) ?? tracks[0];
 
@@ -1255,8 +1708,7 @@ function MusicSection({
       setStatusMessage("");
 
       try {
-        const [currentUser, remoteTracks, remoteSettings] = await Promise.all([
-          siteBackend.getCurrentUser(),
+        const [remoteTracks, remoteSettings] = await Promise.all([
           siteBackend.listMusicTracks(),
           siteBackend.getSiteSettings(),
         ]);
@@ -1265,7 +1717,6 @@ function MusicSection({
           return;
         }
 
-        setUser(currentUser);
         if (remoteTracks.length > 0) {
           setTracks(remoteTracks);
           setActiveTrackId(remoteTracks[0].id);
@@ -1434,6 +1885,26 @@ function MusicSection({
     }
   }
 
+  function selectTrackByOffset(offset: number) {
+    if (tracks.length === 0) {
+      return;
+    }
+
+    const currentIndex = Math.max(0, tracks.findIndex((track) => track.id === activeTrack?.id));
+    const nextIndex = (currentIndex + offset + tracks.length) % tracks.length;
+    setActiveTrackId(tracks[nextIndex].id);
+  }
+
+  function shuffleTrack() {
+    if (tracks.length <= 1) {
+      return;
+    }
+
+    const candidates = tracks.filter((track) => track.id !== activeTrack?.id);
+    const nextTrack = candidates[Math.floor(Math.random() * candidates.length)];
+    setActiveTrackId(nextTrack.id);
+  }
+
   return (
     <section className="screen-section music-section" id="music">
       <ScreenIntro
@@ -1472,10 +1943,10 @@ function MusicSection({
           <span>{activeTrack?.duration ?? "06:41"}</span>
         </div>
         <div className="player-controls">
-          <button type="button" aria-label="随机播放">
+          <button onClick={shuffleTrack} type="button" aria-label="随机播放">
             <Shuffle size={18} />
           </button>
-          <button type="button" aria-label="上一首">
+          <button onClick={() => selectTrackByOffset(-1)} type="button" aria-label="上一首">
             <SkipBack size={20} fill="currentColor" />
           </button>
           <button
@@ -1486,7 +1957,7 @@ function MusicSection({
           >
             {isPlaying ? <Pause size={24} fill="currentColor" /> : <Play size={24} fill="currentColor" />}
           </button>
-          <button type="button" aria-label="下一首">
+          <button onClick={() => selectTrackByOffset(1)} type="button" aria-label="下一首">
             <SkipForward size={20} fill="currentColor" />
           </button>
           <button
@@ -1599,18 +2070,19 @@ function MusicSection({
 function GallerySection({
   settings,
   onSettingsChange,
+  currentUser,
 }: {
   settings: SiteSettings;
   onSettingsChange: (settings: SiteSettings) => void;
+  currentUser: AuthUser | null;
 }) {
   const [filter, setFilter] = useState("全部");
   const [items, setItems] = useState<GalleryItem[]>(galleryItems);
-  const [user, setUser] = useState<AuthUser | null>(null);
   const [draft, setDraft] = useState<GalleryItemInput>(defaultGalleryDraft);
   const [statusMessage, setStatusMessage] = useState("");
   const [loadState, setLoadState] = useState<LoadState>("idle");
 
-  const isOwner = user?.role === "owner";
+  const isOwner = currentUser?.role === "owner";
   const isSupabase = siteBackend.mode === "supabase";
 
   const filteredItems = useMemo(() => {
@@ -1629,8 +2101,7 @@ function GallerySection({
       setStatusMessage("");
 
       try {
-        const [currentUser, remoteItems, remoteSettings] = await Promise.all([
-          siteBackend.getCurrentUser(),
+        const [remoteItems, remoteSettings] = await Promise.all([
           siteBackend.listGalleryItems(),
           siteBackend.getSiteSettings(),
         ]);
@@ -1639,7 +2110,6 @@ function GallerySection({
           return;
         }
 
-        setUser(currentUser);
         if (remoteItems.length > 0) {
           setItems(remoteItems);
         }
@@ -1817,16 +2287,15 @@ function GallerySection({
   );
 }
 
-function NotesSection() {
+function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
   const [notes, setNotes] = useState<ReadingNote[]>(readingNotes);
   const [activeKind, setActiveKind] = useState<"all" | ReadingNote["kind"]>("all");
-  const [user, setUser] = useState<AuthUser | null>(null);
   const [draft, setDraft] = useState<ReadingNoteInput>(defaultReadingDraft);
   const [tagInput, setTagInput] = useState("");
   const [statusMessage, setStatusMessage] = useState("");
   const [loadState, setLoadState] = useState<LoadState>("idle");
 
-  const isOwner = user?.role === "owner";
+  const isOwner = currentUser?.role === "owner";
   const isSupabase = siteBackend.mode === "supabase";
   const filteredNotes = useMemo(() => {
     if (activeKind === "all") {
@@ -1844,16 +2313,12 @@ function NotesSection() {
       setStatusMessage("");
 
       try {
-        const [currentUser, remoteNotes] = await Promise.all([
-          siteBackend.getCurrentUser(),
-          siteBackend.listReadingNotes(),
-        ]);
+        const remoteNotes = await siteBackend.listReadingNotes();
 
         if (!active) {
           return;
         }
 
-        setUser(currentUser);
         if (remoteNotes.length > 0) {
           setNotes(remoteNotes);
         }
@@ -2070,15 +2535,14 @@ function NotesSection() {
   );
 }
 
-function PrivateSection() {
+function PrivateSection({ currentUser }: { currentUser: AuthUser | null }) {
   const [posts, setPosts] = useLocalStorage<OwnerPost[]>("linx_owner_posts", seedOwnerPosts);
+  const [titleDraft, setTitleDraft] = useState("");
   const [draft, setDraft] = useState("");
-  const [email, setEmail] = useState("");
-  const [user, setUser] = useState<AuthUser | null>(null);
   const [loadState, setLoadState] = useState<LoadState>("idle");
   const [statusMessage, setStatusMessage] = useState("");
 
-  const isOwner = user?.role === "owner";
+  const isOwner = currentUser?.role === "owner";
   const isSupabase = siteBackend.mode === "supabase";
 
   useEffect(() => {
@@ -2089,14 +2553,12 @@ function PrivateSection() {
       setStatusMessage("");
 
       try {
-        const currentUser = await siteBackend.getCurrentUser();
-        const remotePosts = currentUser?.role === "owner" ? await siteBackend.listOwnerPosts() : [];
+        const remotePosts = await siteBackend.listOwnerPosts();
 
         if (!active) {
           return;
         }
 
-        setUser(currentUser);
         if (remotePosts.length > 0 || siteBackend.mode === "supabase") {
           setPosts(remotePosts);
         }
@@ -2107,7 +2569,7 @@ function PrivateSection() {
         }
 
         setLoadState("error");
-        setStatusMessage(error instanceof Error ? error.message : "私密区加载失败。");
+        setStatusMessage(error instanceof Error ? error.message : "站主动态加载失败。");
       }
     }
 
@@ -2117,21 +2579,6 @@ function PrivateSection() {
     };
   }, [setPosts]);
 
-  async function requestOwnerLogin() {
-    const targetEmail = email.trim();
-    if (!targetEmail) {
-      setStatusMessage("先填写站主邮箱。");
-      return;
-    }
-
-    try {
-      await siteBackend.signInOwner(targetEmail);
-      setStatusMessage("登录链接已发送，请在邮箱里完成验证。");
-    } catch (error) {
-      setStatusMessage(error instanceof Error ? error.message : "登录链接发送失败。");
-    }
-  }
-
   async function publishPost() {
     const body = draft.trim();
     if (!body) {
@@ -2139,64 +2586,63 @@ function PrivateSection() {
     }
 
     if (!isOwner) {
-      setStatusMessage("只有站主账号可以发布私密内容。");
+      setStatusMessage("只有站主账号可以发布动态。");
       return;
     }
 
     try {
       const nextPost = await siteBackend.createOwnerPost({
-        title: "临时灵感",
+        title: titleDraft.trim() || "站主更新",
         body,
-        visibility: "private",
+        visibility: "public",
       });
       setPosts((current) => [nextPost, ...current]);
+      setTitleDraft("");
       setDraft("");
-      setStatusMessage(isSupabase ? "已写入 Supabase 私密表。" : "本地预览已保存。");
+      setStatusMessage(isSupabase ? "已发布到站主动态。" : "本地预览已保存。");
     } catch (error) {
       setStatusMessage(error instanceof Error ? error.message : "发布失败。");
     }
   }
 
+  function applyComposerAction(label: string) {
+    const snippets: Record<string, string> = {
+      发布想法: "",
+      上传图片: "\n![图片说明](粘贴图片链接)\n",
+      嵌入代码: "\n```text\n这里写代码或配置片段\n```\n",
+      待办清单: "\n- [ ] 待办事项\n- [ ] 下一个更新点\n",
+    };
+
+    setDraft((current) => `${current}${snippets[label] ?? ""}`);
+  }
+
   return (
     <section className="screen-section private-section" id="private">
       <ScreenIntro
-        title="私密发帖"
-        description="这块只给站主使用；接入 Supabase 后由 Auth 和 RLS 判断 owner 权限，访客不会拿到发布入口。"
+        title="站主动态"
+        description="这里放一些阶段更新、临时想法和有感而发的记录。所有人都能看，只有站主账号能发布。"
       />
-      {isSupabase ? (
-        <div className="owner-login">
-          <div>
-            <span>{user ? user.email : "Supabase Auth"}</span>
-            <strong>{isOwner ? "站主权限已验证" : "等待站主邮箱登录"}</strong>
-          </div>
-          {!isOwner ? (
-            <>
-              <input
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-                placeholder="站主邮箱"
-                type="email"
-              />
-              <button className="ghost-button" onClick={requestOwnerLogin} type="button">
-                发送登录链接
-              </button>
-            </>
-          ) : null}
+      <div className="owner-login">
+        <div>
+          <span>{isSupabase ? "Supabase Auth + RLS" : localPreviewLabel}</span>
+          <strong>{isOwner ? "站主发布权限已开启" : "公开阅读模式"}</strong>
         </div>
-      ) : (
-        <div className="owner-login">
-          <div>
-            <span>{localPreviewLabel}</span>
-            <strong>本地预览模式，部署后填 Supabase 环境变量启用真实权限。</strong>
-          </div>
-        </div>
-      )}
+        {!isOwner ? <p>登录站主账号后，这里会自动出现发布入口。</p> : null}
+      </div>
       {isOwner ? (
         <div className="private-composer">
         <div className="composer-lock">
           <LockKeyhole size={18} />
-          <span>{isOwner ? "仅自己可见" : "需要站主权限"}</span>
+          <span>站主可发布，访客可阅读</span>
         </div>
+        <input
+          className="post-title-input"
+          value={titleDraft}
+          onChange={(event) => setTitleDraft(event.target.value)}
+          disabled={loadState === "loading"}
+          maxLength={80}
+          placeholder="动态标题，例如：本周作品集更新"
+        />
         <textarea
           value={draft}
           onChange={(event) => setDraft(event.target.value)}
@@ -2209,7 +2655,7 @@ function PrivateSection() {
             {ownerActions.map((action) => {
               const Icon = action.icon;
               return (
-                <button type="button" key={action.label} aria-label={action.label}>
+                <button onClick={() => applyComposerAction(action.label)} type="button" key={action.label} aria-label={action.label}>
                   <Icon size={18} />
                 </button>
               );
@@ -2217,14 +2663,14 @@ function PrivateSection() {
           </div>
           <span>{draft.length} / 2000</span>
           <button className="cyan-button" disabled={!isOwner || loadState === "loading"} onClick={publishPost} type="button">
-            发布到私密区
+            发布动态
           </button>
         </div>
         </div>
       ) : null}
       {statusMessage ? <p className="backend-status">{statusMessage}</p> : null}
       <div className="post-stack">
-        {(isOwner ? posts : []).slice(0, 3).map((post) => (
+        {posts.slice(0, 6).map((post) => (
           <article key={post.id} className="mini-post">
             <div>
               <strong>{post.title}</strong>
@@ -2275,11 +2721,11 @@ function GitHubIssueComments() {
   return (
     <div className="github-comments-panel" aria-label="GitHub Issues 评论">
       <div>
-        <span>公网评论桥</span>
-        <strong>GitHub Issues 持久留言</strong>
+        <span>静态站备用评论</span>
+        <strong>GitHub Issues 兜底留言</strong>
       </div>
       <p>
-        当前 GitHub Pages 版本还没接 Supabase，下面的评论面板会把公开留言保存到仓库 Issues；安装 Utterances App 后访客即可用 GitHub 账号评论。
+        当前环境没有启用 Supabase 账号系统时，下面的备用面板会把公开留言保存到仓库 Issues；正式账号留言仍以 Supabase 为准。
       </p>
       {loadError ? <p className="backend-status">GitHub 评论面板加载失败，可以刷新页面后重试。</p> : null}
       {localPreview ? (
@@ -2291,10 +2737,25 @@ function GitHubIssueComments() {
   );
 }
 
-function CommentsSection() {
+function CommentsSection({
+  currentUser,
+  authState,
+  authMessage,
+  onAuthSubmit,
+  onSignOut,
+  onProfileUpdate,
+  onAvatarUpload,
+}: {
+  currentUser: AuthUser | null;
+  authState: LoadState;
+  authMessage: string;
+  onAuthSubmit: (input: AccountDraft) => Promise<void>;
+  onSignOut: () => Promise<void>;
+  onProfileUpdate: (input: { username: string; avatarUrl?: string }) => Promise<AuthUser>;
+  onAvatarUpload: (file: File) => Promise<{ publicUrl: string; storagePath: string }>;
+}) {
   const [comments, setComments] = useLocalStorage<Comment[]>("linx_comments", seedComments);
   const [commentBody, setCommentBody] = useState("");
-  const [author, setAuthor] = useLocalStorage("linx_comment_author", "访客");
   const [loadState, setLoadState] = useState<LoadState>("idle");
   const [statusMessage, setStatusMessage] = useState("");
   const [gate, setGate] = useState<HumanGateState>(() => createHumanGate());
@@ -2335,8 +2796,12 @@ function CommentsSection() {
 
   async function publishComment() {
     const body = commentBody.trim();
-    const authorName = author.trim() || "访客";
     if (!body) {
+      return;
+    }
+
+    if (!currentUser) {
+      setStatusMessage("请先登录账号，再留言。");
       return;
     }
 
@@ -2347,7 +2812,7 @@ function CommentsSection() {
 
     try {
       const nextComment = await siteBackend.createComment({
-        author: authorName,
+        author: currentUser.username || currentUser.email.split("@")[0],
         body,
         verificationElapsedMs: Date.now() - gate.createdAt,
         honeypot: gate.honeypot,
@@ -2378,24 +2843,37 @@ function CommentsSection() {
     });
   }
 
+  function replyTo(authorName: string) {
+    setCommentBody((current) => current || `回复 @${authorName}：`);
+  }
+
   return (
     <section className="screen-section comments-section" id="comments">
       <ScreenIntro
         title="留言墙"
-        description="访客评论也独占一屏，提交前会经过轻量验证，降低刷屏和脚本灌水风险。"
+        description="访客注册或登录后可以留言，也可以维护自己的用户名和头像。提交前会经过轻量验证，降低刷屏和脚本灌水风险。"
       />
-      <div className="comment-form">
-        <div className="comment-avatar">你</div>
-        <input
-          value={author}
-          onChange={(event) => setAuthor(event.target.value)}
-          maxLength={80}
-          placeholder="你的昵称"
+      {!currentUser ? (
+        <AccountPanel
+          user={currentUser}
+          authState={authState}
+          authMessage={authMessage}
+          onSubmit={onAuthSubmit}
+          onSignOut={onSignOut}
+          onProfileUpdate={onProfileUpdate}
+          onAvatarUpload={onAvatarUpload}
         />
+      ) : null}
+      <div className="comment-form">
+        <div className="comment-avatar">{avatarContent(currentUser?.avatarUrl, currentUser?.username || "你")}</div>
+        <div className="comment-author-lock">
+          <span>{currentUser ? "当前账号" : "未登录"}</span>
+          <strong>{currentUser?.username || "登录后留言"}</strong>
+        </div>
         <input
           value={commentBody}
           onChange={(event) => setCommentBody(event.target.value)}
-          disabled={loadState === "loading"}
+          disabled={!currentUser || loadState === "loading"}
           placeholder="分享你的想法或反馈..."
         />
         <label className="human-gate">
@@ -2416,7 +2894,7 @@ function CommentsSection() {
             aria-hidden="true"
           />
         </label>
-        <button className="cyan-button" disabled={loadState === "loading"} onClick={publishComment} type="button">
+        <button className="cyan-button" disabled={!currentUser || loadState === "loading"} onClick={publishComment} type="button">
           <Send size={17} />
           发表评论
         </button>
@@ -2426,7 +2904,7 @@ function CommentsSection() {
       <div className="comment-list">
         {comments.map((comment) => (
           <article className="comment-row" key={comment.id}>
-            <div className="comment-avatar">{comment.avatar}</div>
+            <div className="comment-avatar">{avatarContent(comment.avatar, comment.author)}</div>
             <div className="comment-body">
               <div className="comment-meta">
                 <strong>{comment.author}</strong>
@@ -2434,7 +2912,7 @@ function CommentsSection() {
               </div>
               <p>{comment.body}</p>
               <div className="comment-actions">
-                <button type="button">
+                <button onClick={() => replyTo(comment.author)} type="button">
                   <MessageCircle size={15} />
                   回复
                 </button>
@@ -2456,7 +2934,7 @@ function ContactSection() {
     <section className="screen-section contact-section" id="contact">
       <ScreenIntro
         title="合作与联系"
-        description="后端、登录、存储、评论审核和自动发布都已经预留接入位，下一步可以直接接真实服务。"
+        description="这里会保留我的作品、Demo、音乐、图片、书摘、更新记录和留言入口；站主账号负责维护，访客账号负责互动。"
       />
       <div className="roadmap-list">
         {backendRoadmap.map((item) => (
@@ -2467,7 +2945,7 @@ function ContactSection() {
         ))}
       </div>
       <footer className="site-footer">
-        LinX Archive OS · 策划文档 · Demo · 音乐 · 灵感 · 留言
+        Personal Archive · 作品集 · Demo · 音乐 · 图片 · 站主动态 · 留言
       </footer>
     </section>
   );
@@ -2476,6 +2954,10 @@ function ContactSection() {
 export function App() {
   const [activeSection, setActiveSection] = useState<SectionId>(() => getSectionFromLocation());
   const [siteSettings, setSiteSettings] = useState<SiteSettings>(defaultSiteSettings);
+  const [editMode, setEditMode] = useState(false);
+  const [darkMode, setDarkMode] = useLocalStorage("linx_dark_mode", false);
+  const auth = useAuthSession();
+  const currentUser = auth.user;
 
   useEffect(() => {
     let active = true;
@@ -2500,6 +2982,12 @@ export function App() {
   }, []);
 
   useEffect(() => {
+    if (currentUser?.role !== "owner") {
+      setEditMode(false);
+    }
+  }, [currentUser?.role]);
+
+  useEffect(() => {
     const handleRouteChange = () => {
       setActiveSection(getSectionFromLocation());
       window.scrollTo({ top: 0, left: 0, behavior: "auto" });
@@ -2515,22 +3003,57 @@ export function App() {
   }, []);
 
   const activeScreen = {
-    home: <HeroSection settings={siteSettings} />,
-    docs: <DocsSection />,
+    home: (
+      <HeroSection
+        settings={siteSettings}
+        currentUser={currentUser}
+        editMode={editMode}
+        onEditModeChange={setEditMode}
+        onSettingsChange={setSiteSettings}
+      />
+    ),
+    docs: <DocsSection currentUser={currentUser} />,
     demos: <DemosSection />,
-    music: <MusicSection settings={siteSettings} onSettingsChange={setSiteSettings} />,
-    gallery: <GallerySection settings={siteSettings} onSettingsChange={setSiteSettings} />,
-    notes: <NotesSection />,
-    private: <PrivateSection />,
-    comments: <CommentsSection />,
+    music: <MusicSection settings={siteSettings} onSettingsChange={setSiteSettings} currentUser={currentUser} />,
+    gallery: <GallerySection settings={siteSettings} onSettingsChange={setSiteSettings} currentUser={currentUser} />,
+    notes: <NotesSection currentUser={currentUser} />,
+    private: <PrivateSection currentUser={currentUser} />,
+    comments: (
+      <CommentsSection
+        currentUser={currentUser}
+        authState={auth.authState}
+        authMessage={auth.authMessage}
+        onAuthSubmit={auth.signIn}
+        onSignOut={auth.signOut}
+        onProfileUpdate={auth.updateUserProfile}
+        onAvatarUpload={auth.uploadProfileAvatar}
+      />
+    ),
     contact: <ContactSection />,
   }[activeSection];
 
   return (
-    <div className="app-shell">
-      <Sidebar activeSection={activeSection} />
+    <div className={clsx("app-shell", darkMode && "dark-mode")}>
+      <Sidebar activeSection={activeSection} settings={siteSettings} onToggleTheme={() => setDarkMode((current) => !current)} />
       <main className="workspace">
-        <MobileNav activeSection={activeSection} />
+        <MobileNav activeSection={activeSection} settings={siteSettings} />
+        <div className="global-account-bar">
+          <AccountPanel
+            user={currentUser}
+            authState={auth.authState}
+            authMessage={auth.authMessage}
+            onSubmit={auth.signIn}
+            onSignOut={auth.signOut}
+            onProfileUpdate={auth.updateUserProfile}
+            onAvatarUpload={auth.uploadProfileAvatar}
+          />
+          {currentUser?.role === "owner" ? (
+            <button className={clsx("ghost-button", editMode && "active")} onClick={() => setEditMode((enabled) => !enabled)} type="button">
+              <Edit3 size={16} />
+              {editMode ? "退出编辑" : "编辑模式"}
+            </button>
+          ) : null}
+        </div>
         {activeScreen}
       </main>
       <BackgroundMusicDock settings={siteSettings} />

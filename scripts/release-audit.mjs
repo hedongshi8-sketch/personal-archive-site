@@ -75,9 +75,13 @@ assert(exists(".github/workflows/vercel-deploy.yml"), "Vercel workflow exists");
 assert(exists(".github/workflows/github-pages.yml"), "GitHub Pages workflow exists");
 assert(exists("docs/deployment-runbook.md"), "deployment runbook exists");
 assert(exists("docs/release-checklist.md"), "release checklist exists");
+assert(exists("docs/development-maintenance.md"), "development maintenance docs exist");
 assert(exists(".env.example"), ".env.example exists");
 assert(exists("supabase/schema.sql"), "Supabase schema exists");
 assert(exists("supabase/seed-portfolio.sql"), "Supabase portfolio seed exists");
+assert(exists("supabase/migrations/20260619_account_editing.sql"), "Supabase account editing migration exists");
+assert(exists("supabase/account-editing-check.sql"), "Supabase account editing check exists");
+assert(exists("scripts/compose-supabase-upgrade-sql.mjs"), "Supabase upgrade SQL composer exists");
 assert(read("README.md").includes("GitHub Pages"), "README documents GitHub Pages");
 assert(read("docs/deployment-runbook.md").includes("GitHub Pages"), "runbook documents GitHub Pages");
 
@@ -99,6 +103,10 @@ assert(
 assert(
   packageJson.scripts?.["verify:owner-backend:remote"] === "node scripts/verify-owner-backend-ready.mjs --remote",
   "remote owner backend verification script exists",
+);
+assert(
+  packageJson.scripts?.["sql:supabase-upgrade"] === "node scripts/compose-supabase-upgrade-sql.mjs",
+  "Supabase upgrade SQL composer script exists",
 );
 
 const ciWorkflow = read(".github/workflows/ci.yml");
@@ -169,10 +177,14 @@ const schema = read("supabase/schema.sql");
 assert(schema.includes("create policy \"owner can manage portfolio items\""), "owner portfolio RLS exists");
 assert(schema.includes("create policy \"owner can upload portfolio storage\""), "owner storage upload RLS exists");
 assert(schema.includes("create or replace function public.increment_comment_likes"), "safe like RPC exists");
-for (const table of ["music_tracks", "gallery_items", "reading_notes", "site_settings"]) {
+assert(schema.includes("create or replace function public.update_own_profile"), "profile update RPC exists");
+for (const table of ["profiles", "owner_posts", "public_comments", "music_tracks", "gallery_items", "reading_notes", "site_settings"]) {
   assert(schema.includes(`create table public.${table}`), `Supabase ${table} table exists`);
 }
 for (const policy of [
+  "signed in users can create comments",
+  "owner can manage public updates",
+  "published owner posts are public",
   "owner can manage music tracks",
   "owner can manage gallery items",
   "owner can manage reading notes",
@@ -185,10 +197,21 @@ for (const policy of [
 }
 assert(schema.includes("client_elapsed_ms >= 2000"), "comment verification delay policy exists");
 assert(schema.includes("honeypot = ''"), "comment honeypot policy exists");
+assert(schema.includes("brand_name"), "site settings include editable brand name");
+assert(schema.includes("hero_title"), "site settings include editable hero title");
+assert(schema.includes("profile-avatars/"), "profile avatar storage path is allowed for signed-in users");
+assert(schema.includes("author_id"), "comments are tied to profile author id");
 
 const appSource = read("src/App.tsx");
 assert(appSource.includes("https://utteranc.es/client.js"), "GitHub Issues comments bridge exists");
 assert(appSource.includes("site-comment"), "GitHub Issues comments are labeled");
+assert(appSource.includes("function useAuthSession"), "global auth session hook exists");
+assert(appSource.includes("signInWithPassword"), "password sign-in is wired");
+assert(appSource.includes("signUpWithPassword"), "password sign-up is wired");
+assert(appSource.includes("function AccountPanel"), "account panel exists");
+assert(appSource.includes("function EditableText"), "graphical editable text exists");
+assert(appSource.includes("编辑模式"), "owner edit mode exists");
+assert(appSource.includes("站主动态"), "public owner updates copy exists");
 assert(appSource.includes("ExcelSheetPreview"), "Excel in-site preview reader exists");
 assert(appSource.includes("DocumentReader"), "document in-site preview reader exists");
 assert(appSource.includes("function MusicSection"), "music upload section exists");
