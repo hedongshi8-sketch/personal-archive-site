@@ -33,6 +33,7 @@
 - [ ] `npm run verify:supabase`
 - [ ] `npm run verify:owner-backend`
 - [ ] `npm run verify:smtp`
+- [ ] `npm run verify:auth-email`
 
 ## 线上平台
 
