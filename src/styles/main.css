@@ -283,7 +283,8 @@ p {
 }
 
 .account-recovery-panel .backend-status,
-.account-recovery-hint {
+.account-recovery-hint,
+.account-inline-password {
   grid-column: 1 / -1;
 }
 
@@ -387,6 +388,21 @@ p {
   font-size: 11px;
   font-weight: 820;
   line-height: 1.45;
+}
+
+.account-inline-password {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(130px, 1fr)) auto;
+  gap: 8px;
+  min-width: 0;
+  border: 1px solid rgba(33, 215, 222, 0.18);
+  border-radius: 7px;
+  padding: 8px;
+  background: rgba(33, 215, 222, 0.08);
+}
+
+.account-inline-password .backend-status {
+  grid-column: 1 / -1;
 }
 
 .account-avatar-picker,
@@ -4463,7 +4479,8 @@ p {
   color: rgba(247, 241, 230, 0.68);
 }
 
-.dark-mode .account-email-help {
+.dark-mode .account-email-help,
+.dark-mode .account-inline-password {
   border-color: rgba(33, 215, 222, 0.22);
   background: rgba(33, 215, 222, 0.08);
 }
@@ -4473,7 +4490,8 @@ p {
   color: #8deaf2;
 }
 
-.dark-mode .account-recovery-hint {
+.dark-mode .account-recovery-hint,
+.dark-mode .account-inline-password {
   border-color: rgba(33, 215, 222, 0.22);
   background: rgba(33, 215, 222, 0.08);
 }
@@ -5019,6 +5037,10 @@ p {
   }
 
   .account-email-help > div {
+    grid-template-columns: 1fr;
+  }
+
+  .account-inline-password {
     grid-template-columns: 1fr;
   }
 

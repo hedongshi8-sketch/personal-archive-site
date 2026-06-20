@@ -481,6 +481,17 @@ function isPasswordRecoveryUrl() {
   return hashParams.get("type") === "recovery" || searchParams.get("type") === "recovery";
 }
 
+function clearPasswordRecoveryUrl() {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  const nextUrl = new URL(window.location.href);
+  nextUrl.hash = "";
+  nextUrl.searchParams.delete("type");
+  window.history.replaceState(null, "", `${nextUrl.pathname}${nextUrl.search}`);
+}
+
 function Sidebar({
   activeSection,
   settings,
@@ -638,6 +649,25 @@ function useAuthSession() {
   }, []);
 
   useEffect(() => {
+    const unsubscribe = siteBackend.onAuthStateChange?.((nextUser, event) => {
+      setUser(nextUser);
+      setAuthState("ready");
+
+      if (event === "PASSWORD_RECOVERY" || isPasswordRecoveryUrl()) {
+        setPasswordRecoveryReady(true);
+        setAuthMessage("已进入密码重置模式。请输入新密码并保存。");
+        return;
+      }
+
+      if (event === "SIGNED_OUT") {
+        setPasswordRecoveryReady(false);
+      }
+    });
+
+    return () => unsubscribe?.();
+  }, []);
+
+  useEffect(() => {
     function syncRecoveryState() {
       setPasswordRecoveryReady(isPasswordRecoveryUrl());
     }
@@ -735,7 +765,7 @@ function useAuthSession() {
       setAuthState("ready");
       setAuthMessage("新密码已保存。你现在可以用新密码登录。");
       if (typeof window !== "undefined" && isPasswordRecoveryUrl()) {
-        window.history.replaceState(null, "", `${window.location.pathname}${window.location.search.replace(/[?&]type=recovery/, "") || ""}`);
+        clearPasswordRecoveryUrl();
       }
     } catch (error) {
       setAuthState("error");
@@ -817,6 +847,7 @@ function AccountPanel({
   const [draft, setDraft] = useState<AccountDraft>(defaultAccountDraft);
   const [profileName, setProfileName] = useState(user?.username ?? "");
   const [profileBusy, setProfileBusy] = useState(false);
+  const [showPasswordEditor, setShowPasswordEditor] = useState(false);
   const busy = authState === "loading";
   const canRequestEmailHelp = Boolean(draft.email.trim()) && !busy;
   const canSaveRecoveryPassword =
@@ -825,6 +856,12 @@ function AccountPanel({
   useEffect(() => {
     setProfileName(user?.username ?? "");
   }, [user?.username]);
+
+  useEffect(() => {
+    if (!user) {
+      setShowPasswordEditor(false);
+    }
+  }, [user]);
 
   async function saveProfile(nextAvatarUrl = user?.avatarUrl) {
     if (!user) {
@@ -859,6 +896,10 @@ function AccountPanel({
     }
   }
 
+  async function saveRecoveryPassword() {
+    await onUpdatePassword(draft.recoveryPassword);
+  }
+
   if (passwordRecoveryReady) {
     return (
       <div className="account-panel account-panel-form account-recovery-panel">
@@ -881,7 +922,7 @@ function AccountPanel({
         <button
           className="cyan-button"
           disabled={!canSaveRecoveryPassword}
-          onClick={() => void onUpdatePassword(draft.recoveryPassword)}
+          onClick={() => void saveRecoveryPassword()}
           type="button"
         >
           <LockKeyhole size={16} />
@@ -927,10 +968,37 @@ function AccountPanel({
         <button className="ghost-icon-button" disabled={profileBusy} onClick={() => void saveProfile()} type="button" aria-label="保存资料">
           <Check size={16} />
         </button>
+        <button className="ghost-button" disabled={busy} onClick={() => setShowPasswordEditor((visible) => !visible)} type="button">
+          <LockKeyhole size={16} />
+          {showPasswordEditor ? "收起密码" : "设置密码"}
+        </button>
         <button className="ghost-button" disabled={busy} onClick={() => void onSignOut()} type="button">
           <LogOut size={16} />
           退出
         </button>
+        {showPasswordEditor ? (
+          <div className="account-inline-password">
+            <input
+              value={draft.recoveryPassword}
+              onChange={(event) => setDraft((current) => ({ ...current, recoveryPassword: event.target.value }))}
+              placeholder="新密码，至少 6 位"
+              type="password"
+            />
+            <input
+              value={draft.recoveryPasswordConfirm}
+              onChange={(event) => setDraft((current) => ({ ...current, recoveryPasswordConfirm: event.target.value }))}
+              placeholder="再次输入新密码"
+              type="password"
+            />
+            <button className="cyan-button" disabled={!canSaveRecoveryPassword} onClick={() => void saveRecoveryPassword()} type="button">
+              <Check size={16} />
+              保存新密码
+            </button>
+            {draft.recoveryPasswordConfirm && draft.recoveryPassword !== draft.recoveryPasswordConfirm ? (
+              <p className="backend-status">两次输入的新密码不一致。</p>
+            ) : null}
+          </div>
+        ) : null}
         {authMessage ? <p className="backend-status">{authMessage}</p> : null}
       </div>
     );

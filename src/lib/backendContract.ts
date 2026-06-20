@@ -109,6 +109,7 @@ export type CommentInput = Pick<Comment, "author" | "body"> & {
 export type SiteBackend = {
   readonly mode: "local" | "supabase";
   getCurrentUser(): Promise<AuthUser | null>;
+  onAuthStateChange?(callback: (user: AuthUser | null, event: string) => void): () => void;
   signInWithPassword(input: AuthCredentials): Promise<AuthUser | null>;
   signUpWithPassword(input: AuthCredentials): Promise<AuthResult>;
   resendConfirmationEmail(email: string): Promise<void>;
@@ -507,6 +508,10 @@ export class LocalPreviewBackend implements SiteBackend {
     return localProfile;
   }
 
+  onAuthStateChange() {
+    return () => undefined;
+  }
+
   async signInWithPassword() {
     return this.getCurrentUser();
   }
@@ -756,6 +761,20 @@ export class SupabaseBackend implements SiteBackend {
       avatarUrl: data?.avatar_url ?? undefined,
       role: data?.role ?? "visitor",
     };
+  }
+
+  onAuthStateChange(callback: (user: AuthUser | null, event: string) => void) {
+    const {
+      data: { subscription },
+    } = this.client.auth.onAuthStateChange((event) => {
+      window.setTimeout(() => {
+        void this.getCurrentUser()
+          .then((user) => callback(user, event))
+          .catch(() => callback(null, event));
+      }, 0);
+    });
+
+    return () => subscription.unsubscribe();
   }
 
   async signInWithPassword(input: AuthCredentials) {
