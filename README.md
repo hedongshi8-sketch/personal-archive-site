@@ -90,11 +90,13 @@ npm run verify:mail-dns
 
 `verify:supabase` 和 `verify:owner-backend` 需要本地或部署环境已经配置 Supabase 变量。线上发布后再跑：
 
-`verify:gmail-smtp` 需要当前终端设置 `GMAIL_APP_PASSWORD`，用于快速验证 Gmail 免费 SMTP。`verify:smtp` 是通用 SMTP 验证命令，需要当前终端设置 `SMTP_HOST`、`SMTP_PORT`、`SMTP_USER`、`SMTP_PASS`、`SMTP_FROM`、`SMTP_TO`。
+`verify:gmail-smtp` 会读取当前终端或本地 `.env/.env.local` 里的 `GMAIL_APP_PASSWORD`，用于快速验证 Gmail 免费 SMTP。`verify:smtp` 是通用 SMTP 验证命令，需要设置 `SMTP_HOST`、`SMTP_PORT`、`SMTP_USER`、`SMTP_PASS`、`SMTP_FROM`、`SMTP_TO`。
 
-`supabase:configure-gmail-smtp` 需要当前终端设置 `SUPABASE_ACCESS_TOKEN` 和 `GMAIL_APP_PASSWORD`，用于把 Gmail SMTP 自动写入 Supabase Auth。这个命令会调用 Supabase Management API，不会把密码写进仓库。
+`supabase:configure-gmail-smtp` 需要设置 `SUPABASE_ACCESS_TOKEN` 和 `GMAIL_APP_PASSWORD`，用于把 Gmail SMTP 自动写入 Supabase Auth。这个命令会调用 Supabase Management API，不会把密码写进仓库。
 
-`verify:auth-email` 需要当前终端设置 `AUTH_EMAIL_TO`，用于触发 Supabase Auth 注册确认邮件，确认 Custom SMTP 已经被 Supabase 用起来。
+`verify:auth-email` 需要设置 `AUTH_EMAIL_TO`，用于触发 Supabase Auth 注册确认邮件，确认 Custom SMTP 已经被 Supabase 用起来。
+
+这些密钥可以临时放在当前 PowerShell，也可以放进本机 `.env.local`。`.env.local` 已被 gitignore，仍然不要提交或截图。
 
 `verify:mail-dns` 需要当前终端设置 `MAIL_DOMAIN`，用于检查 Resend/Cloudflare 的发信 DNS 记录是否生效。
 

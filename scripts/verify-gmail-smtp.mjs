@@ -1,4 +1,5 @@
 import { spawnSync } from "node:child_process";
+import "./load-local-env.mjs";
 
 const gmailAddress = process.env.GMAIL_ADDRESS || "hedongshi8@gmail.com";
 const appPassword = process.env.GMAIL_APP_PASSWORD;

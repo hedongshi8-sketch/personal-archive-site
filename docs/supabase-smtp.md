@@ -37,12 +37,14 @@ Password   = Gmail App Password
 Sender     = 个人策划档案 <hedongshi8@gmail.com>
 ```
 
-本地先测 Gmail SMTP。只需要给当前 PowerShell 终端设置 Gmail App Password：
+本地先测 Gmail SMTP。可以给当前 PowerShell 终端设置 Gmail App Password：
 
 ```powershell
 $env:GMAIL_APP_PASSWORD="你的 Gmail App Password"
 npm run verify:gmail-smtp
 ```
+
+也可以把同样的变量放到本机 `.env.local`，脚本会自动读取；`.env.local` 已被 gitignore，不要提交或截图。
 
 这个命令默认会先试 `465/TLS`，失败后自动试 `587/STARTTLS`。如果你只想测某一个端口，可以临时加：
 
