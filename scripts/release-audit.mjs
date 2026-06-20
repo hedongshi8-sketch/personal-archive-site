@@ -230,6 +230,7 @@ assert(appSource.includes("site-comment"), "GitHub Issues comments are labeled")
 assert(appSource.includes("function useAuthSession"), "global auth session hook exists");
 assert(appSource.includes("signInWithPassword"), "password sign-in is wired");
 assert(appSource.includes("signUpWithPassword"), "password sign-up is wired");
+assert(appSource.includes("sendPasswordReset") && appSource.includes("忘记密码"), "password reset email is wired");
 assert(appSource.includes("function AccountPanel"), "account panel exists");
 assert(appSource.includes("function EditableText"), "graphical editable text exists");
 assert(appSource.includes("编辑模式"), "owner edit mode exists");

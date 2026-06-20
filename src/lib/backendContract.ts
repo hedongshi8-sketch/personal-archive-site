@@ -110,6 +110,7 @@ export type SiteBackend = {
   signInWithPassword(input: AuthCredentials): Promise<AuthUser | null>;
   signUpWithPassword(input: AuthCredentials): Promise<AuthResult>;
   resendConfirmationEmail(email: string): Promise<void>;
+  sendPasswordResetEmail(email: string): Promise<void>;
   signOut(): Promise<void>;
   updateProfile(input: { username: string; avatarUrl?: string }): Promise<AuthUser>;
   uploadProfileAvatar(file: File): Promise<{ publicUrl: string; storagePath: string }>;
@@ -453,6 +454,10 @@ export class LocalPreviewBackend implements SiteBackend {
     return;
   }
 
+  async sendPasswordResetEmail() {
+    return;
+  }
+
   async signOut() {
     return;
   }
@@ -774,6 +779,16 @@ export class SupabaseBackend implements SiteBackend {
       options: {
         emailRedirectTo: getAuthRedirectUrl(),
       },
+    });
+
+    if (error) {
+      throw new Error(getFriendlyAuthError(error.message));
+    }
+  }
+
+  async sendPasswordResetEmail(email: string) {
+    const { error } = await this.client.auth.resetPasswordForEmail(email, {
+      redirectTo: getAuthRedirectUrl(),
     });
 
     if (error) {

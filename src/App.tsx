@@ -545,6 +545,24 @@ function useAuthSession() {
     }
   }
 
+  async function sendPasswordReset(email: string) {
+    const normalizedEmail = email.trim();
+    if (!normalizedEmail) {
+      setAuthMessage("请先填写邮箱。");
+      return;
+    }
+
+    setAuthState("loading");
+    try {
+      await siteBackend.sendPasswordResetEmail(normalizedEmail);
+      setAuthState("ready");
+      setAuthMessage("密码重置邮件已发送。请打开邮箱里的链接完成新密码设置。");
+    } catch (error) {
+      setAuthState("error");
+      setAuthMessage(error instanceof Error ? error.message : "密码重置邮件发送失败。");
+    }
+  }
+
   async function signOut() {
     setAuthState("loading");
     try {
@@ -574,7 +592,19 @@ function useAuthSession() {
     return siteBackend.uploadProfileAvatar(file);
   }
 
-  return { user, setUser, authState, authMessage, setAuthMessage, signIn, signOut, updateUserProfile, uploadProfileAvatar, resendConfirmation };
+  return {
+    user,
+    setUser,
+    authState,
+    authMessage,
+    setAuthMessage,
+    signIn,
+    signOut,
+    updateUserProfile,
+    uploadProfileAvatar,
+    resendConfirmation,
+    sendPasswordReset,
+  };
 }
 
 function AccountPanel({
@@ -586,6 +616,7 @@ function AccountPanel({
   onProfileUpdate,
   onAvatarUpload,
   onResendConfirmation,
+  onPasswordReset,
 }: {
   user: AuthUser | null;
   authState: LoadState;
@@ -595,6 +626,7 @@ function AccountPanel({
   onProfileUpdate: (input: { username: string; avatarUrl?: string }) => Promise<AuthUser>;
   onAvatarUpload: (file: File) => Promise<{ publicUrl: string; storagePath: string }>;
   onResendConfirmation: (email: string) => Promise<void>;
+  onPasswordReset: (email: string) => Promise<void>;
 }) {
   const [draft, setDraft] = useState<AccountDraft>(defaultAccountDraft);
   const [profileName, setProfileName] = useState(user?.username ?? "");
@@ -713,6 +745,9 @@ function AccountPanel({
       </button>
       <button className="ghost-button" disabled={busy} onClick={() => void onResendConfirmation(draft.email)} type="button">
         重发确认邮件
+      </button>
+      <button className="ghost-button" disabled={busy} onClick={() => void onPasswordReset(draft.email)} type="button">
+        忘记密码
       </button>
       {authMessage ? <p className="backend-status">{authMessage}</p> : null}
     </div>
@@ -3403,6 +3438,7 @@ function CommentsSection({
   onProfileUpdate,
   onAvatarUpload,
   onResendConfirmation,
+  onPasswordReset,
 }: {
   currentUser: AuthUser | null;
   authState: LoadState;
@@ -3412,6 +3448,7 @@ function CommentsSection({
   onProfileUpdate: (input: { username: string; avatarUrl?: string }) => Promise<AuthUser>;
   onAvatarUpload: (file: File) => Promise<{ publicUrl: string; storagePath: string }>;
   onResendConfirmation: (email: string) => Promise<void>;
+  onPasswordReset: (email: string) => Promise<void>;
 }) {
   const [comments, setComments] = useLocalStorage<Comment[]>("linx_comments", seedComments);
   const [commentBody, setCommentBody] = useState("");
@@ -3546,6 +3583,7 @@ function CommentsSection({
           onProfileUpdate={onProfileUpdate}
           onAvatarUpload={onAvatarUpload}
           onResendConfirmation={onResendConfirmation}
+          onPasswordReset={onPasswordReset}
         />
       ) : null}
       <div className="comment-form">
@@ -3723,6 +3761,7 @@ export function App() {
         onProfileUpdate={auth.updateUserProfile}
         onAvatarUpload={auth.uploadProfileAvatar}
         onResendConfirmation={auth.resendConfirmation}
+        onPasswordReset={auth.sendPasswordReset}
       />
     ),
     contact: <ContactSection />,
@@ -3743,6 +3782,7 @@ export function App() {
             onProfileUpdate={auth.updateUserProfile}
             onAvatarUpload={auth.uploadProfileAvatar}
             onResendConfirmation={auth.resendConfirmation}
+            onPasswordReset={auth.sendPasswordReset}
           />
           {currentUser?.role === "owner" ? (
             <button className={clsx("ghost-button", editMode && "active")} onClick={() => setEditMode((enabled) => !enabled)} type="button">

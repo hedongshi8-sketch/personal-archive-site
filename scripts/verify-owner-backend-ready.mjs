@@ -87,6 +87,7 @@ async function checkRemoteBundle() {
   for (const token of [
     "signInWithPassword",
     "signUpWithPassword",
+    "resetPasswordForEmail",
     "update_own_profile",
     "portfolio_items",
     "music_tracks",
