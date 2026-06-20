@@ -248,6 +248,7 @@ assert(appSource.includes("updatePortfolioItem") && appSource.includes("deletePo
 assert(appSource.includes("function MusicSection"), "music upload section exists");
 assert(appSource.includes("function GallerySection"), "gallery upload section exists");
 assert(appSource.includes("function NotesSection"), "reading notes section exists");
+assert(appSource.includes("notes-search-box") && appSource.includes("note-reader-panel"), "reading notes search and reader panel exist");
 assert(appSource.includes("updateMusicTrack") && appSource.includes("deleteMusicTrack"), "music owner edit/delete UI exists");
 assert(appSource.includes("updateGalleryItem") && appSource.includes("deleteGalleryItem"), "gallery owner edit/delete UI exists");
 assert(appSource.includes("updateOwnerPost") && appSource.includes("deleteOwnerPost"), "owner post edit/delete UI exists");

@@ -269,6 +269,10 @@ function parseTags(value: string) {
     .filter(Boolean);
 }
 
+function normalizeSearchText(value: string) {
+  return value.normalize("NFKC").trim().toLowerCase();
+}
+
 function readingNoteToDraft(note: ReadingNote): ReadingNoteInput {
   return {
     kind: note.kind,
@@ -2678,6 +2682,8 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
   const [notes, setNotes] = useState<ReadingNote[]>(readingNotes);
   const [activeKind, setActiveKind] = useState<"all" | ReadingNote["kind"]>("all");
   const [activeTag, setActiveTag] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [expandedNoteId, setExpandedNoteId] = useState<string | null>(null);
   const [draft, setDraft] = useState<ReadingNoteInput>(defaultReadingDraft);
   const [tagInput, setTagInput] = useState("");
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
@@ -2690,6 +2696,8 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
   const isSupabase = siteBackend.mode === "supabase";
   const draftTags = useMemo(() => parseTags(tagInput), [tagInput]);
   const availableTags = useMemo(() => [...new Set(notes.flatMap((note) => note.tags))].slice(0, 12), [notes]);
+  const normalizedSearchQuery = normalizeSearchText(searchQuery);
+  const searchTerms = useMemo(() => normalizedSearchQuery.split(/\s+/).filter(Boolean), [normalizedSearchQuery]);
   const noteStats = useMemo(() => {
     const bookCount = notes.filter((note) => note.kind === "book").length;
     const videoCount = notes.length - bookCount;
@@ -2703,15 +2711,25 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
     return notes.filter((note) => {
       const kindMatches = activeKind === "all" || note.kind === activeKind;
       const tagMatches = activeTag === "all" || note.tags.includes(activeTag);
-      return kindMatches && tagMatches;
+      const searchContent = normalizeSearchText(
+        [note.title, note.creator, note.quote, note.reflection, note.tags.join(" "), note.kind === "book" ? "书籍 书摘" : "视频 笔记"]
+          .filter(Boolean)
+          .join(" "),
+      );
+      const searchMatches = searchTerms.length === 0 || searchTerms.every((term) => searchContent.includes(term));
+      return kindMatches && tagMatches && searchMatches;
     });
-  }, [activeKind, activeTag, notes]);
+  }, [activeKind, activeTag, notes, searchTerms]);
   const editingNote = editingNoteId ? notes.find((note) => note.id === editingNoteId) : null;
   const canPublish = Boolean(draft.title.trim() && draft.creator.trim() && draft.quote.trim());
   const quoteLength = draft.quote.trim().length;
   const latestNote = notes[0];
   const featuredNote = filteredNotes[0];
+  const readerNote = (expandedNoteId ? filteredNotes.find((note) => note.id === expandedNoteId) : null) ?? featuredNote;
+  const filteredQuoteTotal = filteredNotes.reduce((total, note) => total + note.quote.trim().length, 0);
+  const filteredAverageQuoteLength = filteredNotes.length > 0 ? Math.round(filteredQuoteTotal / filteredNotes.length) : 0;
   const hasAnyNotes = notes.length > 0;
+  const hasReadingFilters = activeKind !== "all" || activeTag !== "all" || normalizedSearchQuery.length > 0;
   const filterSummary =
     activeKind === "all"
       ? "全部来源"
@@ -2726,9 +2744,15 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
         ? "书籍段落拆解"
         : "策划阅读索引";
   const draftQuality = canPublish ? "可发布" : "待补全";
-  const emptyStateTitle = hasAnyNotes ? "这个筛选下还没有书摘" : "书摘档案正在整理";
+  const emptyStateTitle = hasAnyNotes
+    ? normalizedSearchQuery
+      ? "没有找到匹配的书摘"
+      : "这个筛选下还没有书摘"
+    : "书摘档案正在整理";
   const emptyStateCopy = hasAnyNotes
-    ? "当前筛选暂时没有命中，换一个来源或标签就能继续浏览已有摘录。"
+    ? normalizedSearchQuery
+      ? "换个关键词，或者清空搜索后再按来源和标签筛选。"
+      : "当前筛选暂时没有命中，换一个来源或标签就能继续浏览已有摘录。"
     : isOwner
       ? "线上库已连接，发布后会立即进入公开书摘档案。"
       : "站主还没有发布公开书摘；这一区会留给后续阅读笔记。";
@@ -2737,6 +2761,13 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
     : isSupabase
       ? "Supabase Archive Ready"
       : "Local Reading Archive";
+
+  function resetReadingFilters() {
+    setActiveKind("all");
+    setActiveTag("all");
+    setSearchQuery("");
+    setExpandedNoteId(null);
+  }
 
   useEffect(() => {
     let active = true;
@@ -2777,6 +2808,12 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
       setActiveTag("all");
     }
   }, [activeTag, availableTags]);
+
+  useEffect(() => {
+    if (expandedNoteId && !filteredNotes.some((note) => note.id === expandedNoteId)) {
+      setExpandedNoteId(null);
+    }
+  }, [expandedNoteId, filteredNotes]);
 
   async function handleReadingCover(file: File | null) {
     if (!file) {
@@ -2923,7 +2960,7 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
           <span>当前视图</span>
           <strong>{filterSummary}</strong>
           <p>
-            {activeTagLabel} · {filteredNotes.length} 条命中 · 平均 {noteStats.averageQuoteLength} 字
+            {activeTagLabel} · {filteredNotes.length} 条命中 · 平均 {filteredAverageQuoteLength} 字
           </p>
         </div>
         {featuredNote ? (
@@ -2981,15 +3018,85 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
               </div>
             ) : null}
           </div>
+          <div className="notes-command-tools">
+            <label className="notes-search-box" aria-label="搜索书摘">
+              <Search size={16} aria-hidden="true" />
+              <input
+                value={searchQuery}
+                onChange={(event) => setSearchQuery(event.target.value)}
+                placeholder="搜书名、作者、摘录、心得..."
+                type="search"
+              />
+            </label>
+            {hasReadingFilters ? (
+              <button className="ghost-button notes-clear-button" onClick={resetReadingFilters} type="button">
+                <X size={15} />
+                清空筛选
+              </button>
+            ) : null}
+          </div>
           {loadState === "loading" ? <span className="notes-sync-state">正在同步书摘...</span> : null}
           {!isOwner && statusMessage ? <span className="notes-sync-state">{statusMessage}</span> : null}
         </div>
 
         <div className={clsx("notes-layout", isOwner && "has-composer")}>
           <div className="notes-grid">
+            {readerNote ? (
+              <article className="note-reader-panel" aria-label="当前选读书摘">
+                <div className="note-reader-media">
+                  {readerNote.coverUrl ? (
+                    <img src={readerNote.coverUrl} alt={readerNote.title} />
+                  ) : (
+                    <MediaTile tile={readerNote.kind === "book" ? 1 : 2} />
+                  )}
+                </div>
+                <div className="note-reader-copy">
+                  <span className="note-reader-kicker">
+                    <Sparkles size={14} />
+                    当前选读 · {readerNote.kind === "book" ? "书籍摘录" : "视频笔记"}
+                  </span>
+                  <h3>{readerNote.title}</h3>
+                  <div className="note-meta-line">
+                    <span>
+                      <BookOpenText size={13} />
+                      {readerNote.creator}
+                    </span>
+                    <time dateTime={readerNote.createdAt}>
+                      <CalendarDays size={13} />
+                      {readerNote.createdAt}
+                    </time>
+                  </div>
+                  <blockquote>
+                    <Quote size={18} />
+                    <span>{readerNote.quote}</span>
+                  </blockquote>
+                  {readerNote.reflection.trim() ? <p>{readerNote.reflection}</p> : null}
+                  <div className="note-reader-actions">
+                    {readerNote.tags.map((tag) => (
+                      <button className={clsx(activeTag === tag && "active")} key={tag} onClick={() => setActiveTag(tag)} type="button">
+                        {tag}
+                      </button>
+                    ))}
+                    {readerNote.sourceUrl ? (
+                      <a href={readerNote.sourceUrl} target="_blank" rel="noreferrer">
+                        <ExternalLink size={14} />
+                        打开来源
+                      </a>
+                    ) : null}
+                  </div>
+                </div>
+              </article>
+            ) : null}
             {filteredNotes.length > 0 ? (
               filteredNotes.map((note, index) => (
-                <article className={clsx("note-card", editingNoteId === note.id && "is-editing")} key={note.id}>
+                <article
+                  className={clsx(
+                    "note-card",
+                    editingNoteId === note.id && "is-editing",
+                    expandedNoteId === note.id && "is-expanded",
+                  )}
+                  key={note.id}
+                >
                   <div className="note-cover-wrap">
                     {note.coverUrl ? (
                       <img src={note.coverUrl} alt={note.title} />
@@ -3062,6 +3169,14 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
                     <div className="note-card-footer" aria-label={`${note.title} 摘录信息`}>
                       <span>{note.quote.trim().length} 字摘录</span>
                       <span>{note.tags.length || 0} 个标签</span>
+                      <button
+                        className="note-expand-button"
+                        onClick={() => setExpandedNoteId((current) => (current === note.id ? null : note.id))}
+                        type="button"
+                      >
+                        {expandedNoteId === note.id ? "收起" : "阅读全文"}
+                        <ArrowRight size={13} />
+                      </button>
                     </div>
                   </div>
                 </article>
