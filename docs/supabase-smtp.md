@@ -62,6 +62,14 @@ $env:EMAIL_STACK_TRIGGER_AUTH="true"
 npm run verify:email
 ```
 
+如果你不想再创建任何注册测试账号，更推荐用密码重置邮件做最终收件箱验证：
+
+```powershell
+$env:EMAIL_STACK_SEND_GMAIL="true"
+$env:EMAIL_STACK_TRIGGER_PASSWORD_RESET="true"
+npm run verify:email
+```
+
 这个命令默认会先试 `465/TLS`，失败后自动试 `587/STARTTLS`。如果你只想测某一个端口，可以临时加：
 
 ```powershell
@@ -113,6 +121,15 @@ npm run verify:auth-email
 ```
 
 脚本通过只能证明 Supabase 已接受注册并触发确认邮件请求；最终还要打开收件箱/垃圾箱确认邮件确实送达。
+
+如果你的站主邮箱已经注册过，优先用密码重置邮件验证 Supabase Auth 发信链路。这个命令不会创建 `+auth-test` 账号：
+
+```powershell
+$env:PASSWORD_RESET_EMAIL_TO="hedongshi8@gmail.com"
+npm run verify:password-reset-email
+```
+
+脚本通过只能证明 Supabase 已接受密码重置邮件请求；最终仍要打开收件箱/垃圾箱确认邮件确实送达。
 
 ## 正式方案：Resend + 自有域名
 
@@ -307,7 +324,16 @@ $env:AUTH_EMAIL_RESEND="true"
 npm run verify:auth-email
 ```
 
-这个脚本会用当前 `.env` 里的 Supabase 项目创建一个测试注册邮箱，例如：
+如果你担心注册测试账号污染用户列表，可以改用密码重置邮件验证：
+
+```powershell
+$env:PASSWORD_RESET_EMAIL_TO="hedongshi8@gmail.com"
+npm run verify:password-reset-email
+```
+
+这个命令不会创建新账号，适合验证已经注册过的站主邮箱能不能收到 Supabase Auth 邮件。
+
+只有当你显式设置 `AUTH_EMAIL_USE_ALIAS=true` 时，注册确认脚本才会用当前 `.env` 里的 Supabase 项目创建一个加号别名测试注册邮箱，例如：
 
 ```text
 hedongshi8+auth-test-20260619223000@gmail.com

@@ -3,6 +3,7 @@ import "./load-local-env.mjs";
 
 const shouldSendGmail = process.env.EMAIL_STACK_SEND_GMAIL === "true";
 const shouldTriggerAuth = process.env.EMAIL_STACK_TRIGGER_AUTH === "true";
+const shouldTriggerPasswordReset = process.env.EMAIL_STACK_TRIGGER_PASSWORD_RESET === "true";
 const failures = [];
 const warnings = [];
 
@@ -112,6 +113,16 @@ if (shouldTriggerAuth) {
   console.log("Skipping Supabase auth email trigger. Set EMAIL_STACK_TRIGGER_AUTH=true to create a test signup and send a confirmation email.");
 }
 
+if (shouldTriggerPasswordReset) {
+  if (failures.length === 0 || (failures.length === 1 && failures[0].startsWith("Gmail SMTP send test"))) {
+    runScript("Supabase password reset email trigger", "scripts/verify-password-reset-email.mjs");
+  } else {
+    fail("Supabase password reset email trigger", "fix configuration failures before triggering password reset email");
+  }
+} else {
+  console.log("Skipping Supabase password reset email trigger. Set EMAIL_STACK_TRIGGER_PASSWORD_RESET=true to send a reset email without creating a test account.");
+}
+
 if (warnings.length > 0) {
   console.warn(`\nEmail stack check completed with ${warnings.length} warning(s).`);
 }
@@ -121,4 +132,4 @@ if (failures.length > 0) {
   process.exit(1);
 }
 
-console.log("\nEmail stack check passed. For final proof, run with EMAIL_STACK_SEND_GMAIL=true and EMAIL_STACK_TRIGGER_AUTH=true, then confirm the inbox delivery.");
+console.log("\nEmail stack check passed. For final proof, run with EMAIL_STACK_SEND_GMAIL=true and EMAIL_STACK_TRIGGER_PASSWORD_RESET=true, then confirm inbox delivery.");

@@ -3234,6 +3234,15 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
   const readerLabel = readerNote?.kind === "book" ? "书籍摘录" : "视频笔记";
   const readerSource = readerNote ? `${readerNote.creator} · ${readerNote.createdAt}` : "";
   const readerTagLine = readerNote && readerNote.tags.length > 0 ? readerNote.tags.join(" / ") : "未标标签";
+  const readerReviewState = readerNote?.reflection.trim() ? "有策划心得" : "待补心得";
+  const readerDigestItems = readerNote
+    ? [
+        { label: "来源", value: readerNote.creator },
+        { label: "字数", value: `${readerNote.quote.trim().length} 字` },
+        { label: "标签", value: `${readerNote.tags.length || 0} 个` },
+        { label: "状态", value: readerReviewState },
+      ]
+    : [];
 
   function resetReadingFilters() {
     setActiveKind("all");
@@ -3684,6 +3693,14 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
                       <span>{readerLabel}</span>
                       <strong>{readerSource}</strong>
                     </div>
+                    <div className="note-reader-digest" aria-label={`${readerNote.title} 速读摘要`}>
+                      {readerDigestItems.map((item) => (
+                        <span key={item.label}>
+                          <small>{item.label}</small>
+                          <strong>{item.value}</strong>
+                        </span>
+                      ))}
+                    </div>
                     <blockquote>
                       <Quote size={18} />
                       <span>{readerNote.quote}</span>
@@ -3904,6 +3921,34 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
                 <span className="notes-empty-kicker">{emptyStateMeta}</span>
                 <strong>{emptyStateTitle}</strong>
                 <p>{emptyStateCopy}</p>
+                <div className="notes-empty-actions">
+                  {hasReadingFilters ? (
+                    <button className="ghost-button" onClick={resetReadingFilters} type="button">
+                      <X size={15} />
+                      清空筛选
+                    </button>
+                  ) : isOwner ? (
+                    <button
+                      className="cyan-button"
+                      onClick={() => composerRef.current?.scrollIntoView({ block: "nearest", behavior: "smooth" })}
+                      type="button"
+                    >
+                      <PenLine size={15} />
+                      写第一条书摘
+                    </button>
+                  ) : (
+                    <>
+                      <a className="cyan-button" href="#docs">
+                        <FileText size={15} />
+                        先看策划档案
+                      </a>
+                      <a className="ghost-button" href="#comments">
+                        <MessageCircle size={15} />
+                        给我留言
+                      </a>
+                    </>
+                  )}
+                </div>
               </div>
             )}
           </div>

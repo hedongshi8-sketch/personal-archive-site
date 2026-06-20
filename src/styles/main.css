@@ -2271,6 +2271,10 @@ p {
     radial-gradient(circle at 28% 92%, rgba(255, 125, 99, 0.11), transparent 28%);
 }
 
+.notes-section .screen-intro h2 {
+  max-width: 9ch;
+}
+
 .notes-rail {
   display: flex;
   flex-direction: column;
@@ -2528,7 +2532,7 @@ p {
 
 .notes-command {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: minmax(170px, 0.34fr) minmax(0, 1fr) minmax(260px, 0.42fr);
   gap: 10px;
   align-items: center;
   border: 1px solid rgba(30, 29, 25, 0.12);
@@ -2557,7 +2561,6 @@ p {
 }
 
 .notes-command-tools {
-  width: min(100%, 620px);
   min-width: 0;
   display: grid;
   grid-template-columns: minmax(180px, 1fr) auto;
@@ -2693,9 +2696,9 @@ p {
 
 .notes-layout {
   min-height: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
 }
 
 .notes-layout.has-composer {
@@ -2711,9 +2714,9 @@ p {
 .notes-grid {
   min-height: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(310px, 100%), 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
   grid-auto-rows: max-content;
-  gap: 14px;
+  gap: 16px;
   overflow: visible;
   padding: 2px 4px 2px 0;
   scrollbar-color: rgba(33, 215, 222, 0.32) transparent;
@@ -2743,22 +2746,30 @@ p {
   grid-column: 1 / -1;
   min-width: 0;
   display: grid;
-  grid-template-columns: minmax(180px, 0.3fr) minmax(0, 1fr);
-  gap: 16px;
+  grid-template-columns: minmax(190px, 0.28fr) minmax(0, 1fr);
+  gap: clamp(14px, 2vw, 22px);
   overflow: hidden;
   border: 1px solid rgba(30, 29, 25, 0.14);
   border-radius: 8px;
-  padding: 12px;
+  padding: clamp(12px, 1.8vw, 18px);
   background:
+    linear-gradient(90deg, rgba(33, 215, 222, 0.16), transparent 1px),
     radial-gradient(circle at 94% 8%, rgba(33, 215, 222, 0.2), transparent 30%),
     linear-gradient(135deg, rgba(20, 23, 23, 0.96), rgba(32, 30, 27, 0.94));
+  background-size:
+    1px 100%,
+    auto,
+    auto;
   color: rgba(247, 241, 230, 0.74);
   box-shadow: 0 18px 42px rgba(24, 22, 18, 0.12);
 }
 
 .note-reader-media {
   position: relative;
+  min-width: 0;
+  max-width: 100%;
   min-height: 100%;
+  aspect-ratio: 4 / 5;
   overflow: hidden;
   border-radius: 7px;
 }
@@ -2777,13 +2788,14 @@ p {
 .note-reader-media .media-tile {
   width: 100%;
   height: 100%;
-  min-height: 220px;
+  min-height: 240px;
   border-radius: 7px;
   object-fit: cover;
 }
 
 .note-reader-copy {
   min-width: 0;
+  position: relative;
   display: grid;
   align-content: center;
   gap: 11px;
@@ -2805,7 +2817,7 @@ p {
   margin: 0;
   overflow-wrap: anywhere;
   color: #fff7e8;
-  font-size: clamp(24px, 3vw, 44px);
+  font-size: clamp(26px, 3vw, 46px);
   line-height: 1.02;
 }
 
@@ -2827,7 +2839,7 @@ p {
   gap: 10px;
   border: 1px solid rgba(247, 241, 230, 0.12);
   border-radius: 8px;
-  padding: clamp(13px, 2vw, 18px);
+  padding: clamp(14px, 2vw, 20px);
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.045)),
     repeating-linear-gradient(0deg, transparent 0 31px, rgba(247, 241, 230, 0.045) 31px 32px);
@@ -2855,6 +2867,38 @@ p {
   color: rgba(247, 241, 230, 0.54);
   font-size: 11px;
   font-weight: 820;
+}
+
+.note-reader-digest {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.note-reader-digest span {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+  border: 1px solid rgba(247, 241, 230, 0.1);
+  border-radius: 7px;
+  padding: 8px 9px;
+  background: rgba(255, 255, 255, 0.045);
+}
+
+.note-reader-digest small {
+  color: rgba(247, 241, 230, 0.45);
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.note-reader-digest strong {
+  min-width: 0;
+  overflow: hidden;
+  color: #fff7e8;
+  font-size: 12px;
+  font-weight: 900;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .note-reader-toolbar {
@@ -2990,7 +3034,7 @@ p {
   color: rgba(247, 241, 230, 0.9);
   font-size: clamp(15px, 1.35vw, 18px);
   font-weight: 760;
-  line-height: 1.7;
+  line-height: 1.78;
 }
 
 .note-reader-copy blockquote svg {
@@ -3093,7 +3137,7 @@ p {
 
 .notes-mini-index-list {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(190px, 100%), 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(176px, 100%), 1fr));
   gap: 7px;
 }
 
@@ -3165,6 +3209,8 @@ p {
     linear-gradient(180deg, rgba(255, 255, 255, 0.66), rgba(251, 248, 240, 0.56)),
     repeating-linear-gradient(0deg, rgba(30, 29, 25, 0.035) 0 1px, transparent 1px 29px);
   isolation: isolate;
+  content-visibility: auto;
+  contain-intrinsic-size: 540px;
   transition:
     border-color 180ms ease,
     box-shadow 180ms ease,
@@ -3218,7 +3264,8 @@ p {
 
 .note-cover-wrap {
   position: relative;
-  min-height: 156px;
+  aspect-ratio: 16 / 9;
+  min-height: 148px;
   overflow: hidden;
 }
 
@@ -3226,7 +3273,7 @@ p {
 .note-cover-wrap > .media-tile {
   width: 100%;
   height: 100%;
-  min-height: 156px;
+  min-height: 148px;
   border-radius: 0;
   object-fit: cover;
 }
@@ -3299,7 +3346,7 @@ p {
 
 .note-card-body {
   display: grid;
-  gap: 12px;
+  gap: 11px;
   padding: 16px;
 }
 
@@ -3514,6 +3561,21 @@ p {
   margin: 0;
   font-size: 14px;
   line-height: 1.7;
+}
+
+.notes-empty-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 9px;
+  margin-top: 6px;
+}
+
+.notes-empty-actions .cyan-button,
+.notes-empty-actions .ghost-button {
+  min-height: 40px;
+  padding-inline: 14px;
+  font-size: 13px;
 }
 
 .archive-empty-state {
@@ -4538,6 +4600,7 @@ p {
 .dark-mode .note-reader-nav button,
 .dark-mode .note-copy-button,
 .dark-mode .note-reader-signals span,
+.dark-mode .note-reader-digest span,
 .dark-mode .note-reader-progress,
 .dark-mode .note-reader-document,
 .dark-mode .reading-composer-helper span {
@@ -4547,6 +4610,14 @@ p {
 }
 
 .dark-mode .note-reader-signals strong {
+  color: #fff7e8;
+}
+
+.dark-mode .note-reader-digest small {
+  color: rgba(247, 241, 230, 0.5);
+}
+
+.dark-mode .note-reader-digest strong {
   color: #fff7e8;
 }
 
@@ -4641,7 +4712,7 @@ p {
 
 @media (max-width: 1380px) and (min-width: 861px) {
   .workspace-notes .notes-section {
-    padding-top: 210px;
+    padding-top: 150px;
   }
 }
 
@@ -4683,14 +4754,29 @@ p {
     align-content: center;
   }
 
+  .notes-section {
+    display: flex;
+    flex-direction: column;
+    align-content: flex-start;
+    align-items: stretch;
+    justify-content: flex-start;
+  }
+
   .screen-intro {
     max-width: 820px;
   }
 
   .notes-rail {
+    order: 2;
     display: grid;
     grid-template-columns: minmax(260px, 1fr) minmax(220px, 0.62fr);
     align-items: end;
+  }
+
+  .notes-workbench {
+    order: 1;
+    flex: 0 0 auto;
+    width: 100%;
   }
 
   .notes-rail .screen-intro {
@@ -5113,6 +5199,10 @@ p {
     justify-content: flex-start;
   }
 
+  .note-reader-digest {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .note-reader-signals,
   .reading-composer-helper {
     grid-template-columns: 1fr;
@@ -5126,12 +5216,22 @@ p {
     width: 100%;
   }
 
+  .notes-empty-actions {
+    width: 100%;
+  }
+
+  .notes-empty-actions .cyan-button,
+  .notes-empty-actions .ghost-button {
+    width: 100%;
+  }
+
   .note-reader-copy {
     padding: 4px;
+    gap: 10px;
   }
 
   .note-reader-document {
-    padding: 12px;
+    padding: 11px;
   }
 
   .note-reader-document-head {
@@ -5141,11 +5241,11 @@ p {
 
   .note-reader-media img,
   .note-reader-media .media-tile {
-    min-height: 170px;
+    min-height: 150px;
   }
 
   .note-reader-copy h3 {
-    font-size: 26px;
+    font-size: 25px;
   }
 
   .note-card-footer {
