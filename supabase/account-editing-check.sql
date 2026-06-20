@@ -16,6 +16,7 @@ where table_schema = 'public'
     'brand_subtitle',
     'hero_title',
     'hero_description',
+    'site_logo_url',
     'site_avatar_url',
     'hero_cover_url',
     'background_music_url',

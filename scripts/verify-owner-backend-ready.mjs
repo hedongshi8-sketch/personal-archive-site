@@ -152,7 +152,7 @@ async function checkSupabaseBackend() {
     ["reading_notes", "id"],
     [
       "site_settings",
-      "id,brand_name,brand_subtitle,hero_title,hero_description,site_avatar_url,hero_cover_url,background_music_url,background_music_title,background_music_enabled",
+      "id,brand_name,brand_subtitle,hero_title,hero_description,site_logo_url,site_avatar_url,hero_cover_url,background_music_url,background_music_title,background_music_enabled",
     ],
     ["owner_posts", "id,title,visibility"],
   ];

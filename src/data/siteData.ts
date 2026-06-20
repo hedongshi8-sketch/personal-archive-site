@@ -85,6 +85,7 @@ export type SiteSettings = {
   brandSubtitle: string;
   heroTitle: string;
   heroDescription: string;
+  siteLogoUrl?: string;
   siteAvatarUrl?: string;
   heroCoverUrl?: string;
   backgroundMusicUrl?: string;
@@ -275,6 +276,9 @@ export const defaultSiteSettings: SiteSettings = {
   brandSubtitle: "游戏策划 / 关卡设计",
   heroTitle: "这里不只是一座策划档案馆。",
   heroDescription: "这是我的个人网站：作品、Demo、音乐、图片、书摘、灵感和阶段性更新都会慢慢放进来。HR 可以快速看作品，朋友也可以登录留言。",
+  siteLogoUrl: undefined,
+  siteAvatarUrl: undefined,
+  heroCoverUrl: undefined,
   backgroundMusicTitle: "Sable Drift",
   backgroundMusicEnabled: false,
   updatedAt: "2026-06-19",

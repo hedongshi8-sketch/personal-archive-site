@@ -21,11 +21,15 @@ const sections = [
     file: "supabase/migrations/20260620_hide_internal_portfolio_items.sql",
   },
   {
-    title: "4. Mark the registered site owner account as owner",
+    title: "4. Add editable site logo support",
+    file: "supabase/migrations/20260620_site_logo_and_music_autoplay.sql",
+  },
+  {
+    title: "5. Mark the registered site owner account as owner",
     file: "supabase/set-owner.sql",
   },
   {
-    title: "5. Show post-upgrade database checks",
+    title: "6. Show post-upgrade database checks",
     file: "supabase/account-editing-check.sql",
   },
 ];

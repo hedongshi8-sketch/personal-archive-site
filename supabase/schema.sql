@@ -6,6 +6,7 @@ create type public.asset_kind as enum (
   'music-cover',
   'gallery-image',
   'music-audio',
+  'site-logo',
   'site-cover',
   'site-avatar',
   'reading-cover'
@@ -154,6 +155,7 @@ create table public.site_settings (
   brand_subtitle text not null default '游戏策划 / 关卡设计',
   hero_title text not null default '这里不只是一座策划档案馆。',
   hero_description text not null default '这是我的个人网站：作品、Demo、音乐、图片、书摘、灵感和阶段性更新都会慢慢放进来。HR 可以快速看作品，朋友也可以登录留言。',
+  site_logo_url text,
   site_avatar_url text,
   hero_cover_url text,
   background_music_url text,

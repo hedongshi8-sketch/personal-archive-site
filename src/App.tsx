@@ -502,7 +502,7 @@ function Sidebar({
     <aside className="sidebar" aria-label="主导航">
       <a className="brand" href="#home">
         <div className="brand-mark" aria-hidden="true">
-          <span />
+          {settings.siteLogoUrl ? <img src={settings.siteLogoUrl} alt="" /> : <span />}
         </div>
         <div>
           <strong>{settings.brandName}</strong>
@@ -1095,6 +1095,60 @@ function isDisplayableComment(comment: Comment) {
   );
 }
 
+function CommitInput({
+  value,
+  label,
+  placeholder,
+  onSave,
+}: {
+  value: string;
+  label: string;
+  placeholder?: string;
+  onSave: (value: string) => Promise<void>;
+}) {
+  const [draft, setDraft] = useState(value);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    setDraft(value);
+  }, [value]);
+
+  async function commit() {
+    const nextValue = draft.trim();
+    if (!nextValue || nextValue === value) {
+      setDraft(value);
+      return;
+    }
+
+    setSaving(true);
+    try {
+      await onSave(nextValue);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <input
+      aria-label={label}
+      disabled={saving}
+      onBlur={() => void commit()}
+      onChange={(event) => setDraft(event.target.value)}
+      onKeyDown={(event) => {
+        if (event.key === "Enter") {
+          event.currentTarget.blur();
+        }
+        if (event.key === "Escape") {
+          setDraft(value);
+          event.currentTarget.blur();
+        }
+      }}
+      placeholder={placeholder}
+      value={draft}
+    />
+  );
+}
+
 function EditableText({
   as,
   value,
@@ -1638,7 +1692,7 @@ function HeroSection({
     }
   }
 
-  async function uploadHeroImage(file: File | null, kind: "site-cover" | "site-avatar") {
+  async function uploadHeroImage(file: File | null, kind: "site-cover" | "site-avatar" | "site-logo") {
     if (!file) {
       return;
     }
@@ -1650,7 +1704,13 @@ function HeroSection({
 
     try {
       const uploaded = await siteBackend.uploadAsset(file, kind);
-      await saveSettings(kind === "site-cover" ? { heroCoverUrl: uploaded.url } : { siteAvatarUrl: uploaded.url });
+      await saveSettings(
+        kind === "site-cover"
+          ? { heroCoverUrl: uploaded.url }
+          : kind === "site-logo"
+            ? { siteLogoUrl: uploaded.url }
+            : { siteAvatarUrl: uploaded.url },
+      );
     } catch (error) {
       setStatusMessage(error instanceof Error ? error.message : "图片上传失败。");
     }
@@ -1733,6 +1793,50 @@ function HeroSection({
               {editMode ? "退出编辑模式" : "进入编辑模式"}
             </button>
             {statusMessage ? <p className="backend-status">{statusMessage}</p> : null}
+          </div>
+        ) : null}
+        {isOwner && editMode ? (
+          <div className="brand-edit-panel" aria-label="站点品牌设置">
+            <div>
+              <span>站点品牌</span>
+              <strong>Logo、左上角文字和头像都在这里改</strong>
+            </div>
+            <div className="brand-edit-grid">
+              <label>
+                <span>左上角名称</span>
+                <CommitInput
+                  value={settings.brandName}
+                  label="左上角名称"
+                  onSave={(value) => saveSettings({ brandName: value })}
+                  placeholder="例如：LinX"
+                />
+              </label>
+              <label>
+                <span>副标题</span>
+                <CommitInput
+                  value={settings.brandSubtitle}
+                  label="站点副标题"
+                  onSave={(value) => saveSettings({ brandSubtitle: value })}
+                  placeholder="例如：游戏策划 / 关卡设计"
+                />
+              </label>
+            </div>
+            <div className="brand-media-editors">
+              <label className="brand-upload-tile">
+                <div className="brand-upload-preview brand-logo-preview">
+                  {settings.siteLogoUrl ? <img src={settings.siteLogoUrl} alt="" /> : <Code2 size={22} />}
+                </div>
+                <span>上传 Logo</span>
+                <input accept="image/*" onChange={(event) => void uploadHeroImage(event.target.files?.[0] ?? null, "site-logo")} type="file" />
+              </label>
+              <label className="brand-upload-tile">
+                <div className="brand-upload-preview">
+                  {avatarContent(settings.siteAvatarUrl, settings.brandName)}
+                </div>
+                <span>上传头像</span>
+                <input accept="image/*" onChange={(event) => void uploadHeroImage(event.target.files?.[0] ?? null, "site-avatar")} type="file" />
+              </label>
+            </div>
           </div>
         ) : null}
       </div>
@@ -1837,6 +1941,7 @@ function HeroSection({
 function BackgroundMusicDock({ settings }: { settings: SiteSettings }) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [playing, setPlaying] = useState(false);
+  const [blocked, setBlocked] = useState(false);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -1847,7 +1952,51 @@ function BackgroundMusicDock({ settings }: { settings: SiteSettings }) {
     if (!settings.backgroundMusicEnabled || !settings.backgroundMusicUrl) {
       audio.pause();
       setPlaying(false);
+      setBlocked(false);
     }
+  }, [settings.backgroundMusicEnabled, settings.backgroundMusicUrl]);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio || !settings.backgroundMusicEnabled || !settings.backgroundMusicUrl) {
+      return;
+    }
+
+    const musicAudio = audio;
+    let cancelled = false;
+
+    async function playWhenAllowed() {
+      try {
+        musicAudio.volume = 0.55;
+        await musicAudio.play();
+        if (!cancelled) {
+          setPlaying(true);
+          setBlocked(false);
+        }
+      } catch {
+        if (!cancelled) {
+          setPlaying(false);
+          setBlocked(true);
+        }
+      }
+    }
+
+    const resumeOnInteraction = () => {
+      if (!musicAudio.paused) {
+        return;
+      }
+      void playWhenAllowed();
+    };
+
+    void playWhenAllowed();
+    window.addEventListener("pointerdown", resumeOnInteraction, { once: true });
+    window.addEventListener("keydown", resumeOnInteraction, { once: true });
+
+    return () => {
+      cancelled = true;
+      window.removeEventListener("pointerdown", resumeOnInteraction);
+      window.removeEventListener("keydown", resumeOnInteraction);
+    };
   }, [settings.backgroundMusicEnabled, settings.backgroundMusicUrl]);
 
   async function toggleBackgroundMusic() {
@@ -1865,8 +2014,10 @@ function BackgroundMusicDock({ settings }: { settings: SiteSettings }) {
     try {
       await audio.play();
       setPlaying(true);
+      setBlocked(false);
     } catch {
       setPlaying(false);
+      setBlocked(true);
     }
   }
 
@@ -1875,12 +2026,15 @@ function BackgroundMusicDock({ settings }: { settings: SiteSettings }) {
   }
 
   return (
-    <div className="background-music-dock" aria-label="网站背景音乐">
-      <audio ref={audioRef} src={settings.backgroundMusicUrl} loop preload="none" />
+    <div className={clsx("background-music-dock", playing && "is-playing", blocked && "is-blocked")} aria-label="网站背景音乐">
+      <audio ref={audioRef} src={settings.backgroundMusicUrl} loop preload="auto" />
       <button onClick={toggleBackgroundMusic} type="button" aria-label={playing ? "暂停背景音乐" : "播放背景音乐"}>
         {playing ? <Pause size={16} fill="currentColor" /> : <Volume2 size={16} />}
       </button>
-      <span>{settings.backgroundMusicTitle || "背景音乐"}</span>
+      <span>
+        {settings.backgroundMusicTitle || "背景音乐"}
+        <small>{playing ? "正在播放" : blocked ? "点击播放" : "准备中"}</small>
+      </span>
     </div>
   );
 }
@@ -2457,6 +2611,11 @@ function MusicSection({
   const activeTrack = tracks.find((track) => track.id === activeTrackId) ?? tracks[0];
   const editingTrack = editingTrackId ? tracks.find((track) => track.id === editingTrackId) : null;
   const musicNavigationTarget = useSearchNavigationTarget("music");
+  const backgroundTrack = tracks.find((track) => track.audioUrl && track.audioUrl === settings.backgroundMusicUrl);
+  const backgroundMusicName = settings.backgroundMusicUrl
+    ? backgroundTrack?.title || settings.backgroundMusicTitle || "已设置音频"
+    : "未设置";
+  const canEnableBackgroundMusic = Boolean(settings.backgroundMusicUrl || activeTrack?.audioUrl);
 
   useEffect(() => {
     let active = true;
@@ -2616,6 +2775,7 @@ function MusicSection({
           backgroundMusicEnabled: true,
         });
         onSettingsChange(nextSettings);
+        setTracks((current) => current.map((track) => ({ ...track, isBackground: track.id === nextTrack.id })));
       }
 
       resetMusicDraft();
@@ -2682,10 +2842,38 @@ function MusicSection({
         backgroundMusicTitle: track.title,
         backgroundMusicEnabled: true,
       });
+      setTracks((current) => current.map((item) => ({ ...item, isBackground: item.id === track.id })));
       onSettingsChange(nextSettings);
       setStatusMessage("全站背景音乐已更新。");
     } catch (error) {
       setStatusMessage(error instanceof Error ? error.message : "背景音乐设置失败。");
+    }
+  }
+
+  async function toggleBackgroundMusicEnabled(enabled: boolean) {
+    if (!isOwner) {
+      setStatusMessage("只有站主账号可以开关背景音乐。");
+      return;
+    }
+
+    if (enabled && !settings.backgroundMusicUrl) {
+      if (activeTrack?.audioUrl) {
+        await saveBackgroundMusic(activeTrack);
+        return;
+      }
+      setStatusMessage("先上传或选择一首有音频文件的音乐。");
+      return;
+    }
+
+    try {
+      const nextSettings = await siteBackend.updateSiteSettings({
+        ...settings,
+        backgroundMusicEnabled: enabled,
+      });
+      onSettingsChange(nextSettings);
+      setStatusMessage(enabled ? "背景音乐已开启。" : "背景音乐已关闭。");
+    } catch (error) {
+      setStatusMessage(error instanceof Error ? error.message : "背景音乐开关保存失败。");
     }
   }
 
@@ -2796,6 +2984,13 @@ function MusicSection({
             <Volume2 size={18} />
           </button>
         </div>
+        <div className="background-music-status">
+          <span>
+            <Volume2 size={14} />
+            全站背景音乐：{backgroundMusicName}
+          </span>
+          <strong>{settings.backgroundMusicEnabled ? "进入网站会尝试自动播放" : "当前关闭"}</strong>
+        </div>
       </div>
       <div className="playlist-panel">
         {tracks.map((track) => (
@@ -2842,7 +3037,29 @@ function MusicSection({
                 <Trash2 size={15} />
                 删除当前
               </button>
+              <button
+                className="ghost-button"
+                disabled={!activeTrack?.audioUrl}
+                onClick={() => void saveBackgroundMusic()}
+                type="button"
+              >
+                <Volume2 size={15} />
+                设为背景音乐
+              </button>
             </div>
+            <label className="owner-toggle-row music-background-toggle">
+              <input
+                disabled={!canEnableBackgroundMusic}
+                checked={settings.backgroundMusicEnabled}
+                onChange={(event) => void toggleBackgroundMusicEnabled(event.target.checked)}
+                type="checkbox"
+              />
+              <span>
+                {canEnableBackgroundMusic
+                  ? "访客进入网站时尝试自动播放默认背景音乐"
+                  : "先上传或选择一首有音频文件的音乐，才能开启默认背景音乐"}
+              </span>
+            </label>
             <div className="owner-upload-grid">
               <label>
                 <span>歌名</span>

@@ -259,6 +259,8 @@ assert(schema.includes("client_elapsed_ms >= 2000"), "comment verification delay
 assert(schema.includes("honeypot = ''"), "comment honeypot policy exists");
 assert(schema.includes("brand_name"), "site settings include editable brand name");
 assert(schema.includes("hero_title"), "site settings include editable hero title");
+assert(schema.includes("site_logo_url"), "site settings include editable site logo");
+assert(schema.includes("'site-logo'"), "site logo upload asset kind exists");
 assert(schema.includes("profile-avatars/"), "profile avatar storage path is allowed for signed-in users");
 assert(schema.includes("author_id"), "comments are tied to profile author id");
 
@@ -275,6 +277,7 @@ assert(backendSource.includes("updatePassword(password") && backendSource.includ
 assert(appSource.includes("function AccountPanel"), "account panel exists");
 assert(appSource.includes("function EditableText"), "graphical editable text exists");
 assert(appSource.includes("编辑模式"), "owner edit mode exists");
+assert(appSource.includes("brand-edit-panel") && appSource.includes("site-logo"), "site logo and brand editor exists");
 assert(appSource.includes("createGlobalSearchIndex") && appSource.includes("global-search-panel"), "global archive search is wired");
 assert(appSource.includes("站主动态"), "public owner updates copy exists");
 assert(appSource.includes("ExcelSheetPreview"), "Excel in-site preview reader exists");
@@ -337,6 +340,8 @@ for (const emptyLocalMethod of [
 }
 assert(appSource.includes("checkHumanGate"), "anti-spam human gate exists");
 assert(appSource.includes("BackgroundMusicDock"), "background music dock exists");
+assert(appSource.includes("resumeOnInteraction") && appSource.includes("is-blocked"), "background music auto-play recovery UI exists");
+assert(appSource.includes("music-background-toggle"), "music radar can toggle default background music");
 
 try {
   const status = command(["git", "status", "--short"]);

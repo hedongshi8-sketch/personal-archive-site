@@ -71,7 +71,7 @@ if (!supabaseUrl || !supabaseAnonKey) {
 
   const { error: settingsError } = await supabase
     .from("site_settings")
-    .select("id,brand_name,brand_subtitle,hero_title,hero_description,site_avatar_url,hero_cover_url,background_music_url,background_music_enabled")
+    .select("id,brand_name,brand_subtitle,hero_title,hero_description,site_logo_url,site_avatar_url,hero_cover_url,background_music_url,background_music_enabled")
     .limit(1);
 
   assert(!settingsError, "public site settings are readable", settingsError?.message);

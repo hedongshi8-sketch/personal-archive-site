@@ -51,6 +51,7 @@ export type AssetRecord = {
     | "music-cover"
     | "gallery-image"
     | "music-audio"
+    | "site-logo"
     | "site-cover"
     | "site-avatar"
     | "reading-cover";
@@ -231,6 +232,7 @@ type SiteSettingsRow = {
   brand_subtitle: string | null;
   hero_title: string | null;
   hero_description: string | null;
+  site_logo_url: string | null;
   site_avatar_url: string | null;
   hero_cover_url: string | null;
   background_music_url: string | null;
@@ -380,6 +382,7 @@ function mapSiteSettings(row: SiteSettingsRow): SiteSettings {
     brandSubtitle: row.brand_subtitle || defaultSiteSettings.brandSubtitle,
     heroTitle: row.hero_title || defaultSiteSettings.heroTitle,
     heroDescription: row.hero_description || defaultSiteSettings.heroDescription,
+    siteLogoUrl: row.site_logo_url ?? undefined,
     siteAvatarUrl: row.site_avatar_url ?? undefined,
     heroCoverUrl: row.hero_cover_url ?? undefined,
     backgroundMusicUrl: row.background_music_url ?? undefined,
@@ -1342,7 +1345,7 @@ export class SupabaseBackend implements SiteBackend {
   async getSiteSettings() {
     const { data, error } = await this.client
       .from("site_settings")
-      .select("id,brand_name,brand_subtitle,hero_title,hero_description,site_avatar_url,hero_cover_url,background_music_url,background_music_title,background_music_enabled,updated_at")
+      .select("id,brand_name,brand_subtitle,hero_title,hero_description,site_logo_url,site_avatar_url,hero_cover_url,background_music_url,background_music_title,background_music_enabled,updated_at")
       .eq("id", "main")
       .maybeSingle<SiteSettingsRow>();
 
@@ -1370,6 +1373,7 @@ export class SupabaseBackend implements SiteBackend {
         brand_subtitle: nextSettings.brandSubtitle,
         hero_title: nextSettings.heroTitle,
         hero_description: nextSettings.heroDescription,
+        site_logo_url: nextSettings.siteLogoUrl ?? null,
         site_avatar_url: nextSettings.siteAvatarUrl ?? null,
         hero_cover_url: nextSettings.heroCoverUrl ?? null,
         background_music_url: nextSettings.backgroundMusicUrl ?? null,
@@ -1377,7 +1381,7 @@ export class SupabaseBackend implements SiteBackend {
         background_music_enabled: nextSettings.backgroundMusicEnabled,
         updated_at: new Date().toISOString(),
       })
-      .select("id,brand_name,brand_subtitle,hero_title,hero_description,site_avatar_url,hero_cover_url,background_music_url,background_music_title,background_music_enabled,updated_at")
+      .select("id,brand_name,brand_subtitle,hero_title,hero_description,site_logo_url,site_avatar_url,hero_cover_url,background_music_url,background_music_title,background_music_enabled,updated_at")
       .single<SiteSettingsRow>();
 
     return mapSiteSettings(requireSupabaseResult(data, error));
