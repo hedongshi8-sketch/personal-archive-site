@@ -2231,7 +2231,10 @@ p {
 .notes-archive-mark,
 .notes-sync-state,
 .notes-reading-lens,
+.notes-source-map,
 .notes-featured-note,
+.notes-active-summary,
+.notes-mini-index,
 .reading-count {
   border: 1px solid rgba(30, 29, 25, 0.14);
   border-radius: 8px;
@@ -2319,6 +2322,85 @@ p {
   margin: 0;
   color: rgba(247, 241, 230, 0.58);
   font-size: 12px;
+}
+
+.notes-source-map {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  color: var(--muted);
+}
+
+.notes-source-kicker {
+  color: var(--cyan-dark);
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.notes-source-row {
+  display: grid;
+  grid-template-columns: minmax(38px, auto) minmax(24px, auto) minmax(0, 1fr);
+  gap: 8px;
+  align-items: center;
+  min-width: 0;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.notes-source-row strong {
+  color: var(--ink);
+  font-size: 13px;
+}
+
+.notes-source-meter {
+  height: 7px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(30, 29, 25, 0.08);
+}
+
+.notes-source-meter span {
+  display: block;
+  width: var(--source-ratio, 0%);
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--cyan), var(--coral));
+}
+
+.notes-top-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  border-top: 1px solid rgba(30, 29, 25, 0.1);
+  padding-top: 10px;
+}
+
+.notes-top-tags button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 28px;
+  border: 1px solid rgba(30, 29, 25, 0.13);
+  border-radius: 6px;
+  padding: 0 8px;
+  background: rgba(255, 255, 255, 0.36);
+  color: #504b42;
+  font-size: 11px;
+  font-weight: 850;
+}
+
+.notes-top-tags button.active {
+  border-color: rgba(33, 215, 222, 0.46);
+  background: rgba(33, 215, 222, 0.13);
+  color: #0c6b78;
+}
+
+.notes-top-tags small {
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 900;
 }
 
 .notes-featured-note {
@@ -2505,6 +2587,32 @@ p {
   font-size: 12px;
 }
 
+.notes-active-summary {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  padding: 8px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 820;
+}
+
+.notes-active-summary span {
+  min-height: 30px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 6px;
+  padding: 0 10px;
+  background: rgba(255, 255, 255, 0.36);
+}
+
+.notes-active-summary svg {
+  color: var(--cyan-dark);
+}
+
 .notes-layout {
   min-height: 0;
   display: grid;
@@ -2688,6 +2796,26 @@ p {
   opacity: 0.42;
 }
 
+.note-reader-context {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.note-reader-context span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 30px;
+  border: 1px solid rgba(247, 241, 230, 0.11);
+  border-radius: 6px;
+  padding: 0 10px;
+  background: rgba(255, 255, 255, 0.055);
+  color: rgba(247, 241, 230, 0.66);
+  font-size: 12px;
+  font-weight: 820;
+}
+
 .note-reader-copy blockquote {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
@@ -2756,6 +2884,88 @@ p {
   color: #a9f6fb;
   font-size: 12px;
   font-weight: 820;
+}
+
+.notes-mini-index {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 9px;
+  padding: 11px;
+}
+
+.notes-mini-index-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.notes-mini-index-head span {
+  color: var(--cyan-dark);
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.notes-mini-index-head strong {
+  color: var(--ink);
+  font-size: 13px;
+}
+
+.notes-mini-index-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(190px, 100%), 1fr));
+  gap: 7px;
+}
+
+.notes-mini-index-list button {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-rows: auto auto;
+  gap: 2px 8px;
+  align-items: center;
+  border: 1px solid rgba(30, 29, 25, 0.12);
+  border-radius: 7px;
+  padding: 9px;
+  background: rgba(255, 255, 255, 0.32);
+  color: var(--muted);
+  text-align: left;
+}
+
+.notes-mini-index-list button.active {
+  border-color: rgba(33, 215, 222, 0.44);
+  background: rgba(33, 215, 222, 0.12);
+}
+
+.notes-mini-index-list button > span {
+  grid-row: 1 / 3;
+  color: var(--cyan-dark);
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.notes-mini-index-list strong,
+.notes-mini-index-list small {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.notes-mini-index-list strong {
+  color: var(--ink);
+  font-size: 13px;
+  line-height: 1.15;
+}
+
+.notes-mini-index-list small {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 780;
 }
 
 .note-card {
@@ -3284,6 +3494,22 @@ p {
 
 .reading-publish-checks span.is-optional:not(.is-ready) {
   color: rgba(80, 75, 66, 0.48);
+}
+
+.reading-publish-meter {
+  height: 7px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(30, 29, 25, 0.1);
+}
+
+.reading-publish-meter span {
+  display: block;
+  width: var(--publish-progress, 0%);
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--coral), var(--cyan));
+  transition: width 180ms ease;
 }
 
 .reading-wide-field textarea:first-of-type,
@@ -3947,7 +4173,10 @@ p {
 .dark-mode .notes-archive-mark,
 .dark-mode .notes-sync-state,
 .dark-mode .notes-command,
+.dark-mode .notes-source-map,
 .dark-mode .notes-featured-note,
+.dark-mode .notes-active-summary,
+.dark-mode .notes-mini-index,
 .dark-mode .archive-empty-state,
 .dark-mode .reading-count,
 .dark-mode .notes-empty-state {
@@ -3968,9 +4197,14 @@ p {
 .dark-mode .reading-quick-tags button,
 .dark-mode .notes-tag-filter button,
 .dark-mode .note-tags button,
+.dark-mode .notes-top-tags button,
+.dark-mode .notes-active-summary span,
+.dark-mode .notes-mini-index-list button,
 .dark-mode .reading-cover-preview,
 .dark-mode .reading-wide-field,
-.dark-mode .reading-publish-checks span {
+.dark-mode .reading-publish-checks span,
+.dark-mode .reading-publish-meter,
+.dark-mode .notes-source-meter {
   background: rgba(255, 255, 255, 0.07);
   color: rgba(247, 241, 230, 0.84);
 }
@@ -4008,6 +4242,8 @@ p {
 
 .dark-mode .notes-tag-filter button.active,
 .dark-mode .note-tags button.active,
+.dark-mode .notes-top-tags button.active,
+.dark-mode .notes-mini-index-list button.active,
 .dark-mode .note-expand-button,
 .dark-mode .reading-publish-checks span.is-ready {
   background: rgba(33, 215, 222, 0.18);
@@ -4051,6 +4287,9 @@ p {
 .dark-mode .note-meta-line,
 .dark-mode .note-card-footer,
 .dark-mode .notes-stat-grid span,
+.dark-mode .notes-source-row,
+.dark-mode .notes-top-tags small,
+.dark-mode .notes-mini-index-list small,
 .dark-mode .reading-count,
 .dark-mode .reading-cover-preview span,
 .dark-mode .owner-management-strip span {
@@ -4058,9 +4297,12 @@ p {
 }
 
 .dark-mode .notes-stat-grid strong,
+.dark-mode .notes-source-row strong,
 .dark-mode .notes-command-title strong,
 .dark-mode .notes-command-title small,
 .dark-mode .notes-featured-note strong,
+.dark-mode .notes-mini-index-head strong,
+.dark-mode .notes-mini-index-list strong,
 .dark-mode .reading-count strong,
 .dark-mode .notes-empty-state strong,
 .dark-mode .reading-cover-preview strong {
@@ -4080,6 +4322,13 @@ p {
 }
 
 .dark-mode .notes-empty-kicker {
+  color: #8deaf2;
+}
+
+.dark-mode .notes-source-kicker,
+.dark-mode .notes-active-summary svg,
+.dark-mode .notes-mini-index-head span,
+.dark-mode .notes-mini-index-list button > span {
   color: #8deaf2;
 }
 
@@ -4177,6 +4426,10 @@ p {
     grid-column: 2;
   }
 
+  .notes-source-map {
+    grid-column: 2;
+  }
+
   .notes-featured-note {
     grid-column: 1;
   }
@@ -4204,6 +4457,10 @@ p {
   .notes-command-tools {
     width: 100%;
     max-width: 620px;
+  }
+
+  .notes-active-summary {
+    justify-content: flex-start;
   }
 
   .note-reader-panel {
@@ -4490,9 +4747,11 @@ p {
   .notes-rail,
   .notes-stat-grid,
   .notes-reading-lens,
+  .notes-source-map,
   .notes-featured-note,
   .notes-command,
   .notes-command-tools,
+  .notes-active-summary,
   .note-reader-panel,
   .reading-composer .owner-upload-grid,
   .reading-action-row,
@@ -4512,6 +4771,12 @@ p {
   .note-reader-nav {
     width: 100%;
     justify-content: space-between;
+  }
+
+  .note-reader-context span,
+  .notes-active-summary span {
+    width: 100%;
+    justify-content: flex-start;
   }
 
   .note-copy-button {
@@ -4551,6 +4816,22 @@ p {
   .reading-publish-checks span {
     justify-content: flex-start;
     padding-inline: 10px;
+  }
+
+  .notes-mini-index {
+    padding: 10px;
+  }
+
+  .notes-mini-index-list {
+    display: flex;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scroll-snap-type: x proximity;
+  }
+
+  .notes-mini-index-list button {
+    min-width: min(76vw, 260px);
+    scroll-snap-align: start;
   }
 
   .notes-reading-lens {

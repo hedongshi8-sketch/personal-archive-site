@@ -3026,6 +3026,24 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
 
     return { bookCount, videoCount, tagCount, averageQuoteLength };
   }, [notes]);
+  const sourceMix = useMemo(() => {
+    const total = Math.max(notes.length, 1);
+
+    return [
+      { label: "书籍", count: noteStats.bookCount, ratio: `${Math.round((noteStats.bookCount / total) * 100)}%` },
+      { label: "视频", count: noteStats.videoCount, ratio: `${Math.round((noteStats.videoCount / total) * 100)}%` },
+    ];
+  }, [noteStats.bookCount, noteStats.videoCount, notes.length]);
+  const topTags = useMemo(() => {
+    const counts = new Map<string, number>();
+    notes.forEach((note) => {
+      note.tags.forEach((tag) => counts.set(tag, (counts.get(tag) ?? 0) + 1));
+    });
+
+    return [...counts.entries()]
+      .sort((left, right) => right[1] - left[1] || left[0].localeCompare(right[0]))
+      .slice(0, 4);
+  }, [notes]);
   const filteredNotes = useMemo(() => {
     return notes.filter((note) => {
       const kindMatches = activeKind === "all" || note.kind === activeKind;
@@ -3049,6 +3067,11 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
   const canMoveReader = filteredNotes.length > 1 && readerNoteIndex >= 0;
   const filteredQuoteTotal = filteredNotes.reduce((total, note) => total + note.quote.trim().length, 0);
   const filteredAverageQuoteLength = filteredNotes.length > 0 ? Math.round(filteredQuoteTotal / filteredNotes.length) : 0;
+  const filteredLongestNote = filteredNotes.reduce<ReadingNote | null>(
+    (longest, note) => (!longest || note.quote.trim().length > longest.quote.trim().length ? note : longest),
+    null,
+  );
+  const readingIndexNotes = filteredNotes.slice(0, 8);
   const hasAnyNotes = notes.length > 0;
   const hasReadingFilters = activeKind !== "all" || activeTag !== "all" || normalizedSearchQuery.length > 0;
   const publishChecks = [
@@ -3057,6 +3080,10 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
     { label: "摘录", ready: Boolean(draft.quote.trim()) },
     { label: "标签", ready: draftTags.length > 0, optional: true },
   ];
+  const requiredPublishChecks = publishChecks.filter((item) => !item.optional);
+  const publishProgress = Math.round(
+    (requiredPublishChecks.filter((item) => item.ready).length / requiredPublishChecks.length) * 100,
+  );
   const filterSummary =
     activeKind === "all"
       ? "全部来源"
@@ -3246,16 +3273,29 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
       return copied;
     };
 
+    const selectVisibleQuote = () => {
+      const quoteElement = document.querySelector(".note-reader-copy blockquote span");
+      const selection = window.getSelection();
+      if (!quoteElement || !selection) {
+        return false;
+      }
+
+      const range = document.createRange();
+      range.selectNodeContents(quoteElement);
+      selection.removeAllRanges();
+      selection.addRange(range);
+      return true;
+    };
+
     try {
-      const isLocalHost = ["localhost", "127.0.0.1", "0.0.0.0"].includes(window.location.hostname);
-      if (navigator.clipboard?.writeText && window.isSecureContext && !isLocalHost) {
+      if (navigator.clipboard?.writeText && window.isSecureContext) {
         await navigator.clipboard.writeText(copyText);
       } else if (!copyWithSelection()) {
         throw new Error("copy blocked");
       }
       setReaderMessage("摘录已复制，可以直接贴到聊天或文档里。");
     } catch {
-      setReaderMessage("浏览器拦截了复制，可以手动选中摘录复制。");
+      setReaderMessage(selectVisibleQuote() ? "已帮你选中摘录，可以按 Ctrl+C 手动复制。" : "浏览器拦截了复制，可以手动选中摘录复制。");
     }
   }
 
@@ -3372,6 +3412,28 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
             {activeTagLabel} · {filteredNotes.length} 条命中 · 平均 {filteredAverageQuoteLength} 字
           </p>
         </div>
+        <div className="notes-source-map" aria-label="书摘来源分布">
+          <span className="notes-source-kicker">来源分布</span>
+          {sourceMix.map((item) => (
+            <div className="notes-source-row" key={item.label}>
+              <span>{item.label}</span>
+              <strong>{item.count}</strong>
+              <div className="notes-source-meter" aria-hidden="true">
+                <span style={{ "--source-ratio": item.ratio } as CSSProperties} />
+              </div>
+            </div>
+          ))}
+          {topTags.length > 0 ? (
+            <div className="notes-top-tags" aria-label="高频标签">
+              {topTags.map(([tag, count]) => (
+                <button className={clsx(activeTag === tag && "active")} key={tag} onClick={() => setActiveTag(tag)} type="button">
+                  #{tag}
+                  <small>{count}</small>
+                </button>
+              ))}
+            </div>
+          ) : null}
+        </div>
         {featuredNote ? (
           <div className="notes-featured-note">
             <span>
@@ -3446,6 +3508,22 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
           </div>
           {loadState === "loading" ? <span className="notes-sync-state">正在同步书摘...</span> : null}
           {!isOwner && statusMessage ? <span className="notes-sync-state">{statusMessage}</span> : null}
+          <div className="notes-active-summary" aria-label="当前书摘摘要">
+            <span>
+              <BookOpenText size={14} />
+              {filteredNotes.length} 条命中
+            </span>
+            <span>
+              <Quote size={14} />
+              均值 {filteredAverageQuoteLength} 字
+            </span>
+            {filteredLongestNote ? (
+              <span>
+                <Sparkles size={14} />
+                最长：{filteredLongestNote.title}
+              </span>
+            ) : null}
+          </div>
         </div>
 
         <div className={clsx("notes-layout", isOwner && "has-composer")}>
@@ -3503,6 +3581,20 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
                       </button>
                     </div>
                   </div>
+                  <div className="note-reader-context" aria-label={`${readerNote.title} 阅读信息`}>
+                    <span>
+                      <BookOpenText size={13} />
+                      {readerNote.kind === "book" ? "书籍摘录" : "视频笔记"}
+                    </span>
+                    <span>
+                      <Tags size={13} />
+                      {readerNote.tags.length > 0 ? readerNote.tags.slice(0, 3).join(" / ") : "未标标签"}
+                    </span>
+                    <span>
+                      <Quote size={13} />
+                      {readerNote.reflection.trim() ? "含心得" : "纯摘录"}
+                    </span>
+                  </div>
                   <blockquote>
                     <Quote size={18} />
                     <span>{readerNote.quote}</span>
@@ -3524,6 +3616,28 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
                   {readerMessage ? <span className="note-reader-feedback">{readerMessage}</span> : null}
                 </div>
               </article>
+            ) : null}
+            {readingIndexNotes.length > 1 ? (
+              <nav className="notes-mini-index" aria-label="书摘目录">
+                <div className="notes-mini-index-head">
+                  <span>阅读目录</span>
+                  <strong>{filteredNotes.length} 条</strong>
+                </div>
+                <div className="notes-mini-index-list">
+                  {readingIndexNotes.map((note, index) => (
+                    <button
+                      className={clsx(readerNote?.id === note.id && "active")}
+                      key={note.id}
+                      onClick={() => selectReaderNote(note.id)}
+                      type="button"
+                    >
+                      <span>#{String(index + 1).padStart(2, "0")}</span>
+                      <strong>{note.title}</strong>
+                      <small>{note.creator}</small>
+                    </button>
+                  ))}
+                </div>
+              </nav>
             ) : null}
             {filteredNotes.length > 0 ? (
               filteredNotes.map((note, index) => (
@@ -3651,6 +3765,7 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
                 <div className="reading-draft-meta">
                   <span>{draft.kind === "book" ? "书籍摘录" : "视频笔记"}</span>
                   <span>{quoteLength} 字</span>
+                  <span>{draftTags.length} 标签</span>
                   <span>{draftQuality}</span>
                 </div>
               </div>
@@ -3662,6 +3777,9 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
                     {item.optional ? "可选" : ""}
                   </span>
                 ))}
+              </div>
+              <div className="reading-publish-meter" aria-label={`必填项完成度 ${publishProgress}%`}>
+                <span style={{ "--publish-progress": `${publishProgress}%` } as CSSProperties} />
               </div>
 
               <div className="owner-upload-grid">
