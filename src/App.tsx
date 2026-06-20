@@ -130,6 +130,18 @@ type AccountDraft = {
   mode: "signin" | "signup";
 };
 
+type GlobalSearchItem = {
+  id: string;
+  title: string;
+  eyebrow: string;
+  summary: string;
+  section: SectionId;
+  targetId?: string;
+  query?: string;
+  tokens: string;
+  actionLabel: string;
+};
+
 const defaultMusicDraft: MusicTrackInput = {
   title: "",
   artist: "",
@@ -273,6 +285,80 @@ function normalizeSearchText(value: string) {
   return value.normalize("NFKC").trim().toLowerCase();
 }
 
+function createGlobalSearchIndex(): GlobalSearchItem[] {
+  return [
+    ...portfolioItems.map((item) => ({
+      id: `portfolio-${item.id}`,
+      title: item.title,
+      eyebrow: `${item.projectLabel} · ${item.kindLabel}`,
+      summary: item.summary,
+      section: "docs" as const,
+      targetId: item.id,
+      actionLabel: "打开档案",
+      tokens: [
+        item.title,
+        item.projectLabel,
+        item.kindLabel,
+        item.summary,
+        item.tags.join(" "),
+        item.sourcePath,
+        "作品集 策划档案 文档 excel pdf demo",
+      ].join(" "),
+    })),
+    ...gameDemos.map((demo) => ({
+      id: `demo-${demo.title}`,
+      title: demo.title,
+      eyebrow: `${demo.platform} · ${demo.duration}`,
+      summary: demo.description,
+      section: "demos" as const,
+      targetId: demo.title,
+      actionLabel: "查看 Demo",
+      tokens: [demo.title, demo.description, demo.platform, "游戏 demo 原型"].join(" "),
+    })),
+    ...musicTracks.map((track) => ({
+      id: `music-${track.id}`,
+      title: track.title,
+      eyebrow: track.artist,
+      summary: track.mood,
+      section: "music" as const,
+      targetId: track.id,
+      actionLabel: "听音乐",
+      tokens: [track.title, track.artist, track.mood, "音乐 歌单 背景音乐"].join(" "),
+    })),
+    ...galleryItems.map((item) => ({
+      id: `gallery-${item.id}`,
+      title: item.title,
+      eyebrow: item.category,
+      summary: item.description ?? "收藏图片与视觉参考。",
+      section: "gallery" as const,
+      query: item.category,
+      actionLabel: "看图片",
+      tokens: [item.title, item.category, item.description ?? "", "图片 灵感 图库 视觉参考"].join(" "),
+    })),
+    ...readingNotes.map((note) => ({
+      id: `reading-${note.id}`,
+      title: note.title,
+      eyebrow: `${note.kind === "book" ? "书籍摘录" : "视频笔记"} · ${note.creator}`,
+      summary: note.reflection || note.quote,
+      section: "notes" as const,
+      targetId: note.id,
+      query: note.title,
+      actionLabel: "读书摘",
+      tokens: [note.title, note.creator, note.quote, note.reflection, note.tags.join(" "), "书摘 心得 阅读 笔记"].join(" "),
+    })),
+    ...seedOwnerPosts.map((post) => ({
+      id: `post-${post.id}`,
+      title: post.title,
+      eyebrow: post.visibility === "public" ? "站主动态" : "站主草稿",
+      summary: post.body,
+      section: "private" as const,
+      query: post.title,
+      actionLabel: "看动态",
+      tokens: [post.title, post.body, post.createdAt, "站主动态 更新 发帖"].join(" "),
+    })),
+  ];
+}
+
 function readingNoteToDraft(note: ReadingNote): ReadingNoteInput {
   return {
     kind: note.kind,
@@ -343,6 +429,41 @@ function getSectionFromLocation(): SectionId {
   const params = new URLSearchParams(window.location.search);
   const requested = window.location.hash.slice(1) || params.get("start");
   return sectionIds.includes(requested as SectionId) ? (requested as SectionId) : "home";
+}
+
+function getSearchNavigationTarget(section: SectionId) {
+  if (typeof window === "undefined" || window.location.hash.slice(1) !== section) {
+    return null;
+  }
+
+  const params = new URLSearchParams(window.location.search);
+  if (params.get("fromSearch") !== "1") {
+    return null;
+  }
+
+  return {
+    query: params.get("search") ?? "",
+    targetId: params.get("target") ?? "",
+  };
+}
+
+function useSearchNavigationTarget(section: SectionId) {
+  const [target, setTarget] = useState(() => getSearchNavigationTarget(section));
+
+  useEffect(() => {
+    function syncTarget() {
+      setTarget(getSearchNavigationTarget(section));
+    }
+
+    window.addEventListener("hashchange", syncTarget);
+    window.addEventListener("popstate", syncTarget);
+    return () => {
+      window.removeEventListener("hashchange", syncTarget);
+      window.removeEventListener("popstate", syncTarget);
+    };
+  }, [section]);
+
+  return target;
 }
 
 function Sidebar({
@@ -1238,7 +1359,34 @@ function HeroSection({
   onSettingsChange: (settings: SiteSettings) => void;
 }) {
   const [statusMessage, setStatusMessage] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchActive, setSearchActive] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement | null>(null);
   const isOwner = currentUser?.role === "owner";
+  const globalSearchIndex = useMemo(() => createGlobalSearchIndex(), []);
+  const normalizedSearchQuery = normalizeSearchText(searchQuery);
+  const globalSearchTerms = useMemo(() => normalizedSearchQuery.split(/\s+/).filter(Boolean), [normalizedSearchQuery]);
+  const searchResults = useMemo(() => {
+    if (globalSearchTerms.length === 0) {
+      return globalSearchIndex.slice(0, 5);
+    }
+
+    return globalSearchIndex
+      .map((item) => {
+        const normalizedTokens = normalizeSearchText(item.tokens);
+        const matchedTerms = globalSearchTerms.filter((term) => normalizedTokens.includes(term));
+        const titleHit = globalSearchTerms.some((term) => normalizeSearchText(item.title).includes(term));
+        return {
+          item,
+          score: matchedTerms.length * 2 + (titleHit ? 3 : 0),
+        };
+      })
+      .filter((result) => result.score > 0)
+      .sort((left, right) => right.score - left.score)
+      .slice(0, 6)
+      .map((result) => result.item);
+  }, [globalSearchIndex, globalSearchTerms]);
+  const showSearchPanel = searchActive || normalizedSearchQuery.length > 0;
 
   async function saveSettings(patch: Partial<SiteSettings>) {
     if (!isOwner) {
@@ -1275,6 +1423,46 @@ function HeroSection({
       setStatusMessage(error instanceof Error ? error.message : "图片上传失败。");
     }
   }
+
+  function openSearchItem(item: GlobalSearchItem) {
+    const params = new URLSearchParams(window.location.search);
+    params.set("fromSearch", "1");
+    if (item.targetId) {
+      params.set("target", item.targetId);
+    } else {
+      params.delete("target");
+    }
+    if (item.query) {
+      params.set("search", item.query);
+    } else {
+      params.delete("search");
+    }
+    const nextQuery = params.toString();
+    window.history.pushState(null, "", `${window.location.pathname}${nextQuery ? `?${nextQuery}` : ""}#${item.section}`);
+    window.dispatchEvent(new HashChangeEvent("hashchange"));
+    setSearchQuery("");
+    setSearchActive(false);
+    searchInputRef.current?.blur();
+  }
+
+  useEffect(() => {
+    function handleGlobalSearchShortcut(event: KeyboardEvent) {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
+        event.preventDefault();
+        setSearchActive(true);
+        searchInputRef.current?.focus();
+      }
+
+      if (event.key === "Escape") {
+        setSearchActive(false);
+        setSearchQuery("");
+        searchInputRef.current?.blur();
+      }
+    }
+
+    window.addEventListener("keydown", handleGlobalSearchShortcut);
+    return () => window.removeEventListener("keydown", handleGlobalSearchShortcut);
+  }, []);
 
   return (
     <section className={clsx("screen-section hero-section", editMode && "is-editing")} id="home">
@@ -1318,11 +1506,53 @@ function HeroSection({
       </div>
 
       <div className="hero-console">
-        <label className="search-box">
-          <Search size={17} aria-hidden="true" />
-          <input placeholder="搜索档案 / Demo / 音乐 / 灵感..." />
-          <kbd>⌘K</kbd>
-        </label>
+        <div className="hero-search-wrap" role="search">
+          <label className={clsx("search-box", showSearchPanel && "is-active")}>
+            <Search size={17} aria-hidden="true" />
+            <input
+              aria-expanded={showSearchPanel}
+              aria-label="全站搜索"
+              onBlur={() => window.setTimeout(() => setSearchActive(false), 120)}
+              onChange={(event) => setSearchQuery(event.target.value)}
+              onFocus={() => setSearchActive(true)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" && searchResults[0]) {
+                  event.preventDefault();
+                  openSearchItem(searchResults[0]);
+                }
+              }}
+              placeholder="搜索档案 / Demo / 音乐 / 灵感..."
+              ref={searchInputRef}
+              type="search"
+              value={searchQuery}
+            />
+            <kbd>⌘K</kbd>
+          </label>
+          <div className={clsx("global-search-panel", showSearchPanel && "is-open")} aria-label="全站搜索结果">
+            <div className="global-search-panel-head">
+              <span>{normalizedSearchQuery ? "搜索结果" : "快速入口"}</span>
+              <strong>{normalizedSearchQuery ? `${searchResults.length} 条命中` : "常用档案"}</strong>
+            </div>
+            {searchResults.length > 0 ? (
+              searchResults.map((item) => (
+                <button className="global-search-result" key={item.id} onMouseDown={() => openSearchItem(item)} type="button">
+                  <span>{item.eyebrow}</span>
+                  <strong>{item.title}</strong>
+                  <small>{item.summary}</small>
+                  <em>
+                    {item.actionLabel}
+                    <ArrowRight size={13} />
+                  </em>
+                </button>
+              ))
+            ) : (
+              <div className="global-search-empty">
+                <strong>没有搜到匹配内容</strong>
+                <span>换个关键词，比如“野蛮人”“Excel”“书摘”“Demo”。</span>
+              </div>
+            )}
+          </div>
+        </div>
         <div className="hero-toolbar">
           <button onClick={() => { window.location.hash = "private"; }} type="button" aria-label="查看站主动态">
             <Bell size={21} />
@@ -1439,6 +1669,7 @@ function DocsSection({ currentUser }: { currentUser: AuthUser | null }) {
 
   const isOwner = currentUser?.role === "owner";
   const isSupabase = siteBackend.mode === "supabase";
+  const docsNavigationTarget = useSearchNavigationTarget("docs");
 
   const filteredItems = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
@@ -1456,6 +1687,24 @@ function DocsSection({ currentUser }: { currentUser: AuthUser | null }) {
 
   const activeItem = filteredItems.find((item) => item.id === activeId) ?? filteredItems[0] ?? portfolioItems[0];
   const editingPortfolioItem = editingPortfolioItemId ? items.find((item) => item.id === editingPortfolioItemId) : null;
+
+  useEffect(() => {
+    if (!docsNavigationTarget) {
+      return;
+    }
+
+    if (docsNavigationTarget.targetId && items.some((item) => item.id === docsNavigationTarget.targetId)) {
+      setActiveId(docsNavigationTarget.targetId);
+      setQuery("");
+      setActiveFilter("all");
+      return;
+    }
+
+    if (docsNavigationTarget.query) {
+      setQuery(docsNavigationTarget.query);
+      setActiveFilter("all");
+    }
+  }, [docsNavigationTarget, items]);
 
   useEffect(() => {
     if (!filteredItems.some((item) => item.id === activeId)) {
@@ -1860,6 +2109,13 @@ function DemosSection() {
   const [activeTitle, setActiveTitle] = useState(gameDemos[0].title);
   const [playMessage, setPlayMessage] = useState("");
   const activeDemo = gameDemos.find((demo) => demo.title === activeTitle) ?? gameDemos[0];
+  const demosNavigationTarget = useSearchNavigationTarget("demos");
+
+  useEffect(() => {
+    if (demosNavigationTarget?.targetId && gameDemos.some((demo) => demo.title === demosNavigationTarget.targetId)) {
+      setActiveTitle(demosNavigationTarget.targetId);
+    }
+  }, [demosNavigationTarget]);
 
   function playActiveDemo() {
     setPlayMessage(`已切到 ${activeDemo.title} 演示位。`);
@@ -1934,6 +2190,7 @@ function MusicSection({
   const isSupabase = siteBackend.mode === "supabase";
   const activeTrack = tracks.find((track) => track.id === activeTrackId) ?? tracks[0];
   const editingTrack = editingTrackId ? tracks.find((track) => track.id === editingTrackId) : null;
+  const musicNavigationTarget = useSearchNavigationTarget("music");
 
   useEffect(() => {
     let active = true;
@@ -1954,7 +2211,11 @@ function MusicSection({
 
         if (remoteTracks.length > 0) {
           setTracks(remoteTracks);
-          setActiveTrackId(remoteTracks[0].id);
+          setActiveTrackId(
+            musicNavigationTarget?.targetId && remoteTracks.some((track) => track.id === musicNavigationTarget.targetId)
+              ? musicNavigationTarget.targetId
+              : remoteTracks[0].id,
+          );
         }
         onSettingsChange(remoteSettings);
         setLoadState("ready");
@@ -1972,7 +2233,13 @@ function MusicSection({
     return () => {
       active = false;
     };
-  }, [onSettingsChange]);
+  }, [musicNavigationTarget?.targetId, onSettingsChange]);
+
+  useEffect(() => {
+    if (musicNavigationTarget?.targetId && tracks.some((track) => track.id === musicNavigationTarget.targetId)) {
+      setActiveTrackId(musicNavigationTarget.targetId);
+    }
+  }, [musicNavigationTarget?.targetId, tracks]);
 
   useEffect(() => {
     setIsPlaying(false);
@@ -2401,6 +2668,7 @@ function GallerySection({
 
   const isOwner = currentUser?.role === "owner";
   const isSupabase = siteBackend.mode === "supabase";
+  const galleryNavigationTarget = useSearchNavigationTarget("gallery");
   const editingGalleryItem = editingGalleryItemId ? items.find((item) => item.id === editingGalleryItemId) : null;
 
   const filteredItems = useMemo(() => {
@@ -2410,6 +2678,16 @@ function GallerySection({
 
     return items.filter((item) => item.category === filter);
   }, [filter, items]);
+
+  useEffect(() => {
+    if (!galleryNavigationTarget?.query) {
+      return;
+    }
+
+    if (galleryFilters.includes(galleryNavigationTarget.query)) {
+      setFilter(galleryNavigationTarget.query);
+    }
+  }, [galleryNavigationTarget]);
 
   useEffect(() => {
     let active = true;
@@ -2694,6 +2972,7 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
 
   const isOwner = currentUser?.role === "owner";
   const isSupabase = siteBackend.mode === "supabase";
+  const notesNavigationTarget = useSearchNavigationTarget("notes");
   const draftTags = useMemo(() => parseTags(tagInput), [tagInput]);
   const availableTags = useMemo(() => [...new Set(notes.flatMap((note) => note.tags))].slice(0, 12), [notes]);
   const normalizedSearchQuery = normalizeSearchText(searchQuery);
@@ -2808,6 +3087,21 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
       setActiveTag("all");
     }
   }, [activeTag, availableTags]);
+
+  useEffect(() => {
+    if (!notesNavigationTarget) {
+      return;
+    }
+
+    setActiveKind("all");
+    setActiveTag("all");
+    if (notesNavigationTarget.query) {
+      setSearchQuery(notesNavigationTarget.query);
+    }
+    if (notesNavigationTarget.targetId) {
+      setExpandedNoteId(notesNavigationTarget.targetId);
+    }
+  }, [notesNavigationTarget]);
 
   useEffect(() => {
     if (expandedNoteId && !filteredNotes.some((note) => note.id === expandedNoteId)) {

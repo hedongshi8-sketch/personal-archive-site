@@ -241,6 +241,7 @@ assert(appSource.includes("sendPasswordReset") && appSource.includes("忘记密�
 assert(appSource.includes("function AccountPanel"), "account panel exists");
 assert(appSource.includes("function EditableText"), "graphical editable text exists");
 assert(appSource.includes("编辑模式"), "owner edit mode exists");
+assert(appSource.includes("createGlobalSearchIndex") && appSource.includes("global-search-panel"), "global archive search is wired");
 assert(appSource.includes("站主动态"), "public owner updates copy exists");
 assert(appSource.includes("ExcelSheetPreview"), "Excel in-site preview reader exists");
 assert(appSource.includes("DocumentReader"), "document in-site preview reader exists");
