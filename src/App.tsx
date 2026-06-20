@@ -303,6 +303,21 @@ function galleryItemToDraft(item: GalleryItem): GalleryItemInput {
   };
 }
 
+function portfolioItemToDraft(item: PortfolioItem): PortfolioItemInput {
+  return {
+    project: item.project,
+    kind: item.kind,
+    title: item.title,
+    summary: item.summary,
+    tags: item.tags,
+    publicUrl: item.publicUrl,
+    previewUrl: item.previewUrl ?? "",
+    thumbnailUrl: item.thumbnailUrl ?? "",
+    sourcePath: item.sourcePath ?? "",
+    featured: item.featured,
+  };
+}
+
 function makeFileTitle(file: File) {
   return file.name.replace(/\.[^.]+$/, "");
 }
@@ -1363,7 +1378,10 @@ function DocsSection({ currentUser }: { currentUser: AuthUser | null }) {
   const [activeId, setActiveId] = useState(portfolioItems.find((item) => item.featured)?.id ?? portfolioItems[0].id);
   const [draft, setDraft] = useState<PortfolioItemInput>(defaultPortfolioDraft);
   const [tagInput, setTagInput] = useState("");
+  const [editingPortfolioItemId, setEditingPortfolioItemId] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [savingPortfolio, setSavingPortfolio] = useState(false);
+  const [deletingPortfolioItemId, setDeletingPortfolioItemId] = useState<string | null>(null);
   const [docsState, setDocsState] = useState<LoadState>("idle");
   const [statusMessage, setStatusMessage] = useState("");
 
@@ -1385,6 +1403,7 @@ function DocsSection({ currentUser }: { currentUser: AuthUser | null }) {
   }, [activeFilter, items, query]);
 
   const activeItem = filteredItems.find((item) => item.id === activeId) ?? filteredItems[0] ?? portfolioItems[0];
+  const editingPortfolioItem = editingPortfolioItemId ? items.find((item) => item.id === editingPortfolioItemId) : null;
 
   useEffect(() => {
     if (!filteredItems.some((item) => item.id === activeId)) {
@@ -1456,7 +1475,20 @@ function DocsSection({ currentUser }: { currentUser: AuthUser | null }) {
     }
   }
 
-  async function createPortfolioEntry() {
+  function resetPortfolioDraft() {
+    setDraft(defaultPortfolioDraft);
+    setTagInput("");
+    setEditingPortfolioItemId(null);
+  }
+
+  function startEditingPortfolioItem(item: PortfolioItem = activeItem) {
+    setDraft(portfolioItemToDraft(item));
+    setTagInput(item.tags.join(", "));
+    setEditingPortfolioItemId(item.id);
+    setStatusMessage(`正在编辑「${item.title}」，改完后点保存修改。`);
+  }
+
+  async function savePortfolioEntry() {
     if (!isOwner) {
       setStatusMessage("只有站主账号可以编辑作品集。");
       return;
@@ -1472,7 +1504,8 @@ function DocsSection({ currentUser }: { currentUser: AuthUser | null }) {
     }
 
     try {
-      const nextItem = await siteBackend.createPortfolioItem({
+      setSavingPortfolio(true);
+      const payload: PortfolioItemInput = {
         ...draft,
         title,
         summary,
@@ -1484,14 +1517,57 @@ function DocsSection({ currentUser }: { currentUser: AuthUser | null }) {
           .split(/[,，]/)
           .map((tag) => tag.trim())
           .filter(Boolean),
-      });
-      setItems((current) => [nextItem, ...current]);
+      };
+      const nextItem = editingPortfolioItemId
+        ? await siteBackend.updatePortfolioItem(editingPortfolioItemId, payload)
+        : await siteBackend.createPortfolioItem(payload);
+      setItems((current) =>
+        editingPortfolioItemId
+          ? current.map((item) => (item.id === editingPortfolioItemId ? nextItem : item))
+          : [nextItem, ...current],
+      );
       setActiveId(nextItem.id);
-      setDraft(defaultPortfolioDraft);
-      setTagInput("");
-      setStatusMessage(isSupabase ? "作品集条目已写入 Supabase。" : "本地预览已新增作品条目。");
+      resetPortfolioDraft();
+      setStatusMessage(
+        editingPortfolioItemId
+          ? "作品集条目已更新。"
+          : isSupabase
+            ? "作品集条目已写入 Supabase。"
+            : "本地预览已新增作品条目。",
+      );
     } catch (error) {
-      setStatusMessage(error instanceof Error ? error.message : "新增作品失败。");
+      setStatusMessage(error instanceof Error ? error.message : "保存作品失败。");
+    } finally {
+      setSavingPortfolio(false);
+    }
+  }
+
+  async function deletePortfolioItem(item: PortfolioItem = activeItem) {
+    if (!isOwner) {
+      setStatusMessage("只有站主账号可以删除作品集条目。");
+      return;
+    }
+
+    if (!window.confirm(`确定删除「${item.title}」这个作品条目吗？`)) {
+      return;
+    }
+
+    try {
+      setDeletingPortfolioItemId(item.id);
+      await siteBackend.deletePortfolioItem(item.id);
+      setItems((current) => {
+        const nextItems = current.filter((candidate) => candidate.id !== item.id);
+        setActiveId(nextItems[0]?.id ?? portfolioItems[0].id);
+        return nextItems;
+      });
+      if (editingPortfolioItemId === item.id) {
+        resetPortfolioDraft();
+      }
+      setStatusMessage("作品集条目已删除。");
+    } catch (error) {
+      setStatusMessage(error instanceof Error ? error.message : "删除作品失败。");
+    } finally {
+      setDeletingPortfolioItemId(null);
     }
   }
 
@@ -1509,7 +1585,7 @@ function DocsSection({ currentUser }: { currentUser: AuthUser | null }) {
         <div className="portfolio-admin">
           <div className="portfolio-admin-head">
             <span>{isSupabase ? "Supabase 权限" : localPreviewLabel}</span>
-            <strong>{isOwner ? "站主编辑入口已开启" : "公开浏览模式"}</strong>
+            <strong>{editingPortfolioItem ? "编辑作品集条目" : isOwner ? "站主编辑入口已开启" : "公开浏览模式"}</strong>
           </div>
           <BackendModeNotice isSupabase={isSupabase} />
           {!isOwner ? <p className="backend-status">登录站主账号后，这里会自动出现上传和登记入口。</p> : null}
@@ -1595,8 +1671,13 @@ function DocsSection({ currentUser }: { currentUser: AuthUser | null }) {
                     type="file"
                   />
                 </label>
-                <button className="cyan-button" disabled={uploading} onClick={createPortfolioEntry} type="button">
-                  登记作品
+                <button className="ghost-button" disabled={uploading || savingPortfolio} onClick={resetPortfolioDraft} type="button">
+                  <X size={15} />
+                  {editingPortfolioItem ? "取消编辑" : "清空"}
+                </button>
+                <button className="cyan-button" disabled={uploading || savingPortfolio} onClick={savePortfolioEntry} type="button">
+                  <Check size={16} />
+                  {savingPortfolio ? "保存中..." : editingPortfolioItem ? "保存修改" : "登记作品"}
                 </button>
               </div>
             </div>
@@ -1668,6 +1749,28 @@ function DocsSection({ currentUser }: { currentUser: AuthUser | null }) {
                 <span>{activeItem.kindLabel}</span>
                 <time>{activeItem.updatedAt}</time>
               </div>
+              {isOwner ? (
+                <div className="portfolio-owner-actions">
+                  <button
+                    className="ghost-button"
+                    disabled={savingPortfolio}
+                    onClick={() => startEditingPortfolioItem(activeItem)}
+                    type="button"
+                  >
+                    <Edit3 size={15} />
+                    编辑当前
+                  </button>
+                  <button
+                    className="ghost-button danger"
+                    disabled={deletingPortfolioItemId === activeItem.id}
+                    onClick={() => void deletePortfolioItem(activeItem)}
+                    type="button"
+                  >
+                    <Trash2 size={15} />
+                    删除当前
+                  </button>
+                </div>
+              ) : null}
             </div>
             <div className="portfolio-preview">
               <PortfolioPreview item={activeItem} />

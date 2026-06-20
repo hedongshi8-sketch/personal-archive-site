@@ -983,6 +983,19 @@ p {
   font-size: 14px;
 }
 
+.portfolio-owner-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.portfolio-owner-actions .ghost-button {
+  min-height: 36px;
+  padding: 0 12px;
+  font-size: 12px;
+}
+
 .portfolio-meta {
   display: flex;
   flex-wrap: wrap;

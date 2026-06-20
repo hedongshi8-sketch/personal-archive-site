@@ -122,6 +122,8 @@ export type SiteBackend = {
   likeComment(id: string, likes: number): Promise<void>;
   listPortfolioItems(): Promise<PortfolioItem[]>;
   createPortfolioItem(input: PortfolioItemInput): Promise<PortfolioItem>;
+  updatePortfolioItem(id: string, input: PortfolioItemInput): Promise<PortfolioItem>;
+  deletePortfolioItem(id: string): Promise<void>;
   uploadPortfolioFile(file: File, kind: PortfolioKind): Promise<{ publicUrl: string; storagePath: string }>;
   uploadAsset(file: File, kind: AssetRecord["kind"]): Promise<AssetRecord>;
   listMusicTracks(): Promise<MusicTrack[]>;
@@ -542,6 +544,30 @@ export class LocalPreviewBackend implements SiteBackend {
     };
   }
 
+  async updatePortfolioItem(id: string, input: PortfolioItemInput) {
+    return {
+      id,
+      title: input.title,
+      project: input.project,
+      projectLabel: portfolioProjectLabels[input.project],
+      kind: input.kind,
+      kindLabel: portfolioKindLabels[input.kind],
+      summary: input.summary,
+      tags: input.tags,
+      publicUrl: input.publicUrl,
+      previewUrl: input.previewUrl,
+      thumbnailUrl: input.thumbnailUrl,
+      sourcePath: input.sourcePath ?? "Local Preview",
+      updatedAt: new Date().toISOString().slice(0, 10),
+      featured: input.featured,
+      downloadable: true,
+    };
+  }
+
+  async deletePortfolioItem() {
+    return;
+  }
+
   async uploadPortfolioFile(file: File, kind: PortfolioKind) {
     return {
       publicUrl: URL.createObjectURL(file),
@@ -928,6 +954,41 @@ export class SupabaseBackend implements SiteBackend {
       .single<PortfolioItemRow>();
 
     return mapPortfolioItem(requireSupabaseResult(data, error));
+  }
+
+  async updatePortfolioItem(id: string, input: PortfolioItemInput) {
+    requireOwner(await this.getCurrentUser(), "只有站主账号可以修改作品集。");
+
+    const { data, error } = await this.client
+      .from("portfolio_items")
+      .update({
+        project_id: input.project,
+        title: input.title,
+        kind: input.kind,
+        summary: input.summary,
+        tags: input.tags,
+        public_url: input.publicUrl,
+        preview_url: input.previewUrl || null,
+        thumbnail_url: input.thumbnailUrl || null,
+        source_path: input.sourcePath || null,
+        featured: input.featured ?? false,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", id)
+      .select("id,project_id,title,kind,summary,tags,public_url,preview_url,thumbnail_url,source_path,featured,updated_at")
+      .single<PortfolioItemRow>();
+
+    return mapPortfolioItem(requireSupabaseResult(data, error));
+  }
+
+  async deletePortfolioItem(id: string) {
+    requireOwner(await this.getCurrentUser(), "只有站主账号可以删除作品集条目。");
+
+    const { error } = await this.client.from("portfolio_items").delete().eq("id", id);
+
+    if (error) {
+      throw new Error(error.message);
+    }
   }
 
   async uploadPortfolioFile(file: File, kind: PortfolioKind) {
