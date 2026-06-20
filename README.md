@@ -46,7 +46,7 @@ where email = '你的邮箱';
 
 已有旧库时，先执行 `supabase/migrations/20260619_account_editing.sql`，它会把旧版发帖结构升级到账号资料、公开站主动态和登录留言。
 
-如果线上验证提示缺少 `site_logo_url`，或提示 `简历 + 作品集合并版`、`系统策划投递说明` 仍然公开，直接在 Supabase SQL Editor 执行 `supabase/fix-live-database.sql`。执行结果里 `site_logo_url_ready` 应为 `true`，`visible_internal_items` 应为 `0`。
+如果线上验证提示缺少 `site_logo_url`，或提示 `简历 + 作品集合并版`、`系统策划投递说明` 仍然公开，直接在 Supabase SQL Editor 执行 `supabase/fix-live-database.sql`。执行结果里 `site_logo_url_ready` 应为 `true`，`visible_internal_items` 应为 `0`。跑完后本地执行 `npm run verify:live-db-fix` 做单项验收。
 
 ## 环境变量
 

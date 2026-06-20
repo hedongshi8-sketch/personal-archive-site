@@ -493,15 +493,19 @@ function Sidebar({
   activeSection,
   settings,
   editMode,
+  canEdit,
   onSaveSettings,
   onUploadBrandImage,
+  onEditModeChange,
   onToggleTheme,
 }: {
   activeSection: SectionId;
   settings: SiteSettings;
   editMode: boolean;
+  canEdit: boolean;
   onSaveSettings: (patch: Partial<SiteSettings>) => Promise<void>;
   onUploadBrandImage: (file: File | null, kind: "site-logo" | "site-avatar") => Promise<void>;
+  onEditModeChange: (enabled: boolean) => void;
   onToggleTheme: () => void;
 }) {
   const [editorMessage, setEditorMessage] = useState("");
@@ -543,6 +547,16 @@ function Sidebar({
             {settings.siteLogoUrl ? <img src={settings.siteLogoUrl} alt="" /> : <span />}
           </a>
         )}
+        {canEdit && !editMode ? (
+          <button
+            className="brand-compact-edit"
+            onClick={() => onEditModeChange(true)}
+            type="button"
+            aria-label="编辑左上角文字、Logo 和头像"
+          >
+            <Edit3 size={12} />
+          </button>
+        ) : null}
         <div>
           {editMode ? (
             <>
@@ -566,10 +580,23 @@ function Sidebar({
               {editorMessage ? <small className="brand-edit-status">{editorMessage}</small> : null}
             </>
           ) : (
-            <a className="brand-copy" href="#home">
-              <strong>{settings.brandName}</strong>
-              <small>{settings.brandSubtitle}</small>
-            </a>
+            <>
+              <a className="brand-copy" href="#home">
+                <strong>{settings.brandName}</strong>
+                <small>{settings.brandSubtitle}</small>
+              </a>
+              {canEdit ? (
+                <button
+                  className="brand-edit-shortcut"
+                  onClick={() => onEditModeChange(true)}
+                  type="button"
+                  aria-label="编辑左上角文字、Logo 和头像"
+                >
+                  <Edit3 size={13} />
+                  <span>编辑</span>
+                </button>
+              ) : null}
+            </>
           )}
         </div>
       </div>
@@ -613,13 +640,49 @@ function Sidebar({
   );
 }
 
-function MobileNav({ activeSection, settings }: { activeSection: SectionId; settings: SiteSettings }) {
+function MobileNav({
+  activeSection,
+  settings,
+  editMode,
+  onSaveSettings,
+}: {
+  activeSection: SectionId;
+  settings: SiteSettings;
+  editMode: boolean;
+  onSaveSettings: (patch: Partial<SiteSettings>) => Promise<void>;
+}) {
+  const [editorMessage, setEditorMessage] = useState("");
+
+  async function saveMobileBrandName(value: string) {
+    try {
+      await onSaveSettings({ brandName: value });
+      setEditorMessage("已保存");
+    } catch (error) {
+      setEditorMessage(error instanceof Error ? error.message : "保存失败");
+    }
+  }
+
   return (
     <div className="mobile-nav-strip" aria-label="移动端导航">
-      <a className="mobile-brand" href="#home">
-        <Menu size={18} />
-        <span>{settings.brandName}</span>
-      </a>
+      {editMode ? (
+        <div className="mobile-brand-editor-wrap">
+          <label className="mobile-brand mobile-brand-editor">
+            <Menu size={18} />
+            <CommitInput
+              value={settings.brandName}
+              label="编辑左上角名称"
+              onSave={saveMobileBrandName}
+              placeholder="LinX"
+            />
+          </label>
+          {editorMessage ? <small>{editorMessage}</small> : null}
+        </div>
+      ) : (
+        <a className="mobile-brand" href="#home">
+          <Menu size={18} />
+          <span>{settings.brandName}</span>
+        </a>
+      )}
       <nav>
         {navItems.slice(1, 8).map((item) => (
           <a
@@ -2024,6 +2087,7 @@ function BackgroundMusicDock({ settings }: { settings: SiteSettings }) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [playing, setPlaying] = useState(false);
   const [blocked, setBlocked] = useState(false);
+  const [userPaused, setUserPaused] = useLocalStorage("linx_background_music_paused", false);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -2040,7 +2104,7 @@ function BackgroundMusicDock({ settings }: { settings: SiteSettings }) {
 
   useEffect(() => {
     const audio = audioRef.current;
-    if (!audio || !settings.backgroundMusicEnabled || !settings.backgroundMusicUrl) {
+    if (!audio || !settings.backgroundMusicEnabled || !settings.backgroundMusicUrl || userPaused) {
       return;
     }
 
@@ -2079,7 +2143,7 @@ function BackgroundMusicDock({ settings }: { settings: SiteSettings }) {
       window.removeEventListener("pointerdown", resumeOnInteraction);
       window.removeEventListener("keydown", resumeOnInteraction);
     };
-  }, [settings.backgroundMusicEnabled, settings.backgroundMusicUrl]);
+  }, [settings.backgroundMusicEnabled, settings.backgroundMusicUrl, userPaused]);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -2090,6 +2154,7 @@ function BackgroundMusicDock({ settings }: { settings: SiteSettings }) {
     function stopBackgroundMusic() {
       audio?.pause();
       setPlaying(false);
+      setBlocked(false);
     }
 
     window.addEventListener("linx-background-music-stop", stopBackgroundMusic);
@@ -2105,10 +2170,13 @@ function BackgroundMusicDock({ settings }: { settings: SiteSettings }) {
     if (playing) {
       audio.pause();
       setPlaying(false);
+      setBlocked(false);
+      setUserPaused(true);
       return;
     }
 
     try {
+      setUserPaused(false);
       await audio.play();
       setPlaying(true);
       setBlocked(false);
@@ -2770,9 +2838,40 @@ function MusicSection({
   }, [musicNavigationTarget?.targetId, tracks]);
 
   useEffect(() => {
-    setIsPlaying(false);
-    audioRef.current?.pause();
-  }, [activeTrackId]);
+    const audio = audioRef.current;
+    if (!audio) {
+      return;
+    }
+
+    if (!isPlaying || !activeTrack?.audioUrl) {
+      audio.pause();
+      setIsPlaying(false);
+      return;
+    }
+
+    const selectedAudio = audio;
+    let cancelled = false;
+
+    async function playSelectedTrack() {
+      try {
+        window.dispatchEvent(new CustomEvent("linx-background-music-stop"));
+        await selectedAudio.play();
+        if (!cancelled) {
+          setIsPlaying(true);
+        }
+      } catch (error) {
+        if (!cancelled) {
+          setIsPlaying(false);
+          setStatusMessage(error instanceof Error ? error.message : "浏览器阻止了播放，请再点一次播放。");
+        }
+      }
+    }
+
+    void playSelectedTrack();
+    return () => {
+      cancelled = true;
+    };
+  }, [activeTrackId, activeTrack?.audioUrl, isPlaying]);
 
   async function handleMusicFile(file: File | null) {
     if (!file) {
@@ -5381,12 +5480,19 @@ export function App() {
         activeSection={activeSection}
         settings={siteSettings}
         editMode={editMode && currentUser?.role === "owner"}
+        canEdit={currentUser?.role === "owner"}
         onSaveSettings={saveSiteSettings}
         onUploadBrandImage={uploadBrandImage}
+        onEditModeChange={setEditMode}
         onToggleTheme={() => setDarkMode((current) => !current)}
       />
       <main className={clsx("workspace", `workspace-${activeSection}`)}>
-        <MobileNav activeSection={activeSection} settings={siteSettings} />
+        <MobileNav
+          activeSection={activeSection}
+          settings={siteSettings}
+          editMode={editMode && currentUser?.role === "owner"}
+          onSaveSettings={saveSiteSettings}
+        />
         <div className="global-account-bar">
           <AccountPanel
             user={currentUser}

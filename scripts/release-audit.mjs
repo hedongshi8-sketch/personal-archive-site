@@ -79,6 +79,7 @@ assert(exists("docs/development-maintenance.md"), "development maintenance docs 
 assert(exists("docs/supabase-smtp.md"), "Supabase SMTP docs exist");
 assert(exists(".env.example"), ".env.example exists");
 assert(exists("supabase/fix-live-database.sql"), "Supabase live database fix script exists");
+assert(exists("scripts/verify-live-database-fix.mjs"), "Supabase live database fix verifier exists");
 assert(exists("supabase/schema.sql"), "Supabase schema exists");
 assert(exists("supabase/seed-portfolio.sql"), "Supabase portfolio seed exists");
 assert(exists("supabase/migrations/20260619_account_editing.sql"), "Supabase account editing migration exists");
@@ -115,6 +116,10 @@ assert(
 assert(
   packageJson.scripts?.["verify:owner-backend:remote"] === "node scripts/verify-owner-backend-ready.mjs --remote",
   "remote owner backend verification script exists",
+);
+assert(
+  packageJson.scripts?.["verify:live-db-fix"] === "node scripts/verify-live-database-fix.mjs",
+  "live database fix verification script exists",
 );
 assert(read("scripts/verify-owner-backend-ready.mjs").includes("anonymous visitor cannot delete public comment"), "owner backend verifier checks anonymous comment deletion");
 assert(read("scripts/verify-owner-backend-ready.mjs").includes("approved public comments are tied to a profile"), "owner backend verifier checks legacy anonymous comments");

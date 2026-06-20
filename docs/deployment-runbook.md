@@ -15,7 +15,7 @@
    - `https://hedongshi8-sketch.github.io`
    - `https://hedongshi8-sketch.github.io/personal-archive-site/`
 
-如果是已经上线过的旧库，且验证提示缺少 `site_logo_url` 或内部投递文件仍公开，直接执行 `supabase/fix-live-database.sql`。执行结果里 `site_logo_url_ready` 应为 `true`，`visible_internal_items` 应为 `0`。
+如果是已经上线过的旧库，且验证提示缺少 `site_logo_url` 或内部投递文件仍公开，直接执行 `supabase/fix-live-database.sql`。执行结果里 `site_logo_url_ready` 应为 `true`，`visible_internal_items` 应为 `0`。跑完后本地执行 `npm run verify:live-db-fix` 做单项验收。
 
 ## 2. 设置站主账号
 
