@@ -12,6 +12,8 @@ import {
   galleryItems,
   musicTracks,
   readingNotes,
+  seedComments,
+  seedOwnerPosts,
   type Comment,
   type GalleryItem,
   type MusicTrack,
@@ -480,7 +482,7 @@ export class LocalPreviewBackend implements SiteBackend {
   }
 
   async listOwnerPosts() {
-    return [];
+    return seedOwnerPosts;
   }
 
   async createOwnerPost(input: Pick<OwnerPost, "title" | "body" | "visibility">) {
@@ -508,7 +510,7 @@ export class LocalPreviewBackend implements SiteBackend {
   }
 
   async listComments() {
-    return [];
+    return seedComments;
   }
 
   async createComment(input: CommentInput) {
