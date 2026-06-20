@@ -232,6 +232,7 @@ assert(schema.includes("profile-avatars/"), "profile avatar storage path is allo
 assert(schema.includes("author_id"), "comments are tied to profile author id");
 
 const appSource = read("src/App.tsx");
+const backendSource = read("src/lib/backendContract.ts");
 assert(appSource.includes("https://utteranc.es/client.js"), "GitHub Issues comments bridge exists");
 assert(appSource.includes("site-comment"), "GitHub Issues comments are labeled");
 assert(appSource.includes("function useAuthSession"), "global auth session hook exists");
@@ -254,7 +255,50 @@ assert(appSource.includes("updateMusicTrack") && appSource.includes("deleteMusic
 assert(appSource.includes("updateGalleryItem") && appSource.includes("deleteGalleryItem"), "gallery owner edit/delete UI exists");
 assert(appSource.includes("updateOwnerPost") && appSource.includes("deleteOwnerPost"), "owner post edit/delete UI exists");
 assert(appSource.includes("deleteComment") && appSource.includes("只有站主账号可以删除留言"), "comment owner delete UI exists");
-assert(read("src/lib/backendContract.ts").includes('.not("author_id", "is", null)'), "public comments exclude legacy anonymous rows");
+assert(backendSource.includes('.not("author_id", "is", null)'), "public comments exclude legacy anonymous rows");
+for (const localStore of [
+  "localOwnerPosts",
+  "localComments",
+  "localPortfolioItems",
+  "localMusicTracks",
+  "localGalleryItems",
+  "localReadingNotes",
+]) {
+  assert(backendSource.includes(`let ${localStore}`), `Local preview ${localStore} store exists`);
+}
+for (const localMutation of [
+  "localOwnerPosts = [post, ...localOwnerPosts]",
+  "localOwnerPosts = localOwnerPosts.map",
+  "localOwnerPosts = localOwnerPosts.filter",
+  "localComments = [comment, ...localComments]",
+  "localComments = localComments.map",
+  "localComments = localComments.filter",
+  "localPortfolioItems = [item, ...localPortfolioItems]",
+  "localPortfolioItems = localPortfolioItems.map",
+  "localPortfolioItems = localPortfolioItems.filter",
+  "localMusicTracks = [track, ...localMusicTracks]",
+  "localMusicTracks = localMusicTracks.map",
+  "localMusicTracks = localMusicTracks.filter",
+  "localGalleryItems = [item, ...localGalleryItems]",
+  "localGalleryItems = localGalleryItems.map",
+  "localGalleryItems = localGalleryItems.filter",
+  "localReadingNotes = [note, ...localReadingNotes]",
+  "localReadingNotes = localReadingNotes.map",
+  "localReadingNotes = localReadingNotes.filter",
+]) {
+  assert(backendSource.includes(localMutation), `Local preview mutation exists: ${localMutation}`);
+}
+for (const emptyLocalMethod of [
+  /async deleteOwnerPost\([^)]*\)\s*{\s*return;\s*}/,
+  /async likeComment\([^)]*\)\s*{\s*return;\s*}/,
+  /async deleteComment\([^)]*\)\s*{\s*return;\s*}/,
+  /async deletePortfolioItem\([^)]*\)\s*{\s*return;\s*}/,
+  /async deleteMusicTrack\([^)]*\)\s*{\s*return;\s*}/,
+  /async deleteGalleryItem\([^)]*\)\s*{\s*return;\s*}/,
+  /async deleteReadingNote\([^)]*\)\s*{\s*return;\s*}/,
+]) {
+  assert(!emptyLocalMethod.test(backendSource), `Local preview backend has no empty mutation method ${emptyLocalMethod}`);
+}
 assert(appSource.includes("checkHumanGate"), "anti-spam human gate exists");
 assert(appSource.includes("BackgroundMusicDock"), "background music dock exists");
 

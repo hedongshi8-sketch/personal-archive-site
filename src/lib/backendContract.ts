@@ -423,6 +423,77 @@ function getFriendlyAuthError(message: string) {
 }
 
 let localSiteSettings: SiteSettings = defaultSiteSettings;
+let localProfile: AuthUser = {
+  id: "local-owner",
+  email: "owner@example.local",
+  username: "Local Owner",
+  avatarUrl: undefined,
+  role: "owner",
+};
+let localOwnerPosts: OwnerPost[] = [...seedOwnerPosts];
+let localComments: Comment[] = [...seedComments];
+let localPortfolioItems: PortfolioItem[] = [...portfolioItems];
+let localMusicTracks: MusicTrack[] = [...musicTracks];
+let localGalleryItems: GalleryItem[] = [...galleryItems];
+let localReadingNotes: ReadingNote[] = [...readingNotes];
+
+function createLocalId(prefix: string) {
+  return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function createLocalPortfolioItem(input: PortfolioItemInput, id = createLocalId("local-portfolio")): PortfolioItem {
+  return {
+    id,
+    title: input.title,
+    project: input.project,
+    projectLabel: portfolioProjectLabels[input.project],
+    kind: input.kind,
+    kindLabel: portfolioKindLabels[input.kind],
+    summary: input.summary,
+    tags: input.tags,
+    publicUrl: input.publicUrl,
+    previewUrl: input.previewUrl,
+    thumbnailUrl: input.thumbnailUrl,
+    sourcePath: input.sourcePath ?? "Local Preview",
+    updatedAt: new Date().toISOString().slice(0, 10),
+    featured: input.featured,
+    downloadable: true,
+  };
+}
+
+function createLocalMusicTrack(input: MusicTrackInput, id = createLocalId("local-music")): MusicTrack {
+  return {
+    id,
+    title: input.title,
+    artist: input.artist,
+    mood: input.mood,
+    duration: input.duration || "本地音频",
+    audioUrl: input.audioUrl,
+    coverUrl: input.coverUrl,
+    isBackground: input.isBackground,
+    createdAt: new Date().toISOString().slice(0, 10),
+  };
+}
+
+function createLocalGalleryItem(input: GalleryItemInput, id = createLocalId("local-gallery")): GalleryItem {
+  return {
+    id,
+    title: input.title,
+    category: input.category,
+    description: input.description,
+    imageUrl: input.imageUrl,
+    isCover: input.isCover,
+    createdAt: new Date().toISOString().slice(0, 10),
+  };
+}
+
+function createLocalReadingNote(input: ReadingNoteInput, id = createLocalId("local-note")): ReadingNote {
+  return {
+    id,
+    ...input,
+    createdAt: new Date().toISOString().slice(0, 10),
+  };
+}
 
 export class LocalPreviewBackend implements SiteBackend {
   readonly mode = "local" as const;
@@ -432,13 +503,7 @@ export class LocalPreviewBackend implements SiteBackend {
       return null;
     }
 
-    return {
-      id: "local-owner",
-      email: "owner@example.local",
-      username: "Local Owner",
-      avatarUrl: undefined,
-      role: "owner" as const,
-    };
+    return localProfile;
   }
 
   async signInWithPassword() {
@@ -465,119 +530,101 @@ export class LocalPreviewBackend implements SiteBackend {
   }
 
   async updateProfile(input: { username: string; avatarUrl?: string }) {
-    return {
-      id: "local-owner",
-      email: "owner@example.local",
+    localProfile = {
+      ...localProfile,
       username: input.username,
       avatarUrl: input.avatarUrl,
-      role: "owner" as const,
     };
+    return localProfile;
   }
 
   async uploadProfileAvatar(file: File) {
+    const publicUrl = URL.createObjectURL(file);
+    localProfile = {
+      ...localProfile,
+      avatarUrl: publicUrl,
+    };
     return {
-      publicUrl: URL.createObjectURL(file),
+      publicUrl,
       storagePath: `local-preview/profile-avatars/${file.name}`,
     };
   }
 
   async listOwnerPosts() {
-    return seedOwnerPosts;
+    return localOwnerPosts.filter((post) => post.visibility === "public");
   }
 
   async createOwnerPost(input: Pick<OwnerPost, "title" | "body" | "visibility">) {
-    return {
-      id: `local-${Date.now()}`,
+    const post = {
+      id: createLocalId("local-post"),
       title: input.title,
       body: input.body,
       visibility: input.visibility,
       createdAt: getReadableNow(),
     };
+    localOwnerPosts = [post, ...localOwnerPosts];
+    return post;
   }
 
   async updateOwnerPost(id: string, input: Pick<OwnerPost, "title" | "body" | "visibility">) {
-    return {
+    const post = {
       id,
       title: input.title,
       body: input.body,
       visibility: input.visibility,
       createdAt: getReadableNow(),
     };
+    localOwnerPosts = localOwnerPosts.map((item) => (item.id === id ? post : item));
+    return post;
   }
 
-  async deleteOwnerPost() {
-    return;
+  async deleteOwnerPost(id: string) {
+    localOwnerPosts = localOwnerPosts.filter((post) => post.id !== id);
   }
 
   async listComments() {
-    return seedComments;
+    return localComments;
   }
 
   async createComment(input: CommentInput) {
-    return {
-      id: `local-${Date.now()}`,
+    const comment = {
+      id: createLocalId("local-comment"),
       author: input.author,
       avatar: input.author.trim().slice(0, 1) || "访",
       body: input.body,
       time: "刚刚",
       likes: 0,
     };
+    localComments = [comment, ...localComments];
+    return comment;
   }
 
-  async likeComment() {
-    return;
+  async likeComment(id: string, likes: number) {
+    localComments = localComments.map((comment) => (comment.id === id ? { ...comment, likes } : comment));
   }
 
-  async deleteComment() {
-    return;
+  async deleteComment(id: string) {
+    localComments = localComments.filter((comment) => comment.id !== id);
   }
 
   async listPortfolioItems() {
-    return portfolioItems;
+    return localPortfolioItems;
   }
 
   async createPortfolioItem(input: PortfolioItemInput) {
-    return {
-      id: `local-portfolio-${Date.now()}`,
-      title: input.title,
-      project: input.project,
-      projectLabel: portfolioProjectLabels[input.project],
-      kind: input.kind,
-      kindLabel: portfolioKindLabels[input.kind],
-      summary: input.summary,
-      tags: input.tags,
-      publicUrl: input.publicUrl,
-      previewUrl: input.previewUrl,
-      thumbnailUrl: input.thumbnailUrl,
-      sourcePath: input.sourcePath ?? "Local Preview",
-      updatedAt: new Date().toISOString().slice(0, 10),
-      featured: input.featured,
-      downloadable: true,
-    };
+    const item = createLocalPortfolioItem(input);
+    localPortfolioItems = [item, ...localPortfolioItems];
+    return item;
   }
 
   async updatePortfolioItem(id: string, input: PortfolioItemInput) {
-    return {
-      id,
-      title: input.title,
-      project: input.project,
-      projectLabel: portfolioProjectLabels[input.project],
-      kind: input.kind,
-      kindLabel: portfolioKindLabels[input.kind],
-      summary: input.summary,
-      tags: input.tags,
-      publicUrl: input.publicUrl,
-      previewUrl: input.previewUrl,
-      thumbnailUrl: input.thumbnailUrl,
-      sourcePath: input.sourcePath ?? "Local Preview",
-      updatedAt: new Date().toISOString().slice(0, 10),
-      featured: input.featured,
-      downloadable: true,
-    };
+    const item = createLocalPortfolioItem(input, id);
+    localPortfolioItems = localPortfolioItems.map((candidate) => (candidate.id === id ? item : candidate));
+    return item;
   }
 
-  async deletePortfolioItem() {
-    return;
+  async deletePortfolioItem(id: string) {
+    localPortfolioItems = localPortfolioItems.filter((item) => item.id !== id);
   }
 
   async uploadPortfolioFile(file: File, kind: PortfolioKind) {
@@ -599,95 +646,63 @@ export class LocalPreviewBackend implements SiteBackend {
   }
 
   async listMusicTracks() {
-    return musicTracks;
+    return localMusicTracks;
   }
 
   async createMusicTrack(input: MusicTrackInput) {
-    return {
-      id: `local-music-${Date.now()}`,
-      title: input.title,
-      artist: input.artist,
-      mood: input.mood,
-      duration: input.duration || "本地音频",
-      audioUrl: input.audioUrl,
-      coverUrl: input.coverUrl,
-      isBackground: input.isBackground,
-      createdAt: new Date().toISOString().slice(0, 10),
-    };
+    const track = createLocalMusicTrack(input);
+    localMusicTracks = [track, ...localMusicTracks];
+    return track;
   }
 
   async updateMusicTrack(id: string, input: MusicTrackInput) {
-    return {
-      id,
-      title: input.title,
-      artist: input.artist,
-      mood: input.mood,
-      duration: input.duration || "本地音频",
-      audioUrl: input.audioUrl,
-      coverUrl: input.coverUrl,
-      isBackground: input.isBackground,
-      createdAt: new Date().toISOString().slice(0, 10),
-    };
+    const track = createLocalMusicTrack(input, id);
+    localMusicTracks = localMusicTracks.map((candidate) => (candidate.id === id ? track : candidate));
+    return track;
   }
 
-  async deleteMusicTrack() {
-    return;
+  async deleteMusicTrack(id: string) {
+    localMusicTracks = localMusicTracks.filter((track) => track.id !== id);
   }
 
   async listGalleryItems() {
-    return galleryItems;
+    return localGalleryItems;
   }
 
   async createGalleryItem(input: GalleryItemInput) {
-    return {
-      id: `local-gallery-${Date.now()}`,
-      title: input.title,
-      category: input.category,
-      description: input.description,
-      imageUrl: input.imageUrl,
-      isCover: input.isCover,
-      createdAt: new Date().toISOString().slice(0, 10),
-    };
+    const item = createLocalGalleryItem(input);
+    localGalleryItems = [item, ...localGalleryItems];
+    return item;
   }
 
   async updateGalleryItem(id: string, input: GalleryItemInput) {
-    return {
-      id,
-      title: input.title,
-      category: input.category,
-      description: input.description,
-      imageUrl: input.imageUrl,
-      isCover: input.isCover,
-      createdAt: new Date().toISOString().slice(0, 10),
-    };
+    const item = createLocalGalleryItem(input, id);
+    localGalleryItems = localGalleryItems.map((candidate) => (candidate.id === id ? item : candidate));
+    return item;
   }
 
-  async deleteGalleryItem() {
-    return;
+  async deleteGalleryItem(id: string) {
+    localGalleryItems = localGalleryItems.filter((item) => item.id !== id);
   }
 
   async listReadingNotes() {
-    return readingNotes;
+    return localReadingNotes;
   }
 
   async createReadingNote(input: ReadingNoteInput) {
-    return {
-      id: `local-note-${Date.now()}`,
-      ...input,
-      createdAt: new Date().toISOString().slice(0, 10),
-    };
+    const note = createLocalReadingNote(input);
+    localReadingNotes = [note, ...localReadingNotes];
+    return note;
   }
 
   async updateReadingNote(id: string, input: ReadingNoteInput) {
-    return {
-      id,
-      ...input,
-      createdAt: new Date().toISOString().slice(0, 10),
-    };
+    const note = createLocalReadingNote(input, id);
+    localReadingNotes = localReadingNotes.map((candidate) => (candidate.id === id ? note : candidate));
+    return note;
   }
 
-  async deleteReadingNote() {
-    return;
+  async deleteReadingNote(id: string) {
+    localReadingNotes = localReadingNotes.filter((note) => note.id !== id);
   }
 
   async getSiteSettings() {
