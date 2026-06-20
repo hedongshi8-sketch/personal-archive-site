@@ -4636,8 +4636,13 @@ export function App() {
 
   useEffect(() => {
     const handleRouteChange = () => {
-      setActiveSection(getSectionFromLocation());
+      const nextSection = getSectionFromLocation();
+      setActiveSection(nextSection);
       window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+      window.requestAnimationFrame(() => {
+        document.querySelector(".workspace")?.scrollTo({ top: 0, left: 0, behavior: "auto" });
+        document.getElementById(nextSection)?.scrollTo({ top: 0, left: 0, behavior: "auto" });
+      });
     };
 
     handleRouteChange();
