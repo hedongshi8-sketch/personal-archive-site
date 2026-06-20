@@ -127,6 +127,8 @@ type HumanGateState = {
 type AccountDraft = {
   email: string;
   password: string;
+  recoveryPassword: string;
+  recoveryPasswordConfirm: string;
   username: string;
   mode: "signin" | "signup";
 };
@@ -175,6 +177,8 @@ const defaultReadingDraft: ReadingNoteInput = {
 const defaultAccountDraft: AccountDraft = {
   email: "",
   password: "",
+  recoveryPassword: "",
+  recoveryPasswordConfirm: "",
   username: "",
   mode: "signin",
 };
@@ -467,6 +471,16 @@ function useSearchNavigationTarget(section: SectionId) {
   return target;
 }
 
+function isPasswordRecoveryUrl() {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+  const searchParams = new URLSearchParams(window.location.search);
+  return hashParams.get("type") === "recovery" || searchParams.get("type") === "recovery";
+}
+
 function Sidebar({
   activeSection,
   settings,
@@ -590,6 +604,7 @@ function useAuthSession() {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [authState, setAuthState] = useState<LoadState>("idle");
   const [authMessage, setAuthMessage] = useState("");
+  const [passwordRecoveryReady, setPasswordRecoveryReady] = useState(() => isPasswordRecoveryUrl());
 
   useEffect(() => {
     let active = true;
@@ -602,6 +617,10 @@ function useAuthSession() {
           return;
         }
         setUser(currentUser);
+        if (isPasswordRecoveryUrl()) {
+          setPasswordRecoveryReady(true);
+          setAuthMessage("已进入密码重置模式。请输入新密码并保存。");
+        }
         setAuthState("ready");
       } catch (error) {
         if (!active) {
@@ -615,6 +634,19 @@ function useAuthSession() {
     void loadUser();
     return () => {
       active = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    function syncRecoveryState() {
+      setPasswordRecoveryReady(isPasswordRecoveryUrl());
+    }
+
+    window.addEventListener("hashchange", syncRecoveryState);
+    window.addEventListener("popstate", syncRecoveryState);
+    return () => {
+      window.removeEventListener("hashchange", syncRecoveryState);
+      window.removeEventListener("popstate", syncRecoveryState);
     };
   }, []);
 
@@ -690,6 +722,27 @@ function useAuthSession() {
     }
   }
 
+  async function updatePassword(password: string) {
+    if (password.trim().length < 6) {
+      setAuthMessage("新密码至少需要 6 位。");
+      return;
+    }
+
+    setAuthState("loading");
+    try {
+      await siteBackend.updatePassword(password);
+      setPasswordRecoveryReady(false);
+      setAuthState("ready");
+      setAuthMessage("新密码已保存。你现在可以用新密码登录。");
+      if (typeof window !== "undefined" && isPasswordRecoveryUrl()) {
+        window.history.replaceState(null, "", `${window.location.pathname}${window.location.search.replace(/[?&]type=recovery/, "") || ""}`);
+      }
+    } catch (error) {
+      setAuthState("error");
+      setAuthMessage(error instanceof Error ? error.message : "新密码保存失败。");
+    }
+  }
+
   async function signOut() {
     setAuthState("loading");
     try {
@@ -724,6 +777,7 @@ function useAuthSession() {
     setUser,
     authState,
     authMessage,
+    passwordRecoveryReady,
     setAuthMessage,
     signIn,
     signOut,
@@ -731,6 +785,7 @@ function useAuthSession() {
     uploadProfileAvatar,
     resendConfirmation,
     sendPasswordReset,
+    updatePassword,
   };
 }
 
@@ -738,28 +793,34 @@ function AccountPanel({
   user,
   authState,
   authMessage,
+  passwordRecoveryReady,
   onSubmit,
   onSignOut,
   onProfileUpdate,
   onAvatarUpload,
   onResendConfirmation,
   onPasswordReset,
+  onUpdatePassword,
 }: {
   user: AuthUser | null;
   authState: LoadState;
   authMessage: string;
+  passwordRecoveryReady: boolean;
   onSubmit: (input: AccountDraft) => Promise<void>;
   onSignOut: () => Promise<void>;
   onProfileUpdate: (input: { username: string; avatarUrl?: string }) => Promise<AuthUser>;
   onAvatarUpload: (file: File) => Promise<{ publicUrl: string; storagePath: string }>;
   onResendConfirmation: (email: string) => Promise<void>;
   onPasswordReset: (email: string) => Promise<void>;
+  onUpdatePassword: (password: string) => Promise<void>;
 }) {
   const [draft, setDraft] = useState<AccountDraft>(defaultAccountDraft);
   const [profileName, setProfileName] = useState(user?.username ?? "");
   const [profileBusy, setProfileBusy] = useState(false);
   const busy = authState === "loading";
   const canRequestEmailHelp = Boolean(draft.email.trim()) && !busy;
+  const canSaveRecoveryPassword =
+    draft.recoveryPassword.trim().length >= 6 && draft.recoveryPassword === draft.recoveryPasswordConfirm && !busy;
 
   useEffect(() => {
     setProfileName(user?.username ?? "");
@@ -796,6 +857,45 @@ function AccountPanel({
     } finally {
       setProfileBusy(false);
     }
+  }
+
+  if (passwordRecoveryReady) {
+    return (
+      <div className="account-panel account-panel-form account-recovery-panel">
+        <div>
+          <span>密码重置</span>
+          <strong>设置新的登录密码</strong>
+        </div>
+        <input
+          value={draft.recoveryPassword}
+          onChange={(event) => setDraft((current) => ({ ...current, recoveryPassword: event.target.value }))}
+          placeholder="新密码，至少 6 位"
+          type="password"
+        />
+        <input
+          value={draft.recoveryPasswordConfirm}
+          onChange={(event) => setDraft((current) => ({ ...current, recoveryPasswordConfirm: event.target.value }))}
+          placeholder="再次输入新密码"
+          type="password"
+        />
+        <button
+          className="cyan-button"
+          disabled={!canSaveRecoveryPassword}
+          onClick={() => void onUpdatePassword(draft.recoveryPassword)}
+          type="button"
+        >
+          <LockKeyhole size={16} />
+          保存新密码
+        </button>
+        <p className="account-recovery-hint">
+          密码重置链接只在当前登录恢复会话里有效。保存成功后，就可以用新密码重新登录。
+        </p>
+        {draft.recoveryPasswordConfirm && draft.recoveryPassword !== draft.recoveryPasswordConfirm ? (
+          <p className="backend-status">两次输入的新密码不一致。</p>
+        ) : null}
+        {authMessage ? <p className="backend-status">{authMessage}</p> : null}
+      </div>
+    );
   }
 
   if (user) {
@@ -3081,6 +3181,9 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
     null,
   );
   const readingIndexNotes = filteredNotes.slice(0, 8);
+  const readerProgress =
+    readerNote && filteredNotes.length > 0 && readerNoteIndex >= 0 ? Math.round(((readerNoteIndex + 1) / filteredNotes.length) * 100) : 0;
+  const readerMinutes = readerNote ? Math.max(1, Math.ceil(readerNote.quote.trim().length / 420)) : 0;
   const hasAnyNotes = notes.length > 0;
   const hasReadingFilters = activeKind !== "all" || activeTag !== "all" || normalizedSearchQuery.length > 0;
   const publishChecks = [
@@ -3124,6 +3227,10 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
     : isSupabase
       ? "Supabase Archive Ready"
       : "Local Reading Archive";
+  const reflectionLength = draft.reflection.trim().length;
+  const draftReadingMinutes = quoteLength > 0 ? Math.max(1, Math.ceil(quoteLength / 420)) : 0;
+  const missingRequiredFields = requiredPublishChecks.filter((item) => !item.ready).map((item) => item.label);
+  const draftSignal = canPublish ? "公开阅读字段已齐全" : `还差 ${missingRequiredFields.join(" / ") || "必填项"}`;
 
   function resetReadingFilters() {
     setActiveKind("all");
@@ -3590,6 +3697,23 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
                       </button>
                     </div>
                   </div>
+                  <div className="note-reader-progress" aria-label={`阅读进度 ${readerProgress}%`}>
+                    <span style={{ "--reader-progress": `${readerProgress}%` } as CSSProperties} />
+                  </div>
+                  <div className="note-reader-signals" aria-label={`${readerNote.title} 阅读节奏`}>
+                    <span>
+                      <strong>{readerMinutes}</strong>
+                      分钟阅读
+                    </span>
+                    <span>
+                      <strong>{readerNote.tags.length || 0}</strong>
+                      个标签
+                    </span>
+                    <span>
+                      <strong>{readerNote.reflection.trim() ? "有" : "无"}</strong>
+                      心得
+                    </span>
+                  </div>
                   <div className="note-reader-context" aria-label={`${readerNote.title} 阅读信息`}>
                     <span>
                       <BookOpenText size={13} />
@@ -3789,6 +3913,20 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
               </div>
               <div className="reading-publish-meter" aria-label={`必填项完成度 ${publishProgress}%`}>
                 <span style={{ "--publish-progress": `${publishProgress}%` } as CSSProperties} />
+              </div>
+              <div className="reading-composer-helper" aria-label="书摘发布状态">
+                <span>
+                  <PenLine size={14} />
+                  {draftSignal}
+                </span>
+                <span>
+                  <BookOpenText size={14} />
+                  {draftReadingMinutes || 0} 分钟阅读
+                </span>
+                <span>
+                  <Quote size={14} />
+                  心得 {reflectionLength} 字
+                </span>
               </div>
 
               <div className="owner-upload-grid">
@@ -4191,22 +4329,26 @@ function CommentsSection({
   currentUser,
   authState,
   authMessage,
+  passwordRecoveryReady,
   onAuthSubmit,
   onSignOut,
   onProfileUpdate,
   onAvatarUpload,
   onResendConfirmation,
   onPasswordReset,
+  onUpdatePassword,
 }: {
   currentUser: AuthUser | null;
   authState: LoadState;
   authMessage: string;
+  passwordRecoveryReady: boolean;
   onAuthSubmit: (input: AccountDraft) => Promise<void>;
   onSignOut: () => Promise<void>;
   onProfileUpdate: (input: { username: string; avatarUrl?: string }) => Promise<AuthUser>;
   onAvatarUpload: (file: File) => Promise<{ publicUrl: string; storagePath: string }>;
   onResendConfirmation: (email: string) => Promise<void>;
   onPasswordReset: (email: string) => Promise<void>;
+  onUpdatePassword: (password: string) => Promise<void>;
 }) {
   const [comments, setComments] = useLocalStorage<Comment[]>("linx_comments", seedComments);
   const [commentBody, setCommentBody] = useState("");
@@ -4337,12 +4479,14 @@ function CommentsSection({
           user={currentUser}
           authState={authState}
           authMessage={authMessage}
+          passwordRecoveryReady={passwordRecoveryReady}
           onSubmit={onAuthSubmit}
           onSignOut={onSignOut}
           onProfileUpdate={onProfileUpdate}
           onAvatarUpload={onAvatarUpload}
           onResendConfirmation={onResendConfirmation}
           onPasswordReset={onPasswordReset}
+          onUpdatePassword={onUpdatePassword}
         />
       ) : null}
       <div className="comment-form">
@@ -4526,12 +4670,14 @@ export function App() {
         currentUser={currentUser}
         authState={auth.authState}
         authMessage={auth.authMessage}
+        passwordRecoveryReady={auth.passwordRecoveryReady}
         onAuthSubmit={auth.signIn}
         onSignOut={auth.signOut}
         onProfileUpdate={auth.updateUserProfile}
         onAvatarUpload={auth.uploadProfileAvatar}
         onResendConfirmation={auth.resendConfirmation}
         onPasswordReset={auth.sendPasswordReset}
+        onUpdatePassword={auth.updatePassword}
       />
     ),
     contact: <ContactSection />,
@@ -4547,12 +4693,14 @@ export function App() {
             user={currentUser}
             authState={auth.authState}
             authMessage={auth.authMessage}
+            passwordRecoveryReady={auth.passwordRecoveryReady}
             onSubmit={auth.signIn}
             onSignOut={auth.signOut}
             onProfileUpdate={auth.updateUserProfile}
             onAvatarUpload={auth.uploadProfileAvatar}
             onResendConfirmation={auth.resendConfirmation}
             onPasswordReset={auth.sendPasswordReset}
+            onUpdatePassword={auth.updatePassword}
           />
           {currentUser?.role === "owner" ? (
             <button className={clsx("ghost-button", editMode && "active")} onClick={() => setEditMode((enabled) => !enabled)} type="button">
