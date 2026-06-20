@@ -4423,9 +4423,15 @@ p {
   align-items: center;
   gap: 12px;
   min-height: 76px;
+  border: 1px solid rgba(30, 29, 25, 0.12);
+  border-radius: 8px;
   padding: 14px 16px;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.58), rgba(251, 248, 240, 0.34)),
+    linear-gradient(90deg, rgba(33, 215, 222, 0.11), transparent);
   color: #38352f;
   font-size: 15px;
+  font-weight: 760;
 }
 
 .roadmap-item svg {

@@ -317,13 +317,13 @@ export const seedOwnerPosts: OwnerPost[] = [
   },
 ];
 
-export const backendRoadmap = [
-  "Supabase Auth：账号密码登录，浏览器会自动保留 session",
-  "Postgres + RLS：站主动态公开可读，只有 owner 可发布",
-  "Profiles：访客可设置用户名和头像，登录后才可留言",
-  "对象存储：上传策划 PDF、Demo 包、音乐、封面和图片收藏原图",
-  "轻量防刷：留言表单包含数学验证、蜜罐字段和提交时间检查",
-  "Edge Functions：高级评论审核、邮件通知、Webhook 自动发布",
+export const contactHighlights = [
+  "作品集：策划案、Excel 配置、PDF、图文说明都支持站内预览",
+  "游戏 Demo：游戏小镇和战争界面原型可以直接打开体验",
+  "书摘心得：喜欢的段落、书名、心得和标签会沉淀成公开阅读档案",
+  "站主动态：阶段更新、想法和作品调整会保留在公开时间线",
+  "留言墙：登录后可以评论、回复和点赞，我会定期查看反馈",
+  "编辑权限：公开页面可浏览，内容维护入口只对站主账号开放",
 ];
 
 export const ownerActions = [

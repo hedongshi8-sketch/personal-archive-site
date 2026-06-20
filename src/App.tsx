@@ -41,7 +41,7 @@ import {
   X,
 } from "lucide-react";
 import {
-  backendRoadmap,
+  contactHighlights,
   defaultSiteSettings,
   galleryItems,
   gameDemos,
@@ -4803,9 +4803,9 @@ function ContactSection() {
         description="这里会保留我的作品、Demo、音乐、图片、书摘、更新记录和留言入口；站主账号负责维护，访客账号负责互动。"
       />
       <div className="roadmap-list">
-        {backendRoadmap.map((item) => (
+        {contactHighlights.map((item) => (
           <div className="roadmap-item" key={item}>
-            <LockKeyhole size={16} />
+            <Sparkles size={16} />
             <span>{item}</span>
           </div>
         ))}
