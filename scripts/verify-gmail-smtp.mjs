@@ -3,12 +3,13 @@ import "./load-local-env.mjs";
 
 const gmailAddress = process.env.GMAIL_ADDRESS || "hedongshi8@gmail.com";
 const appPassword = process.env.GMAIL_APP_PASSWORD;
-const to = process.env.GMAIL_SMTP_TO || gmailAddress;
+const to = process.env.GMAIL_SMTP_TO || process.env.AUTH_EMAIL_TO || process.env.SMTP_TO || gmailAddress;
 const from = process.env.GMAIL_SMTP_FROM || `Personal Archive <${gmailAddress}>`;
 const requestedPort = process.env.GMAIL_SMTP_PORT;
 
 if (!appPassword) {
   console.error("FAIL Gmail app password configured: set GMAIL_APP_PASSWORD before running this check.");
+  console.error("Tip: put GMAIL_ADDRESS, AUTH_EMAIL_TO, and GMAIL_APP_PASSWORD in .env.local so this command can run without copy/paste.");
   console.error('Example: $env:GMAIL_APP_PASSWORD="your 16-character app password"; npm run verify:gmail-smtp');
   process.exit(1);
 }

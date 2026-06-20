@@ -40,11 +40,13 @@ Sender     = 个人策划档案 <hedongshi8@gmail.com>
 本地先测 Gmail SMTP。可以给当前 PowerShell 终端设置 Gmail App Password：
 
 ```powershell
+$env:GMAIL_ADDRESS="hedongshi8@gmail.com"
 $env:GMAIL_APP_PASSWORD="你的 Gmail App Password"
+$env:AUTH_EMAIL_TO="hedongshi8@gmail.com"
 npm run verify:gmail-smtp
 ```
 
-也可以把同样的变量放到本机 `.env.local`，脚本会自动读取；`.env.local` 已被 gitignore，不要提交或截图。
+也可以把同样的变量放到本机 `.env.local`，脚本会自动读取；`.env.local` 已被 gitignore，不要提交或截图。`verify:gmail-smtp` 会优先使用 `GMAIL_SMTP_TO`，其次使用 `AUTH_EMAIL_TO`，再退回到 `GMAIL_ADDRESS`。
 
 这个命令默认会先试 `465/TLS`，失败后自动试 `587/STARTTLS`。如果你只想测某一个端口，可以临时加：
 
@@ -84,11 +86,12 @@ Site URL      = https://hedongshi8-sketch.github.io/personal-archive-site/
 配置完成后触发一次 Supabase Auth 确认邮件：
 
 ```powershell
+$env:GMAIL_ADDRESS="hedongshi8@gmail.com"
 $env:AUTH_EMAIL_TO="你的收件邮箱"
 npm run verify:auth-email
 ```
 
-这个命令默认直接使用 `AUTH_EMAIL_TO` 本体，避免生成 `+auth-test` 测试账号。只有你明确想用 Gmail 加号别名隔离测试时，再额外设置：
+这个命令默认直接使用 `AUTH_EMAIL_TO` 本体，避免生成 `+auth-test` 测试账号。如果没设置 `AUTH_EMAIL_TO`，脚本会尝试用 `GMAIL_ADDRESS` 作为收件邮箱。只有你明确想用 Gmail 加号别名隔离测试时，再额外设置：
 
 ```powershell
 $env:AUTH_EMAIL_USE_ALIAS="true"

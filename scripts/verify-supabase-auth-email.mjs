@@ -4,7 +4,7 @@ import "./load-local-env.mjs";
 const supabaseUrl = process.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY;
 const siteUrl = process.env.SITE_URL || "https://hedongshi8-sketch.github.io/personal-archive-site/";
-const targetEmail = process.env.AUTH_EMAIL_TO || process.env.SMTP_TO;
+const targetEmail = process.env.AUTH_EMAIL_TO || process.env.GMAIL_SMTP_TO || process.env.SMTP_TO || process.env.GMAIL_ADDRESS;
 const testPassword = process.env.AUTH_EMAIL_TEST_PASSWORD || `Test-${Date.now()}-aA1!`;
 const shouldResend = process.env.AUTH_EMAIL_RESEND === "true";
 const shouldUseAlias = process.env.AUTH_EMAIL_USE_ALIAS === "true";
@@ -56,7 +56,10 @@ if (!supabaseUrl || !supabaseAnonKey) {
 }
 
 if (!targetEmail) {
-  fail("target email configured", "set AUTH_EMAIL_TO or SMTP_TO to the inbox that should receive the confirmation email");
+  fail(
+    "target email configured",
+    "set AUTH_EMAIL_TO, GMAIL_SMTP_TO, SMTP_TO, or GMAIL_ADDRESS to the inbox that should receive the confirmation email",
+  );
 }
 
 if (failures.length === 0) {
