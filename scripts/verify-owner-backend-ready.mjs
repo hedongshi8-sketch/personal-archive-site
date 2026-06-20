@@ -175,7 +175,7 @@ async function checkSupabaseBackend() {
     internalPortfolioItems.length === 0,
     "published portfolio excludes internal application assembly files",
     internalPortfolioItems.length > 0
-      ? `${internalPortfolioItems.length}: ${internalPortfolioItems.map((item) => `${item.title} (${item.id})`).join(", ")}. Run supabase/hide-internal-portfolio-items.sql in Supabase SQL Editor.`
+      ? `${internalPortfolioItems.length}: ${internalPortfolioItems.map((item) => `${item.title} (${item.id})`).join(", ")}. Run supabase/fix-live-database.sql in Supabase SQL Editor.`
       : "",
   );
 
@@ -319,7 +319,7 @@ await checkSupabaseBackend();
 if (failures.length > 0) {
   console.error(`\nOwner backend readiness failed with ${failures.length} issue(s).`);
   console.error("The public site can still work as a static portfolio, but owner uploads will not persist online yet.");
-  console.error("If the failing issue mentions internal application assembly files, run `supabase/hide-internal-portfolio-items.sql` in Supabase SQL Editor.");
+  console.error("If the failures mention missing site_logo_url or internal application assembly files, run `supabase/fix-live-database.sql` in Supabase SQL Editor.");
   console.error("For broader database upgrades, run `npm run sql:supabase-upgrade` and paste the output into Supabase SQL Editor, then run supabase/set-owner.sql after your owner account exists.");
   process.exit(1);
 }

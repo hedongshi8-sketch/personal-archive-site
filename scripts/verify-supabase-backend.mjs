@@ -61,7 +61,7 @@ if (!supabaseUrl || !supabaseAnonKey) {
     internalPortfolioItems.length === 0,
     "published portfolio excludes internal application assembly files",
     internalPortfolioItems.length > 0
-      ? `${internalPortfolioItems.length}: ${internalPortfolioItems.map((item) => `${item.title} (${item.id})`).join(", ")}. Run supabase/hide-internal-portfolio-items.sql in Supabase SQL Editor.`
+      ? `${internalPortfolioItems.length}: ${internalPortfolioItems.map((item) => `${item.title} (${item.id})`).join(", ")}. Run supabase/fix-live-database.sql in Supabase SQL Editor.`
       : "",
   );
   assert(
@@ -178,8 +178,8 @@ if (!supabaseUrl || !supabaseAnonKey) {
 
 if (failures.length > 0) {
   console.error(`\nSupabase backend verification failed with ${failures.length} issue(s).`);
-  console.error("If the failing issue mentions internal portfolio items, run `supabase/hide-internal-portfolio-items.sql` in Supabase SQL Editor.");
-  console.error("If the failing issues mention missing site_settings columns, owner_post_visibility, anonymous comments, or broader upgrades, run `npm run sql:supabase-upgrade` and paste the output into Supabase SQL Editor, then run supabase/set-owner.sql after your owner account exists.");
+  console.error("If the failures mention missing site_logo_url or internal portfolio items, run `supabase/fix-live-database.sql` in Supabase SQL Editor.");
+  console.error("For broader database upgrades, run `npm run sql:supabase-upgrade` and paste the output into Supabase SQL Editor, then run supabase/set-owner.sql after your owner account exists.");
   process.exit(1);
 }
 

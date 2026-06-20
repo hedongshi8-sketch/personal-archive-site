@@ -457,6 +457,52 @@ p {
   padding-inline: 8px;
 }
 
+.account-mail-radar {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.account-mail-radar-signed {
+  grid-column: 2 / -1;
+}
+
+.account-mail-radar span {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+  border: 1px solid rgba(30, 29, 25, 0.1);
+  border-radius: 7px;
+  padding: 7px 8px;
+  background: rgba(255, 255, 255, 0.34);
+}
+
+.account-mail-radar span.is-ready {
+  border-color: rgba(33, 215, 222, 0.26);
+  background:
+    linear-gradient(90deg, rgba(33, 215, 222, 0.1), transparent),
+    rgba(255, 255, 255, 0.42);
+}
+
+.account-mail-radar small {
+  overflow: hidden;
+  color: var(--cyan-dark);
+  font-size: 9px;
+  font-weight: 900;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.account-mail-radar strong {
+  overflow: hidden;
+  color: #4d473d;
+  font-size: 11px;
+  font-weight: 900;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .account-recovery-hint {
   margin: 0;
   border: 1px solid rgba(33, 215, 222, 0.18);
@@ -4184,6 +4230,85 @@ p {
   font-weight: 850;
 }
 
+.reading-workflow-rail {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.reading-workflow-rail span {
+  position: relative;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 7px;
+  align-items: center;
+  border: 1px solid rgba(30, 29, 25, 0.11);
+  border-radius: 8px;
+  padding: 9px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.36), rgba(255, 255, 255, 0.2)),
+    repeating-linear-gradient(90deg, rgba(30, 29, 25, 0.025) 0 1px, transparent 1px 18px);
+}
+
+.reading-workflow-rail span.is-ready {
+  border-color: rgba(33, 215, 222, 0.3);
+  background:
+    linear-gradient(90deg, rgba(33, 215, 222, 0.12), transparent),
+    rgba(255, 255, 255, 0.42);
+}
+
+.reading-workflow-rail span.is-optional:not(.is-ready) {
+  opacity: 0.78;
+}
+
+.reading-workflow-rail em {
+  grid-row: span 2;
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 7px;
+  background: rgba(30, 29, 25, 0.08);
+  color: rgba(30, 29, 25, 0.46);
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 900;
+}
+
+.reading-workflow-rail span.is-ready em {
+  background: rgba(33, 215, 222, 0.16);
+  color: #0c6b78;
+}
+
+.reading-workflow-rail svg {
+  position: absolute;
+  right: 9px;
+  top: 9px;
+  color: rgba(12, 107, 120, 0.56);
+}
+
+.reading-workflow-rail strong,
+.reading-workflow-rail small {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.reading-workflow-rail strong {
+  padding-right: 18px;
+  color: #423d35;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.reading-workflow-rail small {
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 820;
+}
+
 .reading-publish-checks {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -5119,6 +5244,7 @@ p {
 .dark-mode .reading-import-guide,
 .dark-mode .reading-import-guide code,
 .dark-mode .music-draft-radar span,
+.dark-mode .reading-workflow-rail span,
 .dark-mode .reading-field-radar span,
 .dark-mode .reading-publish-checks span,
 .dark-mode .reading-publish-meter,
@@ -5238,6 +5364,31 @@ p {
     rgba(255, 255, 255, 0.06);
 }
 
+.dark-mode .reading-workflow-rail span.is-ready {
+  border-color: rgba(33, 215, 222, 0.28);
+  background:
+    linear-gradient(90deg, rgba(33, 215, 222, 0.12), transparent),
+    rgba(255, 255, 255, 0.06);
+}
+
+.dark-mode .reading-workflow-rail em {
+  background: rgba(255, 255, 255, 0.07);
+  color: rgba(247, 241, 230, 0.52);
+}
+
+.dark-mode .reading-workflow-rail span.is-ready em {
+  background: rgba(33, 215, 222, 0.15);
+  color: #8deaf2;
+}
+
+.dark-mode .reading-workflow-rail strong {
+  color: #fff7e8;
+}
+
+.dark-mode .reading-workflow-rail small {
+  color: rgba(247, 241, 230, 0.56);
+}
+
 .dark-mode .music-draft-radar span.is-ready {
   border-color: rgba(33, 215, 222, 0.28);
   background:
@@ -5338,6 +5489,26 @@ p {
   border-color: rgba(255, 255, 255, 0.18);
   background: rgba(255, 255, 255, 0.07);
   color: #f7f1e6;
+}
+
+.dark-mode .account-mail-radar span {
+  border-color: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.055);
+}
+
+.dark-mode .account-mail-radar span.is-ready {
+  border-color: rgba(33, 215, 222, 0.28);
+  background:
+    linear-gradient(90deg, rgba(33, 215, 222, 0.12), transparent),
+    rgba(255, 255, 255, 0.07);
+}
+
+.dark-mode .account-mail-radar small {
+  color: #8deaf2;
+}
+
+.dark-mode .account-mail-radar strong {
+  color: #fff7e8;
 }
 
 @media (max-width: 1380px) and (min-width: 861px) {

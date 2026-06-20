@@ -276,6 +276,7 @@ assert(appSource.includes("sendPasswordReset") && appSource.includes("忘记密�
 assert(appSource.includes("passwordRecoveryReady") && appSource.includes("保存新密码"), "password recovery update UI is wired");
 assert(backendSource.includes("updatePassword(password") && backendSource.includes("auth.updateUser({ password })"), "password recovery backend update is wired");
 assert(appSource.includes("function AccountPanel"), "account panel exists");
+assert(appSource.includes("account-mail-radar") && appSource.includes("邮件登录链路状态"), "account email status radar exists");
 assert(appSource.includes("function EditableText"), "graphical editable text exists");
 assert(appSource.includes("编辑模式"), "owner edit mode exists");
 assert(appSource.includes("brand-edit-panel") && appSource.includes("site-logo"), "site logo and brand editor exists");
@@ -291,6 +292,7 @@ assert(appSource.includes("function NotesSection"), "reading notes section exist
 assert(appSource.includes("notes-search-box") && appSource.includes("note-reader-panel"), "reading notes search and reader panel exist");
 assert(appSource.includes("parseReadingClipboardText") && appSource.includes("reading-import-guide"), "reading clipboard smart import exists");
 assert(read("src/lib/readingImport.ts").includes("parseReadingClipboardText"), "reading clipboard parser module exists");
+assert(appSource.includes("reading-workflow-rail") && appSource.includes("书摘发布流程"), "reading publish workflow rail exists");
 assert(appSource.includes("updateMusicTrack") && appSource.includes("deleteMusicTrack"), "music owner edit/delete UI exists");
 assert(appSource.includes("updateGalleryItem") && appSource.includes("deleteGalleryItem"), "gallery owner edit/delete UI exists");
 assert(appSource.includes("updateOwnerPost") && appSource.includes("deleteOwnerPost"), "owner post edit/delete UI exists");

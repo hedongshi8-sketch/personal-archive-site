@@ -914,6 +914,16 @@ function AccountPanel({
   const canSaveRecoveryPassword =
     draft.recoveryPassword.trim().length >= 6 && draft.recoveryPassword === draft.recoveryPasswordConfirm && !busy;
   const needsPasswordRecovery = /密码不对|忘记密码|重新设置/.test(authMessage);
+  const accountFlowSignals = [
+    { label: "确认邮件", value: draft.mode === "signup" ? "注册后查收" : "已注册可跳过", ready: draft.mode !== "signup" },
+    { label: "密码重置", value: canRequestEmailHelp ? "可发送" : "先填邮箱", ready: canRequestEmailHelp },
+    { label: "登录会话", value: authState === "ready" ? "待登录" : "检查中", ready: authState === "ready" },
+  ];
+  const signedInFlowSignals = [
+    { label: "邮箱会话", value: "已登录", ready: true },
+    { label: "密码", value: showPasswordEditor ? "正在设置" : "可更新", ready: !showPasswordEditor },
+    { label: "下次登录", value: "用新密码", ready: true },
+  ];
 
   useEffect(() => {
     setProfileName(user?.username ?? "");
@@ -1069,6 +1079,14 @@ function AccountPanel({
             </span>
           </div>
         ) : null}
+        <div className="account-mail-radar account-mail-radar-signed" aria-label="当前账号邮件链路状态">
+          {signedInFlowSignals.map((item) => (
+            <span className={clsx(item.ready && "is-ready")} key={item.label}>
+              <small>{item.label}</small>
+              <strong>{item.value}</strong>
+            </span>
+          ))}
+        </div>
         {authMessage ? <p className="backend-status">{authMessage}</p> : null}
       </div>
     );
@@ -1122,6 +1140,14 @@ function AccountPanel({
             忘记密码
           </button>
         </div>
+      </div>
+      <div className="account-mail-radar" aria-label="邮件登录链路状态">
+        {accountFlowSignals.map((item) => (
+          <span className={clsx(item.ready && "is-ready")} key={item.label}>
+            <small>{item.label}</small>
+            <strong>{item.value}</strong>
+          </span>
+        ))}
       </div>
       {needsPasswordRecovery ? (
         <div className="account-password-recovery-tip">
@@ -3679,6 +3705,12 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
     { label: "段落", value: quoteLength > 0 ? `${quoteLength} 字` : "待粘贴", ready: quoteLength > 0 },
     { label: "心得", value: reflectionLength > 0 ? `${reflectionLength} 字` : "可选", ready: reflectionLength > 0, optional: true },
   ];
+  const composerWorkflowSteps = [
+    { label: "导入段落", detail: quoteLength > 0 ? `${quoteLength} 字` : "复制或输入", ready: quoteLength > 0, icon: Copy },
+    { label: "补全书名", detail: draft.title.trim() || "待填写", ready: Boolean(draft.title.trim()), icon: BookOpenText },
+    { label: "写下心得", detail: reflectionLength > 0 ? `${reflectionLength} 字` : "可选", ready: reflectionLength > 0, icon: PenLine, optional: true },
+    { label: "发布归档", detail: canPublish ? "可以发布" : "待补全", ready: canPublish, icon: Check },
+  ];
 
   function resetReadingFilters() {
     setActiveKind("all");
@@ -4489,6 +4521,19 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
                   <span>{draftTags.length} 标签</span>
                   <span>{draftQuality}</span>
                 </div>
+              </div>
+              <div className="reading-workflow-rail" aria-label="书摘发布流程">
+                {composerWorkflowSteps.map((step, index) => {
+                  const StepIcon = step.icon;
+                  return (
+                    <span className={clsx(step.ready && "is-ready", step.optional && "is-optional")} key={step.label}>
+                      <em>{String(index + 1).padStart(2, "0")}</em>
+                      <StepIcon size={14} />
+                      <strong>{step.label}</strong>
+                      <small>{step.detail}</small>
+                    </span>
+                  );
+                })}
               </div>
               <div className="reading-publish-checks" aria-label="发布检查">
                 {publishChecks.map((item) => (
