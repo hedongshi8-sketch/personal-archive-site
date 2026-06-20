@@ -274,7 +274,7 @@ p {
   grid-template-columns: minmax(98px, 1fr) minmax(110px, 0.72fr) auto;
 }
 
-.account-panel-form .ghost-button:last-child {
+.account-panel-form .account-email-help {
   grid-column: 2 / 4;
 }
 
@@ -285,10 +285,6 @@ p {
 .global-account-bar .account-panel-form .ghost-button {
   min-height: 42px;
   padding-inline: 14px;
-}
-
-.global-account-bar .account-panel-form .ghost-button:last-child {
-  grid-column: auto;
 }
 
 .account-panel > div,
@@ -331,6 +327,45 @@ p {
   min-height: 32px;
   padding-inline: 8px;
   font-weight: 800;
+}
+
+.account-email-help {
+  display: grid;
+  grid-column: 1 / -1;
+  gap: 7px;
+  min-width: 0;
+  border: 1px solid rgba(33, 215, 222, 0.18);
+  border-radius: 7px;
+  padding: 8px;
+  background: rgba(33, 215, 222, 0.08);
+}
+
+.account-email-help > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  color: #0c6b78;
+  font-size: 11px;
+  font-weight: 820;
+  line-height: 1.35;
+}
+
+.account-email-help > span svg {
+  flex: 0 0 auto;
+}
+
+.account-email-help > div {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.account-email-help .ghost-button {
+  min-width: 0;
+  width: 100%;
+  min-height: 34px;
+  padding-inline: 8px;
 }
 
 .account-avatar-picker,
@@ -4152,6 +4187,15 @@ p {
   color: rgba(247, 241, 230, 0.68);
 }
 
+.dark-mode .account-email-help {
+  border-color: rgba(33, 215, 222, 0.22);
+  background: rgba(33, 215, 222, 0.08);
+}
+
+.dark-mode .account-email-help > span {
+  color: #8deaf2;
+}
+
 .dark-mode .portfolio-admin,
 .dark-mode .owner-upload-panel,
 .dark-mode .owner-login,
@@ -4647,6 +4691,10 @@ p {
 
   .account-panel-form input[placeholder="用户名"] {
     grid-column: auto;
+  }
+
+  .account-email-help > div {
+    grid-template-columns: 1fr;
   }
 
   .screen-section {

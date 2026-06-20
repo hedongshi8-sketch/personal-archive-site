@@ -759,6 +759,7 @@ function AccountPanel({
   const [profileName, setProfileName] = useState(user?.username ?? "");
   const [profileBusy, setProfileBusy] = useState(false);
   const busy = authState === "loading";
+  const canRequestEmailHelp = Boolean(draft.email.trim()) && !busy;
 
   useEffect(() => {
     setProfileName(user?.username ?? "");
@@ -870,12 +871,20 @@ function AccountPanel({
       >
         {draft.mode === "signup" ? "已有账号" : "注册账号"}
       </button>
-      <button className="ghost-button" disabled={busy} onClick={() => void onResendConfirmation(draft.email)} type="button">
-        重发确认邮件
-      </button>
-      <button className="ghost-button" disabled={busy} onClick={() => void onPasswordReset(draft.email)} type="button">
-        忘记密码
-      </button>
+      <div className="account-email-help">
+        <span>
+          <Mail size={13} />
+          没收到确认邮件时，先检查垃圾箱；确认后再回来登录。
+        </span>
+        <div>
+          <button className="ghost-button" disabled={!canRequestEmailHelp} onClick={() => void onResendConfirmation(draft.email)} type="button">
+            重发确认邮件
+          </button>
+          <button className="ghost-button" disabled={!canRequestEmailHelp} onClick={() => void onPasswordReset(draft.email)} type="button">
+            忘记密码
+          </button>
+        </div>
+      </div>
       {authMessage ? <p className="backend-status">{authMessage}</p> : null}
     </div>
   );
