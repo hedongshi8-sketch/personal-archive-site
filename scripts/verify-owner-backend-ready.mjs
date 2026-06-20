@@ -32,12 +32,31 @@ function isNetworkError(error) {
   return /fetch failed|failed to fetch|networkerror/i.test(error?.message ?? "");
 }
 
+function describeFetchError(error) {
+  if (!(error instanceof Error)) {
+    return String(error);
+  }
+
+  const cause = error.cause instanceof Error ? `; cause: ${error.cause.message}` : "";
+  return `${error.message}${cause}`;
+}
+
 async function fetchText(url, attempts = 3) {
   let lastError;
 
   for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 15_000);
+
     try {
-      const response = await fetch(url, { redirect: "follow" });
+      const response = await fetch(url, {
+        cache: "no-store",
+        redirect: "follow",
+        signal: controller.signal,
+        headers: {
+          "user-agent": "personal-archive-site-owner-backend-verifier",
+        },
+      });
       if (!response.ok) {
         throw new Error(`${url} returned ${response.status}`);
       }
@@ -48,6 +67,8 @@ async function fetchText(url, attempts = 3) {
       if (attempt < attempts) {
         await new Promise((resolve) => setTimeout(resolve, attempt * 1200));
       }
+    } finally {
+      clearTimeout(timeout);
     }
   }
 
@@ -59,7 +80,7 @@ async function checkRemoteBundle() {
   try {
     html = await fetchText(remoteUrl);
   } catch (error) {
-    fail("remote site is reachable for owner backend check", error instanceof Error ? error.message : String(error));
+    fail("remote site is reachable for owner backend check", describeFetchError(error));
     return;
   }
 
@@ -74,7 +95,7 @@ async function checkRemoteBundle() {
   try {
     bundle = await fetchText(new URL(scriptPath, remoteUrl).toString());
   } catch (error) {
-    fail("remote app bundle is reachable for owner backend check", error instanceof Error ? error.message : String(error));
+    fail("remote app bundle is reachable for owner backend check", describeFetchError(error));
     return;
   }
   const hasRemoteSupabaseUrl = /https:\/\/[^"']*supabase\.co/.test(bundle);
