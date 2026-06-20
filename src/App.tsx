@@ -8,6 +8,7 @@ import {
   CalendarDays,
   Check,
   Code2,
+  Copy,
   Download,
   Edit3,
   ExternalLink,
@@ -2969,6 +2970,8 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
   const [loadState, setLoadState] = useState<LoadState>("idle");
   const [saveState, setSaveState] = useState<"idle" | "saving">("idle");
   const [deletingNoteId, setDeletingNoteId] = useState<string | null>(null);
+  const [readerMessage, setReaderMessage] = useState("");
+  const composerRef = useRef<HTMLDivElement | null>(null);
 
   const isOwner = currentUser?.role === "owner";
   const isSupabase = siteBackend.mode === "supabase";
@@ -3005,10 +3008,18 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
   const latestNote = notes[0];
   const featuredNote = filteredNotes[0];
   const readerNote = (expandedNoteId ? filteredNotes.find((note) => note.id === expandedNoteId) : null) ?? featuredNote;
+  const readerNoteIndex = readerNote ? filteredNotes.findIndex((note) => note.id === readerNote.id) : -1;
+  const canMoveReader = filteredNotes.length > 1 && readerNoteIndex >= 0;
   const filteredQuoteTotal = filteredNotes.reduce((total, note) => total + note.quote.trim().length, 0);
   const filteredAverageQuoteLength = filteredNotes.length > 0 ? Math.round(filteredQuoteTotal / filteredNotes.length) : 0;
   const hasAnyNotes = notes.length > 0;
   const hasReadingFilters = activeKind !== "all" || activeTag !== "all" || normalizedSearchQuery.length > 0;
+  const publishChecks = [
+    { label: "名称", ready: Boolean(draft.title.trim()) },
+    { label: "来源", ready: Boolean(draft.creator.trim()) },
+    { label: "摘录", ready: Boolean(draft.quote.trim()) },
+    { label: "标签", ready: draftTags.length > 0, optional: true },
+  ];
   const filterSummary =
     activeKind === "all"
       ? "全部来源"
@@ -3046,6 +3057,7 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
     setActiveTag("all");
     setSearchQuery("");
     setExpandedNoteId(null);
+    setReaderMessage("");
   }
 
   useEffect(() => {
@@ -3148,7 +3160,66 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
     setDraft(readingNoteToDraft(note));
     setTagInput(note.tags.join(", "));
     setEditingNoteId(note.id);
+    setExpandedNoteId(note.id);
+    setReaderMessage("");
     setStatusMessage(`正在编辑《${note.title}》，改完后点保存修改。`);
+    window.requestAnimationFrame(() => composerRef.current?.scrollIntoView({ block: "nearest", behavior: "smooth" }));
+  }
+
+  function selectReaderNote(noteId: string | null) {
+    setExpandedNoteId(noteId);
+    setReaderMessage("");
+  }
+
+  function moveReaderNote(direction: -1 | 1) {
+    if (!canMoveReader) {
+      return;
+    }
+
+    const nextIndex = (readerNoteIndex + direction + filteredNotes.length) % filteredNotes.length;
+    selectReaderNote(filteredNotes[nextIndex].id);
+  }
+
+  async function copyReaderQuote() {
+    if (!readerNote) {
+      return;
+    }
+
+    const copyText = [
+      `《${readerNote.title}》 - ${readerNote.creator}`,
+      "",
+      readerNote.quote,
+      readerNote.reflection ? `\n心得：${readerNote.reflection}` : "",
+    ]
+      .filter(Boolean)
+      .join("\n");
+
+    const copyWithSelection = () => {
+      const textarea = document.createElement("textarea");
+      textarea.value = copyText;
+      textarea.setAttribute("readonly", "");
+      textarea.style.position = "fixed";
+      textarea.style.left = "-9999px";
+      textarea.style.top = "0";
+      document.body.appendChild(textarea);
+      textarea.focus();
+      textarea.select();
+      const copied = document.execCommand("copy");
+      textarea.remove();
+      return copied;
+    };
+
+    try {
+      const isLocalHost = ["localhost", "127.0.0.1", "0.0.0.0"].includes(window.location.hostname);
+      if (navigator.clipboard?.writeText && window.isSecureContext && !isLocalHost) {
+        await navigator.clipboard.writeText(copyText);
+      } else if (!copyWithSelection()) {
+        throw new Error("copy blocked");
+      }
+      setReaderMessage("摘录已复制，可以直接贴到聊天或文档里。");
+    } catch {
+      setReaderMessage("浏览器拦截了复制，可以手动选中摘录复制。");
+    }
   }
 
   async function saveReadingNote() {
@@ -3185,6 +3256,8 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
         const updatedNote = await siteBackend.updateReadingNote(editingNoteId, payload);
         setNotes((current) => current.map((note) => (note.id === editingNoteId ? updatedNote : note)));
         resetReadingDraft();
+        setExpandedNoteId(updatedNote.id);
+        setReaderMessage("已切到刚保存的书摘。");
         setStatusMessage(isSupabase ? "书摘修改已同步到线上。" : "本地预览已更新书摘。");
         return;
       }
@@ -3192,6 +3265,8 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
       const nextNote = await siteBackend.createReadingNote(payload);
       setNotes((current) => [nextNote, ...current]);
       resetReadingDraft();
+      setExpandedNoteId(nextNote.id);
+      setReaderMessage("已切到刚发布的书摘。");
       setStatusMessage(isSupabase ? "书摘心得已写入 Supabase。" : "本地预览已新增书摘心得。");
     } catch (error) {
       setStatusMessage(error instanceof Error ? error.message : "保存书摘心得失败。");
@@ -3216,6 +3291,9 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
       setNotes((current) => current.filter((item) => item.id !== note.id));
       if (editingNoteId === note.id) {
         resetReadingDraft();
+      }
+      if (expandedNoteId === note.id) {
+        setExpandedNoteId(null);
       }
       setStatusMessage(isSupabase ? "书摘已从线上删除。" : "本地预览已删除书摘。");
     } catch (error) {
@@ -3360,6 +3438,34 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
                       {readerNote.createdAt}
                     </time>
                   </div>
+                  <div className="note-reader-toolbar" aria-label="选读控制">
+                    <span>
+                      {readerNoteIndex >= 0 ? `${readerNoteIndex + 1} / ${filteredNotes.length}` : "0 / 0"}
+                      <small>{readerNote.quote.trim().length} 字摘录</small>
+                    </span>
+                    <div className="note-reader-nav">
+                      <button
+                        aria-label="上一条书摘"
+                        disabled={!canMoveReader}
+                        onClick={() => moveReaderNote(-1)}
+                        type="button"
+                      >
+                        <SkipBack size={14} />
+                      </button>
+                      <button
+                        aria-label="下一条书摘"
+                        disabled={!canMoveReader}
+                        onClick={() => moveReaderNote(1)}
+                        type="button"
+                      >
+                        <SkipForward size={14} />
+                      </button>
+                      <button className="note-copy-button" onClick={() => void copyReaderQuote()} type="button">
+                        <Copy size={14} />
+                        复制摘录
+                      </button>
+                    </div>
+                  </div>
                   <blockquote>
                     <Quote size={18} />
                     <span>{readerNote.quote}</span>
@@ -3378,6 +3484,7 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
                       </a>
                     ) : null}
                   </div>
+                  {readerMessage ? <span className="note-reader-feedback">{readerMessage}</span> : null}
                 </div>
               </article>
             ) : null}
@@ -3388,6 +3495,7 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
                     "note-card",
                     editingNoteId === note.id && "is-editing",
                     expandedNoteId === note.id && "is-expanded",
+                    readerNote?.id === note.id && "is-selected",
                   )}
                   key={note.id}
                 >
@@ -3465,7 +3573,8 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
                       <span>{note.tags.length || 0} 个标签</span>
                       <button
                         className="note-expand-button"
-                        onClick={() => setExpandedNoteId((current) => (current === note.id ? null : note.id))}
+                        aria-pressed={expandedNoteId === note.id}
+                        onClick={() => selectReaderNote(expandedNoteId === note.id ? null : note.id)}
                         type="button"
                       >
                         {expandedNoteId === note.id ? "收起" : "阅读全文"}
@@ -3488,7 +3597,7 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
           </div>
 
           {isOwner ? (
-            <div className="owner-upload-panel notes-upload-panel reading-composer">
+            <div className={clsx("owner-upload-panel notes-upload-panel reading-composer", editingNote && "is-editing")} ref={composerRef}>
               <div className="portfolio-admin-head">
                 <span>{isSupabase ? "Supabase RLS · 线上保存" : localPreviewLabel}</span>
                 <strong>{editingNote ? "编辑已发布书摘" : "站主书摘发布入口"}</strong>
@@ -3507,6 +3616,15 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
                   <span>{quoteLength} 字</span>
                   <span>{draftQuality}</span>
                 </div>
+              </div>
+              <div className="reading-publish-checks" aria-label="发布检查">
+                {publishChecks.map((item) => (
+                  <span className={clsx(item.ready && "is-ready", item.optional && "is-optional")} key={item.label}>
+                    <Check size={13} />
+                    {item.label}
+                    {item.optional ? "可选" : ""}
+                  </span>
+                ))}
               </div>
 
               <div className="owner-upload-grid">
