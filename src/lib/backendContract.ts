@@ -279,6 +279,35 @@ function requireSupabaseResult<T>(data: T | null, error: { message: string } | n
   return data;
 }
 
+function isMissingColumnError(error: { message?: string; code?: string } | null | undefined, columnName: string) {
+  const message = error?.message?.toLowerCase() ?? "";
+  return error?.code === "42703" || message.includes(`column ${columnName.toLowerCase()}`) || message.includes(columnName.toLowerCase());
+}
+
+function createSiteSettingsPayload(settings: SiteSettings, ownerId: string, includeLogo: boolean) {
+  return {
+    id: "main",
+    owner_id: ownerId,
+    brand_name: settings.brandName,
+    brand_subtitle: settings.brandSubtitle,
+    hero_title: settings.heroTitle,
+    hero_description: settings.heroDescription,
+    ...(includeLogo ? { site_logo_url: settings.siteLogoUrl ?? null } : {}),
+    site_avatar_url: settings.siteAvatarUrl ?? null,
+    hero_cover_url: settings.heroCoverUrl ?? null,
+    background_music_url: settings.backgroundMusicUrl ?? null,
+    background_music_title: settings.backgroundMusicTitle ?? null,
+    background_music_enabled: settings.backgroundMusicEnabled,
+    updated_at: new Date().toISOString(),
+  };
+}
+
+const siteSettingsSelectColumns =
+  "id,brand_name,brand_subtitle,hero_title,hero_description,site_logo_url,site_avatar_url,hero_cover_url,background_music_url,background_music_title,background_music_enabled,updated_at";
+
+const siteSettingsSelectColumnsWithoutLogo =
+  "id,brand_name,brand_subtitle,hero_title,hero_description,site_avatar_url,hero_cover_url,background_music_url,background_music_title,background_music_enabled,updated_at";
+
 function formatRelativeTime(value: string) {
   return new Intl.DateTimeFormat("zh-CN", {
     month: "2-digit",
@@ -1345,15 +1374,35 @@ export class SupabaseBackend implements SiteBackend {
   async getSiteSettings() {
     const { data, error } = await this.client
       .from("site_settings")
-      .select("id,brand_name,brand_subtitle,hero_title,hero_description,site_logo_url,site_avatar_url,hero_cover_url,background_music_url,background_music_title,background_music_enabled,updated_at")
+      .select(siteSettingsSelectColumnsWithoutLogo)
       .eq("id", "main")
-      .maybeSingle<SiteSettingsRow>();
+      .maybeSingle<Omit<SiteSettingsRow, "site_logo_url">>();
 
     if (error) {
       throw new Error(error.message);
     }
 
-    return data ? mapSiteSettings(data) : defaultSiteSettings;
+    if (!data) {
+      return defaultSiteSettings;
+    }
+
+    const settings: SiteSettingsRow = {
+      ...data,
+      site_logo_url: null,
+    };
+
+    const { data: logoData, error: logoError } = await this.client
+      .from("site_settings")
+      .select("site_logo_url")
+      .eq("id", "main")
+      .maybeSingle<Pick<SiteSettingsRow, "site_logo_url">>();
+
+    if (logoError && !isMissingColumnError(logoError, "site_logo_url")) {
+      throw new Error(logoError.message);
+    }
+
+    settings.site_logo_url = logoData?.site_logo_url ?? null;
+    return mapSiteSettings(settings);
   }
 
   async updateSiteSettings(input: Partial<SiteSettings>) {
@@ -1366,23 +1415,27 @@ export class SupabaseBackend implements SiteBackend {
 
     const { data, error } = await this.client
       .from("site_settings")
-      .upsert({
-        id: "main",
-        owner_id: user.id,
-        brand_name: nextSettings.brandName,
-        brand_subtitle: nextSettings.brandSubtitle,
-        hero_title: nextSettings.heroTitle,
-        hero_description: nextSettings.heroDescription,
-        site_logo_url: nextSettings.siteLogoUrl ?? null,
-        site_avatar_url: nextSettings.siteAvatarUrl ?? null,
-        hero_cover_url: nextSettings.heroCoverUrl ?? null,
-        background_music_url: nextSettings.backgroundMusicUrl ?? null,
-        background_music_title: nextSettings.backgroundMusicTitle ?? null,
-        background_music_enabled: nextSettings.backgroundMusicEnabled,
-        updated_at: new Date().toISOString(),
-      })
-      .select("id,brand_name,brand_subtitle,hero_title,hero_description,site_logo_url,site_avatar_url,hero_cover_url,background_music_url,background_music_title,background_music_enabled,updated_at")
+      .upsert(createSiteSettingsPayload(nextSettings, user.id, true))
+      .select(siteSettingsSelectColumns)
       .single<SiteSettingsRow>();
+
+    if (error && isMissingColumnError(error, "site_logo_url")) {
+      if (input.siteLogoUrl !== undefined) {
+        throw new Error("线上数据库还缺少 site_logo_url 字段。请先在 Supabase SQL Editor 运行 supabase/fix-live-database.sql，再上传 Logo。");
+      }
+
+      const { data: fallbackData, error: fallbackError } = await this.client
+        .from("site_settings")
+        .upsert(createSiteSettingsPayload(nextSettings, user.id, false))
+        .select(siteSettingsSelectColumnsWithoutLogo)
+        .single<Omit<SiteSettingsRow, "site_logo_url">>();
+
+      const fallbackSettings = requireSupabaseResult(fallbackData, fallbackError);
+      return mapSiteSettings({
+        ...fallbackSettings,
+        site_logo_url: currentSettings.siteLogoUrl ?? null,
+      });
+    }
 
     return mapSiteSettings(requireSupabaseResult(data, error));
   }

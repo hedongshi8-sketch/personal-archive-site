@@ -58,6 +58,18 @@ const plainImport = parseReadingClipboardText("只复制一段喜欢的书摘，
 assert(plainImport.quote === "只复制一段喜欢的书摘，也应该直接进入段落。", "plain import becomes quote");
 assert(!plainImport.title, "plain import does not invent title");
 
+const alternateLabelsImport = parseReadingClipboardText(`
+书籍：游戏机制高级设计
+出处：Ernest Adams
+书摘：规则不是限制，而是体验的语言。
+笔记：这句话适合放到系统设计方法论里。
+`);
+
+assert(alternateLabelsImport.title === "游戏机制高级设计", "alternate labels parse book title");
+assert(alternateLabelsImport.creator === "Ernest Adams", "alternate labels parse source");
+assert(alternateLabelsImport.quote === "规则不是限制，而是体验的语言。", "alternate labels parse book excerpt");
+assert(alternateLabelsImport.reflection === "这句话适合放到系统设计方法论里。", "alternate labels parse note reflection");
+
 assert(cleanPastedReadingText(` A
 
  B `) === "A\nB", "pasted text is trimmed and normalized");

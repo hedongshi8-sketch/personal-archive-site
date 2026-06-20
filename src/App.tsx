@@ -492,23 +492,87 @@ function clearPasswordRecoveryUrl() {
 function Sidebar({
   activeSection,
   settings,
+  editMode,
+  onSaveSettings,
+  onUploadBrandImage,
   onToggleTheme,
 }: {
   activeSection: SectionId;
   settings: SiteSettings;
+  editMode: boolean;
+  onSaveSettings: (patch: Partial<SiteSettings>) => Promise<void>;
+  onUploadBrandImage: (file: File | null, kind: "site-logo" | "site-avatar") => Promise<void>;
   onToggleTheme: () => void;
 }) {
+  const [editorMessage, setEditorMessage] = useState("");
+
+  async function saveBrandSettings(patch: Partial<SiteSettings>) {
+    try {
+      await onSaveSettings(patch);
+      setEditorMessage("站点文字已保存。");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "站点文字保存失败。";
+      setEditorMessage(message);
+    }
+  }
+
+  async function uploadBrandImage(file: File | null, kind: "site-logo" | "site-avatar") {
+    if (!file) {
+      return;
+    }
+
+    try {
+      setEditorMessage("正在上传图片...");
+      await onUploadBrandImage(file, kind);
+      setEditorMessage(kind === "site-logo" ? "Logo 已保存。" : "头像已保存。");
+    } catch (error) {
+      setEditorMessage(error instanceof Error ? error.message : "图片上传失败。");
+    }
+  }
+
   return (
     <aside className="sidebar" aria-label="主导航">
-      <a className="brand" href="#home">
-        <div className="brand-mark" aria-hidden="true">
-          {settings.siteLogoUrl ? <img src={settings.siteLogoUrl} alt="" /> : <span />}
-        </div>
+      <div className={clsx("brand", editMode && "brand-editing")}>
+        {editMode ? (
+          <label className="brand-mark brand-mark-editor" aria-label="上传网站 Logo" title="上传网站 Logo">
+            {settings.siteLogoUrl ? <img src={settings.siteLogoUrl} alt="" /> : <Camera size={18} />}
+            <input accept="image/*" onChange={(event) => void uploadBrandImage(event.target.files?.[0] ?? null, "site-logo")} type="file" />
+          </label>
+        ) : (
+          <a className="brand-mark" href="#home" aria-label="回到首页">
+            {settings.siteLogoUrl ? <img src={settings.siteLogoUrl} alt="" /> : <span />}
+          </a>
+        )}
         <div>
-          <strong>{settings.brandName}</strong>
-          <small>{settings.brandSubtitle}</small>
+          {editMode ? (
+            <>
+              <CommitInput
+                value={settings.brandName}
+                label="左上角名称"
+                onSave={(value) => saveBrandSettings({ brandName: value })}
+                placeholder="LinX"
+              />
+              <CommitInput
+                value={settings.brandSubtitle}
+                label="左上角副标题"
+                onSave={(value) => saveBrandSettings({ brandSubtitle: value })}
+                placeholder="游戏策划 / 作品集"
+              />
+              <label className="brand-avatar-shortcut">
+                <Camera size={13} />
+                <span>头像</span>
+                <input accept="image/*" onChange={(event) => void uploadBrandImage(event.target.files?.[0] ?? null, "site-avatar")} type="file" />
+              </label>
+              {editorMessage ? <small className="brand-edit-status">{editorMessage}</small> : null}
+            </>
+          ) : (
+            <a className="brand-copy" href="#home">
+              <strong>{settings.brandName}</strong>
+              <small>{settings.brandSubtitle}</small>
+            </a>
+          )}
         </div>
-      </a>
+      </div>
 
       <nav className="nav-list">
         {navItems.map((item) => {
@@ -1636,13 +1700,15 @@ function HeroSection({
   currentUser,
   editMode,
   onEditModeChange,
-  onSettingsChange,
+  onSaveSettings,
+  onUploadBrandImage,
 }: {
   settings: SiteSettings;
   currentUser: AuthUser | null;
   editMode: boolean;
   onEditModeChange: (enabled: boolean) => void;
-  onSettingsChange: (settings: SiteSettings) => void;
+  onSaveSettings: (patch: Partial<SiteSettings>) => Promise<void>;
+  onUploadBrandImage: (file: File | null, kind: "site-cover" | "site-avatar" | "site-logo") => Promise<void>;
 }) {
   const [statusMessage, setStatusMessage] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
@@ -1681,11 +1747,7 @@ function HeroSection({
     }
 
     try {
-      const nextSettings = await siteBackend.updateSiteSettings({
-        ...settings,
-        ...patch,
-      });
-      onSettingsChange(nextSettings);
+      await onSaveSettings(patch);
       setStatusMessage("首页设置已保存。");
     } catch (error) {
       setStatusMessage(error instanceof Error ? error.message : "首页设置保存失败。");
@@ -1703,14 +1765,8 @@ function HeroSection({
     }
 
     try {
-      const uploaded = await siteBackend.uploadAsset(file, kind);
-      await saveSettings(
-        kind === "site-cover"
-          ? { heroCoverUrl: uploaded.url }
-          : kind === "site-logo"
-            ? { siteLogoUrl: uploaded.url }
-            : { siteAvatarUrl: uploaded.url },
-      );
+      await onUploadBrandImage(file, kind);
+      setStatusMessage("图片已上传并保存。");
     } catch (error) {
       setStatusMessage(error instanceof Error ? error.message : "图片上传失败。");
     }
@@ -1998,6 +2054,21 @@ function BackgroundMusicDock({ settings }: { settings: SiteSettings }) {
       window.removeEventListener("keydown", resumeOnInteraction);
     };
   }, [settings.backgroundMusicEnabled, settings.backgroundMusicUrl]);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) {
+      return;
+    }
+
+    function stopBackgroundMusic() {
+      audio?.pause();
+      setPlaying(false);
+    }
+
+    window.addEventListener("linx-background-music-stop", stopBackgroundMusic);
+    return () => window.removeEventListener("linx-background-music-stop", stopBackgroundMusic);
+  }, []);
 
   async function toggleBackgroundMusic() {
     const audio = audioRef.current;
@@ -2616,6 +2687,12 @@ function MusicSection({
     ? backgroundTrack?.title || settings.backgroundMusicTitle || "已设置音频"
     : "未设置";
   const canEnableBackgroundMusic = Boolean(settings.backgroundMusicUrl || activeTrack?.audioUrl);
+  const activeTrackIsBackground = Boolean(activeTrack?.audioUrl && activeTrack.audioUrl === settings.backgroundMusicUrl);
+  const musicDraftSignals = [
+    { label: "音频", value: draft.audioUrl ? "已上传" : "待上传", ready: Boolean(draft.audioUrl) },
+    { label: "封面", value: draft.coverUrl ? "已上传" : "可选", ready: Boolean(draft.coverUrl), optional: true },
+    { label: "默认", value: draft.isBackground ? "保存后启用" : activeTrackIsBackground ? "当前已默认" : "未选择", ready: draft.isBackground || activeTrackIsBackground },
+  ];
 
   useEffect(() => {
     let active = true;
@@ -2776,6 +2853,7 @@ function MusicSection({
         });
         onSettingsChange(nextSettings);
         setTracks((current) => current.map((track) => ({ ...track, isBackground: track.id === nextTrack.id })));
+        window.dispatchEvent(new CustomEvent("linx-background-music-stop"));
       }
 
       resetMusicDraft();
@@ -2844,6 +2922,7 @@ function MusicSection({
       });
       setTracks((current) => current.map((item) => ({ ...item, isBackground: item.id === track.id })));
       onSettingsChange(nextSettings);
+      window.dispatchEvent(new CustomEvent("linx-background-music-stop"));
       setStatusMessage("全站背景音乐已更新。");
     } catch (error) {
       setStatusMessage(error instanceof Error ? error.message : "背景音乐设置失败。");
@@ -2891,6 +2970,7 @@ function MusicSection({
     }
 
     try {
+      window.dispatchEvent(new CustomEvent("linx-background-music-stop"));
       await audio.play();
       setIsPlaying(true);
     } catch (error) {
@@ -2975,13 +3055,13 @@ function MusicSection({
             <SkipForward size={20} fill="currentColor" />
           </button>
           <button
-            className="ghost-icon-button"
+            className={clsx("ghost-icon-button", activeTrackIsBackground && "is-background-track")}
             onClick={() => void saveBackgroundMusic()}
             disabled={!isOwner || !activeTrack?.audioUrl}
             type="button"
-            aria-label="设为全站背景音乐"
+            aria-label={activeTrackIsBackground ? "当前已是全站背景音乐" : "设为全站背景音乐"}
           >
-            <Volume2 size={18} />
+            {activeTrackIsBackground ? <Check size={18} /> : <Volume2 size={18} />}
           </button>
         </div>
         <div className="background-music-status">
@@ -2993,21 +3073,24 @@ function MusicSection({
         </div>
       </div>
       <div className="playlist-panel">
-        {tracks.map((track) => (
-          <button
-            className={clsx("playlist-row", activeTrack?.id === track.id && "selected")}
-            type="button"
-            key={track.id}
-            onClick={() => setActiveTrackId(track.id)}
-          >
-            <MediaTile tile={track.tile ?? 3} imageUrl={track.coverUrl} />
-            <span>
-              <strong>{track.title}</strong>
-              <small>{track.artist} · {track.duration}</small>
-            </span>
-            <Play size={16} fill="currentColor" />
-          </button>
-        ))}
+        {tracks.map((track) => {
+          const isBackgroundTrack = Boolean(track.audioUrl && track.audioUrl === settings.backgroundMusicUrl);
+          return (
+            <button
+              className={clsx("playlist-row", activeTrack?.id === track.id && "selected", isBackgroundTrack && "is-background-track")}
+              type="button"
+              key={track.id}
+              onClick={() => setActiveTrackId(track.id)}
+            >
+              <MediaTile tile={track.tile ?? 3} imageUrl={track.coverUrl} />
+              <span>
+                <strong>{track.title}</strong>
+                <small>{track.artist} · {track.duration}</small>
+              </span>
+              {isBackgroundTrack ? <Volume2 size={16} /> : <Play size={16} fill="currentColor" />}
+            </button>
+          );
+        })}
         <div className="playlist-mini-row">
           {playlists.map((playlist) => (
             <span key={playlist.title}>{playlist.title} · {playlist.count} 首</span>
@@ -3060,6 +3143,14 @@ function MusicSection({
                   : "先上传或选择一首有音频文件的音乐，才能开启默认背景音乐"}
               </span>
             </label>
+            <div className="music-draft-radar" aria-label="音乐上传草稿状态">
+              {musicDraftSignals.map((item) => (
+                <span className={clsx(item.ready && "is-ready", item.optional && "is-optional")} key={item.label}>
+                  <small>{item.label}</small>
+                  <strong>{item.value}</strong>
+                </span>
+              ))}
+            </div>
             <div className="owner-upload-grid">
               <label>
                 <span>歌名</span>
@@ -3582,6 +3673,12 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
         { label: "状态", value: readerReviewState },
       ]
     : [];
+  const composerFieldSignals = [
+    { label: "书名", value: draft.title.trim() || "待填写", ready: Boolean(draft.title.trim()) },
+    { label: "来源", value: draft.creator.trim() || "待填写", ready: Boolean(draft.creator.trim()) },
+    { label: "段落", value: quoteLength > 0 ? `${quoteLength} 字` : "待粘贴", ready: quoteLength > 0 },
+    { label: "心得", value: reflectionLength > 0 ? `${reflectionLength} 字` : "可选", ready: reflectionLength > 0, optional: true },
+  ];
 
   function resetReadingFilters() {
     setActiveKind("all");
@@ -4423,8 +4520,16 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
                 <span>智能导入 / Ctrl+V</span>
                 <code>书名：体验引擎</code>
                 <code>作者：某某</code>
-                <code>摘录：喜欢的段落</code>
-                <code>心得：我的评论</code>
+                <code>书摘：喜欢的段落</code>
+                <code>笔记：我的评论</code>
+              </div>
+              <div className="reading-field-radar" aria-label="书摘草稿字段状态">
+                {composerFieldSignals.map((item) => (
+                  <span className={clsx(item.ready && "is-ready", item.optional && "is-optional")} key={item.label}>
+                    <small>{item.label}</small>
+                    <strong>{item.value}</strong>
+                  </span>
+                ))}
               </div>
 
               <div className="owner-upload-grid">
@@ -5159,6 +5264,37 @@ export function App() {
     window.requestAnimationFrame(resetActiveScroll);
   }, [activeSection]);
 
+  async function saveSiteSettings(patch: Partial<SiteSettings>) {
+    if (currentUser?.role !== "owner") {
+      throw new Error("只有站主账号可以修改网站设置。");
+    }
+
+    const nextSettings = await siteBackend.updateSiteSettings({
+      ...siteSettings,
+      ...patch,
+    });
+    setSiteSettings(nextSettings);
+  }
+
+  async function uploadBrandImage(file: File | null, kind: "site-cover" | "site-avatar" | "site-logo") {
+    if (!file) {
+      return;
+    }
+
+    if (currentUser?.role !== "owner") {
+      throw new Error("只有站主账号可以上传网站图片。");
+    }
+
+    const uploaded = await siteBackend.uploadAsset(file, kind);
+    await saveSiteSettings(
+      kind === "site-cover"
+        ? { heroCoverUrl: uploaded.url }
+        : kind === "site-logo"
+          ? { siteLogoUrl: uploaded.url }
+          : { siteAvatarUrl: uploaded.url },
+    );
+  }
+
   const activeScreen = {
     home: (
       <HeroSection
@@ -5166,7 +5302,8 @@ export function App() {
         currentUser={currentUser}
         editMode={editMode}
         onEditModeChange={setEditMode}
-        onSettingsChange={setSiteSettings}
+        onSaveSettings={saveSiteSettings}
+        onUploadBrandImage={uploadBrandImage}
       />
     ),
     docs: <DocsSection currentUser={currentUser} />,
@@ -5194,8 +5331,15 @@ export function App() {
   }[activeSection];
 
   return (
-    <div className={clsx("app-shell", darkMode && "dark-mode")}>
-      <Sidebar activeSection={activeSection} settings={siteSettings} onToggleTheme={() => setDarkMode((current) => !current)} />
+    <div className={clsx("app-shell", darkMode && "dark-mode", editMode && currentUser?.role === "owner" && "app-edit-mode")}>
+      <Sidebar
+        activeSection={activeSection}
+        settings={siteSettings}
+        editMode={editMode && currentUser?.role === "owner"}
+        onSaveSettings={saveSiteSettings}
+        onUploadBrandImage={uploadBrandImage}
+        onToggleTheme={() => setDarkMode((current) => !current)}
+      />
       <main className={clsx("workspace", `workspace-${activeSection}`)}>
         <MobileNav activeSection={activeSection} settings={siteSettings} />
         <div className="global-account-bar">

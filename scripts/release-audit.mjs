@@ -78,6 +78,7 @@ assert(exists("docs/release-checklist.md"), "release checklist exists");
 assert(exists("docs/development-maintenance.md"), "development maintenance docs exist");
 assert(exists("docs/supabase-smtp.md"), "Supabase SMTP docs exist");
 assert(exists(".env.example"), ".env.example exists");
+assert(exists("supabase/fix-live-database.sql"), "Supabase live database fix script exists");
 assert(exists("supabase/schema.sql"), "Supabase schema exists");
 assert(exists("supabase/seed-portfolio.sql"), "Supabase portfolio seed exists");
 assert(exists("supabase/migrations/20260619_account_editing.sql"), "Supabase account editing migration exists");

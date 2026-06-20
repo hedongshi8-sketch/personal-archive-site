@@ -17,7 +17,7 @@ export function parseTags(value: string) {
 }
 
 function parseLabeledReadingLine(line: string) {
-  const match = line.match(/^(书名|书籍|作品|标题|作者|来源|摘录|段落|原文|心得|评论|感想|标签|tag|tags)\s*[：:]\s*(.+)$/i);
+  const match = line.match(/^(书名|书籍|作品|标题|作者|来源|出处|摘录|书摘|段落|原文|心得|评论|感想|笔记|标签|tag|tags)\s*[：:]\s*(.+)$/i);
   if (!match) {
     return null;
   }
@@ -45,19 +45,19 @@ export function parseReadingClipboardText(value: string): Partial<ReadingNoteInp
         continue;
       }
 
-      if (["作者", "来源"].includes(labeled.label)) {
+      if (["作者", "来源", "出处"].includes(labeled.label)) {
         parsed.creator = labeled.value;
         activeBlock = null;
         continue;
       }
 
-      if (["摘录", "段落", "原文"].includes(labeled.label)) {
+      if (["摘录", "书摘", "段落", "原文"].includes(labeled.label)) {
         quoteLines.push(labeled.value);
         activeBlock = "quote";
         continue;
       }
 
-      if (["心得", "评论", "感想"].includes(labeled.label)) {
+      if (["心得", "评论", "感想", "笔记"].includes(labeled.label)) {
         parsed.reflection = labeled.value;
         activeBlock = "reflection";
         continue;
