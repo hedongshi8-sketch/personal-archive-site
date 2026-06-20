@@ -3104,7 +3104,7 @@ function GallerySection({
 }
 
 function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
-  const [notes, setNotes] = useState<ReadingNote[]>(readingNotes);
+  const [notes, setNotes] = useState<ReadingNote[]>(() => (siteBackend.mode === "supabase" ? [] : readingNotes));
   const [activeKind, setActiveKind] = useState<"all" | ReadingNote["kind"]>("all");
   const [activeTag, setActiveTag] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
@@ -3231,6 +3231,9 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
   const draftReadingMinutes = quoteLength > 0 ? Math.max(1, Math.ceil(quoteLength / 420)) : 0;
   const missingRequiredFields = requiredPublishChecks.filter((item) => !item.ready).map((item) => item.label);
   const draftSignal = canPublish ? "公开阅读字段已齐全" : `还差 ${missingRequiredFields.join(" / ") || "必填项"}`;
+  const readerLabel = readerNote?.kind === "book" ? "书籍摘录" : "视频笔记";
+  const readerSource = readerNote ? `${readerNote.creator} · ${readerNote.createdAt}` : "";
+  const readerTagLine = readerNote && readerNote.tags.length > 0 ? readerNote.tags.join(" / ") : "未标标签";
 
   function resetReadingFilters() {
     setActiveKind("all");
@@ -3264,6 +3267,7 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
         }
 
         setLoadState("error");
+        setNotes(readingNotes);
         setStatusMessage(error instanceof Error ? error.message : "书摘心得加载失败，已使用本地数据。");
       }
     }
@@ -3527,6 +3531,11 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
           <p>
             {activeTagLabel} · {filteredNotes.length} 条命中 · 平均 {filteredAverageQuoteLength} 字
           </p>
+          {readerNote ? (
+            <small>
+              正在读：{readerNote.title} · {readerMinutes} 分钟
+            </small>
+          ) : null}
         </div>
         <div className="notes-source-map" aria-label="书摘来源分布">
           <span className="notes-source-kicker">来源分布</span>
@@ -3656,9 +3665,10 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
                 <div className="note-reader-copy">
                   <span className="note-reader-kicker">
                     <Sparkles size={14} />
-                    当前选读 · {readerNote.kind === "book" ? "书籍摘录" : "视频笔记"}
+                    当前选读 · {readerLabel}
                   </span>
                   <h3>{readerNote.title}</h3>
+                  <p className="note-reader-brief">{readerNote.reflection || "这条摘录还没有补充心得，适合先作为素材入口保留。"}</p>
                   <div className="note-meta-line">
                     <span>
                       <BookOpenText size={13} />
@@ -3668,6 +3678,22 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
                       <CalendarDays size={13} />
                       {readerNote.createdAt}
                     </time>
+                  </div>
+                  <div className="note-reader-document" aria-label={`${readerNote.title} 摘录正文`}>
+                    <div className="note-reader-document-head">
+                      <span>{readerLabel}</span>
+                      <strong>{readerSource}</strong>
+                    </div>
+                    <blockquote>
+                      <Quote size={18} />
+                      <span>{readerNote.quote}</span>
+                    </blockquote>
+                    {readerNote.reflection.trim() ? (
+                      <div className="note-reader-reflection">
+                        <span>策划心得</span>
+                        <p>{readerNote.reflection}</p>
+                      </div>
+                    ) : null}
                   </div>
                   <div className="note-reader-toolbar" aria-label="选读控制">
                     <span>
@@ -3717,22 +3743,17 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
                   <div className="note-reader-context" aria-label={`${readerNote.title} 阅读信息`}>
                     <span>
                       <BookOpenText size={13} />
-                      {readerNote.kind === "book" ? "书籍摘录" : "视频笔记"}
+                      {readerLabel}
                     </span>
                     <span>
                       <Tags size={13} />
-                      {readerNote.tags.length > 0 ? readerNote.tags.slice(0, 3).join(" / ") : "未标标签"}
+                      {readerTagLine}
                     </span>
                     <span>
                       <Quote size={13} />
                       {readerNote.reflection.trim() ? "含心得" : "纯摘录"}
                     </span>
                   </div>
-                  <blockquote>
-                    <Quote size={18} />
-                    <span>{readerNote.quote}</span>
-                  </blockquote>
-                  {readerNote.reflection.trim() ? <p>{readerNote.reflection}</p> : null}
                   <div className="note-reader-actions">
                     {readerNote.tags.map((tag) => (
                       <button className={clsx(activeTag === tag && "active")} key={tag} onClick={() => setActiveTag(tag)} type="button">
@@ -3766,7 +3787,9 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
                     >
                       <span>#{String(index + 1).padStart(2, "0")}</span>
                       <strong>{note.title}</strong>
-                      <small>{note.creator}</small>
+                      <small>
+                        {note.creator} · {note.quote.trim().length} 字
+                      </small>
                     </button>
                   ))}
                 </div>
@@ -3827,6 +3850,11 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
                       </div>
                       <h3>{note.title}</h3>
                     </header>
+                    <div className="note-card-reading-meta">
+                      <span>{note.kind === "book" ? "书籍摘录" : "视频笔记"}</span>
+                      <span>{Math.max(1, Math.ceil(note.quote.trim().length / 420))} 分钟</span>
+                      {note.reflection.trim() ? <span>含心得</span> : null}
+                    </div>
                     <blockquote>
                       <Quote size={18} />
                       <span>{note.quote}</span>
