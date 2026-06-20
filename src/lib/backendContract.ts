@@ -402,7 +402,7 @@ function getFriendlyAuthError(message: string) {
   const normalized = message.toLowerCase();
 
   if (normalized.includes("invalid login credentials")) {
-    return "邮箱或密码不对；如果你刚注册，请先去邮箱里点确认邮件，再回来登录。";
+    return "邮箱或密码不对。如果你是点邮箱链接进来的，请先在已登录状态点“设置密码”保存新密码；如果已经退出，就点“忘记密码”重新设置。";
   }
 
   if (normalized.includes("email not confirmed") || normalized.includes("confirm")) {

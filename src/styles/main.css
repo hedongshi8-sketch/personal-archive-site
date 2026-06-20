@@ -284,7 +284,8 @@ p {
 
 .account-recovery-panel .backend-status,
 .account-recovery-hint,
-.account-inline-password {
+.account-inline-password,
+.account-password-nudge {
   grid-column: 1 / -1;
 }
 
@@ -403,6 +404,32 @@ p {
 
 .account-inline-password .backend-status {
   grid-column: 1 / -1;
+}
+
+.account-password-nudge {
+  display: grid;
+  gap: 7px;
+  min-width: 0;
+  border: 1px solid rgba(33, 215, 222, 0.18);
+  border-radius: 7px;
+  padding: 8px;
+  background: rgba(33, 215, 222, 0.08);
+}
+
+.account-password-nudge > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  color: #0c6b78;
+  font-size: 11px;
+  font-weight: 820;
+  line-height: 1.45;
+  white-space: normal;
+}
+
+.account-password-nudge svg {
+  flex: 0 0 auto;
 }
 
 .account-avatar-picker,

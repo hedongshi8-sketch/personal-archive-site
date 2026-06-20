@@ -1002,6 +1002,14 @@ function AccountPanel({
             ) : null}
           </div>
         ) : null}
+        {!showPasswordEditor ? (
+          <div className="account-password-nudge">
+            <span>
+              <LockKeyhole size={13} />
+              如果你是点邮箱确认或重置链接进来的，先点“设置密码”保存新密码，再退出测试密码登录。
+            </span>
+          </div>
+        ) : null}
         {authMessage ? <p className="backend-status">{authMessage}</p> : null}
       </div>
     );
