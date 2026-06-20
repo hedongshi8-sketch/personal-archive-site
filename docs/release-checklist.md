@@ -27,6 +27,7 @@
 - [ ] `profiles` 有 `username` 和 `avatar_url` 字段。
 - [ ] `owner_posts` 使用 `public` / `draft` 可见性。
 - [ ] `public_comments` 有 `author_id` 和 `avatar_url`，插入策略要求登录用户。
+- [ ] 旧匿名测试留言已执行 `supabase/migrations/20260620_hide_legacy_anonymous_comments.sql` 隐藏。
 - [ ] Storage bucket `portfolio-public` 存在且为 public。
 - [ ] Gmail 免费 SMTP 或正式 Custom SMTP 已配置，注册确认邮件能真实送达。
 - [ ] 站主账号已注册，并在 `profiles.role` 中设为 `owner`。
