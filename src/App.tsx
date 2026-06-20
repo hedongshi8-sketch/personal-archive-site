@@ -173,6 +173,8 @@ const defaultReadingDraft: ReadingNoteInput = {
   reflection: "",
   tags: [],
 };
+const readingDraftStorageKey = "linx_reading_note_draft";
+const readingTagDraftStorageKey = "linx_reading_note_tags";
 
 const defaultAccountDraft: AccountDraft = {
   email: "",
@@ -3177,8 +3179,8 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
   const [activeTag, setActiveTag] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [expandedNoteId, setExpandedNoteId] = useState<string | null>(null);
-  const [draft, setDraft] = useState<ReadingNoteInput>(defaultReadingDraft);
-  const [tagInput, setTagInput] = useState("");
+  const [draft, setDraft] = useLocalStorage<ReadingNoteInput>(readingDraftStorageKey, defaultReadingDraft);
+  const [tagInput, setTagInput] = useLocalStorage(readingTagDraftStorageKey, "");
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
   const [statusMessage, setStatusMessage] = useState("");
   const [loadState, setLoadState] = useState<LoadState>("idle");
@@ -3303,6 +3305,9 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
   const readerSource = readerNote ? `${readerNote.creator} · ${readerNote.createdAt}` : "";
   const readerTagLine = readerNote && readerNote.tags.length > 0 ? readerNote.tags.join(" / ") : "未标标签";
   const readerReviewState = readerNote?.reflection.trim() ? "有策划心得" : "待补心得";
+  const hasSavedReadingDraft = Boolean(
+    draft.title.trim() || draft.creator.trim() || draft.quote.trim() || draft.reflection.trim() || tagInput.trim() || draft.coverUrl?.trim(),
+  );
   const readerDigestItems = readerNote
     ? [
         { label: "来源", value: readerNote.creator },
@@ -3415,6 +3420,7 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
     setDraft(defaultReadingDraft);
     setTagInput("");
     setEditingNoteId(null);
+    setStatusMessage("");
   }
 
   function startEditingNote(note: ReadingNote) {
@@ -3425,6 +3431,33 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
     setReaderMessage("");
     setStatusMessage(`正在编辑《${note.title}》，改完后点保存修改。`);
     window.requestAnimationFrame(() => composerRef.current?.scrollIntoView({ block: "nearest", behavior: "smooth" }));
+  }
+
+  async function pasteQuoteFromClipboard() {
+    if (!isOwner) {
+      setStatusMessage("只有站主账号可以导入书摘草稿。");
+      return;
+    }
+
+    try {
+      if (!navigator.clipboard?.readText || !window.isSecureContext) {
+        throw new Error("clipboard unavailable");
+      }
+
+      const clipboardText = (await navigator.clipboard.readText()).trim();
+      if (!clipboardText) {
+        setStatusMessage("剪贴板里没有可导入的文字。");
+        return;
+      }
+
+      setDraft((current) => ({
+        ...current,
+        quote: current.quote.trim() ? `${current.quote.trim()}\n\n${clipboardText}` : clipboardText,
+      }));
+      setStatusMessage("已把剪贴板文字导入喜欢的段落，发布前还可以继续修改。");
+    } catch {
+      setStatusMessage("浏览器没有开放剪贴板读取权限，可以直接 Ctrl+V 粘贴到段落输入框。");
+    }
   }
 
   function selectReaderNote(noteId: string | null) {
@@ -4028,6 +4061,16 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
                 <strong>{editingNote ? "编辑已发布书摘" : "站主书摘发布入口"}</strong>
               </div>
               <BackendModeNotice isSupabase={isSupabase} />
+              <div className={clsx("reading-draft-state", hasSavedReadingDraft && "has-draft")}>
+                <span>
+                  <ShieldCheck size={14} />
+                  {hasSavedReadingDraft ? "草稿已在本机自动保留" : "输入后会自动保存草稿"}
+                </span>
+                <button className="ghost-button" disabled={saveState === "saving"} onClick={() => void pasteQuoteFromClipboard()} type="button">
+                  <Copy size={14} />
+                  从剪贴板导入段落
+                </button>
+              </div>
 
               <div className="reading-draft-preview">
                 <span>

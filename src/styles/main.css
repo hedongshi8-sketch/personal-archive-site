@@ -3685,6 +3685,45 @@ p {
     0 0 0 2px rgba(33, 215, 222, 0.1);
 }
 
+.reading-draft-state {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+  border: 1px solid rgba(30, 29, 25, 0.11);
+  border-radius: 8px;
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.28);
+}
+
+.reading-draft-state span {
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: #5f574b;
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.reading-draft-state svg {
+  flex: 0 0 auto;
+  color: var(--cyan-dark);
+}
+
+.reading-draft-state.has-draft {
+  border-color: rgba(33, 215, 222, 0.26);
+  background:
+    linear-gradient(90deg, rgba(33, 215, 222, 0.12), transparent),
+    rgba(255, 255, 255, 0.34);
+}
+
+.reading-draft-state .ghost-button {
+  min-height: 34px;
+  padding-inline: 10px;
+  font-size: 12px;
+}
+
 .reading-draft-preview {
   position: relative;
   display: grid;
@@ -4536,6 +4575,22 @@ p {
     linear-gradient(135deg, rgba(9, 13, 14, 0.96), rgba(16, 24, 25, 0.94));
 }
 
+.dark-mode .reading-draft-state {
+  border-color: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.dark-mode .reading-draft-state.has-draft {
+  border-color: rgba(33, 215, 222, 0.24);
+  background:
+    linear-gradient(90deg, rgba(33, 215, 222, 0.1), transparent),
+    rgba(255, 255, 255, 0.06);
+}
+
+.dark-mode .reading-draft-state span {
+  color: rgba(247, 241, 230, 0.68);
+}
+
 .dark-mode .note-card blockquote,
 .dark-mode .notes-search-box,
 .dark-mode .reading-quick-tags button,
@@ -5167,6 +5222,7 @@ p {
   .note-reader-panel,
   .reading-composer .owner-upload-grid,
   .reading-action-row,
+  .reading-draft-state,
   .reading-cover-preview {
     grid-template-columns: 1fr;
   }
