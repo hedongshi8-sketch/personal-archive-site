@@ -10,11 +10,12 @@
 ## 已完成的作品集导入
 
 - 真实作品资产已复制到 `public/portfolio-assets`。
-- 构建后 `dist/portfolio-assets` 保持 87 个文件。
+- 构建后 `dist/portfolio-assets` 保持 84 个公开文件。
 - `public/portfolio-previews` 已生成站内只读预览数据。
 - `DocsSection` 支持搜索、筛选、详情、PDF/HTML/image 预览、Excel 站内浏览和下载。
 - 游戏小镇原型与系统策划 HTML 原型可通过 iframe 预览。
-- `supabase/seed-portfolio.sql` 包含 19 个公开作品条目。
+- `supabase/seed-portfolio.sql` 包含 17 个公开作品条目。
+- 内部投递说明和带“待替换个人信息”的合并 PDF 已从公开作品集下架。
 
 ## 当前网站方向
 

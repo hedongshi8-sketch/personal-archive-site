@@ -127,6 +127,7 @@ async function checkRemoteBundle() {
   ]) {
     assert(bundle.includes(token), `remote bundle includes ${token} integration`);
   }
+
 }
 
 async function expectAnonymousInsertBlocked(client, tableName, payload, label) {
@@ -160,6 +161,17 @@ async function checkSupabaseBackend() {
     const { error } = await supabase.from(tableName).select(columns).limit(1);
     assert(!error, `${tableName} is readable with anon key`, error?.message);
   }
+
+  const { data: publicPortfolioItems, error: publicPortfolioError } = await supabase
+    .from("portfolio_items")
+    .select("id,title,public_url,preview_url,source_path")
+    .eq("published", true);
+  assert(!publicPortfolioError, "published portfolio items can be checked", publicPortfolioError?.message);
+  const internalPortfolioItems = (publicPortfolioItems ?? []).filter((item) => {
+    const searchable = [item.title, item.public_url, item.preview_url, item.source_path].filter(Boolean).join(" ");
+    return /待替换个人信息|投递说明_只看这个|系统策划投递说明/.test(searchable);
+  });
+  assert(internalPortfolioItems.length === 0, "published portfolio excludes internal application assembly files", `${internalPortfolioItems.length}`);
 
   const { error: publicOwnerPostsError } = await supabase
     .from("owner_posts")
@@ -301,7 +313,7 @@ await checkSupabaseBackend();
 if (failures.length > 0) {
   console.error(`\nOwner backend readiness failed with ${failures.length} issue(s).`);
   console.error("The public site can still work as a static portfolio, but owner uploads will not persist online yet.");
-  console.error("If the database checks fail, run supabase/migrations/20260619_account_editing.sql in the Supabase SQL Editor, then run supabase/set-owner.sql after your owner account exists.");
+  console.error("If the database checks fail, run `npm run sql:supabase-upgrade` and paste the output into the Supabase SQL Editor, then run supabase/set-owner.sql after your owner account exists.");
   process.exit(1);
 }
 

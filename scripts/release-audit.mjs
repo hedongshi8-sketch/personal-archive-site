@@ -82,6 +82,8 @@ assert(exists("supabase/schema.sql"), "Supabase schema exists");
 assert(exists("supabase/seed-portfolio.sql"), "Supabase portfolio seed exists");
 assert(exists("supabase/migrations/20260619_account_editing.sql"), "Supabase account editing migration exists");
 assert(exists("supabase/migrations/20260620_hide_legacy_anonymous_comments.sql"), "Supabase legacy anonymous comments cleanup migration exists");
+assert(exists("supabase/migrations/20260620_hide_internal_portfolio_items.sql"), "Supabase internal portfolio cleanup migration exists");
+assert(exists("supabase/hide-internal-portfolio-items.sql"), "Supabase internal portfolio cleanup shortcut exists");
 assert(exists("supabase/account-editing-check.sql"), "Supabase account editing check exists");
 assert(exists("scripts/compose-supabase-upgrade-sql.mjs"), "Supabase upgrade SQL composer exists");
 assert(read("README.md").includes("GitHub Pages"), "README documents GitHub Pages");
@@ -144,6 +146,10 @@ assert(
   read("scripts/compose-supabase-upgrade-sql.mjs").includes("20260620_hide_legacy_anonymous_comments.sql"),
   "Supabase upgrade SQL composer includes legacy anonymous cleanup",
 );
+assert(
+  read("scripts/compose-supabase-upgrade-sql.mjs").includes("20260620_hide_internal_portfolio_items.sql"),
+  "Supabase upgrade SQL composer includes internal portfolio cleanup",
+);
 
 const ciWorkflow = read(".github/workflows/ci.yml");
 const vercelWorkflow = read(".github/workflows/vercel-deploy.yml");
@@ -195,19 +201,29 @@ const distSize = distAssets.reduce((sum, file) => sum + sizeOf(file), 0);
 const publicPreviewSize = publicPreviews.reduce((sum, file) => sum + sizeOf(file), 0);
 const distPreviewSize = distPreviews.reduce((sum, file) => sum + sizeOf(file), 0);
 
-assert(publicAssets.length === 87, "public portfolio asset count is 87", `${publicAssets.length}`);
-assert(distAssets.length === 87, "dist portfolio asset count is 87", `${distAssets.length}`);
+assert(publicAssets.length === 84, "public portfolio asset count is 84", `${publicAssets.length}`);
+assert(distAssets.length === 84, "dist portfolio asset count is 84", `${distAssets.length}`);
 assert(publicSize === distSize, "portfolio asset byte size matches", `${publicSize} vs ${distSize}`);
-assert(publicPreviews.length === 9, "public portfolio preview count is 9", `${publicPreviews.length}`);
-assert(distPreviews.length === 9, "dist portfolio preview count is 9", `${distPreviews.length}`);
+assert(publicPreviews.length === 8, "public portfolio preview count is 8", `${publicPreviews.length}`);
+assert(distPreviews.length === 8, "dist portfolio preview count is 8", `${distPreviews.length}`);
 assert(publicPreviewSize === distPreviewSize, "portfolio preview byte size matches", `${publicPreviewSize} vs ${distPreviewSize}`);
+const textLikeExtensions = new Set([".html", ".json", ".md", ".txt"]);
+const publicPortfolioText = [...publicAssets, ...publicPreviews]
+  .map((file) => `${file}\n${textLikeExtensions.has(path.extname(file).toLowerCase()) ? read(file) : ""}`)
+  .join("\n");
+for (const internalMarker of ["待替换个人信息", "投递说明_只看这个", "README_投递使用说明"]) {
+  assert(!publicPortfolioText.includes(internalMarker), `public portfolio excludes internal marker ${internalMarker}`);
+}
 
 const seed = read("supabase/seed-portfolio.sql");
 const seedItems = [...seed.matchAll(/'::timestamptz/g)].length;
-assert(seedItems === 19, "portfolio seed item count is 19", `${seedItems}`);
+assert(seedItems === 17, "portfolio seed item count is 17", `${seedItems}`);
 assert(seed.includes("on conflict (id) do update set"), "portfolio seed is rerunnable");
 assert(seed.includes("/portfolio-previews/barbarq-main-sheet.json"), "portfolio seed includes Excel preview URLs");
 assert(seed.includes("/portfolio-previews/game-town-design-doc.json"), "portfolio seed includes document preview URLs");
+for (const internalMarker of ["待替换个人信息", "系统策划投递说明", "投递说明_只看这个"]) {
+  assert(!seed.includes(internalMarker), `portfolio seed excludes internal marker ${internalMarker}`);
+}
 
 const schema = read("supabase/schema.sql");
 assert(schema.includes("create policy \"owner can manage portfolio items\""), "owner portfolio RLS exists");

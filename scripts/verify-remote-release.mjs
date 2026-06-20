@@ -32,6 +32,12 @@ const checks = [
     minBytes: 10_000,
   },
 ];
+const absentChecks = [
+  "portfolio-assets/system-planner/docs/00_简历+作品集_系统策划实习生_最终合并版_待替换个人信息.pdf",
+  "portfolio-assets/system-planner/notes/投递说明_只看这个.txt",
+  "portfolio-assets/system-planner/notes/README_投递使用说明.md",
+  "portfolio-previews/system-planner-submission-note.json",
+];
 const failures = [];
 
 function pass(label) {
@@ -119,6 +125,21 @@ for (const check of checks) {
     }
 
     pass(`${url.href} ${contentType || "no content-type"} ${buffer.byteLength} bytes`);
+  } catch (error) {
+    fail(url.href, error instanceof Error ? error.message : "unknown error");
+  }
+}
+
+for (const path of absentChecks) {
+  const url = new URL(path, baseUrl);
+
+  try {
+    const response = await fetchWithRetry(url);
+    if (response.status === 404) {
+      pass(`${url.href} is not published`);
+    } else {
+      fail(url.href, `expected 404 for internal file, got ${response.status}`);
+    }
   } catch (error) {
     fail(url.href, error instanceof Error ? error.message : "unknown error");
   }

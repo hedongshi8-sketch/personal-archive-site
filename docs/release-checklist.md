@@ -21,9 +21,10 @@
 
 - [ ] 已执行 `supabase/schema.sql`。
 - [ ] 旧库已执行 `supabase/migrations/20260619_account_editing.sql`。
+- [ ] 旧库已执行 `supabase/migrations/20260620_hide_internal_portfolio_items.sql`，内部投递说明和未替换个人信息 PDF 不公开。
 - [ ] 已执行 `supabase/seed-portfolio.sql`。
 - [ ] `portfolio_projects` 有 3 条项目。
-- [ ] `portfolio_items` 有 19 条公开作品。
+- [ ] `portfolio_items` 有 17 条公开作品。
 - [ ] `profiles` 有 `username` 和 `avatar_url` 字段。
 - [ ] `owner_posts` 使用 `public` / `draft` 可见性。
 - [ ] `public_comments` 有 `author_id` 和 `avatar_url`，插入策略要求登录用户。
@@ -54,6 +55,7 @@
 ## 功能验收
 
 - [ ] 访客可以浏览首页、作品集、Demo、音乐、图库、书摘、站主动态和留言列表。
+- [ ] 访客作品集里看不到“待替换个人信息”“投递说明_只看这个”等内部投递材料。
 - [ ] 访客看不到编辑模式入口。
 - [ ] 访客注册账号后可以设置用户名和头像。
 - [ ] 注册确认邮件能收到；点击确认链接后可登录。

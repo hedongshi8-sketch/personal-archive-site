@@ -28,6 +28,12 @@ export type PortfolioItem = {
   downloadable?: boolean;
 };
 
+const internalPortfolioPattern = /待替换个人信息|投递说明_只看这个|README_投递使用说明|系统策划投递说明/;
+
+export function isPublicPortfolioItem(item: Pick<PortfolioItem, "title" | "publicUrl" | "previewUrl" | "sourcePath">) {
+  return !internalPortfolioPattern.test([item.title, item.publicUrl, item.previewUrl, item.sourcePath].filter(Boolean).join(" "));
+}
+
 const withBase = (path: string) => `${import.meta.env.BASE_URL}${path.replace(/^\/+/, "")}`;
 const assetRoot = withBase("portfolio-assets");
 const previewRoot = withBase("portfolio-previews");
@@ -59,7 +65,7 @@ export const portfolioFilters: Array<{ id: PortfolioProject | PortfolioKind; lab
   { id: "excel", label: portfolioKindLabels.excel },
 ];
 
-export const portfolioItems: PortfolioItem[] = [
+const rawPortfolioItems: PortfolioItem[] = [
   {
     id: "barbarq-main-design",
     title: "野蛮人大作战2 - 菇霸争夺战策划案",
@@ -151,21 +157,6 @@ export const portfolioItems: PortfolioItem[] = [
     sourcePath: "E:\\策划文档\\系统策划实习生投递包\\最终投递版\\01_作品集_系统策划实习生_最终投递版.pdf",
     updatedAt: "2026-06-16",
     featured: true,
-    downloadable: true,
-  },
-  {
-    id: "system-planner-combined",
-    title: "简历 + 作品集合并版",
-    project: "system-planner",
-    projectLabel: "系统策划",
-    kind: "pdf",
-    kindLabel: "PDF",
-    summary: "投递用合并版本，包含简历与作品集主内容。",
-    tags: ["投递包", "简历", "作品集"],
-    publicUrl: `${assetRoot}/system-planner/docs/00_简历+作品集_系统策划实习生_最终合并版_待替换个人信息.pdf`,
-    previewUrl: `${assetRoot}/system-planner/docs/00_简历+作品集_系统策划实习生_最终合并版_待替换个人信息.pdf`,
-    sourcePath: "E:\\策划文档\\系统策划实习生投递包\\最终投递版\\00_简历+作品集_系统策划实习生_最终合并版_待替换个人信息.pdf",
-    updatedAt: "2026-06-16",
     downloadable: true,
   },
   {
@@ -310,21 +301,6 @@ export const portfolioItems: PortfolioItem[] = [
     downloadable: true,
   },
   {
-    id: "system-planner-submission-note",
-    title: "系统策划投递说明",
-    project: "system-planner",
-    projectLabel: "系统策划",
-    kind: "text",
-    kindLabel: "文本",
-    summary: "投递包内的阅读顺序和重点提示，适合作为作品集入口说明。",
-    tags: ["投递说明", "阅读顺序", "文本"],
-    publicUrl: `${assetRoot}/system-planner/notes/投递说明_只看这个.txt`,
-    previewUrl: `${previewRoot}/system-planner-submission-note.json`,
-    sourcePath: "E:\\策划文档\\系统策划实习生投递包\\投递说明_只看这个.txt",
-    updatedAt: "2026-06-16",
-    downloadable: true,
-  },
-  {
     id: "game-town-visual-concept",
     title: "游戏小镇视觉概念图",
     project: "game-town",
@@ -355,3 +331,5 @@ export const portfolioItems: PortfolioItem[] = [
     downloadable: true,
   },
 ];
+
+export const portfolioItems = rawPortfolioItems.filter(isPublicPortfolioItem);

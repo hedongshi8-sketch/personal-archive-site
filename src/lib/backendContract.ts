@@ -1,5 +1,6 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import {
+  isPublicPortfolioItem,
   portfolioItems,
   portfolioKindLabels,
   portfolioProjectLabels,
@@ -1007,7 +1008,9 @@ export class SupabaseBackend implements SiteBackend {
       .order("sort_order", { ascending: true })
       .order("updated_at", { ascending: false });
 
-    return requireSupabaseResult(data as PortfolioItemRow[] | null, error).map(mapPortfolioItem);
+    return requireSupabaseResult(data as PortfolioItemRow[] | null, error)
+      .map(mapPortfolioItem)
+      .filter(isPublicPortfolioItem);
   }
 
   async createPortfolioItem(input: PortfolioItemInput) {

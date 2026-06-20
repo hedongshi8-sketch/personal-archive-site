@@ -272,13 +272,6 @@ def main() -> None:
         ASSETS / "game-town" / "docs" / "游戏小镇方案补全文档.md",
         "markdown",
     )
-    build_text_preview(
-        "system-planner-submission-note",
-        "系统策划投递说明",
-        ASSETS / "system-planner" / "notes" / "投递说明_只看这个.txt",
-        "text",
-    )
-
 
 if __name__ == "__main__":
     main()

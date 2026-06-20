@@ -52,7 +52,12 @@ if (!supabaseUrl || !supabaseAnonKey) {
     .eq("published", true);
 
   assert(!itemsError, "published portfolio items are readable", itemsError?.message);
-  assert((items?.length ?? 0) >= 19, "published portfolio item count is at least 19", `${items?.length ?? 0}`);
+  assert((items?.length ?? 0) >= 17, "published portfolio item count is at least 17", `${items?.length ?? 0}`);
+  const internalPortfolioItems = (items ?? []).filter((item) => {
+    const searchable = [item.title, item.public_url, item.preview_url, item.source_path].filter(Boolean).join(" ");
+    return /待替换个人信息|投递说明_只看这个|系统策划投递说明/.test(searchable);
+  });
+  assert(internalPortfolioItems.length === 0, "published portfolio excludes internal application assembly files", `${internalPortfolioItems.length}`);
   assert(
     (items ?? []).some((item) => item.preview_url?.includes("/portfolio-previews/")),
     "published portfolio items include in-site preview URLs",
@@ -167,7 +172,7 @@ if (!supabaseUrl || !supabaseAnonKey) {
 
 if (failures.length > 0) {
   console.error(`\nSupabase backend verification failed with ${failures.length} issue(s).`);
-  console.error("If the failing issues mention missing site_settings columns, owner_post_visibility, or anonymous comments, run supabase/migrations/20260619_account_editing.sql in the Supabase SQL Editor, then run supabase/set-owner.sql after your owner account exists.");
+console.error("If the failing issues mention missing site_settings columns, owner_post_visibility, anonymous comments, or internal portfolio items, run `npm run sql:supabase-upgrade` and paste the output into Supabase SQL Editor, then run supabase/set-owner.sql after your owner account exists.");
   process.exit(1);
 }
 

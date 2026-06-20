@@ -55,6 +55,12 @@ const checks = [
     minBytes: 10_000,
   },
 ];
+const absentChecks = [
+  "/portfolio-assets/system-planner/docs/00_简历+作品集_系统策划实习生_最终合并版_待替换个人信息.pdf",
+  "/portfolio-assets/system-planner/notes/投递说明_只看这个.txt",
+  "/portfolio-assets/system-planner/notes/README_投递使用说明.md",
+  "/portfolio-previews/system-planner-submission-note.json",
+];
 
 const mimeTypes = new Map([
   [".css", "text/css; charset=utf-8"],
@@ -190,6 +196,16 @@ if (failures.length === 0) {
       }
 
       pass(`${check.path} ${actualType} ${buffer.byteLength} bytes`);
+    }
+
+    for (const checkPath of absentChecks) {
+      const response = await fetch(new URL(checkPath, baseUrl));
+
+      if (response.status === 404) {
+        pass(`${checkPath} is not published`);
+      } else {
+        fail(checkPath, `expected 404 for internal file, got ${response.status}`);
+      }
     }
   } finally {
     await close(server);

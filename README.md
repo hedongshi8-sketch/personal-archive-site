@@ -32,7 +32,7 @@ npm run dev
 
 1. 新建 Supabase 项目。
 2. 在 SQL Editor 执行 `supabase/schema.sql`。
-3. 执行 `supabase/seed-portfolio.sql`，写入当前 19 个公开作品条目。
+3. 执行 `supabase/seed-portfolio.sql`，写入当前 17 个公开作品条目。
 4. 确认 Storage bucket `portfolio-public` 存在且为 public。
 5. 按 [docs/supabase-smtp.md](docs/supabase-smtp.md) 先配好 Gmail 免费 SMTP，否则注册确认邮件可能收不到。
 6. 在网站上用邮箱密码注册你的站主账号；如果收到 Supabase 确认邮件，先点确认链接，再回到网站登录一次。

@@ -17,11 +17,15 @@ const sections = [
     file: "supabase/migrations/20260620_hide_legacy_anonymous_comments.sql",
   },
   {
-    title: "3. Mark the registered site owner account as owner",
+    title: "3. Hide internal portfolio assembly notes",
+    file: "supabase/migrations/20260620_hide_internal_portfolio_items.sql",
+  },
+  {
+    title: "4. Mark the registered site owner account as owner",
     file: "supabase/set-owner.sql",
   },
   {
-    title: "4. Show post-upgrade database checks",
+    title: "5. Show post-upgrade database checks",
     file: "supabase/account-editing-check.sql",
   },
 ];
