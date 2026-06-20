@@ -31,6 +31,7 @@ import {
   Shuffle,
   SkipBack,
   SkipForward,
+  Sparkles,
   Tags,
   Trash2,
   Upload,
@@ -2697,6 +2698,8 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
   const canPublish = Boolean(draft.title.trim() && draft.creator.trim() && draft.quote.trim());
   const quoteLength = draft.quote.trim().length;
   const latestNote = notes[0];
+  const featuredNote = filteredNotes[0];
+  const hasAnyNotes = notes.length > 0;
   const filterSummary =
     activeKind === "all"
       ? "全部来源"
@@ -2704,6 +2707,24 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
         ? "只看书籍摘录"
         : "只看视频笔记";
   const activeTagLabel = activeTag === "all" ? "全标签" : `#${activeTag}`;
+  const noteSignal =
+    activeKind === "video"
+      ? "视频方法复盘"
+      : activeKind === "book"
+        ? "书籍段落拆解"
+        : "策划阅读索引";
+  const draftQuality = canPublish ? "可发布" : "待补全";
+  const emptyStateTitle = hasAnyNotes ? "这个筛选下还没有书摘" : "书摘档案正在整理";
+  const emptyStateCopy = hasAnyNotes
+    ? "当前筛选暂时没有命中，换一个来源或标签就能继续浏览已有摘录。"
+    : isOwner
+      ? "线上库已连接，发布后会立即进入公开书摘档案。"
+      : "站主还没有发布公开书摘；这一区会留给后续阅读笔记。";
+  const emptyStateMeta = hasAnyNotes
+    ? `${filterSummary} · ${activeTagLabel}`
+    : isSupabase
+      ? "Supabase Archive Ready"
+      : "Local Reading Archive";
 
   useEffect(() => {
     let active = true;
@@ -2893,6 +2914,16 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
             {activeTagLabel} · {filteredNotes.length} 条命中 · 平均 {noteStats.averageQuoteLength} 字
           </p>
         </div>
+        {featuredNote ? (
+          <div className="notes-featured-note">
+            <span>
+              <Sparkles size={14} />
+              本组重点
+            </span>
+            <strong>{featuredNote.title}</strong>
+            <p>{featuredNote.reflection || featuredNote.quote}</p>
+          </div>
+        ) : null}
         <div className="notes-archive-mark">
           <BookOpenText size={18} />
           <span>{isOwner ? "站主发布通道已开启" : "公开阅读模式"}</span>
@@ -2904,6 +2935,7 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
           <div className="notes-command-title">
             <span>Reading Archive</span>
             <strong>{filterSummary}</strong>
+            <small>{noteSignal} · {activeTagLabel}</small>
           </div>
           <div className="notes-filter-stack">
             <div className="filter-row" role="tablist" aria-label="书摘筛选">
@@ -3015,14 +3047,21 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
                         打开来源
                       </a>
                     ) : null}
+                    <div className="note-card-footer" aria-label={`${note.title} 摘录信息`}>
+                      <span>{note.quote.trim().length} 字摘录</span>
+                      <span>{note.tags.length || 0} 个标签</span>
+                    </div>
                   </div>
                 </article>
               ))
             ) : (
               <div className="notes-empty-state">
-                <BookOpenText size={28} />
-                <strong>这个筛选下还没有书摘</strong>
-                <span>切换分类，或用站主账号发布新的摘录。</span>
+                <div className="notes-empty-icon">
+                  <BookOpenText size={28} />
+                </div>
+                <span className="notes-empty-kicker">{emptyStateMeta}</span>
+                <strong>{emptyStateTitle}</strong>
+                <p>{emptyStateCopy}</p>
               </div>
             )}
           </div>
@@ -3042,6 +3081,11 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
                 </span>
                 <strong>{draft.title.trim() || "未命名书摘"}</strong>
                 <p>{draft.quote.trim() || "复制或输入你喜欢的一段书中内容，这里会实时预览。"}</p>
+                <div className="reading-draft-meta">
+                  <span>{draft.kind === "book" ? "书籍摘录" : "视频笔记"}</span>
+                  <span>{quoteLength} 字</span>
+                  <span>{draftQuality}</span>
+                </div>
               </div>
 
               <div className="owner-upload-grid">
@@ -3770,7 +3814,7 @@ export function App() {
   return (
     <div className={clsx("app-shell", darkMode && "dark-mode")}>
       <Sidebar activeSection={activeSection} settings={siteSettings} onToggleTheme={() => setDarkMode((current) => !current)} />
-      <main className="workspace">
+      <main className={clsx("workspace", `workspace-${activeSection}`)}>
         <MobileNav activeSection={activeSection} settings={siteSettings} />
         <div className="global-account-bar">
           <AccountPanel
