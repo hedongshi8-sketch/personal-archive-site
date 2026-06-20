@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ClipboardEvent, type CSSProperties, type ReactNode } from "react";
 import clsx from "clsx";
 import {
   Archive,
@@ -76,6 +76,7 @@ import {
   type PortfolioItemInput,
   type ReadingNoteInput,
 } from "./lib/backendContract";
+import { parseReadingClipboardText, parseTags } from "./lib/readingImport";
 import { useLocalStorage } from "./hooks/useLocalStorage";
 import mediaSheet from "./assets/media-sheet.png";
 
@@ -280,13 +281,6 @@ function checkHumanGate(gate: HumanGateState) {
   const answer = Number(gate.answer.trim());
   const spentEnoughTime = Date.now() - gate.createdAt >= 2200;
   return gate.honeypot.trim() === "" && spentEnoughTime && answer === gate.left + gate.right;
-}
-
-function parseTags(value: string) {
-  return value
-    .split(/[,，]/)
-    .map((tag) => tag.trim())
-    .filter(Boolean);
 }
 
 function normalizeSearchText(value: string) {
@@ -855,6 +849,7 @@ function AccountPanel({
   const canRequestEmailHelp = Boolean(draft.email.trim()) && !busy;
   const canSaveRecoveryPassword =
     draft.recoveryPassword.trim().length >= 6 && draft.recoveryPassword === draft.recoveryPasswordConfirm && !busy;
+  const needsPasswordRecovery = /密码不对|忘记密码|重新设置/.test(authMessage);
 
   useEffect(() => {
     setProfileName(user?.username ?? "");
@@ -1053,7 +1048,7 @@ function AccountPanel({
       <div className="account-email-help">
         <span>
           <Mail size={13} />
-          没收到确认邮件时，先检查垃圾箱；确认后再回来登录。
+          新账号先点确认邮件；如果确认链接能进站但密码登录失败，就点忘记密码重新设一次。
         </span>
         <div>
           <button className="ghost-button" disabled={!canRequestEmailHelp} onClick={() => void onResendConfirmation(draft.email)} type="button">
@@ -1064,6 +1059,17 @@ function AccountPanel({
           </button>
         </div>
       </div>
+      {needsPasswordRecovery ? (
+        <div className="account-password-recovery-tip">
+          <span>
+            <LockKeyhole size={13} />
+            你这个邮箱已经能被识别了。现在最稳的是发送密码重置邮件，打开邮件链接后保存一个新密码。
+          </span>
+          <button className="cyan-button" disabled={!canRequestEmailHelp} onClick={() => void onPasswordReset(draft.email)} type="button">
+            发送密码重置邮件
+          </button>
+        </div>
+      ) : null}
       {authMessage ? <p className="backend-status">{authMessage}</p> : null}
     </div>
   );
@@ -3476,6 +3482,51 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
     window.requestAnimationFrame(() => composerRef.current?.scrollIntoView({ block: "nearest", behavior: "smooth" }));
   }
 
+  function importReadingText(value: string, mode: "clipboard" | "manual" = "clipboard") {
+    const importText = value.trim();
+    if (!importText) {
+      setStatusMessage(mode === "clipboard" ? "剪贴板里没有可导入的文字。" : "没有可导入的文字。");
+      return;
+    }
+
+    const parsedClipboard = parseReadingClipboardText(importText);
+    const parsedTags = parsedClipboard.tags ?? [];
+
+    setDraft((current) => ({
+      ...current,
+      kind: parsedClipboard.kind ?? current.kind,
+      title: current.title.trim() ? current.title : (parsedClipboard.title ?? current.title),
+      creator: current.creator.trim() ? current.creator : (parsedClipboard.creator ?? current.creator),
+      quote: current.quote.trim()
+        ? `${current.quote.trim()}\n\n${parsedClipboard.quote ?? importText}`
+        : (parsedClipboard.quote ?? importText),
+      reflection: current.reflection.trim()
+        ? current.reflection
+        : (parsedClipboard.reflection ?? current.reflection),
+    }));
+
+    if (parsedTags.length > 0) {
+      const mergedTags = [...new Set([...parseTags(tagInput), ...parsedTags])];
+      setTagInput(mergedTags.join(", "));
+    }
+
+    setStatusMessage(
+      parsedClipboard.title || parsedClipboard.creator || parsedClipboard.reflection || parsedTags.length > 0
+        ? `已智能拆分${mode === "manual" ? "粘贴" : "剪贴板"}内容：书名、来源、段落、心得或标签会自动填入。`
+        : `已把${mode === "manual" ? "粘贴" : "剪贴板"}文字导入喜欢的段落，发布前还可以继续修改。`,
+    );
+  }
+
+  function handleSmartPaste(event: ClipboardEvent<HTMLTextAreaElement>) {
+    const pastedText = event.clipboardData.getData("text").trim();
+    if (!pastedText || !parseReadingClipboardText(pastedText).quote) {
+      return;
+    }
+
+    event.preventDefault();
+    importReadingText(pastedText, "manual");
+  }
+
   async function pasteQuoteFromClipboard() {
     if (!isOwner) {
       setStatusMessage("只有站主账号可以导入书摘草稿。");
@@ -3493,11 +3544,7 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
         return;
       }
 
-      setDraft((current) => ({
-        ...current,
-        quote: current.quote.trim() ? `${current.quote.trim()}\n\n${clipboardText}` : clipboardText,
-      }));
-      setStatusMessage("已把剪贴板文字导入喜欢的段落，发布前还可以继续修改。");
+      importReadingText(clipboardText, "clipboard");
     } catch {
       setStatusMessage("浏览器没有开放剪贴板读取权限，可以直接 Ctrl+V 粘贴到段落输入框。");
     }
@@ -4155,6 +4202,13 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
                   心得 {reflectionLength} 字
                 </span>
               </div>
+              <div className="reading-import-guide" aria-label="智能导入支持格式">
+                <span>智能导入 / Ctrl+V</span>
+                <code>书名：体验引擎</code>
+                <code>作者：某某</code>
+                <code>摘录：喜欢的段落</code>
+                <code>心得：我的评论</code>
+              </div>
 
               <div className="owner-upload-grid">
                 <label>
@@ -4200,6 +4254,7 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
                 <textarea
                   value={draft.quote}
                   onChange={(event) => setDraft((current) => ({ ...current, quote: event.target.value }))}
+                  onPaste={handleSmartPaste}
                   placeholder="把你看到的书中段落复制到这里"
                 />
               </label>

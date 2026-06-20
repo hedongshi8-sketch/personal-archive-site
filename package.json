@@ -21,6 +21,7 @@
     "verify:owner-backend:remote": "node scripts/verify-owner-backend-ready.mjs --remote",
     "verify:smtp": "node scripts/verify-smtp.mjs",
     "verify:email": "node scripts/verify-email-stack.mjs",
+    "verify:reading-import": "node scripts/verify-reading-import.mjs",
     "verify:gmail-smtp": "node scripts/verify-gmail-smtp.mjs",
     "verify:auth-email": "node scripts/verify-supabase-auth-email.mjs",
     "verify:password-reset-email": "node scripts/verify-password-reset-email.mjs",

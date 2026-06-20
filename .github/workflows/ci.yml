@@ -29,6 +29,9 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      - name: Reading import verification
+        run: npm run verify:reading-import
+
       - name: Build
         run: npm run build
 

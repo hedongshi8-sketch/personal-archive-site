@@ -411,7 +411,7 @@ function getFriendlyAuthError(message: string) {
   }
 
   if (normalized.includes("already registered") || normalized.includes("user already registered")) {
-    return "这个邮箱已经注册过了。请直接登录；如果忘了密码，可以走 Supabase 后台重置。";
+    return "这个邮箱已经注册过了。请直接登录；如果忘了密码，就点“忘记密码”重新设置。";
   }
 
   if (normalized.includes("password")) {

@@ -29,6 +29,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Reading import verification
+        run: npm run verify:reading-import
+
       - name: Build
         run: npm run build
 

@@ -137,6 +137,8 @@ assert(
 );
 assert(read("scripts/verify-password-reset-email.mjs").includes("resetPasswordForEmail"), "password reset email verifier triggers Supabase reset email");
 assert(read("scripts/verify-email-stack.mjs").includes("EMAIL_STACK_TRIGGER_PASSWORD_RESET"), "email stack verification supports password reset trigger");
+assert(packageJson.scripts?.["verify:reading-import"] === "node scripts/verify-reading-import.mjs", "reading import verification script exists");
+assert(read("scripts/verify-reading-import.mjs").includes("parseReadingClipboardText"), "reading import verifier checks clipboard parsing");
 assert(packageJson.scripts?.["verify:mail-dns"] === "node scripts/verify-mail-dns.mjs", "mail DNS verification script exists");
 assert(
   packageJson.scripts?.["sql:supabase-upgrade"] === "node scripts/compose-supabase-upgrade-sql.mjs",
@@ -157,6 +159,9 @@ const pagesWorkflow = read(".github/workflows/github-pages.yml");
 assert(ciWorkflow.includes("npm run smoke:dist"), "CI runs dist smoke test");
 assert(vercelWorkflow.includes("npm run smoke:dist"), "Vercel deploy runs dist smoke test");
 assert(pagesWorkflow.includes("npm run smoke:dist"), "GitHub Pages deploy runs dist smoke test");
+assert(ciWorkflow.includes("npm run verify:reading-import"), "CI verifies reading import parsing");
+assert(vercelWorkflow.includes("npm run verify:reading-import"), "Vercel deploy verifies reading import parsing");
+assert(pagesWorkflow.includes("npm run verify:reading-import"), "GitHub Pages deploy verifies reading import parsing");
 assert(ciWorkflow.includes("npm run verify:comments"), "CI verifies comments bridge");
 assert(vercelWorkflow.includes("npm run verify:comments"), "Vercel deploy verifies comments bridge");
 assert(pagesWorkflow.includes("npm run verify:comments"), "GitHub Pages deploy verifies comments bridge");
@@ -277,6 +282,8 @@ assert(appSource.includes("function MusicSection"), "music upload section exists
 assert(appSource.includes("function GallerySection"), "gallery upload section exists");
 assert(appSource.includes("function NotesSection"), "reading notes section exists");
 assert(appSource.includes("notes-search-box") && appSource.includes("note-reader-panel"), "reading notes search and reader panel exist");
+assert(appSource.includes("parseReadingClipboardText") && appSource.includes("reading-import-guide"), "reading clipboard smart import exists");
+assert(read("src/lib/readingImport.ts").includes("parseReadingClipboardText"), "reading clipboard parser module exists");
 assert(appSource.includes("updateMusicTrack") && appSource.includes("deleteMusicTrack"), "music owner edit/delete UI exists");
 assert(appSource.includes("updateGalleryItem") && appSource.includes("deleteGalleryItem"), "gallery owner edit/delete UI exists");
 assert(appSource.includes("updateOwnerPost") && appSource.includes("deleteOwnerPost"), "owner post edit/delete UI exists");

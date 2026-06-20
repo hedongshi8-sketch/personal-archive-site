@@ -285,7 +285,8 @@ p {
 .account-recovery-panel .backend-status,
 .account-recovery-hint,
 .account-inline-password,
-.account-password-nudge {
+.account-password-nudge,
+.account-password-recovery-tip {
   grid-column: 1 / -1;
 }
 
@@ -430,6 +431,42 @@ p {
 
 .account-password-nudge svg {
   flex: 0 0 auto;
+}
+
+.account-password-recovery-tip {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+  min-width: 0;
+  border: 1px solid rgba(234, 87, 87, 0.2);
+  border-radius: 7px;
+  padding: 8px;
+  background:
+    linear-gradient(90deg, rgba(234, 87, 87, 0.1), transparent),
+    rgba(255, 255, 255, 0.42);
+}
+
+.account-password-recovery-tip > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  color: #7e342f;
+  font-size: 11px;
+  font-weight: 850;
+  line-height: 1.45;
+  white-space: normal;
+}
+
+.account-password-recovery-tip svg {
+  flex: 0 0 auto;
+}
+
+.account-password-recovery-tip .cyan-button {
+  min-height: 34px;
+  padding-inline: 12px;
+  white-space: nowrap;
 }
 
 .account-avatar-picker,
@@ -3931,6 +3968,39 @@ p {
   color: var(--cyan-dark);
 }
 
+.reading-import-guide {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  align-items: center;
+  border: 1px solid rgba(33, 215, 222, 0.18);
+  border-radius: 8px;
+  padding: 8px;
+  background:
+    linear-gradient(90deg, rgba(33, 215, 222, 0.1), transparent),
+    rgba(255, 255, 255, 0.3);
+}
+
+.reading-import-guide span {
+  color: #0c6b78;
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.reading-import-guide code {
+  min-height: 26px;
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid rgba(30, 29, 25, 0.1);
+  border-radius: 6px;
+  padding: 0 8px;
+  background: rgba(255, 255, 255, 0.42);
+  color: #4d473d;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 830;
+}
+
 .reading-wide-field textarea:first-of-type,
 .reading-composer textarea {
   min-height: 108px;
@@ -4578,12 +4648,14 @@ p {
 }
 
 .dark-mode .account-email-help,
-.dark-mode .account-inline-password {
+.dark-mode .account-inline-password,
+.dark-mode .account-password-recovery-tip {
   border-color: rgba(33, 215, 222, 0.22);
   background: rgba(33, 215, 222, 0.08);
 }
 
 .dark-mode .account-email-help > span,
+.dark-mode .account-password-recovery-tip > span,
 .dark-mode .account-recovery-hint {
   color: #8deaf2;
 }
@@ -4661,6 +4733,8 @@ p {
 .dark-mode .notes-mini-index-list button,
 .dark-mode .reading-cover-preview,
 .dark-mode .reading-wide-field,
+.dark-mode .reading-import-guide,
+.dark-mode .reading-import-guide code,
 .dark-mode .reading-publish-checks span,
 .dark-mode .reading-publish-meter,
 .dark-mode .notes-source-meter {
@@ -4755,6 +4829,21 @@ p {
 
 .dark-mode .reading-composer-helper svg {
   color: #8deaf2;
+}
+
+.dark-mode .reading-import-guide {
+  border-color: rgba(33, 215, 222, 0.22);
+  background:
+    linear-gradient(90deg, rgba(33, 215, 222, 0.1), transparent),
+    rgba(255, 255, 255, 0.05);
+}
+
+.dark-mode .reading-import-guide span {
+  color: #8deaf2;
+}
+
+.dark-mode .reading-import-guide code {
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
 .dark-mode .note-reader-feedback {
@@ -5156,6 +5245,14 @@ p {
 
   .account-inline-password {
     grid-template-columns: 1fr;
+  }
+
+  .account-password-recovery-tip {
+    grid-template-columns: 1fr;
+  }
+
+  .account-password-recovery-tip .cyan-button {
+    width: 100%;
   }
 
   .screen-section {
