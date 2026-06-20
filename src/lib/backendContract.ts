@@ -120,6 +120,7 @@ export type SiteBackend = {
   listComments(): Promise<Comment[]>;
   createComment(input: CommentInput): Promise<Comment>;
   likeComment(id: string, likes: number): Promise<void>;
+  deleteComment(id: string): Promise<void>;
   listPortfolioItems(): Promise<PortfolioItem[]>;
   createPortfolioItem(input: PortfolioItemInput): Promise<PortfolioItem>;
   updatePortfolioItem(id: string, input: PortfolioItemInput): Promise<PortfolioItem>;
@@ -520,6 +521,10 @@ export class LocalPreviewBackend implements SiteBackend {
     return;
   }
 
+  async deleteComment() {
+    return;
+  }
+
   async listPortfolioItems() {
     return portfolioItems;
   }
@@ -912,6 +917,16 @@ export class SupabaseBackend implements SiteBackend {
 
   async likeComment(id: string) {
     const { error } = await this.client.rpc("increment_comment_likes", { comment_id: id });
+
+    if (error) {
+      throw new Error(error.message);
+    }
+  }
+
+  async deleteComment(id: string) {
+    requireOwner(await this.getCurrentUser(), "只有站主账号可以删除留言。");
+
+    const { error } = await this.client.from("public_comments").delete().eq("id", id);
 
     if (error) {
       throw new Error(error.message);

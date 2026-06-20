@@ -204,6 +204,7 @@ for (const policy of [
   "signed in users can create comments",
   "owner can manage public updates",
   "published owner posts are public",
+  "owner can delete comments",
   "owner can manage music tracks",
   "owner can manage gallery items",
   "owner can manage reading notes",
@@ -240,6 +241,7 @@ assert(appSource.includes("function NotesSection"), "reading notes section exist
 assert(appSource.includes("updateMusicTrack") && appSource.includes("deleteMusicTrack"), "music owner edit/delete UI exists");
 assert(appSource.includes("updateGalleryItem") && appSource.includes("deleteGalleryItem"), "gallery owner edit/delete UI exists");
 assert(appSource.includes("updateOwnerPost") && appSource.includes("deleteOwnerPost"), "owner post edit/delete UI exists");
+assert(appSource.includes("deleteComment") && appSource.includes("只有站主账号可以删除留言"), "comment owner delete UI exists");
 assert(appSource.includes("checkHumanGate"), "anti-spam human gate exists");
 assert(appSource.includes("BackgroundMusicDock"), "background music dock exists");
 

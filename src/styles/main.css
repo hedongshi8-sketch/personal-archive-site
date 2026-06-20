@@ -2924,8 +2924,17 @@ p {
   font-size: 13px;
 }
 
-.comment-actions button:last-child {
+.comment-actions button:not(.danger):last-child {
   color: var(--coral);
+}
+
+.comment-actions button.danger {
+  color: #9b3c2a;
+}
+
+.comment-actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.58;
 }
 
 .contact-section {
@@ -3086,7 +3095,8 @@ p {
 
 .dark-mode .gallery-admin-actions button.danger,
 .dark-mode .ghost-button.danger,
-.dark-mode .mini-post-actions button.danger {
+.dark-mode .mini-post-actions button.danger,
+.dark-mode .comment-actions button.danger {
   color: #ff9a84;
 }
 

@@ -86,7 +86,7 @@ select
 select
   'expected RLS policies' as check_name,
   case
-    when count(*) = 8 then 'ok'
+    when count(*) = 9 then 'ok'
     else 'missing'
   end as status,
   string_agg(policyname, ', ' order by policyname) as observed
@@ -98,6 +98,7 @@ where schemaname = 'public'
     'approved comments are public',
     'signed in users can create comments',
     'owner can moderate comments',
+    'owner can delete comments',
     'owner can manage public updates',
     'published owner posts are public',
     'owner can manage site settings'

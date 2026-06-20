@@ -3418,6 +3418,8 @@ function CommentsSection({
   const [loadState, setLoadState] = useState<LoadState>("idle");
   const [statusMessage, setStatusMessage] = useState("");
   const [gate, setGate] = useState<HumanGateState>(() => createHumanGate());
+  const [deletingCommentId, setDeletingCommentId] = useState<string | null>(null);
+  const isOwner = currentUser?.role === "owner";
 
   useEffect(() => {
     let active = true;
@@ -3506,6 +3508,28 @@ function CommentsSection({
     setCommentBody((current) => current || `回复 @${authorName}：`);
   }
 
+  async function deleteComment(comment: Comment) {
+    if (!isOwner) {
+      setStatusMessage("只有站主账号可以删除留言。");
+      return;
+    }
+
+    if (!window.confirm(`确定删除 ${comment.author} 的这条留言吗？`)) {
+      return;
+    }
+
+    try {
+      setDeletingCommentId(comment.id);
+      await siteBackend.deleteComment(comment.id);
+      setComments((current) => current.filter((item) => item.id !== comment.id));
+      setStatusMessage(siteBackend.mode === "supabase" ? "留言已从线上删除。" : "本地预览已删除留言。");
+    } catch (error) {
+      setStatusMessage(error instanceof Error ? error.message : "删除留言失败。");
+    } finally {
+      setDeletingCommentId(null);
+    }
+  }
+
   return (
     <section className="screen-section comments-section" id="comments">
       <ScreenIntro
@@ -3580,6 +3604,17 @@ function CommentsSection({
                   <Heart size={15} fill="currentColor" />
                   {comment.likes}
                 </button>
+                {isOwner ? (
+                  <button
+                    className="danger"
+                    disabled={deletingCommentId === comment.id}
+                    onClick={() => void deleteComment(comment)}
+                    type="button"
+                  >
+                    <Trash2 size={15} />
+                    {deletingCommentId === comment.id ? "删除中" : "删除"}
+                  </button>
+                ) : null}
               </div>
             </div>
           </article>

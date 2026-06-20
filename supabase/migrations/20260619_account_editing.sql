@@ -195,6 +195,17 @@ using (
   )
 );
 
+drop policy if exists "owner can delete comments" on public.public_comments;
+create policy "owner can delete comments"
+on public.public_comments for delete
+using (
+  exists (
+    select 1 from public.profiles
+    where profiles.id = auth.uid()
+      and profiles.role = 'owner'
+  )
+);
+
 drop policy if exists "profiles can read own profile" on public.profiles;
 create policy "profiles can read own profile"
 on public.profiles for select

@@ -308,6 +308,16 @@ using (
   )
 );
 
+create policy "owner can delete comments"
+on public.public_comments for delete
+using (
+  exists (
+    select 1 from public.profiles
+    where profiles.id = auth.uid()
+      and profiles.role = 'owner'
+  )
+);
+
 create policy "assets are readable when public url exists"
 on public.assets for select
 using (public_url is not null);
