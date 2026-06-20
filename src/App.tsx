@@ -1324,6 +1324,49 @@ function StructuredPortfolioPreview({ item }: { item: PortfolioItem }) {
   return <TextReader data={data} />;
 }
 
+function PortfolioFallbackPreview({ item }: { item: PortfolioItem }) {
+  const previewSignals = [
+    { label: "项目", value: item.projectLabel },
+    { label: "类型", value: item.kindLabel },
+    { label: "更新", value: item.updatedAt },
+    { label: "状态", value: item.downloadable ? "可下载留档" : "公开展示" },
+  ];
+
+  return (
+    <article className="portfolio-fallback-preview">
+      <div className="fallback-orb">
+        <PortfolioIcon item={item} />
+      </div>
+      <span className="fallback-kicker">Archive Brief</span>
+      <strong>{item.title}</strong>
+      <p>{item.summary}</p>
+      <div className="fallback-signal-grid" aria-label={`${item.title} 文件信息`}>
+        {previewSignals.map((signal) => (
+          <span key={signal.label}>
+            <small>{signal.label}</small>
+            {signal.value}
+          </span>
+        ))}
+      </div>
+      {item.tags.length > 0 ? (
+        <div className="tag-row fallback-tags">
+          {item.tags.map((tag) => (
+            <span key={tag}>{tag}</span>
+          ))}
+        </div>
+      ) : null}
+      <div className="fallback-source-line">
+        <span>源文件</span>
+        <code>{item.sourcePath}</code>
+      </div>
+      <div className="fallback-action-hint">
+        <Download size={15} />
+        <span>这类归档文件不适合嵌入浏览器渲染，已保留清晰下载入口和项目说明，HR 可以先看摘要再决定是否下载完整包。</span>
+      </div>
+    </article>
+  );
+}
+
 function PortfolioPreview({ item }: { item: PortfolioItem }) {
   if (item.previewUrl && item.kind === "image") {
     return <img src={item.previewUrl} alt={item.title} />;
@@ -1337,13 +1380,7 @@ function PortfolioPreview({ item }: { item: PortfolioItem }) {
     return <iframe title={item.title} src={item.previewUrl} loading="lazy" />;
   }
 
-  return (
-    <div className="portfolio-preview-empty">
-      <PortfolioIcon item={item} />
-      <strong>{item.kindLabel} 暂不做站内预览</strong>
-      <span>当前先提供公开下载入口；后续可以继续补独立预览。</span>
-    </div>
-  );
+  return <PortfolioFallbackPreview item={item} />;
 }
 
 function HeroSection({
