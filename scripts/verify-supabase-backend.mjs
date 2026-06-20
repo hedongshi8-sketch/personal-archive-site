@@ -57,7 +57,13 @@ if (!supabaseUrl || !supabaseAnonKey) {
     const searchable = [item.title, item.public_url, item.preview_url, item.source_path].filter(Boolean).join(" ");
     return /待替换个人信息|投递说明_只看这个|系统策划投递说明/.test(searchable);
   });
-  assert(internalPortfolioItems.length === 0, "published portfolio excludes internal application assembly files", `${internalPortfolioItems.length}`);
+  assert(
+    internalPortfolioItems.length === 0,
+    "published portfolio excludes internal application assembly files",
+    internalPortfolioItems.length > 0
+      ? `${internalPortfolioItems.length}: ${internalPortfolioItems.map((item) => `${item.title} (${item.id})`).join(", ")}. Run supabase/hide-internal-portfolio-items.sql in Supabase SQL Editor.`
+      : "",
+  );
   assert(
     (items ?? []).some((item) => item.preview_url?.includes("/portfolio-previews/")),
     "published portfolio items include in-site preview URLs",
@@ -172,7 +178,8 @@ if (!supabaseUrl || !supabaseAnonKey) {
 
 if (failures.length > 0) {
   console.error(`\nSupabase backend verification failed with ${failures.length} issue(s).`);
-console.error("If the failing issues mention missing site_settings columns, owner_post_visibility, anonymous comments, or internal portfolio items, run `npm run sql:supabase-upgrade` and paste the output into Supabase SQL Editor, then run supabase/set-owner.sql after your owner account exists.");
+  console.error("If the failing issue mentions internal portfolio items, run `supabase/hide-internal-portfolio-items.sql` in Supabase SQL Editor.");
+  console.error("If the failing issues mention missing site_settings columns, owner_post_visibility, anonymous comments, or broader upgrades, run `npm run sql:supabase-upgrade` and paste the output into Supabase SQL Editor, then run supabase/set-owner.sql after your owner account exists.");
   process.exit(1);
 }
 
