@@ -3762,6 +3762,18 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
         ? "书籍段落拆解"
         : "策划阅读索引";
   const draftQuality = canPublish ? "可发布" : "待补全";
+  const draftTitle = draft.title.trim();
+  const draftCreator = draft.creator.trim();
+  const draftQuote = draft.quote.trim();
+  const draftReflection = draft.reflection.trim();
+  const draftSourceUrl = draft.sourceUrl?.trim() ?? "";
+  const draftCoverUrl = draft.coverUrl?.trim() ?? "";
+  const draftPublicTitle = draftTitle || "书籍 / 作品名称";
+  const draftPublicCreator = draftCreator || "作者 / 来源";
+  const draftPublicQuote = draftQuote || "把你看到的书中段落复制到这里，公开卡片会同步预览排版效果。";
+  const draftPublicReflection =
+    draftReflection ||
+    "心得评论是可选项；写下这段话对策划、系统、关卡或叙事的启发，会让 HR 更快看懂你的思考方式。";
   const emptyStateTitle = hasAnyNotes
     ? normalizedSearchQuery
       ? "没有找到匹配的书摘"
@@ -3783,6 +3795,17 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
   const draftReadingMinutes = quoteLength > 0 ? Math.max(1, Math.ceil(quoteLength / 420)) : 0;
   const missingRequiredFields = requiredPublishChecks.filter((item) => !item.ready).map((item) => item.label);
   const draftSignal = canPublish ? "公开阅读字段已齐全" : `还差 ${missingRequiredFields.join(" / ") || "必填项"}`;
+  const draftPublishMode = isSupabase ? "发布后同步到线上" : "本地预览发布";
+  const draftSourceState = draftSourceUrl ? "来源链接已附上" : "来源链接可选";
+  const draftCoverState = draftCoverUrl ? "封面已就绪" : "可上传封面";
+  const draftPreviewChecks = [
+    { label: "书名", value: draftTitle || "未填写", ready: Boolean(draftTitle) },
+    { label: "来源", value: draftCreator || "未填写", ready: Boolean(draftCreator) },
+    { label: "摘录", value: quoteLength > 0 ? `${quoteLength} 字` : "未导入", ready: quoteLength > 0 },
+    { label: "心得", value: reflectionLength > 0 ? `${reflectionLength} 字` : "可选", ready: reflectionLength > 0, optional: true },
+    { label: "标签", value: draftTags.length > 0 ? `${draftTags.length} 个` : "可选", ready: draftTags.length > 0, optional: true },
+    { label: "封面", value: draftCoverState, ready: Boolean(draftCoverUrl), optional: true },
+  ];
   const readerLabel = readerNote?.kind === "book" ? "书籍摘录" : "视频笔记";
   const readerSource = readerNote ? `${readerNote.creator} · ${readerNote.createdAt}` : "";
   const readerTagLine = readerNote && readerNote.tags.length > 0 ? readerNote.tags.join(" / ") : "未标标签";
@@ -4061,6 +4084,45 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
       setReaderMessage("摘录已复制，可以直接贴到聊天或文档里。");
     } catch {
       setReaderMessage(selectVisibleQuote() ? "已帮你选中摘录，可以按 Ctrl+C 手动复制。" : "浏览器拦截了复制，可以手动选中摘录复制。");
+    }
+  }
+
+  async function copyReadingDraftPreview() {
+    const previewText = [
+      `《${draftPublicTitle}》 - ${draftPublicCreator}`,
+      "",
+      draftPublicQuote,
+      draftReflection ? `\n心得：${draftReflection}` : "",
+      draftTags.length > 0 ? `\n标签：${draftTags.map((tag) => `#${tag}`).join(" ")}` : "",
+      draftSourceUrl ? `\n来源：${draftSourceUrl}` : "",
+    ]
+      .filter(Boolean)
+      .join("\n");
+
+    const copyWithSelection = () => {
+      const textarea = document.createElement("textarea");
+      textarea.value = previewText;
+      textarea.setAttribute("readonly", "");
+      textarea.style.position = "fixed";
+      textarea.style.left = "-9999px";
+      textarea.style.top = "0";
+      document.body.appendChild(textarea);
+      textarea.focus();
+      textarea.select();
+      const copied = document.execCommand("copy");
+      textarea.remove();
+      return copied;
+    };
+
+    try {
+      if (navigator.clipboard?.writeText && window.isSecureContext) {
+        await navigator.clipboard.writeText(previewText);
+      } else if (!copyWithSelection()) {
+        throw new Error("copy blocked");
+      }
+      setStatusMessage("发布预览稿已复制，可以直接贴到聊天或文档里检查。");
+    } catch {
+      setStatusMessage("浏览器拦截了复制，可以手动选中预览内容复制。");
     }
   }
 
@@ -4612,8 +4674,8 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
                   {editingNote ? <Edit3 size={14} /> : <PenLine size={14} />}
                   {editingNote ? "正在编辑" : "即将发布"}
                 </span>
-                <strong>{draft.title.trim() || "未命名书摘"}</strong>
-                <p>{draft.quote.trim() || "复制或输入你喜欢的一段书中内容，这里会实时预览。"}</p>
+                <strong>{draftTitle || "未命名书摘"}</strong>
+                <p>{draftQuote || "复制或输入你喜欢的一段书中内容，这里会实时预览。"}</p>
                 <div className="reading-draft-meta">
                   <span>{draft.kind === "book" ? "书籍摘录" : "视频笔记"}</span>
                   <span>{quoteLength} 字</span>
@@ -4633,6 +4695,67 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
                     </span>
                   );
                 })}
+              </div>
+
+              <div className="reading-publication-board" aria-label="书摘公开发布预览">
+                <div className="reading-publication-preview">
+                  <div className="reading-publication-head">
+                    <span>
+                      <Sparkles size={14} />
+                      公开预览
+                    </span>
+                    <button className="note-copy-button" onClick={() => void copyReadingDraftPreview()} type="button">
+                      <Copy size={13} />
+                      复制预览稿
+                    </button>
+                  </div>
+                  <article className="reading-public-card">
+                    {draftCoverUrl ? (
+                      <img src={draftCoverUrl} alt="" />
+                    ) : (
+                      <div className="reading-public-cover">
+                        <BookOpenText size={20} />
+                        <span>{draft.kind === "book" ? "Book" : "Video"}</span>
+                      </div>
+                    )}
+                    <div className="reading-public-copy">
+                      <small>
+                        {draft.kind === "book" ? "书籍摘录" : "视频笔记"} · {draftPublishMode}
+                      </small>
+                      <h3>{draftPublicTitle}</h3>
+                      <p className="reading-public-creator">{draftPublicCreator}</p>
+                      <blockquote>{draftPublicQuote}</blockquote>
+                      <p className="reading-public-reflection">{draftPublicReflection}</p>
+                      <div className="reading-public-tags">
+                        {(draftTags.length > 0 ? draftTags : ["待添加标签"]).slice(0, 5).map((tag) => (
+                          <span key={tag}>#{tag}</span>
+                        ))}
+                      </div>
+                    </div>
+                  </article>
+                </div>
+                <div className="reading-publication-quality">
+                  <div className="reading-quality-head">
+                    <span>完成度</span>
+                    <strong>{publishProgress}%</strong>
+                  </div>
+                  <div className="reading-quality-meter" aria-hidden="true">
+                    <span style={{ "--publish-progress": `${publishProgress}%` } as CSSProperties} />
+                  </div>
+                  <div className="reading-quality-list">
+                    {draftPreviewChecks.map((item) => (
+                      <span className={clsx(item.ready && "is-ready", item.optional && "is-optional")} key={item.label}>
+                        <Check size={12} />
+                        <small>{item.label}</small>
+                        <strong>{item.value}</strong>
+                      </span>
+                    ))}
+                  </div>
+                  <div className="reading-quality-foot">
+                    <span>{draftReadingMinutes || 0} 分钟阅读</span>
+                    <span>{draftSourceState}</span>
+                  </div>
+                </div>
               </div>
               <div className="reading-publish-checks" aria-label="发布检查">
                 {publishChecks.map((item) => (

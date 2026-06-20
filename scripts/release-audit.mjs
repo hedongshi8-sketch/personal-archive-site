@@ -298,6 +298,7 @@ assert(appSource.includes("notes-search-box") && appSource.includes("note-reader
 assert(appSource.includes("parseReadingClipboardText") && appSource.includes("reading-import-guide"), "reading clipboard smart import exists");
 assert(read("src/lib/readingImport.ts").includes("parseReadingClipboardText"), "reading clipboard parser module exists");
 assert(appSource.includes("reading-workflow-rail") && appSource.includes("书摘发布流程"), "reading publish workflow rail exists");
+assert(appSource.includes("reading-publication-board") && appSource.includes("copyReadingDraftPreview"), "reading public preview board exists");
 assert(appSource.includes("updateMusicTrack") && appSource.includes("deleteMusicTrack"), "music owner edit/delete UI exists");
 assert(appSource.includes("updateGalleryItem") && appSource.includes("deleteGalleryItem"), "gallery owner edit/delete UI exists");
 assert(appSource.includes("updateOwnerPost") && appSource.includes("deleteOwnerPost"), "owner post edit/delete UI exists");
