@@ -112,6 +112,7 @@ assert(
   packageJson.scripts?.["verify:owner-backend:remote"] === "node scripts/verify-owner-backend-ready.mjs --remote",
   "remote owner backend verification script exists",
 );
+assert(read("scripts/verify-owner-backend-ready.mjs").includes("anonymous visitor cannot delete public comment"), "owner backend verifier checks anonymous comment deletion");
 assert(packageJson.scripts?.["verify:smtp"] === "node scripts/verify-smtp.mjs", "SMTP verification script exists");
 assert(packageJson.scripts?.["verify:gmail-smtp"] === "node scripts/verify-gmail-smtp.mjs", "Gmail SMTP verification script exists");
 assert(read("scripts/verify-gmail-smtp.mjs").includes("load-local-env.mjs"), "Gmail SMTP verification loads local env");

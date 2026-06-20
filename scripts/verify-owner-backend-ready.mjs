@@ -94,6 +94,7 @@ async function checkRemoteBundle() {
     "reading_notes",
     "site_settings",
     "owner_posts",
+    "deleteComment",
     "client_elapsed_ms",
     "brand_name",
     "hero_title",
@@ -217,6 +218,29 @@ async function checkSupabaseBackend() {
     },
     "anonymous visitor cannot update site settings",
   );
+
+  const { data: commentRows, error: commentReadError } = await supabase
+    .from("public_comments")
+    .select("id")
+    .eq("approved", true)
+    .limit(1);
+  assert(!commentReadError, "public comments are readable for moderation checks", commentReadError?.message);
+
+  const publicCommentId = commentRows?.[0]?.id;
+  if (publicCommentId) {
+    const { error: deleteCommentError } = await supabase.from("public_comments").delete().eq("id", publicCommentId);
+    assert(!isNetworkError(deleteCommentError), "anonymous public comment delete request reached Supabase", deleteCommentError?.message);
+
+    const { data: preservedComment, error: preservedCommentError } = await supabase
+      .from("public_comments")
+      .select("id")
+      .eq("id", publicCommentId)
+      .maybeSingle();
+    assert(!preservedCommentError, "public comment can be re-read after anonymous delete attempt", preservedCommentError?.message);
+    assert(Boolean(preservedComment), "anonymous visitor cannot delete public comment");
+  } else {
+    pass("anonymous visitor cannot delete public comment skipped because there are no approved comments yet");
+  }
 
   const { data: publicUrlData } = supabase.storage.from(bucketName).getPublicUrl("owner-backend-healthcheck.txt");
   assert(Boolean(publicUrlData.publicUrl), "public storage bucket URL can be generated");
