@@ -32,6 +32,9 @@ export type GameDemo = {
   platform: string;
   duration: string;
   tile: number;
+  prototypeUrl?: string;
+  portfolioTargetId?: string;
+  status?: string;
 };
 
 export type Playlist = {
@@ -159,25 +162,33 @@ export const designDocs: DesignDoc[] = [
 
 export const gameDemos: GameDemo[] = [
   {
-    title: "《遗落回声》",
-    description: "叙事解谜 Demo",
-    platform: "PC",
-    duration: "18:24",
-    tile: 0,
-  },
-  {
-    title: "《小镇奇谭》",
-    description: "模拟经营原型",
+    title: "游戏小镇交互原型",
+    description: "模拟经营长地图原型，覆盖小镇、世界地图、地域探索、背包、战斗和招募链路。",
     platform: "Web",
-    duration: "12:07",
+    duration: "可交互",
     tile: 1,
+    prototypeUrl: `${import.meta.env.BASE_URL}portfolio-assets/game-town/prototype/index.html`,
+    portfolioTargetId: "game-town-prototype",
+    status: "真实 HTML 原型",
   },
   {
-    title: "《超载协议》",
-    description: "战术动作原型",
-    platform: "PC",
-    duration: "09:31",
+    title: "3D 战争界面原型",
+    description: "系统策划投递补充原型，用于展示战斗界面信息层级、部队状态和交互排布。",
+    platform: "Web",
+    duration: "可交互",
     tile: 2,
+    prototypeUrl: `${import.meta.env.BASE_URL}portfolio-assets/system-planner/prototypes/war-ui/index.html`,
+    portfolioTargetId: "war-ui-prototype",
+    status: "面试补充原型",
+  },
+  {
+    title: "菇霸争夺战策划案",
+    description: "野蛮人大作战玩法模式文档与配置表展示，适合 HR 快速查看规则、目标、节奏和配置能力。",
+    platform: "PDF / Excel",
+    duration: "站内预览",
+    tile: 0,
+    portfolioTargetId: "barbarq-design-doc",
+    status: "作品集核心条目",
   },
 ];
 

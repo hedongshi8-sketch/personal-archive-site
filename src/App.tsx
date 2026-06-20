@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import clsx from "clsx";
 import {
+  Archive,
   ArrowRight,
   Bell,
   BookOpenText,
@@ -2335,8 +2336,29 @@ function DemosSection() {
   }, [demosNavigationTarget]);
 
   function playActiveDemo() {
+    if (activeDemo.prototypeUrl) {
+      window.open(activeDemo.prototypeUrl, "_blank", "noopener,noreferrer");
+      setPlayMessage(`已打开 ${activeDemo.title} 的可交互原型。`);
+      return;
+    }
+
+    if (activeDemo.portfolioTargetId) {
+      const params = new URLSearchParams({
+        fromSearch: "1",
+        target: activeDemo.portfolioTargetId,
+      });
+      window.location.hash = "docs";
+      window.history.replaceState(null, "", `${window.location.pathname}?${params.toString()}#docs`);
+      setPlayMessage(`已跳转到 ${activeDemo.title} 的作品集条目。`);
+      return;
+    }
+
     setPlayMessage(`已切到 ${activeDemo.title} 演示位。`);
   }
+
+  const activePortfolioHref = activeDemo.portfolioTargetId
+    ? `?fromSearch=1&target=${encodeURIComponent(activeDemo.portfolioTargetId)}#docs`
+    : "#docs";
 
   return (
     <section className="screen-section demos-section" id="demos">
@@ -2353,12 +2375,25 @@ function DemosSection() {
           </button>
         </MediaTile>
         <div className="demo-feature-copy">
+          <span className="demo-status">{activeDemo.status ?? "Demo 展台"}</span>
           <h3>{activeDemo.title}</h3>
           <p>{activeDemo.description}</p>
           {playMessage ? <p className="demo-play-message">{playMessage}</p> : null}
           <div className="meta-row">
             <span>{activeDemo.platform}</span>
             <time>{activeDemo.duration}</time>
+          </div>
+          <div className="demo-action-strip">
+            {activeDemo.prototypeUrl ? (
+              <a className="cyan-button" href={activeDemo.prototypeUrl} target="_blank" rel="noreferrer">
+                <ExternalLink size={16} />
+                打开可交互原型
+              </a>
+            ) : null}
+            <a className="ghost-button" href={activePortfolioHref}>
+              <Archive size={16} />
+              查看作品档案
+            </a>
           </div>
         </div>
       </div>

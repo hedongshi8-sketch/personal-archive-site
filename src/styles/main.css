@@ -1875,6 +1875,32 @@ p {
   padding: 24px;
 }
 
+.demo-status {
+  width: fit-content;
+  margin-bottom: 10px;
+  border: 1px solid rgba(33, 215, 222, 0.24);
+  border-radius: 6px;
+  padding: 5px 8px;
+  background: rgba(33, 215, 222, 0.1);
+  color: #0c6b78;
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.demo-action-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+  margin-top: 16px;
+}
+
+.demo-action-strip .cyan-button,
+.demo-action-strip .ghost-button {
+  min-height: 40px;
+  padding-inline: 13px;
+  font-size: 13px;
+}
+
 .demo-shelf {
   grid-column: 2;
   display: grid;
