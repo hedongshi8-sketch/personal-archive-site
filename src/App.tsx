@@ -763,6 +763,18 @@ function avatarContent(value: string | undefined, fallback = "访") {
   return (value || fallback).trim().slice(0, 1) || fallback;
 }
 
+function isDisplayableComment(comment: Comment) {
+  const author = comment.author.trim().toLowerCase();
+  const body = comment.body.trim().toLowerCase();
+
+  return !(
+    author === "anonymous visitor" ||
+    author === "验收访客" ||
+    body.includes("this comment should be blocked because comments require auth") ||
+    body.startsWith("supabase smoke test ")
+  );
+}
+
 function EditableText({
   as,
   value,
@@ -3394,27 +3406,38 @@ function PrivateSection({ currentUser }: { currentUser: AuthUser | null }) {
       ) : null}
       {statusMessage ? <p className="backend-status">{statusMessage}</p> : null}
       <div className="post-stack">
-        {posts.slice(0, 6).map((post) => (
-          <article key={post.id} className={clsx("mini-post", editingPostId === post.id && "is-editing")}>
-            <div>
-              <strong>{post.title}</strong>
-              <time>{post.createdAt}</time>
-            </div>
-            <p>{post.body}</p>
-            {isOwner ? (
-              <div className="mini-post-actions">
-                <button disabled={saveState === "saving"} onClick={() => startEditingPost(post)} type="button">
-                  <Edit3 size={14} />
-                  编辑
-                </button>
-                <button className="danger" disabled={deletingPostId === post.id} onClick={() => void deletePost(post)} type="button">
-                  <Trash2 size={14} />
-                  删除
-                </button>
+        {posts.length > 0 ? (
+          posts.slice(0, 6).map((post) => (
+            <article key={post.id} className={clsx("mini-post", editingPostId === post.id && "is-editing")}>
+              <div>
+                <strong>{post.title}</strong>
+                <time>{post.createdAt}</time>
               </div>
-            ) : null}
-          </article>
-        ))}
+              <p>{post.body}</p>
+              {isOwner ? (
+                <div className="mini-post-actions">
+                  <button disabled={saveState === "saving"} onClick={() => startEditingPost(post)} type="button">
+                    <Edit3 size={14} />
+                    编辑
+                  </button>
+                  <button className="danger" disabled={deletingPostId === post.id} onClick={() => void deletePost(post)} type="button">
+                    <Trash2 size={14} />
+                    删除
+                  </button>
+                </div>
+              ) : null}
+            </article>
+          ))
+        ) : (
+          <div className="archive-empty-state post-empty-state">
+            <div className="archive-empty-icon">
+              <Bell size={26} />
+            </div>
+            <span>{isSupabase ? "Supabase Updates Ready" : "Local Updates Ready"}</span>
+            <strong>公开更新待发布</strong>
+            <p>{isOwner ? "写下第一条阶段更新后，访客会在这里看到你的作品进度。" : "站主还没有发布公开动态；这里会用于同步作品集更新、测试记录和阶段想法。"}</p>
+          </div>
+        )}
       </div>
     </section>
   );
@@ -3501,6 +3524,7 @@ function CommentsSection({
   const [gate, setGate] = useState<HumanGateState>(() => createHumanGate());
   const [deletingCommentId, setDeletingCommentId] = useState<string | null>(null);
   const isOwner = currentUser?.role === "owner";
+  const visibleComments = useMemo(() => comments.filter(isDisplayableComment), [comments]);
 
   useEffect(() => {
     let active = true;
@@ -3668,39 +3692,50 @@ function CommentsSection({
       {statusMessage ? <p className="backend-status">{statusMessage}</p> : null}
       {siteBackend.mode === "supabase" ? null : <GitHubIssueComments />}
       <div className="comment-list">
-        {comments.map((comment) => (
-          <article className="comment-row" key={comment.id}>
-            <div className="comment-avatar">{avatarContent(comment.avatar, comment.author)}</div>
-            <div className="comment-body">
-              <div className="comment-meta">
-                <strong>{comment.author}</strong>
-                <span>{comment.time}</span>
-              </div>
-              <p>{comment.body}</p>
-              <div className="comment-actions">
-                <button onClick={() => replyTo(comment.author)} type="button">
-                  <MessageCircle size={15} />
-                  回复
-                </button>
-                <button onClick={() => likeComment(comment.id)} type="button">
-                  <Heart size={15} fill="currentColor" />
-                  {comment.likes}
-                </button>
-                {isOwner ? (
-                  <button
-                    className="danger"
-                    disabled={deletingCommentId === comment.id}
-                    onClick={() => void deleteComment(comment)}
-                    type="button"
-                  >
-                    <Trash2 size={15} />
-                    {deletingCommentId === comment.id ? "删除中" : "删除"}
+        {visibleComments.length > 0 ? (
+          visibleComments.map((comment) => (
+            <article className="comment-row" key={comment.id}>
+              <div className="comment-avatar">{avatarContent(comment.avatar, comment.author)}</div>
+              <div className="comment-body">
+                <div className="comment-meta">
+                  <strong>{comment.author}</strong>
+                  <span>{comment.time}</span>
+                </div>
+                <p>{comment.body}</p>
+                <div className="comment-actions">
+                  <button onClick={() => replyTo(comment.author)} type="button">
+                    <MessageCircle size={15} />
+                    回复
                   </button>
-                ) : null}
+                  <button onClick={() => likeComment(comment.id)} type="button">
+                    <Heart size={15} fill="currentColor" />
+                    {comment.likes}
+                  </button>
+                  {isOwner ? (
+                    <button
+                      className="danger"
+                      disabled={deletingCommentId === comment.id}
+                      onClick={() => void deleteComment(comment)}
+                      type="button"
+                    >
+                      <Trash2 size={15} />
+                      {deletingCommentId === comment.id ? "删除中" : "删除"}
+                    </button>
+                  ) : null}
+                </div>
               </div>
+            </article>
+          ))
+        ) : (
+          <div className="archive-empty-state comment-empty-state">
+            <div className="archive-empty-icon">
+              <MessageCircle size={26} />
             </div>
-          </article>
-        ))}
+            <span>{currentUser ? "Comment Channel Ready" : "Login Required"}</span>
+            <strong>第一条留言等待中</strong>
+            <p>{currentUser ? "写下第一条反馈、建议或想法，这里会成为公开留言记录。" : "注册或登录后就可以留言；为了防刷，提交前需要完成一道简单算术题。"}</p>
+          </div>
+        )}
       </div>
     </section>
   );

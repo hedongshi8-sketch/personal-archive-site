@@ -1,6 +1,6 @@
 /* global self, caches, fetch, URL */
 
-const CACHE_NAME = "linx-archive-v3";
+const CACHE_NAME = "linx-archive-v4";
 
 function sameScopePath(path) {
   return new URL(path, self.registration.scope).href;

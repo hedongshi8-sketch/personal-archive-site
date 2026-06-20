@@ -2510,6 +2510,53 @@ p {
   line-height: 1.7;
 }
 
+.archive-empty-state {
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 9px;
+  min-height: clamp(220px, 34vh, 340px);
+  border: 1px dashed rgba(30, 29, 25, 0.2);
+  border-radius: 8px;
+  padding: 28px;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.54), rgba(251, 248, 240, 0.3)),
+    repeating-linear-gradient(90deg, rgba(30, 29, 25, 0.035) 0 1px, transparent 1px 22px);
+  color: var(--muted);
+  text-align: center;
+}
+
+.archive-empty-icon {
+  width: 58px;
+  height: 58px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(33, 215, 222, 0.32);
+  border-radius: 8px;
+  background: rgba(33, 215, 222, 0.1);
+  color: var(--cyan-dark);
+}
+
+.archive-empty-state span {
+  color: var(--cyan-dark);
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.archive-empty-state strong {
+  color: var(--ink);
+  font-size: clamp(20px, 2vw, 28px);
+  line-height: 1.12;
+}
+
+.archive-empty-state p {
+  max-width: 460px;
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
 .reading-composer {
   grid-column: auto;
   margin-top: 0;
@@ -2841,6 +2888,10 @@ p {
   margin-top: 14px;
 }
 
+.post-empty-state {
+  grid-column: 1 / -1;
+}
+
 .backend-status {
   margin: 10px 0 0;
 }
@@ -3033,6 +3084,10 @@ p {
   padding: 4px 18px;
 }
 
+.comment-empty-state {
+  margin-block: 14px;
+}
+
 .comment-row {
   display: grid;
   grid-template-columns: auto 1fr;
@@ -3206,6 +3261,7 @@ p {
 .dark-mode .notes-sync-state,
 .dark-mode .notes-command,
 .dark-mode .notes-featured-note,
+.dark-mode .archive-empty-state,
 .dark-mode .reading-count,
 .dark-mode .notes-empty-state {
   background: rgba(20, 24, 25, 0.68);
@@ -3285,8 +3341,22 @@ p {
   color: #8deaf2;
 }
 
+.dark-mode .archive-empty-icon {
+  border-color: rgba(33, 215, 222, 0.24);
+  background: rgba(33, 215, 222, 0.1);
+  color: #8deaf2;
+}
+
 .dark-mode .notes-empty-kicker {
   color: #8deaf2;
+}
+
+.dark-mode .archive-empty-state span {
+  color: #8deaf2;
+}
+
+.dark-mode .archive-empty-state strong {
+  color: #f7f1e6;
 }
 
 .dark-mode .notes-featured-note span {
