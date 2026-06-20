@@ -30,7 +30,7 @@ export type PortfolioItem = {
 
 const internalPortfolioPattern = /待替换个人信息|投递说明_只看这个|README_投递使用说明|系统策划投递说明/;
 
-export function isPublicPortfolioItem(item: Pick<PortfolioItem, "title" | "publicUrl" | "previewUrl" | "sourcePath">) {
+export function isPublicPortfolioItem(item: Pick<PortfolioItem, "title" | "publicUrl" | "previewUrl"> & { sourcePath?: string }) {
   return !internalPortfolioPattern.test([item.title, item.publicUrl, item.previewUrl, item.sourcePath].filter(Boolean).join(" "));
 }
 

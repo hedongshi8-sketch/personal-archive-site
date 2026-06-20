@@ -327,6 +327,12 @@ function mapPortfolioItem(row: PortfolioItemRow): PortfolioItem {
   };
 }
 
+function assertPublicPortfolioInput(input: PortfolioItemInput) {
+  if (!isPublicPortfolioItem(input)) {
+    throw new Error("这个作品集条目像是内部投递说明或待替换个人信息文件，已阻止公开发布。");
+  }
+}
+
 function mapMusicTrack(row: MusicTrackRow): MusicTrack {
   return {
     id: row.id,
@@ -623,12 +629,14 @@ export class LocalPreviewBackend implements SiteBackend {
   }
 
   async createPortfolioItem(input: PortfolioItemInput) {
+    assertPublicPortfolioInput(input);
     const item = createLocalPortfolioItem(input);
     localPortfolioItems = [item, ...localPortfolioItems];
     return item;
   }
 
   async updatePortfolioItem(id: string, input: PortfolioItemInput) {
+    assertPublicPortfolioInput(input);
     const item = createLocalPortfolioItem(input, id);
     localPortfolioItems = localPortfolioItems.map((candidate) => (candidate.id === id ? item : candidate));
     return item;
@@ -1014,6 +1022,7 @@ export class SupabaseBackend implements SiteBackend {
   }
 
   async createPortfolioItem(input: PortfolioItemInput) {
+    assertPublicPortfolioInput(input);
     const user = await this.getCurrentUser();
     const owner = requireOwner(user, "只有站主账号可以编辑作品集。");
 
@@ -1040,6 +1049,7 @@ export class SupabaseBackend implements SiteBackend {
   }
 
   async updatePortfolioItem(id: string, input: PortfolioItemInput) {
+    assertPublicPortfolioInput(input);
     requireOwner(await this.getCurrentUser(), "只有站主账号可以修改作品集。");
 
     const { data, error } = await this.client

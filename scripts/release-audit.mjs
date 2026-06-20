@@ -278,6 +278,7 @@ assert(appSource.includes("站主动态"), "public owner updates copy exists");
 assert(appSource.includes("ExcelSheetPreview"), "Excel in-site preview reader exists");
 assert(appSource.includes("DocumentReader"), "document in-site preview reader exists");
 assert(appSource.includes("updatePortfolioItem") && appSource.includes("deletePortfolioItem"), "portfolio owner edit/delete UI exists");
+assert(backendSource.includes("function assertPublicPortfolioInput") && backendSource.includes("已阻止公开发布"), "portfolio owner publish guard blocks internal files");
 assert(appSource.includes("function MusicSection"), "music upload section exists");
 assert(appSource.includes("function GallerySection"), "gallery upload section exists");
 assert(appSource.includes("function NotesSection"), "reading notes section exists");
