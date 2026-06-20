@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import clsx from "clsx";
 import {
   ArrowRight,
@@ -4636,13 +4636,8 @@ export function App() {
 
   useEffect(() => {
     const handleRouteChange = () => {
-      const nextSection = getSectionFromLocation();
-      setActiveSection(nextSection);
+      setActiveSection(getSectionFromLocation());
       window.scrollTo({ top: 0, left: 0, behavior: "auto" });
-      window.requestAnimationFrame(() => {
-        document.querySelector(".workspace")?.scrollTo({ top: 0, left: 0, behavior: "auto" });
-        document.getElementById(nextSection)?.scrollTo({ top: 0, left: 0, behavior: "auto" });
-      });
     };
 
     handleRouteChange();
@@ -4653,6 +4648,17 @@ export function App() {
       window.removeEventListener("popstate", handleRouteChange);
     };
   }, []);
+
+  useLayoutEffect(() => {
+    const resetActiveScroll = () => {
+      document.querySelector(".workspace")?.scrollTo({ top: 0, left: 0, behavior: "auto" });
+      document.getElementById(activeSection)?.scrollTo({ top: 0, left: 0, behavior: "auto" });
+      window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+    };
+
+    resetActiveScroll();
+    window.requestAnimationFrame(resetActiveScroll);
+  }, [activeSection]);
 
   const activeScreen = {
     home: (
