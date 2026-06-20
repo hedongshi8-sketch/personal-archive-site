@@ -120,6 +120,8 @@ assert(read("scripts/verify-owner-backend-ready.mjs").includes("approved public 
 assert(packageJson.scripts?.["verify:smtp"] === "node scripts/verify-smtp.mjs", "SMTP verification script exists");
 assert(packageJson.scripts?.["verify:email"] === "node scripts/verify-email-stack.mjs", "email stack verification script exists");
 assert(read("scripts/verify-email-stack.mjs").includes("EMAIL_STACK_SEND_GMAIL"), "email stack verification supports gated real email send");
+assert(packageJson.scripts?.["verify:email:final"] === "node scripts/verify-email-final.mjs", "final email verification script exists");
+assert(read("scripts/verify-email-final.mjs").includes("EMAIL_STACK_TRIGGER_PASSWORD_RESET"), "final email verification triggers password reset email");
 assert(packageJson.scripts?.["verify:gmail-smtp"] === "node scripts/verify-gmail-smtp.mjs", "Gmail SMTP verification script exists");
 assert(read("scripts/verify-gmail-smtp.mjs").includes("load-local-env.mjs"), "Gmail SMTP verification loads local env");
 assert(

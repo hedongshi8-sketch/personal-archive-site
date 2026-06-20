@@ -82,6 +82,7 @@ npm run deploy:readiness
 npm run verify:supabase
 npm run verify:owner-backend
 npm run verify:gmail-smtp
+npm run verify:email:final
 npm run supabase:configure-gmail-smtp
 npm run verify:smtp
 npm run verify:auth-email
@@ -91,6 +92,8 @@ npm run verify:mail-dns
 `verify:supabase` 和 `verify:owner-backend` 需要本地或部署环境已经配置 Supabase 变量。线上发布后再跑：
 
 `verify:gmail-smtp` 会读取当前终端或本地 `.env/.env.local` 里的 `GMAIL_APP_PASSWORD`，用于快速验证 Gmail 免费 SMTP。`verify:smtp` 是通用 SMTP 验证命令，需要设置 `SMTP_HOST`、`SMTP_PORT`、`SMTP_USER`、`SMTP_PASS`、`SMTP_FROM`、`SMTP_TO`。
+
+`verify:email` 只做安全的基础体检，默认不会真的发邮件。配置好 `GMAIL_APP_PASSWORD` 后，最终收件箱验证直接跑 `npm run verify:email:final`：它会发送一封 Gmail SMTP 测试邮件，并触发一次 Supabase 密码重置邮件。
 
 `supabase:configure-gmail-smtp` 需要设置 `SUPABASE_ACCESS_TOKEN` 和 `GMAIL_APP_PASSWORD`，用于把 Gmail SMTP 自动写入 Supabase Auth。这个命令会调用 Supabase Management API，不会把密码写进仓库。
 

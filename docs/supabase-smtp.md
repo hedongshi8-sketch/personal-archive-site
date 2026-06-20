@@ -65,10 +65,10 @@ npm run verify:email
 如果你不想再创建任何注册测试账号，更推荐用密码重置邮件做最终收件箱验证：
 
 ```powershell
-$env:EMAIL_STACK_SEND_GMAIL="true"
-$env:EMAIL_STACK_TRIGGER_PASSWORD_RESET="true"
-npm run verify:email
+npm run verify:email:final
 ```
+
+`verify:email:final` 等价于打开 `EMAIL_STACK_SEND_GMAIL=true` 和 `EMAIL_STACK_TRIGGER_PASSWORD_RESET=true`：它会发送一封 Gmail SMTP 测试邮件，并触发一次 Supabase 密码重置邮件。脚本通过后，还要去收件箱/垃圾箱确认两封邮件真的到达。
 
 这个命令默认会先试 `465/TLS`，失败后自动试 `587/STARTTLS`。如果你只想测某一个端口，可以临时加：
 
