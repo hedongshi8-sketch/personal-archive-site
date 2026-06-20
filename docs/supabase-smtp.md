@@ -81,6 +81,22 @@ Site URL      = https://hedongshi8-sketch.github.io/personal-archive-site/
 
 如果你更想手动配置，Supabase 后台仍然按上面的字段填即可。
 
+配置完成后触发一次 Supabase Auth 确认邮件：
+
+```powershell
+$env:AUTH_EMAIL_TO="你的收件邮箱"
+npm run verify:auth-email
+```
+
+这个命令默认直接使用 `AUTH_EMAIL_TO` 本体，避免生成 `+auth-test` 测试账号。只有你明确想用 Gmail 加号别名隔离测试时，再额外设置：
+
+```powershell
+$env:AUTH_EMAIL_USE_ALIAS="true"
+npm run verify:auth-email
+```
+
+脚本通过只能证明 Supabase 已接受注册并触发确认邮件请求；最终还要打开收件箱/垃圾箱确认邮件确实送达。
+
 ## 正式方案：Resend + 自有域名
 
 如果以后要让邮件更像正式网站，再买域名并换 Resend。Resend 官方有 Supabase SMTP 集成说明，需要 Resend API key 和 verified domain。

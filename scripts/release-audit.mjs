@@ -124,6 +124,7 @@ assert(
   packageJson.scripts?.["verify:auth-email"] === "node scripts/verify-supabase-auth-email.mjs",
   "Supabase auth email verification script exists",
 );
+assert(read("scripts/verify-supabase-auth-email.mjs").includes("load-local-env.mjs"), "Supabase auth email verification loads local env");
 assert(packageJson.scripts?.["verify:mail-dns"] === "node scripts/verify-mail-dns.mjs", "mail DNS verification script exists");
 assert(
   packageJson.scripts?.["sql:supabase-upgrade"] === "node scripts/compose-supabase-upgrade-sql.mjs",

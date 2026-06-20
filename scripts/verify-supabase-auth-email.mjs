@@ -1,4 +1,5 @@
 import { createVerificationClient } from "./create-verification-client.mjs";
+import "./load-local-env.mjs";
 
 const supabaseUrl = process.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY;
@@ -6,6 +7,7 @@ const siteUrl = process.env.SITE_URL || "https://hedongshi8-sketch.github.io/per
 const targetEmail = process.env.AUTH_EMAIL_TO || process.env.SMTP_TO;
 const testPassword = process.env.AUTH_EMAIL_TEST_PASSWORD || `Test-${Date.now()}-aA1!`;
 const shouldResend = process.env.AUTH_EMAIL_RESEND === "true";
+const shouldUseAlias = process.env.AUTH_EMAIL_USE_ALIAS === "true";
 const failures = [];
 
 function pass(label) {
@@ -58,7 +60,7 @@ if (!targetEmail) {
 }
 
 if (failures.length === 0) {
-  const testEmail = process.env.AUTH_EMAIL_TEST_ADDRESS || buildAlias(targetEmail);
+  const testEmail = process.env.AUTH_EMAIL_TEST_ADDRESS || (shouldUseAlias ? buildAlias(targetEmail) : targetEmail);
   const supabase = createVerificationClient(supabaseUrl, supabaseAnonKey);
   const redirectTo = new URL(siteUrl).toString();
 
@@ -104,7 +106,11 @@ if (failures.length === 0) {
     }
 
     if (!error && data?.user) {
-      console.log(`Check the inbox for ${redactEmail(testEmail)}. If your mail provider supports plus aliases, it should arrive in ${redactEmail(targetEmail)}.`);
+      if (testEmail === targetEmail) {
+        console.log(`Check the inbox for ${redactEmail(targetEmail)}.`);
+      } else {
+        console.log(`Check the inbox for ${redactEmail(testEmail)}. If your mail provider supports plus aliases, it should arrive in ${redactEmail(targetEmail)}.`);
+      }
     }
   } catch (error) {
     fail("Supabase auth email request completed", error instanceof Error ? error.message : String(error));

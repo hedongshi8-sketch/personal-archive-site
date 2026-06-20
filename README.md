@@ -94,7 +94,7 @@ npm run verify:mail-dns
 
 `supabase:configure-gmail-smtp` 需要设置 `SUPABASE_ACCESS_TOKEN` 和 `GMAIL_APP_PASSWORD`，用于把 Gmail SMTP 自动写入 Supabase Auth。这个命令会调用 Supabase Management API，不会把密码写进仓库。
 
-`verify:auth-email` 需要设置 `AUTH_EMAIL_TO`，用于触发 Supabase Auth 注册确认邮件，确认 Custom SMTP 已经被 Supabase 用起来。
+`verify:auth-email` 需要设置 `AUTH_EMAIL_TO`，用于触发 Supabase Auth 注册确认邮件，确认 Custom SMTP 已经被 Supabase 用起来。默认会直接使用这个邮箱本体；只有设置 `AUTH_EMAIL_USE_ALIAS=true` 时才会生成 `+auth-test` 别名。
 
 这些密钥可以临时放在当前 PowerShell，也可以放进本机 `.env.local`。`.env.local` 已被 gitignore，仍然不要提交或截图。
 
