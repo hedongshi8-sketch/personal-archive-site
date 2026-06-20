@@ -13,11 +13,15 @@ const sections = [
     file: "supabase/migrations/20260619_account_editing.sql",
   },
   {
-    title: "2. Mark the registered site owner account as owner",
+    title: "2. Hide legacy anonymous test comments",
+    file: "supabase/migrations/20260620_hide_legacy_anonymous_comments.sql",
+  },
+  {
+    title: "3. Mark the registered site owner account as owner",
     file: "supabase/set-owner.sql",
   },
   {
-    title: "3. Show post-upgrade database checks",
+    title: "4. Show post-upgrade database checks",
     file: "supabase/account-editing-check.sql",
   },
 ];

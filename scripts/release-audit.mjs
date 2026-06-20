@@ -81,6 +81,7 @@ assert(exists(".env.example"), ".env.example exists");
 assert(exists("supabase/schema.sql"), "Supabase schema exists");
 assert(exists("supabase/seed-portfolio.sql"), "Supabase portfolio seed exists");
 assert(exists("supabase/migrations/20260619_account_editing.sql"), "Supabase account editing migration exists");
+assert(exists("supabase/migrations/20260620_hide_legacy_anonymous_comments.sql"), "Supabase legacy anonymous comments cleanup migration exists");
 assert(exists("supabase/account-editing-check.sql"), "Supabase account editing check exists");
 assert(exists("scripts/compose-supabase-upgrade-sql.mjs"), "Supabase upgrade SQL composer exists");
 assert(read("README.md").includes("GitHub Pages"), "README documents GitHub Pages");
@@ -113,6 +114,7 @@ assert(
   "remote owner backend verification script exists",
 );
 assert(read("scripts/verify-owner-backend-ready.mjs").includes("anonymous visitor cannot delete public comment"), "owner backend verifier checks anonymous comment deletion");
+assert(read("scripts/verify-owner-backend-ready.mjs").includes("approved public comments are tied to a profile"), "owner backend verifier checks legacy anonymous comments");
 assert(packageJson.scripts?.["verify:smtp"] === "node scripts/verify-smtp.mjs", "SMTP verification script exists");
 assert(packageJson.scripts?.["verify:gmail-smtp"] === "node scripts/verify-gmail-smtp.mjs", "Gmail SMTP verification script exists");
 assert(read("scripts/verify-gmail-smtp.mjs").includes("load-local-env.mjs"), "Gmail SMTP verification loads local env");
@@ -129,6 +131,10 @@ assert(packageJson.scripts?.["verify:mail-dns"] === "node scripts/verify-mail-dn
 assert(
   packageJson.scripts?.["sql:supabase-upgrade"] === "node scripts/compose-supabase-upgrade-sql.mjs",
   "Supabase upgrade SQL composer script exists",
+);
+assert(
+  read("scripts/compose-supabase-upgrade-sql.mjs").includes("20260620_hide_legacy_anonymous_comments.sql"),
+  "Supabase upgrade SQL composer includes legacy anonymous cleanup",
 );
 
 const ciWorkflow = read(".github/workflows/ci.yml");
@@ -246,6 +252,7 @@ assert(appSource.includes("updateMusicTrack") && appSource.includes("deleteMusic
 assert(appSource.includes("updateGalleryItem") && appSource.includes("deleteGalleryItem"), "gallery owner edit/delete UI exists");
 assert(appSource.includes("updateOwnerPost") && appSource.includes("deleteOwnerPost"), "owner post edit/delete UI exists");
 assert(appSource.includes("deleteComment") && appSource.includes("只有站主账号可以删除留言"), "comment owner delete UI exists");
+assert(read("src/lib/backendContract.ts").includes('.not("author_id", "is", null)'), "public comments exclude legacy anonymous rows");
 assert(appSource.includes("checkHumanGate"), "anti-spam human gate exists");
 assert(appSource.includes("BackgroundMusicDock"), "background music dock exists");
 

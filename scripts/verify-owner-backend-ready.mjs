@@ -16,6 +16,10 @@ function fail(label, detail = "") {
   console.error(`FAIL ${label}${detail ? `: ${detail}` : ""}`);
 }
 
+function warn(label, detail = "") {
+  console.warn(`WARN ${label}${detail ? `: ${detail}` : ""}`);
+}
+
 function assert(condition, label, detail = "") {
   if (condition) {
     pass(label);
@@ -226,6 +230,26 @@ async function checkSupabaseBackend() {
     .eq("approved", true)
     .limit(1);
   assert(!commentReadError, "public comments are readable for moderation checks", commentReadError?.message);
+
+  const { data: legacyAnonymousComments, error: legacyAnonymousCommentsError } = await supabase
+    .from("public_comments")
+    .select("id")
+    .eq("approved", true)
+    .is("author_id", null)
+    .limit(1);
+  assert(
+    !legacyAnonymousCommentsError,
+    "legacy anonymous comments can be checked",
+    legacyAnonymousCommentsError?.message,
+  );
+  if ((legacyAnonymousComments?.length ?? 0) === 0) {
+    pass("approved public comments are tied to a profile");
+  } else {
+    warn(
+      "legacy anonymous comments still exist in database",
+      "run supabase/migrations/20260620_hide_legacy_anonymous_comments.sql to hide them from public moderation reads",
+    );
+  }
 
   const publicCommentId = commentRows?.[0]?.id;
   if (publicCommentId) {

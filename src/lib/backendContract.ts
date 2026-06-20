@@ -905,6 +905,7 @@ export class SupabaseBackend implements SiteBackend {
       .from("public_comments")
       .select("id,author_id,author,avatar_url,body,likes,created_at")
       .eq("approved", true)
+      .not("author_id", "is", null)
       .order("created_at", { ascending: false });
 
     return requireSupabaseResult(data as CommentRow[] | null, error).map(mapComment);
