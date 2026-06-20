@@ -4,7 +4,7 @@ import "./load-local-env.mjs";
 const supabaseUrl = process.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY;
 const siteUrl = process.env.SITE_URL || "https://hedongshi8-sketch.github.io/personal-archive-site/";
-const targetEmail = process.env.AUTH_EMAIL_TO || process.env.GMAIL_SMTP_TO || process.env.SMTP_TO || process.env.GMAIL_ADDRESS;
+const targetEmail = process.env.AUTH_EMAIL_TO || process.env.GMAIL_SMTP_TO || process.env.SMTP_TO || process.env.GMAIL_ADDRESS || "hedongshi8@gmail.com";
 const testPassword = process.env.AUTH_EMAIL_TEST_PASSWORD || `Test-${Date.now()}-aA1!`;
 const shouldResend = process.env.AUTH_EMAIL_RESEND === "true";
 const shouldUseAlias = process.env.AUTH_EMAIL_USE_ALIAS === "true";

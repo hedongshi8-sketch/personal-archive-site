@@ -48,6 +48,20 @@ npm run verify:gmail-smtp
 
 也可以把同样的变量放到本机 `.env.local`，脚本会自动读取；`.env.local` 已被 gitignore，不要提交或截图。`verify:gmail-smtp` 会优先使用 `GMAIL_SMTP_TO`，其次使用 `AUTH_EMAIL_TO`，再退回到 `GMAIL_ADDRESS`。
 
+如果只想先确认本机变量是否齐，可以跑一键体检。默认不会真的发邮件：
+
+```powershell
+npm run verify:email
+```
+
+要让体检同时发送 Gmail SMTP 测试邮件、触发 Supabase 注册确认邮件，再打开两个开关：
+
+```powershell
+$env:EMAIL_STACK_SEND_GMAIL="true"
+$env:EMAIL_STACK_TRIGGER_AUTH="true"
+npm run verify:email
+```
+
 这个命令默认会先试 `465/TLS`，失败后自动试 `587/STARTTLS`。如果你只想测某一个端口，可以临时加：
 
 ```powershell
