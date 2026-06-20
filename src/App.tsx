@@ -2646,8 +2646,10 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
     const bookCount = notes.filter((note) => note.kind === "book").length;
     const videoCount = notes.length - bookCount;
     const tagCount = new Set(notes.flatMap((note) => note.tags)).size;
+    const quoteTotal = notes.reduce((total, note) => total + note.quote.trim().length, 0);
+    const averageQuoteLength = notes.length > 0 ? Math.round(quoteTotal / notes.length) : 0;
 
-    return { bookCount, videoCount, tagCount };
+    return { bookCount, videoCount, tagCount, averageQuoteLength };
   }, [notes]);
   const filteredNotes = useMemo(() => {
     return notes.filter((note) => {
@@ -2659,6 +2661,14 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
   const editingNote = editingNoteId ? notes.find((note) => note.id === editingNoteId) : null;
   const canPublish = Boolean(draft.title.trim() && draft.creator.trim() && draft.quote.trim());
   const quoteLength = draft.quote.trim().length;
+  const latestNote = notes[0];
+  const filterSummary =
+    activeKind === "all"
+      ? "全部来源"
+      : activeKind === "book"
+        ? "只看书籍摘录"
+        : "只看视频笔记";
+  const activeTagLabel = activeTag === "all" ? "全标签" : `#${activeTag}`;
 
   useEffect(() => {
     let active = true;
@@ -2841,43 +2851,57 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
             标签
           </span>
         </div>
+        <div className="notes-reading-lens">
+          <span>当前视图</span>
+          <strong>{filterSummary}</strong>
+          <p>
+            {activeTagLabel} · {filteredNotes.length} 条命中 · 平均 {noteStats.averageQuoteLength} 字
+          </p>
+        </div>
         <div className="notes-archive-mark">
           <BookOpenText size={18} />
           <span>{isOwner ? "站主发布通道已开启" : "公开阅读模式"}</span>
+          {latestNote ? <small>最新：{latestNote.title}</small> : null}
         </div>
       </aside>
       <div className="notes-workbench">
         <div className="notes-command">
-          <div className="filter-row" role="tablist" aria-label="书摘筛选">
-            {[
-              { id: "all", label: "全部" },
-              { id: "book", label: "书籍" },
-              { id: "video", label: "视频" },
-            ].map((item) => (
-              <button
-                className={clsx(activeKind === item.id && "active")}
-                key={item.id}
-                onClick={() => setActiveKind(item.id as "all" | ReadingNote["kind"])}
-                type="button"
-                role="tab"
-                aria-selected={activeKind === item.id}
-              >
-                {item.label}
-              </button>
-            ))}
+          <div className="notes-command-title">
+            <span>Reading Archive</span>
+            <strong>{filterSummary}</strong>
           </div>
-          {availableTags.length > 0 ? (
-            <div className="notes-tag-filter" aria-label="书摘标签筛选">
-              <button className={clsx(activeTag === "all" && "active")} onClick={() => setActiveTag("all")} type="button">
-                全部标签
-              </button>
-              {availableTags.map((tag) => (
-                <button className={clsx(activeTag === tag && "active")} key={tag} onClick={() => setActiveTag(tag)} type="button">
-                  {tag}
+          <div className="notes-filter-stack">
+            <div className="filter-row" role="tablist" aria-label="书摘筛选">
+              {[
+                { id: "all", label: "全部" },
+                { id: "book", label: "书籍" },
+                { id: "video", label: "视频" },
+              ].map((item) => (
+                <button
+                  className={clsx(activeKind === item.id && "active")}
+                  key={item.id}
+                  onClick={() => setActiveKind(item.id as "all" | ReadingNote["kind"])}
+                  type="button"
+                  role="tab"
+                  aria-selected={activeKind === item.id}
+                >
+                  {item.label}
                 </button>
               ))}
             </div>
-          ) : null}
+            {availableTags.length > 0 ? (
+              <div className="notes-tag-filter" aria-label="书摘标签筛选">
+                <button className={clsx(activeTag === "all" && "active")} onClick={() => setActiveTag("all")} type="button">
+                  全部标签
+                </button>
+                {availableTags.map((tag) => (
+                  <button className={clsx(activeTag === tag && "active")} key={tag} onClick={() => setActiveTag(tag)} type="button">
+                    {tag}
+                  </button>
+                ))}
+              </div>
+            ) : null}
+          </div>
           {loadState === "loading" ? <span className="notes-sync-state">正在同步书摘...</span> : null}
           {!isOwner && statusMessage ? <span className="notes-sync-state">{statusMessage}</span> : null}
         </div>
@@ -2885,7 +2909,7 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
         <div className={clsx("notes-layout", isOwner && "has-composer")}>
           <div className="notes-grid">
             {filteredNotes.length > 0 ? (
-              filteredNotes.map((note) => (
+              filteredNotes.map((note, index) => (
                 <article className={clsx("note-card", editingNoteId === note.id && "is-editing")} key={note.id}>
                   <div className="note-cover-wrap">
                     {note.coverUrl ? (
@@ -2894,6 +2918,7 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
                       <MediaTile tile={note.kind === "book" ? 1 : 2} />
                     )}
                     <span className="note-kind">{note.kind === "book" ? "书籍" : "视频"}</span>
+                    <span className="note-index">#{String(index + 1).padStart(2, "0")}</span>
                     {isOwner ? (
                       <div className="note-admin-actions" aria-label={`${note.title} 管理`}>
                         <button
@@ -2917,22 +2942,29 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
                     ) : null}
                   </div>
                   <div className="note-card-body">
-                    <div className="note-meta-line">
-                      <span>
-                        <BookOpenText size={13} />
-                        {note.creator}
-                      </span>
-                      <time dateTime={note.createdAt}>
-                        <CalendarDays size={13} />
-                        {note.createdAt}
-                      </time>
-                    </div>
-                    <h3>{note.title}</h3>
+                    <header className="note-card-head">
+                      <div className="note-meta-line">
+                        <span>
+                          <BookOpenText size={13} />
+                          {note.creator}
+                        </span>
+                        <time dateTime={note.createdAt}>
+                          <CalendarDays size={13} />
+                          {note.createdAt}
+                        </time>
+                      </div>
+                      <h3>{note.title}</h3>
+                    </header>
                     <blockquote>
                       <Quote size={18} />
                       <span>{note.quote}</span>
                     </blockquote>
-                    {note.reflection.trim() ? <p className="note-reflection">{note.reflection}</p> : null}
+                    {note.reflection.trim() ? (
+                      <p className="note-reflection">
+                        <BookOpenText size={13} />
+                        <span>{note.reflection}</span>
+                      </p>
+                    ) : null}
                     {note.tags.length > 0 ? (
                       <div className="tag-row note-tags">
                         {note.tags.map((tag) => (

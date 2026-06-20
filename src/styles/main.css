@@ -1920,6 +1920,9 @@ p {
   grid-template-columns: minmax(260px, 0.26fr) minmax(0, 0.74fr);
   align-items: stretch;
   gap: clamp(22px, 3vw, 44px);
+  background:
+    radial-gradient(circle at 82% 12%, rgba(33, 215, 222, 0.13), transparent 30%),
+    radial-gradient(circle at 28% 92%, rgba(255, 125, 99, 0.11), transparent 28%);
 }
 
 .notes-rail {
@@ -1938,6 +1941,7 @@ p {
 .notes-stat-grid span,
 .notes-archive-mark,
 .notes-sync-state,
+.notes-reading-lens,
 .reading-count {
   border: 1px solid rgba(30, 29, 25, 0.14);
   border-radius: 8px;
@@ -1946,12 +1950,22 @@ p {
 }
 
 .notes-stat-grid span {
+  position: relative;
   display: grid;
   gap: 2px;
   min-height: 82px;
   padding: 13px;
   color: var(--muted);
   font-size: 12px;
+  overflow: hidden;
+}
+
+.notes-stat-grid span::after {
+  content: "";
+  position: absolute;
+  inset: auto 11px 10px;
+  height: 2px;
+  background: linear-gradient(90deg, rgba(33, 215, 222, 0.72), transparent);
 }
 
 .notes-stat-grid strong {
@@ -1961,7 +1975,8 @@ p {
 }
 
 .notes-archive-mark {
-  display: flex;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
   align-items: center;
   gap: 10px;
   margin-top: auto;
@@ -1975,6 +1990,47 @@ p {
   color: var(--cyan-dark);
 }
 
+.notes-archive-mark small {
+  grid-column: 2;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.notes-reading-lens {
+  display: grid;
+  gap: 6px;
+  padding: 14px;
+  background:
+    linear-gradient(135deg, rgba(17, 19, 22, 0.94), rgba(20, 30, 31, 0.88)),
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.04) 0 1px, transparent 1px 18px);
+  color: rgba(247, 241, 230, 0.68);
+}
+
+.notes-reading-lens span,
+.notes-command-title span {
+  color: var(--cyan);
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.notes-reading-lens strong {
+  color: #fff7e8;
+  font-size: 18px;
+  line-height: 1.15;
+}
+
+.notes-reading-lens p {
+  margin: 0;
+  color: rgba(247, 241, 230, 0.58);
+  font-size: 12px;
+}
+
 .notes-workbench {
   min-width: 0;
   min-height: 0;
@@ -1984,20 +2040,43 @@ p {
 }
 
 .notes-command {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: minmax(160px, auto) minmax(0, 1fr) auto;
   gap: 10px;
-  align-items: center;
+  align-items: start;
+  border: 1px solid rgba(30, 29, 25, 0.12);
+  border-radius: 8px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.28);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.48) inset;
+}
+
+.notes-command-title {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.notes-command-title strong {
+  color: var(--ink);
+  font-size: 18px;
+  line-height: 1.1;
+}
+
+.notes-filter-stack {
+  min-width: 0;
+  display: grid;
+  justify-items: end;
+  gap: 8px;
 }
 
 .notes-command .filter-row {
   margin-bottom: 0;
+  justify-content: flex-end;
 }
 
 .notes-tag-filter {
   display: flex;
-  flex: 1 1 220px;
   flex-wrap: wrap;
   justify-content: flex-end;
   gap: 7px;
@@ -2025,6 +2104,13 @@ p {
   color: #0c6b78;
 }
 
+.notes-tag-filter button:hover,
+.note-tags button:hover,
+.reading-quick-tags button:hover {
+  border-color: rgba(33, 215, 222, 0.34);
+  transform: translateY(-1px);
+}
+
 .notes-sync-state {
   display: inline-flex;
   align-items: center;
@@ -2045,10 +2131,14 @@ p {
   grid-template-columns: minmax(0, 0.62fr) minmax(320px, 0.38fr);
 }
 
+.notes-layout.has-composer .notes-grid {
+  grid-template-columns: minmax(0, 1fr);
+}
+
 .notes-grid {
   min-height: 0;
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(310px, 100%), 1fr));
   grid-auto-rows: max-content;
   gap: 14px;
   overflow: auto;
@@ -2066,6 +2156,18 @@ p {
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.66), rgba(251, 248, 240, 0.56)),
     repeating-linear-gradient(0deg, rgba(30, 29, 25, 0.035) 0 1px, transparent 1px 29px);
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
+}
+
+.note-card:hover {
+  border-color: rgba(33, 215, 222, 0.28);
+  box-shadow:
+    0 18px 38px rgba(24, 22, 18, 0.12),
+    0 1px 0 rgba(255, 255, 255, 0.55) inset;
+  transform: translateY(-2px);
 }
 
 .note-card.is-editing {
@@ -2077,7 +2179,7 @@ p {
 
 .note-cover-wrap {
   position: relative;
-  min-height: 142px;
+  min-height: 156px;
   overflow: hidden;
 }
 
@@ -2085,7 +2187,7 @@ p {
 .note-cover-wrap > .media-tile {
   width: 100%;
   height: 100%;
-  min-height: 142px;
+  min-height: 156px;
   border-radius: 0;
   object-fit: cover;
 }
@@ -2112,6 +2214,17 @@ p {
   color: #243a3d;
   font-size: 11px;
   font-weight: 900;
+}
+
+.note-index {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  z-index: 1;
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 13px;
+  font-weight: 900;
+  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.42);
 }
 
 .note-admin-actions {
@@ -2148,7 +2261,12 @@ p {
 .note-card-body {
   display: grid;
   gap: 12px;
-  padding: 15px;
+  padding: 16px;
+}
+
+.note-card-head {
+  display: grid;
+  gap: 8px;
 }
 
 .note-meta-line {
@@ -2187,8 +2305,10 @@ p {
   gap: 9px;
   border-left: 0;
   border-radius: 8px;
-  padding: 12px;
-  background: rgba(255, 255, 255, 0.48);
+  padding: 13px;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.64), rgba(255, 255, 255, 0.34)),
+    linear-gradient(90deg, rgba(33, 215, 222, 0.12), transparent);
   color: #332f28;
   font-size: 14px;
   font-weight: 760;
@@ -2201,11 +2321,19 @@ p {
 }
 
 .note-reflection {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 8px;
   border-left: 3px solid rgba(33, 215, 222, 0.78);
   padding-left: 10px;
   color: var(--muted);
   font-size: 13px;
   line-height: 1.7;
+}
+
+.note-reflection svg {
+  margin-top: 3px;
+  color: var(--cyan-dark);
 }
 
 .note-tags {
@@ -2252,18 +2380,39 @@ p {
   align-self: stretch;
   overflow: auto;
   background:
+    linear-gradient(90deg, rgba(33, 215, 222, 0.2), transparent 1px),
     radial-gradient(circle at 100% 0%, rgba(255, 125, 99, 0.14), transparent 32%),
     linear-gradient(180deg, rgba(255, 255, 255, 0.68), rgba(244, 239, 229, 0.54));
+  background-size:
+    1px 100%,
+    auto,
+    auto;
 }
 
 .reading-draft-preview {
+  position: relative;
   display: grid;
   gap: 8px;
-  border: 1px solid rgba(30, 29, 25, 0.14);
+  overflow: hidden;
+  border: 1px solid rgba(33, 215, 222, 0.22);
   border-radius: 8px;
-  padding: 13px;
-  background: rgba(17, 19, 22, 0.9);
+  padding: 15px;
+  background:
+    radial-gradient(circle at 92% 12%, rgba(33, 215, 222, 0.22), transparent 34%),
+    linear-gradient(135deg, rgba(17, 19, 22, 0.96), rgba(22, 29, 29, 0.94));
   color: rgba(247, 241, 230, 0.72);
+}
+
+.reading-draft-preview::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.035) 0 1px, transparent 1px 22px);
+  pointer-events: none;
+}
+
+.reading-draft-preview > * {
+  position: relative;
 }
 
 .reading-draft-preview span {
@@ -2277,11 +2426,15 @@ p {
 
 .reading-draft-preview strong {
   color: #fff7e8;
-  font-size: 18px;
+  font-size: 20px;
   line-height: 1.15;
 }
 
 .reading-draft-preview p {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
   margin: 0;
   color: rgba(247, 241, 230, 0.66);
   font-size: 13px;
@@ -2293,6 +2446,13 @@ p {
   min-height: 108px;
 }
 
+.reading-wide-field {
+  border: 1px solid rgba(30, 29, 25, 0.1);
+  border-radius: 8px;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.24);
+}
+
 .reading-composer .owner-upload-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
@@ -2301,6 +2461,8 @@ p {
   display: flex;
   flex-wrap: wrap;
   gap: 7px;
+  border-bottom: 1px solid rgba(30, 29, 25, 0.1);
+  padding-bottom: 10px;
 }
 
 .reading-quick-tags button {
@@ -2324,8 +2486,15 @@ p {
 }
 
 .reading-action-row {
+  position: sticky;
+  bottom: -14px;
+  z-index: 2;
   grid-template-columns: minmax(160px, 1fr) minmax(82px, auto) repeat(2, minmax(112px, auto));
   align-items: stretch;
+  border-top: 1px solid rgba(30, 29, 25, 0.12);
+  padding-top: 10px;
+  background: linear-gradient(180deg, rgba(247, 243, 235, 0.72), rgba(247, 243, 235, 0.94));
+  backdrop-filter: blur(12px);
 }
 
 .reading-action-row .ghost-button,
@@ -2354,10 +2523,12 @@ p {
   grid-template-columns: 72px minmax(0, 1fr) auto;
   gap: 10px;
   align-items: center;
-  border: 1px solid rgba(30, 29, 25, 0.14);
+  border: 1px solid rgba(33, 215, 222, 0.22);
   border-radius: 8px;
   padding: 8px;
-  background: rgba(255, 255, 255, 0.4);
+  background:
+    linear-gradient(90deg, rgba(33, 215, 222, 0.12), transparent),
+    rgba(255, 255, 255, 0.4);
 }
 
 .reading-cover-preview img {
@@ -2872,17 +3043,27 @@ p {
 .dark-mode .notes-stat-grid span,
 .dark-mode .notes-archive-mark,
 .dark-mode .notes-sync-state,
+.dark-mode .notes-command,
 .dark-mode .reading-count,
 .dark-mode .notes-empty-state {
   background: rgba(20, 24, 25, 0.68);
   color: rgba(247, 241, 230, 0.68);
 }
 
+.dark-mode .notes-reading-lens,
+.dark-mode .reading-draft-preview {
+  border-color: rgba(33, 215, 222, 0.2);
+  background:
+    radial-gradient(circle at 92% 12%, rgba(33, 215, 222, 0.15), transparent 34%),
+    linear-gradient(135deg, rgba(9, 13, 14, 0.96), rgba(16, 24, 25, 0.94));
+}
+
 .dark-mode .note-card blockquote,
 .dark-mode .reading-quick-tags button,
 .dark-mode .notes-tag-filter button,
 .dark-mode .note-tags button,
-.dark-mode .reading-cover-preview {
+.dark-mode .reading-cover-preview,
+.dark-mode .reading-wide-field {
   background: rgba(255, 255, 255, 0.07);
   color: rgba(247, 241, 230, 0.84);
 }
@@ -2925,10 +3106,16 @@ p {
 }
 
 .dark-mode .notes-stat-grid strong,
+.dark-mode .notes-command-title strong,
 .dark-mode .reading-count strong,
 .dark-mode .notes-empty-state strong,
 .dark-mode .reading-cover-preview strong {
   color: #f7f1e6;
+}
+
+.dark-mode .reading-action-row {
+  border-top-color: rgba(255, 255, 255, 0.1);
+  background: linear-gradient(180deg, rgba(20, 24, 25, 0.72), rgba(20, 24, 25, 0.96));
 }
 
 .dark-mode .ghost-button {
@@ -2993,6 +3180,10 @@ p {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
+  .notes-reading-lens {
+    grid-column: 2;
+  }
+
   .notes-tag-filter {
     justify-content: flex-start;
   }
@@ -3002,8 +3193,23 @@ p {
     margin-top: 0;
   }
 
+  .notes-command {
+    grid-template-columns: 1fr;
+  }
+
+  .notes-filter-stack,
+  .notes-command .filter-row,
+  .notes-tag-filter {
+    justify-items: start;
+    justify-content: flex-start;
+  }
+
   .notes-layout.has-composer {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .notes-layout.has-composer .notes-grid {
+    grid-template-columns: repeat(auto-fit, minmax(min(310px, 100%), 1fr));
   }
 
   .reading-composer {
@@ -3244,10 +3450,16 @@ p {
 
   .notes-rail,
   .notes-stat-grid,
+  .notes-reading-lens,
+  .notes-command,
   .reading-composer .owner-upload-grid,
   .reading-action-row,
   .reading-cover-preview {
     grid-template-columns: 1fr;
+  }
+
+  .notes-reading-lens {
+    grid-column: auto;
   }
 
   .notes-tag-filter {
