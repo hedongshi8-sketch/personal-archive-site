@@ -35,7 +35,8 @@ If this command fails with Storage `400`, RLS, or policy text:
 4. Run it.
 5. Run `npm run verify:owner-music-storage` again.
 
-The site uses Supabase resumable uploads for files larger than 6 MB. If a 50-100 MB audio file still fails,
-check Supabase Dashboard > Storage > Settings > Global file size limit. That global limit overrides the bucket
-limit set by SQL. If the project is still capped below the file size, compress the track to MP3/M4A or paste a
-direct audio URL in the music editor instead of uploading the file.
+The site uses Supabase resumable uploads for files larger than 6 MB. Free Supabase projects cannot raise
+Storage > Settings > Global file size limit above 50 MB, and that global limit overrides the bucket limit set by
+SQL. A 70 MB FLAC will fail on the free project even if `storage.buckets.file_size_limit` says 250 MB. Compress
+the track to MP3/M4A, paste a direct audio URL in the music editor, or upgrade Supabase and set
+`VITE_MAX_MUSIC_UPLOAD_MB` higher before rebuilding the public site.

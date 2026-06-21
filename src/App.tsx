@@ -157,7 +157,12 @@ const defaultMusicDraft: MusicTrackInput = {
   isBackground: false,
 };
 
-const maxMusicUploadBytes = 250 * 1024 * 1024;
+const freeSupabaseMusicUploadLimitBytes = 50 * 1024 * 1024;
+const configuredMusicUploadLimitMb = Number(import.meta.env.VITE_MAX_MUSIC_UPLOAD_MB);
+const maxMusicUploadBytes =
+  Number.isFinite(configuredMusicUploadLimitMb) && configuredMusicUploadLimitMb > 0
+    ? configuredMusicUploadLimitMb * 1024 * 1024
+    : freeSupabaseMusicUploadLimitBytes;
 const largeMusicUploadBytes = 6 * 1024 * 1024;
 
 const defaultGalleryDraft: GalleryItemInput = {
@@ -3049,6 +3054,7 @@ function MusicSection({
     if (!audio) {
       return;
     }
+    const musicAudio = audio;
 
     function clearPlaybackTimeout() {
       if (playbackTimeoutRef.current !== null) {
@@ -3061,6 +3067,13 @@ function MusicSection({
       clearPlaybackTimeout();
       setIsPlaying(true);
       setPlaybackState("idle");
+    }
+
+    function handleCanPlay() {
+      if (musicAudio.paused) {
+        clearPlaybackTimeout();
+        setPlaybackState("idle");
+      }
     }
 
     function handleWaiting() {
@@ -3080,19 +3093,21 @@ function MusicSection({
       setStatusMessage("音频加载失败。这个文件可能太大、网络较慢，建议换 MP3/M4A 或使用更快的直链。");
     }
 
-    audio.addEventListener("playing", handlePlaying);
-    audio.addEventListener("canplay", handlePlaying);
-    audio.addEventListener("waiting", handleWaiting);
-    audio.addEventListener("ended", handleEnded);
-    audio.addEventListener("error", handleError);
+    musicAudio.addEventListener("playing", handlePlaying);
+    musicAudio.addEventListener("play", handlePlaying);
+    musicAudio.addEventListener("canplay", handleCanPlay);
+    musicAudio.addEventListener("waiting", handleWaiting);
+    musicAudio.addEventListener("ended", handleEnded);
+    musicAudio.addEventListener("error", handleError);
 
     return () => {
       clearPlaybackTimeout();
-      audio.removeEventListener("playing", handlePlaying);
-      audio.removeEventListener("canplay", handlePlaying);
-      audio.removeEventListener("waiting", handleWaiting);
-      audio.removeEventListener("ended", handleEnded);
-      audio.removeEventListener("error", handleError);
+      musicAudio.removeEventListener("playing", handlePlaying);
+      musicAudio.removeEventListener("play", handlePlaying);
+      musicAudio.removeEventListener("canplay", handleCanPlay);
+      musicAudio.removeEventListener("waiting", handleWaiting);
+      musicAudio.removeEventListener("ended", handleEnded);
+      musicAudio.removeEventListener("error", handleError);
     };
   }, [activeTrackId, activeTrack?.audioUrl]);
 
@@ -3108,7 +3123,7 @@ function MusicSection({
 
     const readableSize = formatUploadSize(file.size);
     if (file.size > maxMusicUploadBytes) {
-      const message = `音频文件太大：${readableSize}。当前站点代码允许上传到 ${formatUploadSize(maxMusicUploadBytes)}；如果你的 Supabase 全局上传上限低于这个文件，请先压缩成 MP3/M4A 或改用音频 URL。`;
+      const message = `音频文件太大：${readableSize}。当前站点上传上限是 ${formatUploadSize(maxMusicUploadBytes)}；免费 Supabase 项目的 Global file size limit 最高就是 50 MB，SQL 不能突破。请先压缩成 MP3/M4A，或把音频放到可直链存储后粘贴音频 URL。`;
       setAudioUploadMessage(message);
       setStatusMessage(message);
       return;
@@ -3118,11 +3133,16 @@ function MusicSection({
       setAudioUploadState("uploading");
       setAudioUploadMessage(
         file.size > largeMusicUploadBytes
-          ? `正在分片上传音频：${file.name}（${readableSize}）。如果失败，请检查 Supabase Storage 的 Global file size limit。`
+          ? `正在分片上传音频：${file.name}（${readableSize}）。免费 Supabase 只适合 50 MB 以内文件；更大的文件请用 MP3/M4A 或外部直链。`
           : `正在上传音频：${file.name}（${readableSize}）`,
       );
       setStatusMessage(`正在上传音频《${file.name}》（${readableSize}）...`);
-      const uploaded = await siteBackend.uploadAsset(file, "music-audio");
+      const uploaded = await siteBackend.uploadAsset(file, "music-audio", {
+        onProgress(progress) {
+          const percent = Math.max(0, Math.min(100, Math.round(progress.percent)));
+          setAudioUploadMessage(`正在上传音频：${file.name}（${readableSize}），已上传 ${percent}%`);
+        },
+      });
       setDraft((current) => ({
         ...current,
         title: current.title || makeFileTitle(file),
@@ -3160,7 +3180,12 @@ function MusicSection({
       setCoverUploadState("uploading");
       setCoverUploadMessage(`正在上传封面：${file.name}（${readableSize}）`);
       setStatusMessage(`正在上传封面《${file.name}》（${readableSize}）...`);
-      const uploaded = await siteBackend.uploadAsset(file, "music-cover");
+      const uploaded = await siteBackend.uploadAsset(file, "music-cover", {
+        onProgress(progress) {
+          const percent = Math.max(0, Math.min(100, Math.round(progress.percent)));
+          setCoverUploadMessage(`正在上传封面：${file.name}（${readableSize}），已上传 ${percent}%`);
+        },
+      });
       setDraft((current) => ({ ...current, coverUrl: uploaded.url }));
       setPendingDeleteTrackId(null);
       setStatusMessage(isSupabase ? "音乐封面已上传，已填入草稿。" : "本地封面预览已准备好。");
@@ -3709,7 +3734,7 @@ function MusicSection({
               </label>
             </div>
             <p className="music-upload-note">
-              6 MB 以上音频会自动用 Supabase 分片上传；如果你的 Supabase Storage 全局上限仍低于文件大小，70 MB 这类音频请压缩到上限以内，或把音频放到可直链存储后粘贴 URL。
+              6 MB 以上音频会自动用 Supabase 分片上传；免费 Supabase 项目最高只能传 50 MB。70 MB 这类 FLAC 请压缩成 MP3/M4A，或把音频放到可直链存储后粘贴 URL；升级 Supabase 后可用 VITE_MAX_MUSIC_UPLOAD_MB 调高站点上限。
             </p>
             <div className="portfolio-upload-row">
               <label className={clsx("portfolio-file-picker", isAudioUploading && "is-busy")}>

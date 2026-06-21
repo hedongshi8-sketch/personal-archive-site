@@ -37,10 +37,11 @@ function assert(condition, label, detail = "") {
 }
 
 assert(fixSqlSource.includes("insert into storage.buckets"), "live database fix creates public storage bucket");
-assert(fixSqlSource.includes("file_size_limit = 262144000"), "live database fix raises public bucket upload limit to 250 MB");
+assert(fixSqlSource.includes("file_size_limit = 262144000"), "live database fix raises bucket SQL upload limit for upgraded storage");
+assert(fixSqlSource.includes("Global file size limit") && fixSqlSource.includes("50 MB"), "live database fix explains project global upload limit");
 assert(fixSqlSource.includes("owner can upload portfolio storage"), "live database fix recreates owner upload storage policy");
 assert(fixSqlSource.includes("owner_storage_upload_policy_ready"), "live database fix reports storage upload policy readiness");
-assert(fixSqlSource.includes("public_bucket_250mb_limit_ready"), "live database fix reports public bucket upload limit readiness");
+assert(fixSqlSource.includes("public_bucket_limit_sql_ready"), "live database fix reports bucket SQL upload limit readiness");
 
 if (!supabaseUrl || !supabaseAnonKey) {
   fail(

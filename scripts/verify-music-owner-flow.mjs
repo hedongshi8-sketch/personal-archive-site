@@ -38,6 +38,7 @@ assertIncludes(backendSource, "createSupabaseStoragePath", "safe Supabase storag
 assertIncludes(backendSource, "getStorageUploadErrorMessage", "friendly storage upload error helper exists");
 assertIncludes(backendSource, "formatFileSize(file.size)", "storage upload errors include file size");
 assertIncludes(backendSource, "tus.Upload", "large storage uploads use TUS resumable uploads");
+assertIncludes(backendSource, "onProgress(bytesUploaded, bytesTotal)", "large storage uploads expose progress feedback");
 assertIncludes(backendSource, "/storage/v1/upload/resumable", "TUS upload endpoint is configured");
 assertIncludes(backendSource, "Global file size limit", "storage upload errors mention global size limit");
 assertIncludes(backendSource, "Supabase Storage 没有放行站主上传", "RLS storage error points to live database fix");
@@ -61,9 +62,13 @@ assertIncludes(appSource, "coverUploadState", "music cover upload state exists")
 assertIncludes(appSource, "audioUploadMessage", "music audio upload inline feedback exists");
 assertIncludes(appSource, "coverUploadMessage", "music cover upload inline feedback exists");
 assertIncludes(appSource, "maxMusicUploadBytes", "music upload has a size limit guard");
+assertIncludes(appSource, "VITE_MAX_MUSIC_UPLOAD_MB", "music upload limit can be raised after storage upgrade");
+assertIncludes(appSource, "freeSupabaseMusicUploadLimitBytes", "music upload defaults to free Supabase size limit");
 assertIncludes(appSource, "largeMusicUploadBytes", "music upload distinguishes large resumable files");
 assertIncludes(appSource, "formatUploadSize(file.size)", "music upload feedback includes selected file size");
 assertIncludes(appSource, "音频文件太大", "oversized audio is blocked with clear feedback");
+assertIncludes(appSource, "SQL 不能突破", "oversized audio explains global limit cannot be bypassed by SQL");
+assertIncludes(appSource, "已上传 ${percent}%", "music upload shows progress percentage");
 assertIncludes(appSource, "音频 URL", "music owner can paste an external audio URL");
 assertIncludes(appSource, "已使用外部音频 URL", "external audio URL gives owner feedback");
 assertIncludes(appSource, "const initialMusicTracks = isSupabase ? [] : musicTracks", "Supabase music view does not flash seed tracks before remote load");
@@ -96,6 +101,8 @@ assertIncludes(appSource, "playbackState", "music player exposes loading state")
 assertIncludes(appSource, "stopCurrentPlayback", "music track switching stops stale audio immediately");
 assertIncludes(appSource, "src={settings.backgroundMusicUrl} loop preload=\"metadata\"", "background music avoids eager full-file preload");
 assertIncludes(appSource, "src={activeTrack?.audioUrl} onEnded={() => setIsPlaying(false)} preload=\"auto\"", "active music track preloads for responsive playback");
+assertIncludes(appSource, "function handleCanPlay()", "music canplay no longer marks paused audio as playing");
+assertIncludes(appSource, "musicAudio.addEventListener(\"play\", handlePlaying)", "music play event marks active playback");
 assertIncludes(appSource, "playbackTimeoutRef", "music player warns when buffering is slow");
 assertIncludes(appSource, "void audio.play().catch", "music playback starts without blocking the click handler");
 assertIncludes(appSource, "音频还在缓冲", "music player gives slow-buffer feedback");

@@ -17,6 +17,9 @@ update storage.buckets
 set file_size_limit = 262144000
 where id = 'portfolio-public';
 
+-- This bucket limit does not override Supabase's project-level Global file size limit.
+-- On Free projects that global limit is still capped at 50 MB.
+
 drop policy if exists "public portfolio storage is readable" on storage.objects;
 create policy "public portfolio storage is readable"
 on storage.objects for select
@@ -106,7 +109,7 @@ select
     from storage.buckets
     where id = 'portfolio-public'
       and coalesce(file_size_limit, 0) >= 262144000
-  ) as public_bucket_250mb_limit_ready,
+  ) as public_bucket_limit_sql_ready,
   exists (
     select 1
     from pg_policies

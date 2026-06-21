@@ -62,6 +62,16 @@ export type AssetRecord = {
   createdAt: string;
 };
 
+export type UploadProgress = {
+  loadedBytes: number;
+  totalBytes: number;
+  percent: number;
+};
+
+export type UploadOptions = {
+  onProgress?: (progress: UploadProgress) => void;
+};
+
 export type PortfolioItemInput = {
   project: Exclude<PortfolioProject, "all">;
   kind: PortfolioKind;
@@ -133,8 +143,8 @@ export type SiteBackend = {
   createPortfolioItem(input: PortfolioItemInput): Promise<PortfolioItem>;
   updatePortfolioItem(id: string, input: PortfolioItemInput): Promise<PortfolioItem>;
   deletePortfolioItem(id: string): Promise<void>;
-  uploadPortfolioFile(file: File, kind: PortfolioKind): Promise<{ publicUrl: string; storagePath: string }>;
-  uploadAsset(file: File, kind: AssetRecord["kind"]): Promise<AssetRecord>;
+  uploadPortfolioFile(file: File, kind: PortfolioKind, options?: UploadOptions): Promise<{ publicUrl: string; storagePath: string }>;
+  uploadAsset(file: File, kind: AssetRecord["kind"], options?: UploadOptions): Promise<AssetRecord>;
   listMusicTracks(): Promise<MusicTrack[]>;
   createMusicTrack(input: MusicTrackInput): Promise<MusicTrack>;
   updateMusicTrack(id: string, input: MusicTrackInput): Promise<MusicTrack>;
@@ -403,8 +413,14 @@ async function uploadSupabaseStorageFile(
   client: SupabaseClient,
   storagePath: string,
   file: File,
-  options: { contentType?: string; useResumable?: boolean } = {},
+  options: { contentType?: string; useResumable?: boolean; onProgress?: UploadOptions["onProgress"] } = {},
 ) {
+  options.onProgress?.({
+    loadedBytes: 0,
+    totalBytes: file.size,
+    percent: 0,
+  });
+
   if (!options.useResumable) {
     const { error } = await client.storage.from(supabaseAssetBucket).upload(storagePath, file, {
       contentType: options.contentType,
@@ -414,6 +430,11 @@ async function uploadSupabaseStorageFile(
     if (error) {
       throw new Error(getStorageUploadErrorMessage(error, file, storagePath));
     }
+    options.onProgress?.({
+      loadedBytes: file.size,
+      totalBytes: file.size,
+      percent: 100,
+    });
     return;
   }
 
@@ -440,10 +461,22 @@ async function uploadSupabaseStorageFile(
         contentType: options.contentType || file.type || "application/octet-stream",
         cacheControl: "3600",
       },
+      onProgress(bytesUploaded, bytesTotal) {
+        options.onProgress?.({
+          loadedBytes: bytesUploaded,
+          totalBytes: bytesTotal,
+          percent: bytesTotal > 0 ? (bytesUploaded / bytesTotal) * 100 : 0,
+        });
+      },
       onError(error) {
         reject(new Error(getTusUploadErrorMessage(error, file, storagePath)));
       },
       onSuccess() {
+        options.onProgress?.({
+          loadedBytes: file.size,
+          totalBytes: file.size,
+          percent: 100,
+        });
         resolve();
       },
     });
@@ -867,14 +900,26 @@ export class LocalPreviewBackend implements SiteBackend {
     localPortfolioItems = localPortfolioItems.filter((item) => item.id !== id);
   }
 
-  async uploadPortfolioFile(file: File, kind: PortfolioKind) {
+  async uploadPortfolioFile(file: File, kind: PortfolioKind, options?: UploadOptions) {
+    options?.onProgress?.({
+      loadedBytes: file.size,
+      totalBytes: file.size,
+      percent: 100,
+    });
+
     return {
       publicUrl: URL.createObjectURL(file),
       storagePath: `local-preview/portfolio/${kind}/${file.name}`,
     };
   }
 
-  async uploadAsset(file: File, kind: AssetRecord["kind"]) {
+  async uploadAsset(file: File, kind: AssetRecord["kind"], options?: UploadOptions) {
+    options?.onProgress?.({
+      loadedBytes: file.size,
+      totalBytes: file.size,
+      percent: 100,
+    });
+
     return {
       id: `asset-${Date.now()}`,
       kind,
@@ -1305,7 +1350,7 @@ export class SupabaseBackend implements SiteBackend {
     }
   }
 
-  async uploadPortfolioFile(file: File, kind: PortfolioKind) {
+  async uploadPortfolioFile(file: File, kind: PortfolioKind, options?: UploadOptions) {
     const user = await this.getCurrentUser();
     const owner = requireOwner(user, "只有站主账号可以上传作品集文件。");
 
@@ -1313,6 +1358,7 @@ export class SupabaseBackend implements SiteBackend {
     await uploadSupabaseStorageFile(this.client, storagePath, file, {
       contentType: file.type || undefined,
       useResumable: file.size > resumableUploadThresholdBytes,
+      onProgress: options?.onProgress,
     });
 
     const { data } = this.client.storage.from(supabaseAssetBucket).getPublicUrl(storagePath);
@@ -1322,7 +1368,7 @@ export class SupabaseBackend implements SiteBackend {
     };
   }
 
-  async uploadAsset(file: File, kind: AssetRecord["kind"]) {
+  async uploadAsset(file: File, kind: AssetRecord["kind"], options?: UploadOptions) {
     const user = await this.getCurrentUser();
     const owner = requireOwner(user, "只有站主账号可以上传作品资源。");
 
@@ -1330,6 +1376,7 @@ export class SupabaseBackend implements SiteBackend {
     await uploadSupabaseStorageFile(this.client, storagePath, file, {
       contentType: file.type || undefined,
       useResumable: file.size > resumableUploadThresholdBytes,
+      onProgress: options?.onProgress,
     });
 
     const { data: publicData } = this.client.storage.from(supabaseAssetBucket).getPublicUrl(storagePath);
