@@ -247,6 +247,22 @@ const supabaseAssetBucket = import.meta.env.VITE_SUPABASE_PUBLIC_BUCKET || "port
 const forceLocalPreview = import.meta.env.VITE_FORCE_LOCAL_PREVIEW === "true";
 const baseUrl = import.meta.env.BASE_URL;
 
+const mimeExtensionFallbacks: Record<string, string> = {
+  "audio/flac": "flac",
+  "audio/mp4": "m4a",
+  "audio/mpeg": "mp3",
+  "audio/ogg": "ogg",
+  "audio/wav": "wav",
+  "audio/webm": "webm",
+  "audio/x-flac": "flac",
+  "image/gif": "gif",
+  "image/jpeg": "jpg",
+  "image/png": "png",
+  "image/webp": "webp",
+  "application/pdf": "pdf",
+  "application/zip": "zip",
+};
+
 function withBasePath(value: string | null | undefined) {
   if (!value) {
     return undefined;
@@ -277,6 +293,78 @@ function requireSupabaseResult<T>(data: T | null, error: { message: string } | n
   }
 
   return data;
+}
+
+function getSafeFileExtension(fileName: string, mimeType = "") {
+  const leafName = fileName.split(/[\\/]/).pop() ?? "";
+  const extension = leafName.match(/\.([^.]+)$/)?.[1]?.toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 16);
+
+  if (extension) {
+    return extension;
+  }
+
+  return mimeExtensionFallbacks[mimeType.toLowerCase()] ?? "bin";
+}
+
+function createSafeStorageFileName(file: File, fallbackStem = "upload") {
+  const leafName = file.name.split(/[\\/]/).pop() ?? "";
+  const rawStem = leafName.replace(/\.[^.]+$/, "");
+  const safeStem = rawStem
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/&/g, " and ")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 80);
+  const extension = getSafeFileExtension(file.name, file.type);
+
+  return `${safeStem || fallbackStem}.${extension}`;
+}
+
+function createSupabaseStoragePath(folder: string, ownerId: string, file: File, fallbackStem?: string) {
+  const safeOwnerId = ownerId.replace(/[^a-zA-Z0-9_-]/g, "-");
+  const randomSuffix = Math.random().toString(36).slice(2, 8);
+  const safeFileName = createSafeStorageFileName(file, fallbackStem);
+
+  return `${folder}/${safeOwnerId}/${Date.now()}-${randomSuffix}-${safeFileName}`;
+}
+
+function formatFileSize(bytes: number) {
+  if (!Number.isFinite(bytes) || bytes <= 0) {
+    return "未知大小";
+  }
+
+  const units = ["B", "KB", "MB", "GB"];
+  let value = bytes;
+  let unitIndex = 0;
+
+  while (value >= 1024 && unitIndex < units.length - 1) {
+    value /= 1024;
+    unitIndex += 1;
+  }
+
+  return `${value.toFixed(value >= 10 || unitIndex === 0 ? 0 : 1)} ${units[unitIndex]}`;
+}
+
+function getStorageUploadErrorMessage(
+  error: { message?: string; status?: number | string; statusCode?: number | string },
+  file: File,
+  storagePath: string,
+) {
+  const message = error.message?.trim() || "未知错误";
+  const status = String(error.statusCode ?? error.status ?? "");
+  const lowerMessage = message.toLowerCase();
+
+  if (lowerMessage.includes("row-level") || lowerMessage.includes("rls") || lowerMessage.includes("policy")) {
+    return `Supabase Storage 没有放行站主上传。请在 SQL Editor 粘贴并运行 supabase/fix-live-database.sql 的内容后重试。原始错误：${message}`;
+  }
+
+  if (status === "400" || lowerMessage.includes("bad request")) {
+    return `Supabase Storage 上传失败（400）。已使用安全路径 ${storagePath}；如果仍失败，通常是 bucket/上传策略或文件过大。文件：${file.name}（${formatFileSize(file.size)}）。原始错误：${message}`;
+  }
+
+  return `Supabase Storage 上传失败：${message}。文件：${file.name}（${formatFileSize(file.size)}）。`;
 }
 
 function isMissingColumnError(error: { message?: string; code?: string } | null | undefined, columnName: string) {
@@ -1118,16 +1206,15 @@ export class SupabaseBackend implements SiteBackend {
 
   async uploadPortfolioFile(file: File, kind: PortfolioKind) {
     const user = await this.getCurrentUser();
+    const owner = requireOwner(user, "只有站主账号可以上传作品集文件。");
 
-    requireOwner(user, "只有站主账号可以上传作品集文件。");
-
-    const storagePath = `portfolio/${kind}/${Date.now()}-${file.name}`;
+    const storagePath = createSupabaseStoragePath(`portfolio/${kind}`, owner.id, file, kind);
     const { error } = await this.client.storage
       .from(supabaseAssetBucket)
       .upload(storagePath, file, { upsert: false });
 
     if (error) {
-      throw new Error(error.message);
+      throw new Error(getStorageUploadErrorMessage(error, file, storagePath));
     }
 
     const { data } = this.client.storage.from(supabaseAssetBucket).getPublicUrl(storagePath);
@@ -1141,13 +1228,13 @@ export class SupabaseBackend implements SiteBackend {
     const user = await this.getCurrentUser();
     const owner = requireOwner(user, "只有站主账号可以上传作品资源。");
 
-    const storagePath = `${kind}/${Date.now()}-${file.name}`;
+    const storagePath = createSupabaseStoragePath(kind, owner.id, file, kind);
     const { error: uploadError } = await this.client.storage
       .from(supabaseAssetBucket)
       .upload(storagePath, file, { upsert: false });
 
     if (uploadError) {
-      throw new Error(uploadError.message);
+      throw new Error(getStorageUploadErrorMessage(uploadError, file, storagePath));
     }
 
     const { data: publicData } = this.client.storage.from(supabaseAssetBucket).getPublicUrl(storagePath);

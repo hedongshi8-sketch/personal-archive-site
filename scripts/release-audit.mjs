@@ -151,6 +151,8 @@ assert(packageJson.scripts?.["verify:reading-import"] === "node scripts/verify-r
 assert(read("scripts/verify-reading-import.mjs").includes("parseReadingClipboardText"), "reading import verifier checks clipboard parsing");
 assert(packageJson.scripts?.["verify:reading-owner-flow"] === "node scripts/verify-reading-owner-flow.mjs", "reading owner flow verification script exists");
 assert(read("scripts/verify-reading-owner-flow.mjs").includes("站主书摘发布入口"), "reading owner flow verifier checks owner composer");
+assert(packageJson.scripts?.["verify:music-owner-flow"] === "node scripts/verify-music-owner-flow.mjs", "music owner flow verification script exists");
+assert(read("scripts/verify-music-owner-flow.mjs").includes("createSupabaseStoragePath"), "music owner flow verifier checks safe storage paths");
 assert(packageJson.scripts?.["verify:mail-dns"] === "node scripts/verify-mail-dns.mjs", "mail DNS verification script exists");
 assert(
   packageJson.scripts?.["sql:supabase-upgrade"] === "node scripts/compose-supabase-upgrade-sql.mjs",
@@ -174,6 +176,9 @@ assert(pagesWorkflow.includes("npm run smoke:dist"), "GitHub Pages deploy runs d
 assert(ciWorkflow.includes("npm run verify:reading-import"), "CI verifies reading import parsing");
 assert(vercelWorkflow.includes("npm run verify:reading-import"), "Vercel deploy verifies reading import parsing");
 assert(pagesWorkflow.includes("npm run verify:reading-import"), "GitHub Pages deploy verifies reading import parsing");
+assert(ciWorkflow.includes("npm run verify:music-owner-flow"), "CI verifies music owner flow");
+assert(vercelWorkflow.includes("npm run verify:music-owner-flow"), "Vercel deploy verifies music owner flow");
+assert(pagesWorkflow.includes("npm run verify:music-owner-flow"), "GitHub Pages deploy verifies music owner flow");
 assert(ciWorkflow.includes("npm run verify:comments"), "CI verifies comments bridge");
 assert(vercelWorkflow.includes("npm run verify:comments"), "Vercel deploy verifies comments bridge");
 assert(pagesWorkflow.includes("npm run verify:comments"), "GitHub Pages deploy verifies comments bridge");
@@ -276,6 +281,10 @@ assert(schema.includes("author_id"), "comments are tied to profile author id");
 
 const appSource = read("src/App.tsx");
 const backendSource = read("src/lib/backendContract.ts");
+const musicSectionSource = appSource.slice(
+  appSource.indexOf("function MusicSection"),
+  appSource.indexOf("function GallerySection"),
+);
 assert(appSource.includes("https://utteranc.es/client.js"), "GitHub Issues comments bridge exists");
 assert(appSource.includes("site-comment"), "GitHub Issues comments are labeled");
 assert(appSource.includes("function useAuthSession"), "global auth session hook exists");
@@ -299,6 +308,8 @@ assert(appSource.includes("demo-experience-console") && appSource.includes("Demo
 assert(appSource.includes("updatePortfolioItem") && appSource.includes("deletePortfolioItem"), "portfolio owner edit/delete UI exists");
 assert(backendSource.includes("function assertPublicPortfolioInput") && backendSource.includes("已阻止公开发布"), "portfolio owner publish guard blocks internal files");
 assert(appSource.includes("function MusicSection"), "music upload section exists");
+assert(appSource.includes("music-action-status") && appSource.includes("正在把音乐写入公开歌单"), "music upload owner status feedback exists");
+assert(musicSectionSource.includes("music-delete-confirm") && !musicSectionSource.includes("window.confirm"), "music delete uses in-page confirmation");
 assert(appSource.includes("function GallerySection"), "gallery upload section exists");
 assert(appSource.includes("gallery-command-console") && appSource.includes("Gallery Index"), "gallery command console exists");
 assert(appSource.includes("function NotesSection"), "reading notes section exists");
@@ -362,6 +373,8 @@ assert(appSource.includes("BackgroundMusicDock"), "background music dock exists"
 assert(appSource.includes("resumeOnInteraction") && appSource.includes("is-blocked"), "background music auto-play recovery UI exists");
 assert(appSource.includes("music-background-toggle"), "music radar can toggle default background music");
 assert(appSource.includes("music-background-console") && appSource.includes("右下角播放开关已启用"), "music default background dashboard exists");
+assert(backendSource.includes("createSafeStorageFileName") && backendSource.includes("createSupabaseStoragePath"), "Supabase uploads use safe storage paths");
+assert(backendSource.includes("Supabase Storage 上传失败（400）"), "Supabase storage upload errors explain 400 failures");
 
 try {
   const status = command(["git", "status", "--short"]);
