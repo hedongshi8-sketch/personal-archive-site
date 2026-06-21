@@ -53,10 +53,16 @@ assert(
 
 assertIncludes(appSource, "audioUploadState", "music audio upload state exists");
 assertIncludes(appSource, "coverUploadState", "music cover upload state exists");
+assertIncludes(appSource, "audioUploadMessage", "music audio upload inline feedback exists");
+assertIncludes(appSource, "coverUploadMessage", "music cover upload inline feedback exists");
 assertIncludes(appSource, "isMusicActionBusy", "music action busy guard exists");
 assertIncludes(appSource, "正在上传音频《", "audio upload starts with visible status");
 assertIncludes(appSource, "正在上传封面《", "cover upload starts with visible status");
 assertIncludes(appSource, "已填入草稿。现在点“保存音乐”", "audio upload success explains save step");
+assertIncludes(appSource, "音频上传成功，已填入草稿。下一步点“保存音乐”。", "audio picker shows upload success and next step");
+assertIncludes(appSource, "封面上传成功，已填入草稿。", "cover picker shows upload success");
+assertIncludes(appSource, "音频上传失败：", "audio picker shows upload failure reason");
+assertIncludes(appSource, "封面上传失败：", "cover picker shows upload failure reason");
 assertIncludes(appSource, "音频或封面还在上传中", "save is blocked while uploading");
 assertIncludes(appSource, "先上传音频文件，再点保存音乐。", "missing audio save feedback exists");
 assertIncludes(appSource, "正在把音乐写入公开歌单", "save progress feedback exists");
@@ -78,6 +84,7 @@ assertIncludes(appSource, "event.currentTarget.value = \"\"", "file pickers rese
 assert(!musicSectionSource.includes("window.confirm"), "music delete no longer depends on browser confirm dialog");
 
 assertIncludes(stylesSource, ".music-action-status", "music action status style exists");
+assertIncludes(stylesSource, ".music-upload-inline-status", "music inline upload status style exists");
 assertIncludes(stylesSource, ".portfolio-file-picker.is-busy", "busy file picker style exists");
 assertIncludes(stylesSource, ".music-delete-confirm", "music delete confirmation style exists");
 assertIncludes(stylesSource, ".dark-mode .music-action-status", "music action status supports dark mode");

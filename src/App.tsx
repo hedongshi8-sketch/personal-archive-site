@@ -2936,6 +2936,8 @@ function MusicSection({
   const [saveState, setSaveState] = useState<"idle" | "saving">("idle");
   const [audioUploadState, setAudioUploadState] = useState<"idle" | "uploading">("idle");
   const [coverUploadState, setCoverUploadState] = useState<"idle" | "uploading">("idle");
+  const [audioUploadMessage, setAudioUploadMessage] = useState("");
+  const [coverUploadMessage, setCoverUploadMessage] = useState("");
   const [deletingTrackId, setDeletingTrackId] = useState<string | null>(null);
   const [pendingDeleteTrackId, setPendingDeleteTrackId] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -3061,6 +3063,7 @@ function MusicSection({
 
     try {
       setAudioUploadState("uploading");
+      setAudioUploadMessage(`正在上传音频：${file.name}`);
       setStatusMessage(`正在上传音频《${file.name}》...`);
       const uploaded = await siteBackend.uploadAsset(file, "music-audio");
       setDraft((current) => ({
@@ -3074,8 +3077,11 @@ function MusicSection({
           ? "音乐文件已上传，已填入草稿。现在点“保存音乐”才会公开显示到歌单里。"
           : "本地音乐预览已准备好。现在点“保存音乐”可以在本地歌单里预览。",
       );
+      setAudioUploadMessage("音频上传成功，已填入草稿。下一步点“保存音乐”。");
     } catch (error) {
-      setStatusMessage(error instanceof Error ? error.message : "音乐上传失败。");
+      const message = error instanceof Error ? error.message : "音乐上传失败。";
+      setStatusMessage(message);
+      setAudioUploadMessage(`音频上传失败：${message}`);
     } finally {
       setAudioUploadState("idle");
     }
@@ -3093,13 +3099,17 @@ function MusicSection({
 
     try {
       setCoverUploadState("uploading");
+      setCoverUploadMessage(`正在上传封面：${file.name}`);
       setStatusMessage(`正在上传封面《${file.name}》...`);
       const uploaded = await siteBackend.uploadAsset(file, "music-cover");
       setDraft((current) => ({ ...current, coverUrl: uploaded.url }));
       setPendingDeleteTrackId(null);
       setStatusMessage(isSupabase ? "音乐封面已上传，已填入草稿。" : "本地封面预览已准备好。");
+      setCoverUploadMessage("封面上传成功，已填入草稿。");
     } catch (error) {
-      setStatusMessage(error instanceof Error ? error.message : "封面上传失败。");
+      const message = error instanceof Error ? error.message : "封面上传失败。";
+      setStatusMessage(message);
+      setCoverUploadMessage(`封面上传失败：${message}`);
     } finally {
       setCoverUploadState("idle");
     }
@@ -3114,6 +3124,8 @@ function MusicSection({
     setDraft(defaultMusicDraft);
     setEditingTrackId(null);
     setPendingDeleteTrackId(null);
+    setAudioUploadMessage("");
+    setCoverUploadMessage("");
     if (options.announce !== false) {
       setStatusMessage("音乐草稿已清空。");
     }
@@ -3193,6 +3205,8 @@ function MusicSection({
       }
 
       resetMusicDraft({ force: true, announce: false });
+      setAudioUploadMessage("");
+      setCoverUploadMessage("");
       setStatusMessage(
         editingTrackId
           ? "音乐信息已更新。"
@@ -3574,6 +3588,7 @@ function MusicSection({
                   }}
                   type="file"
                 />
+                {audioUploadMessage ? <small className="music-upload-inline-status">{audioUploadMessage}</small> : null}
               </label>
               <label className={clsx("portfolio-file-picker", isCoverUploading && "is-busy")}>
                 <ImageIcon size={16} />
@@ -3588,6 +3603,7 @@ function MusicSection({
                   }}
                   type="file"
                 />
+                {coverUploadMessage ? <small className="music-upload-inline-status">{coverUploadMessage}</small> : null}
               </label>
               <button className="ghost-button" disabled={isMusicActionBusy} onClick={() => resetMusicDraft()} type="button">
                 <X size={15} />

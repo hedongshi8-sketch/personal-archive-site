@@ -2981,6 +2981,18 @@ p {
   line-height: 1.55;
 }
 
+.music-upload-inline-status {
+  grid-column: 1 / -1;
+  width: 100%;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  color: #31545b;
+  font-size: 11px;
+  font-weight: 820;
+  line-height: 1.45;
+  text-align: center;
+}
+
 .music-delete-confirm {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto auto;
