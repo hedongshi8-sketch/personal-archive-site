@@ -262,7 +262,7 @@ for (const internalMarker of ["待替换个人信息", "系统策划投递说明
 const schema = read("supabase/schema.sql");
 assert(schema.includes("create policy \"owner can manage portfolio items\""), "owner portfolio RLS exists");
 assert(schema.includes("create policy \"owner can upload portfolio storage\""), "owner storage upload RLS exists");
-assert(schema.includes("file_size_limit = 104857600"), "Supabase storage bucket upload limit is 100 MB");
+assert(schema.includes("file_size_limit = 262144000"), "Supabase storage bucket upload limit is 250 MB");
 assert(schema.includes("create or replace function public.increment_comment_likes"), "safe like RPC exists");
 assert(schema.includes("create or replace function public.update_own_profile"), "profile update RPC exists");
 for (const table of ["profiles", "owner_posts", "public_comments", "music_tracks", "gallery_items", "reading_notes", "site_settings"]) {

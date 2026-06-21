@@ -157,7 +157,7 @@ const defaultMusicDraft: MusicTrackInput = {
   isBackground: false,
 };
 
-const maxMusicUploadBytes = 100 * 1024 * 1024;
+const maxMusicUploadBytes = 250 * 1024 * 1024;
 
 const defaultGalleryDraft: GalleryItemInput = {
   title: "",
@@ -3082,7 +3082,7 @@ function MusicSection({
 
     const readableSize = formatUploadSize(file.size);
     if (file.size > maxMusicUploadBytes) {
-      const message = `音频文件太大：${readableSize}。当前站点上传上限是 ${formatUploadSize(maxMusicUploadBytes)}，请先压缩成 MP3/M4A，或把 Supabase bucket 上限调高后再试。`;
+      const message = `音频文件太大：${readableSize}。当前站点允许上传到 ${formatUploadSize(maxMusicUploadBytes)}；如果还超过，请先压缩成 MP3/M4A 再上传。`;
       setAudioUploadMessage(message);
       setStatusMessage(message);
       return;

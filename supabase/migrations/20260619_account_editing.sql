@@ -116,7 +116,7 @@ values ('portfolio-public', 'portfolio-public', true)
 on conflict (id) do update set public = excluded.public;
 
 update storage.buckets
-set file_size_limit = 104857600
+set file_size_limit = 262144000
 where id = 'portfolio-public';
 
 create or replace function public.handle_new_user()

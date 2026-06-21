@@ -367,7 +367,7 @@ function getStorageUploadErrorMessage(
     || lowerMessage.includes("exceeded")
     || lowerMessage.includes("file size")
   ) {
-    return `Supabase Storage 上传失败：文件过大。文件：${file.name}（${formatFileSize(file.size)}）。请先压缩音频，或在 Supabase SQL Editor 运行 supabase/fix-live-database.sql 把 portfolio-public bucket 上限更新到 100 MB 后重试。`;
+    return `Supabase Storage 上传失败：文件过大。文件：${file.name}（${formatFileSize(file.size)}）。请先压缩音频，或在 Supabase SQL Editor 运行 supabase/fix-live-database.sql 把 portfolio-public bucket 上限更新到 250 MB 后重试。`;
   }
 
   if (status === "400" || lowerMessage.includes("bad request")) {
