@@ -149,6 +149,8 @@ assert(read("scripts/verify-password-reset-email.mjs").includes("resetPasswordFo
 assert(read("scripts/verify-email-stack.mjs").includes("EMAIL_STACK_TRIGGER_PASSWORD_RESET"), "email stack verification supports password reset trigger");
 assert(packageJson.scripts?.["verify:reading-import"] === "node scripts/verify-reading-import.mjs", "reading import verification script exists");
 assert(read("scripts/verify-reading-import.mjs").includes("parseReadingClipboardText"), "reading import verifier checks clipboard parsing");
+assert(packageJson.scripts?.["verify:reading-owner-flow"] === "node scripts/verify-reading-owner-flow.mjs", "reading owner flow verification script exists");
+assert(read("scripts/verify-reading-owner-flow.mjs").includes("站主书摘发布入口"), "reading owner flow verifier checks owner composer");
 assert(packageJson.scripts?.["verify:mail-dns"] === "node scripts/verify-mail-dns.mjs", "mail DNS verification script exists");
 assert(
   packageJson.scripts?.["sql:supabase-upgrade"] === "node scripts/compose-supabase-upgrade-sql.mjs",

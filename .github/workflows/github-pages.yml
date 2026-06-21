@@ -43,6 +43,9 @@ jobs:
       - name: Reading import verification
         run: npm run verify:reading-import
 
+      - name: Reading owner flow verification
+        run: npm run verify:reading-owner-flow
+
       - name: Build
         run: npm run build
 
