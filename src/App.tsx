@@ -3492,7 +3492,7 @@ function MusicSection({
         description="这里可以公开展示歌单；站主登录后可以上传音乐、封面，并把任意一首设为访客进入网站时默认播放的背景音乐。"
       />
       <div className="player-surface">
-        <audio ref={audioRef} src={activeTrack?.audioUrl} onEnded={() => setIsPlaying(false)} preload="metadata" />
+        <audio ref={audioRef} src={activeTrack?.audioUrl} onEnded={() => setIsPlaying(false)} preload="auto" />
         <MediaTile tile={activeTrack?.tile ?? 3} imageUrl={activeTrack?.coverUrl} className="album-art" />
         <div className="track-copy">
           <span>{isMusicLoading ? "Syncing Music" : activeTrack ? "Now Playing" : "No Track"}</span>

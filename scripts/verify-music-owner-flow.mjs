@@ -94,7 +94,8 @@ assertIncludes(appSource, "settings.backgroundMusicUrl === track.audioUrl", "mus
 assertIncludes(appSource, "music-action-status", "music status is rendered near owner panel top");
 assertIncludes(appSource, "playbackState", "music player exposes loading state");
 assertIncludes(appSource, "stopCurrentPlayback", "music track switching stops stale audio immediately");
-assertIncludes(appSource, "preload=\"metadata\"", "music audio uses metadata preload instead of eager loading full files");
+assertIncludes(appSource, "src={settings.backgroundMusicUrl} loop preload=\"metadata\"", "background music avoids eager full-file preload");
+assertIncludes(appSource, "src={activeTrack?.audioUrl} onEnded={() => setIsPlaying(false)} preload=\"auto\"", "active music track preloads for responsive playback");
 assertIncludes(appSource, "playbackTimeoutRef", "music player warns when buffering is slow");
 assertIncludes(appSource, "void audio.play().catch", "music playback starts without blocking the click handler");
 assertIncludes(appSource, "音频还在缓冲", "music player gives slow-buffer feedback");
