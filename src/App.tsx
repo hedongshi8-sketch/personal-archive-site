@@ -158,6 +158,7 @@ const defaultMusicDraft: MusicTrackInput = {
 };
 
 const maxMusicUploadBytes = 250 * 1024 * 1024;
+const largeMusicUploadBytes = 6 * 1024 * 1024;
 
 const defaultGalleryDraft: GalleryItemInput = {
   title: "",
@@ -3082,7 +3083,7 @@ function MusicSection({
 
     const readableSize = formatUploadSize(file.size);
     if (file.size > maxMusicUploadBytes) {
-      const message = `音频文件太大：${readableSize}。当前站点允许上传到 ${formatUploadSize(maxMusicUploadBytes)}；如果还超过，请先压缩成 MP3/M4A 再上传。`;
+      const message = `音频文件太大：${readableSize}。当前站点代码允许上传到 ${formatUploadSize(maxMusicUploadBytes)}；如果你的 Supabase 全局上传上限低于这个文件，请先压缩成 MP3/M4A 或改用音频 URL。`;
       setAudioUploadMessage(message);
       setStatusMessage(message);
       return;
@@ -3090,7 +3091,11 @@ function MusicSection({
 
     try {
       setAudioUploadState("uploading");
-      setAudioUploadMessage(`正在上传音频：${file.name}（${readableSize}）`);
+      setAudioUploadMessage(
+        file.size > largeMusicUploadBytes
+          ? `正在分片上传音频：${file.name}（${readableSize}）。如果失败，请检查 Supabase Storage 的 Global file size limit。`
+          : `正在上传音频：${file.name}（${readableSize}）`,
+      );
       setStatusMessage(`正在上传音频《${file.name}》（${readableSize}）...`);
       const uploaded = await siteBackend.uploadAsset(file, "music-audio");
       setDraft((current) => ({
@@ -3602,7 +3607,21 @@ function MusicSection({
                   placeholder="03:45"
                 />
               </label>
+              <label className="owner-upload-wide-field">
+                <span>音频 URL</span>
+                <input
+                  value={draft.audioUrl}
+                  onChange={(event) => {
+                    setDraft((current) => ({ ...current, audioUrl: event.target.value }));
+                    setAudioUploadMessage(event.target.value ? "已使用外部音频 URL，保存后会进入歌单。" : "");
+                  }}
+                  placeholder="https://...mp3 / m4a / flac"
+                />
+              </label>
             </div>
+            <p className="music-upload-note">
+              6 MB 以上音频会自动用 Supabase 分片上传；如果你的 Supabase Storage 全局上限仍低于文件大小，70 MB 这类音频请压缩到上限以内，或把音频放到可直链存储后粘贴 URL。
+            </p>
             <div className="portfolio-upload-row">
               <label className={clsx("portfolio-file-picker", isAudioUploading && "is-busy")}>
                 <Upload size={16} />

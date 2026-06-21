@@ -2878,6 +2878,10 @@ p {
   gap: 10px;
 }
 
+.owner-upload-wide-field {
+  grid-column: 1 / -1;
+}
+
 .owner-upload-panel label {
   display: grid;
   gap: 5px;
@@ -2991,6 +2995,18 @@ p {
   font-weight: 820;
   line-height: 1.45;
   text-align: center;
+}
+
+.music-upload-note {
+  margin: 0;
+  border: 1px solid rgba(30, 29, 25, 0.12);
+  border-radius: 8px;
+  padding: 9px 10px;
+  background: rgba(255, 255, 255, 0.34);
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 780;
+  line-height: 1.55;
 }
 
 .music-delete-confirm {

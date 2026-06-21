@@ -387,6 +387,8 @@ assert(appSource.includes("resumeOnInteraction") && appSource.includes("is-block
 assert(appSource.includes("music-background-toggle"), "music radar can toggle default background music");
 assert(appSource.includes("music-background-console") && appSource.includes("右下角播放开关已启用"), "music default background dashboard exists");
 assert(backendSource.includes("createSafeStorageFileName") && backendSource.includes("createSupabaseStoragePath"), "Supabase uploads use safe storage paths");
+assert(backendSource.includes("tus.Upload") && backendSource.includes("/storage/v1/upload/resumable"), "large Supabase uploads use TUS resumable uploads");
+assert(appSource.includes("音频 URL") && appSource.includes("已使用外部音频 URL"), "music owner can save external audio URLs");
 assert(backendSource.includes("Supabase Storage 上传失败（400）"), "Supabase storage upload errors explain 400 failures");
 assert(backendSource.includes("文件过大") && backendSource.includes("status === \"413\""), "Supabase storage upload errors explain oversized files");
 

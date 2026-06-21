@@ -37,6 +37,9 @@ assertIncludes(backendSource, "createSafeStorageFileName", "safe storage filenam
 assertIncludes(backendSource, "createSupabaseStoragePath", "safe Supabase storage path helper exists");
 assertIncludes(backendSource, "getStorageUploadErrorMessage", "friendly storage upload error helper exists");
 assertIncludes(backendSource, "formatFileSize(file.size)", "storage upload errors include file size");
+assertIncludes(backendSource, "tus.Upload", "large storage uploads use TUS resumable uploads");
+assertIncludes(backendSource, "/storage/v1/upload/resumable", "TUS upload endpoint is configured");
+assertIncludes(backendSource, "Global file size limit", "storage upload errors mention global size limit");
 assertIncludes(backendSource, "Supabase Storage 没有放行站主上传", "RLS storage error points to live database fix");
 assertIncludes(backendSource, "Supabase Storage 上传失败（400）", "400 storage error has user-facing explanation");
 assertIncludes(backendSource, "文件过大", "storage upload errors explain oversized files");
@@ -58,8 +61,11 @@ assertIncludes(appSource, "coverUploadState", "music cover upload state exists")
 assertIncludes(appSource, "audioUploadMessage", "music audio upload inline feedback exists");
 assertIncludes(appSource, "coverUploadMessage", "music cover upload inline feedback exists");
 assertIncludes(appSource, "maxMusicUploadBytes", "music upload has a size limit guard");
+assertIncludes(appSource, "largeMusicUploadBytes", "music upload distinguishes large resumable files");
 assertIncludes(appSource, "formatUploadSize(file.size)", "music upload feedback includes selected file size");
 assertIncludes(appSource, "音频文件太大", "oversized audio is blocked with clear feedback");
+assertIncludes(appSource, "音频 URL", "music owner can paste an external audio URL");
+assertIncludes(appSource, "已使用外部音频 URL", "external audio URL gives owner feedback");
 assertIncludes(appSource, "isMusicActionBusy", "music action busy guard exists");
 assertIncludes(appSource, "正在上传音频《", "audio upload starts with visible status");
 assertIncludes(appSource, "正在上传封面《", "cover upload starts with visible status");

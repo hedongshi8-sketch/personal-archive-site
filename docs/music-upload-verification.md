@@ -35,5 +35,7 @@ If this command fails with Storage `400`, RLS, or policy text:
 4. Run it.
 5. Run `npm run verify:owner-music-storage` again.
 
-If the browser says the audio file is too large, either compress the track to MP3/M4A under 250 MB or run
-`supabase/fix-live-database.sql` so the `portfolio-public` bucket allows uploads up to 250 MB.
+The site uses Supabase resumable uploads for files larger than 6 MB. If a 50-100 MB audio file still fails,
+check Supabase Dashboard > Storage > Settings > Global file size limit. That global limit overrides the bucket
+limit set by SQL. If the project is still capped below the file size, compress the track to MP3/M4A or paste a
+direct audio URL in the music editor instead of uploading the file.

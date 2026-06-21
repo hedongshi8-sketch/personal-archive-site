@@ -1,4 +1,5 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import * as tus from "tus-js-client";
 import {
   isPublicPortfolioItem,
   portfolioItems,
@@ -246,6 +247,8 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undef
 const supabaseAssetBucket = import.meta.env.VITE_SUPABASE_PUBLIC_BUCKET || "portfolio-public";
 const forceLocalPreview = import.meta.env.VITE_FORCE_LOCAL_PREVIEW === "true";
 const baseUrl = import.meta.env.BASE_URL;
+const resumableUploadThresholdBytes = 6 * 1024 * 1024;
+const resumableUploadChunkBytes = 6 * 1024 * 1024;
 
 const mimeExtensionFallbacks: Record<string, string> = {
   "audio/flac": "flac",
@@ -330,6 +333,24 @@ function createSupabaseStoragePath(folder: string, ownerId: string, file: File, 
   return `${folder}/${safeOwnerId}/${Date.now()}-${randomSuffix}-${safeFileName}`;
 }
 
+function getResumableUploadEndpoint() {
+  if (!supabaseUrl) {
+    return "";
+  }
+
+  try {
+    const url = new URL(supabaseUrl);
+    const projectRef = url.hostname.split(".")[0];
+    if (projectRef && url.hostname.endsWith(".supabase.co")) {
+      return `${url.protocol}//${projectRef}.storage.supabase.co/storage/v1/upload/resumable`;
+    }
+  } catch {
+    // Fall through to the regular Supabase project URL.
+  }
+
+  return `${supabaseUrl.replace(/\/+$/, "")}/storage/v1/upload/resumable`;
+}
+
 function formatFileSize(bytes: number) {
   if (!Number.isFinite(bytes) || bytes <= 0) {
     return "未知大小";
@@ -366,15 +387,85 @@ function getStorageUploadErrorMessage(
     || lowerMessage.includes("payload too large")
     || lowerMessage.includes("exceeded")
     || lowerMessage.includes("file size")
+    || lowerMessage.includes("global file size")
   ) {
-    return `Supabase Storage 上传失败：文件过大。文件：${file.name}（${formatFileSize(file.size)}）。请先压缩音频，或在 Supabase SQL Editor 运行 supabase/fix-live-database.sql 把 portfolio-public bucket 上限更新到 250 MB 后重试。`;
+    return `Supabase Storage 上传失败：文件过大。文件：${file.name}（${formatFileSize(file.size)}）。请确认 Supabase Dashboard > Storage > Settings 里的 Global file size limit 已高于这个文件大小；如果仍在免费项目常见的 50 MB 上限，请先压缩音频、粘贴外部音频 URL，或升级/更换对象存储。`;
   }
 
   if (status === "400" || lowerMessage.includes("bad request")) {
-    return `Supabase Storage 上传失败（400）。已使用安全路径 ${storagePath}；如果仍失败，通常是 bucket/上传策略或文件过大。文件：${file.name}（${formatFileSize(file.size)}）。请先压缩音频，或运行 supabase/fix-live-database.sql 更新上传上限后重试。原始错误：${message}`;
+    return `Supabase Storage 上传失败（400）。已使用安全路径 ${storagePath}；如果仍失败，通常是 bucket/上传策略、Global file size limit 或文件过大。文件：${file.name}（${formatFileSize(file.size)}）。请先运行 supabase/fix-live-database.sql，并确认 Storage Settings 的全局上限高于文件大小。原始错误：${message}`;
   }
 
   return `Supabase Storage 上传失败：${message}。文件：${file.name}（${formatFileSize(file.size)}）。`;
+}
+
+async function uploadSupabaseStorageFile(
+  client: SupabaseClient,
+  storagePath: string,
+  file: File,
+  options: { contentType?: string; useResumable?: boolean } = {},
+) {
+  if (!options.useResumable) {
+    const { error } = await client.storage.from(supabaseAssetBucket).upload(storagePath, file, {
+      contentType: options.contentType,
+      upsert: false,
+    });
+
+    if (error) {
+      throw new Error(getStorageUploadErrorMessage(error, file, storagePath));
+    }
+    return;
+  }
+
+  const { data: sessionData } = await client.auth.getSession();
+  const token = sessionData.session?.access_token ?? supabaseAnonKey;
+  if (!supabaseUrl || !token) {
+    throw new Error("Supabase 大文件上传缺少会话令牌，请重新登录后再试。");
+  }
+
+  await new Promise<void>((resolve, reject) => {
+    const upload = new tus.Upload(file, {
+      endpoint: getResumableUploadEndpoint(),
+      chunkSize: resumableUploadChunkBytes,
+      retryDelays: [0, 1000, 3000, 5000],
+      removeFingerprintOnSuccess: true,
+      headers: {
+        authorization: `Bearer ${token}`,
+        apikey: supabaseAnonKey ?? "",
+        "x-upsert": "false",
+      },
+      metadata: {
+        bucketName: supabaseAssetBucket,
+        objectName: storagePath,
+        contentType: options.contentType || file.type || "application/octet-stream",
+        cacheControl: "3600",
+      },
+      onError(error) {
+        reject(new Error(getTusUploadErrorMessage(error, file, storagePath)));
+      },
+      onSuccess() {
+        resolve();
+      },
+    });
+
+    upload.start();
+  });
+}
+
+function getTusUploadErrorMessage(error: unknown, file: File, storagePath: string) {
+  const response = error instanceof tus.DetailedError ? error.originalResponse : null;
+  const status = response?.getStatus();
+  const body = response?.getBody();
+  const message = error instanceof Error ? error.message : String(error);
+
+  return getStorageUploadErrorMessage(
+    {
+      message: [message, body].filter(Boolean).join(" / "),
+      status,
+    },
+    file,
+    storagePath,
+  );
 }
 
 function isMissingColumnError(error: { message?: string; code?: string } | null | undefined, columnName: string) {
@@ -1219,13 +1310,10 @@ export class SupabaseBackend implements SiteBackend {
     const owner = requireOwner(user, "只有站主账号可以上传作品集文件。");
 
     const storagePath = createSupabaseStoragePath(`portfolio/${kind}`, owner.id, file, kind);
-    const { error } = await this.client.storage
-      .from(supabaseAssetBucket)
-      .upload(storagePath, file, { upsert: false });
-
-    if (error) {
-      throw new Error(getStorageUploadErrorMessage(error, file, storagePath));
-    }
+    await uploadSupabaseStorageFile(this.client, storagePath, file, {
+      contentType: file.type || undefined,
+      useResumable: file.size > resumableUploadThresholdBytes,
+    });
 
     const { data } = this.client.storage.from(supabaseAssetBucket).getPublicUrl(storagePath);
     return {
@@ -1239,13 +1327,10 @@ export class SupabaseBackend implements SiteBackend {
     const owner = requireOwner(user, "只有站主账号可以上传作品资源。");
 
     const storagePath = createSupabaseStoragePath(kind, owner.id, file, kind);
-    const { error: uploadError } = await this.client.storage
-      .from(supabaseAssetBucket)
-      .upload(storagePath, file, { upsert: false });
-
-    if (uploadError) {
-      throw new Error(getStorageUploadErrorMessage(uploadError, file, storagePath));
-    }
+    await uploadSupabaseStorageFile(this.client, storagePath, file, {
+      contentType: file.type || undefined,
+      useResumable: file.size > resumableUploadThresholdBytes,
+    });
 
     const { data: publicData } = this.client.storage.from(supabaseAssetBucket).getPublicUrl(storagePath);
     const { data, error } = await this.client
