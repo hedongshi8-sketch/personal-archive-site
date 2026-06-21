@@ -1,4 +1,5 @@
 -- Run this once in Supabase SQL Editor.
+-- Paste this SQL content into the editor. Do not paste the local file path.
 -- It fixes the current live database for the logo editor and hides internal portfolio assembly files.
 
 alter type public.asset_kind add value if not exists 'site-logo';
@@ -16,9 +17,6 @@ where
     '70cf8c1d-3fae-0389-4fac-f458ee4a1247',
     'd9caa4e3-bda6-4d1b-9168-89acc6b9a584'
   )
-  or title in ('简历 + 作品集合并版', '系统策划投递说明')
-  or public_url like '%待替换个人信息%'
-  or public_url like '%投递说明_只看这个%'
   or preview_url like '%system-planner-submission-note%';
 
 select
@@ -38,9 +36,6 @@ select
           '70cf8c1d-3fae-0389-4fac-f458ee4a1247',
           'd9caa4e3-bda6-4d1b-9168-89acc6b9a584'
         )
-        or title in ('简历 + 作品集合并版', '系统策划投递说明')
-        or public_url like '%待替换个人信息%'
-        or public_url like '%投递说明_只看这个%'
         or preview_url like '%system-planner-submission-note%'
       )
   ) as visible_internal_items;

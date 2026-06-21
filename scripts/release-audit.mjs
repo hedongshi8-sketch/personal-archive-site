@@ -286,8 +286,9 @@ assert(appSource.includes("function AccountPanel"), "account panel exists");
 assert(appSource.includes("function AccountDock") && appSource.includes("account-trigger"), "compact account dock exists");
 assert(appSource.includes("account-mail-radar") && appSource.includes("邮件登录链路状态"), "account email status radar exists");
 assert(appSource.includes("function EditableText"), "graphical editable text exists");
-assert(appSource.includes("编辑模式"), "owner edit mode exists");
+assert(appSource.includes("owner-brand-panel") && appSource.includes("页面编辑"), "owner edit mode exists");
 assert(appSource.includes("brand-edit-panel") && appSource.includes("site-logo"), "site logo and brand editor exists");
+assert(appSource.includes("owner-brand-status"), "owner brand status dashboard exists");
 assert(appSource.includes("createGlobalSearchIndex") && appSource.includes("global-search-panel"), "global archive search is wired");
 assert(appSource.includes("站主动态"), "public owner updates copy exists");
 assert(appSource.includes("ExcelSheetPreview"), "Excel in-site preview reader exists");
@@ -354,6 +355,7 @@ assert(appSource.includes("checkHumanGate"), "anti-spam human gate exists");
 assert(appSource.includes("BackgroundMusicDock"), "background music dock exists");
 assert(appSource.includes("resumeOnInteraction") && appSource.includes("is-blocked"), "background music auto-play recovery UI exists");
 assert(appSource.includes("music-background-toggle"), "music radar can toggle default background music");
+assert(appSource.includes("music-background-console") && appSource.includes("右下角播放开关已启用"), "music default background dashboard exists");
 
 try {
   const status = command(["git", "status", "--short"]);

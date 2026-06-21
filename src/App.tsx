@@ -1950,6 +1950,11 @@ function HeroSection({
       .map((result) => result.item);
   }, [globalSearchIndex, globalSearchTerms]);
   const showSearchPanel = searchActive || normalizedSearchQuery.length > 0;
+  const ownerBrandSignals = [
+    { label: "Logo", value: settings.siteLogoUrl ? "已设置" : "待上传" },
+    { label: "头像", value: settings.siteAvatarUrl ? "已设置" : "待上传" },
+    { label: "默认音乐", value: settings.backgroundMusicEnabled && settings.backgroundMusicUrl ? "已开启" : "未开启" },
+  ];
 
   async function saveSettings(patch: Partial<SiteSettings>) {
     if (!isOwner) {
@@ -2050,23 +2055,28 @@ function HeroSection({
           </a>
         </div>
         {isOwner ? (
-          <div className="edit-mode-toolbar">
-            <button
-              className={clsx("ghost-button", editMode && "active")}
-              onClick={() => onEditModeChange(!editMode)}
-              type="button"
-            >
-              <Edit3 size={16} />
-              {editMode ? "退出编辑模式" : "进入编辑模式"}
-            </button>
-            {statusMessage ? <p className="backend-status">{statusMessage}</p> : null}
-          </div>
-        ) : null}
-        {isOwner && editMode ? (
-          <div className="brand-edit-panel" aria-label="站点品牌设置">
+          <div className={clsx("brand-edit-panel owner-brand-panel", editMode && "is-editing")} aria-label="站点品牌设置">
             <div>
-              <span>站点品牌</span>
-              <strong>Logo、左上角文字和头像都在这里改</strong>
+              <span>站主管理</span>
+              <strong>品牌、头像、Logo、默认音乐</strong>
+            </div>
+            <div className="owner-command-actions">
+              <button
+                className={clsx("ghost-button", editMode && "active")}
+                onClick={() => onEditModeChange(!editMode)}
+                type="button"
+              >
+                <Edit3 size={16} />
+                {editMode ? "退出页面编辑" : "页面编辑"}
+              </button>
+              <a className="ghost-button" href="#music">
+                <Volume2 size={16} />
+                默认音乐
+              </a>
+              <a className="ghost-button" href="#notes">
+                <Quote size={16} />
+                发布书摘
+              </a>
             </div>
             <div className="brand-edit-grid">
               <label>
@@ -2104,6 +2114,15 @@ function HeroSection({
                 <input accept="image/*" onChange={(event) => void uploadHeroImage(event.target.files?.[0] ?? null, "site-avatar")} type="file" />
               </label>
             </div>
+            <div className="owner-brand-status" aria-label="站点素材状态">
+              {ownerBrandSignals.map((signal) => (
+                <span key={signal.label}>
+                  <small>{signal.label}</small>
+                  <strong>{signal.value}</strong>
+                </span>
+              ))}
+            </div>
+            {statusMessage ? <p className="backend-status">{statusMessage}</p> : null}
           </div>
         ) : null}
       </div>
@@ -3250,7 +3269,7 @@ function MusicSection({
     <section className="screen-section music-section" id="music">
       <ScreenIntro
         title="音乐雷达"
-        description="这里可以公开展示歌单；站主登录后可以上传音乐、封面，并把任意一首设为全站背景音乐。"
+        description="这里可以公开展示歌单；站主登录后可以上传音乐、封面，并把任意一首设为访客进入网站时默认播放的背景音乐。"
       />
       <div className="player-surface">
         <audio ref={audioRef} src={activeTrack?.audioUrl} onEnded={() => setIsPlaying(false)} preload="metadata" />
@@ -3316,7 +3335,7 @@ function MusicSection({
             <Volume2 size={14} />
             全站背景音乐：{backgroundMusicName}
           </span>
-          <strong>{settings.backgroundMusicEnabled ? "进入网站会尝试自动播放" : "当前关闭"}</strong>
+          <strong>{settings.backgroundMusicEnabled ? "默认开启，右下角可暂停" : "当前关闭"}</strong>
         </div>
       </div>
       <div className="playlist-panel">
@@ -3352,6 +3371,11 @@ function MusicSection({
         <BackendModeNotice isSupabase={isSupabase} />
         {isOwner ? (
           <>
+            <div className="music-background-console">
+              <span>默认背景音乐</span>
+              <strong>{backgroundMusicName}</strong>
+              <small>{settings.backgroundMusicEnabled && settings.backgroundMusicUrl ? "右下角播放开关已启用" : "选择有音频的曲目后开启"}</small>
+            </div>
             <div className="owner-management-strip">
               <span>{activeTrack ? `当前：${activeTrack.title}` : "当前没有音乐"}</span>
               <button className="ghost-button" disabled={!activeTrack || saveState === "saving"} onClick={() => startEditingTrack()} type="button">
@@ -3374,7 +3398,7 @@ function MusicSection({
                 type="button"
               >
                 <Volume2 size={15} />
-                设为背景音乐
+                设为默认并开启
               </button>
             </div>
             <label className="owner-toggle-row music-background-toggle">
@@ -3386,7 +3410,7 @@ function MusicSection({
               />
               <span>
                 {canEnableBackgroundMusic
-                  ? "访客进入网站时尝试自动播放默认背景音乐"
+                  ? "进入网站自动尝试播放默认背景音乐，并在右下角显示播放开关"
                   : "先上传或选择一首有音频文件的音乐，才能开启默认背景音乐"}
               </span>
             </label>
@@ -3458,7 +3482,7 @@ function MusicSection({
                 onChange={(event) => setDraft((current) => ({ ...current, isBackground: event.target.checked }))}
                 type="checkbox"
               />
-              <span>保存后也作为背景音乐候选</span>
+              <span>保存后设为默认背景音乐并开启</span>
             </label>
           </>
         ) : null}

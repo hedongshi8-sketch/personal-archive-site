@@ -4,6 +4,11 @@ const supabaseUrl = process.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY;
 const failures = [];
 
+const internalPortfolioIds = new Set([
+  "70cf8c1d-3fae-0389-4fac-f458ee4a1247",
+  "d9caa4e3-bda6-4d1b-9168-89acc6b9a584",
+]);
+
 const internalPortfolioMatchers = [
   "待替换个人信息",
   "投递说明_只看这个",
@@ -53,8 +58,8 @@ if (!supabaseUrl || !supabaseAnonKey) {
   assert(!portfolioError, "published portfolio items can be checked", portfolioError?.message);
 
   const internalItems = (portfolioItems ?? []).filter((item) => {
-    const searchable = [item.title, item.public_url, item.preview_url, item.source_path].filter(Boolean).join(" ");
-    return internalPortfolioMatchers.some((marker) => searchable.includes(marker));
+    const searchable = [item.id, item.title, item.public_url, item.preview_url, item.source_path].filter(Boolean).join(" ");
+    return internalPortfolioIds.has(item.id) || internalPortfolioMatchers.some((marker) => searchable.includes(marker));
   });
 
   assert(

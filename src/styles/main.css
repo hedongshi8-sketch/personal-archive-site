@@ -976,6 +976,65 @@ p {
   font-size: 15px;
 }
 
+.owner-brand-panel {
+  max-width: 640px;
+}
+
+.owner-brand-panel:not(.is-editing) {
+  padding: 12px;
+}
+
+.owner-command-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.owner-command-actions .ghost-button {
+  min-height: 36px;
+  border-color: rgba(30, 29, 25, 0.14);
+  padding: 0 10px;
+  font-size: 12px;
+  font-weight: 880;
+}
+
+.owner-command-actions .ghost-button.active {
+  border-color: rgba(33, 215, 222, 0.44);
+  background: rgba(33, 215, 222, 0.14);
+}
+
+.owner-brand-status {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.owner-brand-status span {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+  border: 1px solid rgba(30, 29, 25, 0.1);
+  border-radius: 8px;
+  padding: 8px 10px;
+  background: rgba(255, 255, 255, 0.34);
+}
+
+.owner-brand-status small {
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.owner-brand-status strong {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 920;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .brand-edit-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -2744,6 +2803,43 @@ p {
   border-radius: 8px;
   padding: 10px;
   background: rgba(33, 215, 222, 0.08);
+}
+
+.music-background-console {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 2px 10px;
+  align-items: center;
+  border: 1px solid rgba(33, 215, 222, 0.2);
+  border-radius: 8px;
+  padding: 12px;
+  background:
+    linear-gradient(90deg, rgba(33, 215, 222, 0.12), transparent),
+    rgba(255, 255, 255, 0.48);
+}
+
+.music-background-console span {
+  grid-row: span 2;
+  color: var(--cyan-dark);
+  font-size: 11px;
+  font-weight: 920;
+  text-transform: uppercase;
+}
+
+.music-background-console strong {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 920;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.music-background-console small {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 760;
 }
 
 .music-draft-radar {
@@ -5621,7 +5717,8 @@ p {
 .dark-mode .roadmap-item,
 .dark-mode .account-panel,
 .dark-mode .github-comments-panel,
-.dark-mode .owner-management-strip {
+.dark-mode .owner-management-strip,
+.dark-mode .brand-edit-panel {
   background: rgba(20, 24, 25, 0.72);
   color: #f7f1e6;
 }
@@ -5687,6 +5784,8 @@ p {
 .dark-mode .reading-import-guide,
 .dark-mode .reading-import-guide code,
 .dark-mode .music-draft-radar span,
+.dark-mode .music-background-console,
+.dark-mode .owner-brand-status span,
 .dark-mode .reading-workflow-rail span,
 .dark-mode .reading-field-radar span,
 .dark-mode .reading-publish-checks span,
@@ -5893,13 +5992,21 @@ p {
 }
 
 .dark-mode .music-draft-radar small,
+.dark-mode .music-background-console span,
+.dark-mode .owner-brand-status small,
 .dark-mode .reading-field-radar small {
   color: #8deaf2;
 }
 
 .dark-mode .music-draft-radar strong,
+.dark-mode .music-background-console strong,
+.dark-mode .owner-brand-status strong,
 .dark-mode .reading-field-radar strong {
   color: #fff7e8;
+}
+
+.dark-mode .music-background-console small {
+  color: rgba(247, 241, 230, 0.62);
 }
 
 .dark-mode .note-reader-feedback {
@@ -6469,6 +6576,22 @@ p {
 
   .global-search-result em {
     justify-self: start;
+  }
+
+  .owner-command-actions .ghost-button {
+    flex: 1 1 130px;
+  }
+
+  .brand-edit-grid,
+  .brand-media-editors,
+  .owner-brand-status,
+  .music-draft-radar,
+  .music-background-console {
+    grid-template-columns: 1fr;
+  }
+
+  .music-background-console span {
+    grid-row: auto;
   }
 
   .hero-toolbar {
