@@ -5178,6 +5178,98 @@ p {
   color: var(--ink);
 }
 
+.public-activity-console,
+.comment-health-console {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.54fr) minmax(0, 1fr);
+  gap: 12px;
+  align-items: stretch;
+  margin-bottom: 14px;
+  border: 1px solid rgba(30, 29, 25, 0.12);
+  border-radius: 8px;
+  padding: 14px;
+  background:
+    linear-gradient(115deg, rgba(33, 215, 222, 0.12), transparent 56%),
+    rgba(255, 255, 255, 0.42);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.58) inset;
+}
+
+.public-activity-head,
+.comment-health-console > div:first-child {
+  display: grid;
+  align-content: start;
+  gap: 5px;
+  min-width: 0;
+}
+
+.public-activity-head span,
+.comment-health-console > div:first-child span {
+  color: var(--cyan-dark);
+  font-size: 11px;
+  font-weight: 920;
+  text-transform: uppercase;
+}
+
+.public-activity-head strong,
+.comment-health-console > div:first-child strong {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--ink);
+  font-size: 16px;
+  font-weight: 920;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.public-activity-head p,
+.comment-health-console > div:first-child p {
+  display: -webkit-box;
+  margin: 0;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.6;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.public-activity-signals,
+.comment-health-signals {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.public-activity-signals span,
+.comment-health-signals span {
+  min-width: 0;
+  display: grid;
+  align-content: center;
+  gap: 3px;
+  border: 1px solid rgba(30, 29, 25, 0.1);
+  border-radius: 8px;
+  padding: 9px 10px;
+  background: rgba(255, 255, 255, 0.36);
+}
+
+.public-activity-signals small,
+.comment-health-signals small {
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.public-activity-signals strong,
+.comment-health-signals strong {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 920;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .composer-lock {
   display: inline-flex;
   align-items: center;
@@ -5718,7 +5810,9 @@ p {
 .dark-mode .account-panel,
 .dark-mode .github-comments-panel,
 .dark-mode .owner-management-strip,
-.dark-mode .brand-edit-panel {
+.dark-mode .brand-edit-panel,
+.dark-mode .public-activity-console,
+.dark-mode .comment-health-console {
   background: rgba(20, 24, 25, 0.72);
   color: #f7f1e6;
 }
@@ -5786,6 +5880,8 @@ p {
 .dark-mode .music-draft-radar span,
 .dark-mode .music-background-console,
 .dark-mode .owner-brand-status span,
+.dark-mode .public-activity-signals span,
+.dark-mode .comment-health-signals span,
 .dark-mode .reading-workflow-rail span,
 .dark-mode .reading-field-radar span,
 .dark-mode .reading-publish-checks span,
@@ -5994,6 +6090,10 @@ p {
 .dark-mode .music-draft-radar small,
 .dark-mode .music-background-console span,
 .dark-mode .owner-brand-status small,
+.dark-mode .public-activity-head span,
+.dark-mode .comment-health-console > div:first-child span,
+.dark-mode .public-activity-signals small,
+.dark-mode .comment-health-signals small,
 .dark-mode .reading-field-radar small {
   color: #8deaf2;
 }
@@ -6001,11 +6101,17 @@ p {
 .dark-mode .music-draft-radar strong,
 .dark-mode .music-background-console strong,
 .dark-mode .owner-brand-status strong,
+.dark-mode .public-activity-head strong,
+.dark-mode .comment-health-console > div:first-child strong,
+.dark-mode .public-activity-signals strong,
+.dark-mode .comment-health-signals strong,
 .dark-mode .reading-field-radar strong {
   color: #fff7e8;
 }
 
-.dark-mode .music-background-console small {
+.dark-mode .music-background-console small,
+.dark-mode .public-activity-head p,
+.dark-mode .comment-health-console > div:first-child p {
   color: rgba(247, 241, 230, 0.62);
 }
 
@@ -6646,7 +6752,9 @@ p {
   .reading-composer .owner-upload-grid,
   .reading-action-row,
   .reading-draft-state,
-  .reading-cover-preview {
+  .reading-cover-preview,
+  .public-activity-console,
+  .comment-health-console {
     grid-template-columns: 1fr;
   }
 
@@ -6724,7 +6832,9 @@ p {
   }
 
   .note-reader-signals,
-  .reading-composer-helper {
+  .reading-composer-helper,
+  .public-activity-signals,
+  .comment-health-signals {
     grid-template-columns: 1fr;
   }
 

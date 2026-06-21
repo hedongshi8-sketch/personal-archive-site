@@ -5074,6 +5074,13 @@ function PrivateSection({ currentUser }: { currentUser: AuthUser | null }) {
   const isOwner = currentUser?.role === "owner";
   const isSupabase = siteBackend.mode === "supabase";
   const editingPost = editingPostId ? posts.find((post) => post.id === editingPostId) : null;
+  const latestPost = posts[0];
+  const publicActivitySignals = [
+    { label: "公开动态", value: `${posts.length} 条` },
+    { label: "最新更新", value: latestPost?.createdAt ?? "待发布" },
+    { label: "发布权限", value: isOwner ? "站主可写" : "只读公开" },
+    { label: "存储状态", value: isSupabase ? "Supabase" : "本地预览" },
+  ];
 
   useEffect(() => {
     let active = true;
@@ -5205,6 +5212,21 @@ function PrivateSection({ currentUser }: { currentUser: AuthUser | null }) {
           <strong>{isOwner ? "站主发布权限已开启" : "公开阅读模式"}</strong>
         </div>
         {!isOwner ? <p>登录站主账号后，这里会自动出现发布入口。</p> : null}
+      </div>
+      <div className="public-activity-console" aria-label="站主动态公开状态">
+        <div className="public-activity-head">
+          <span>Public Timeline</span>
+          <strong>{latestPost?.title ?? "还没有公开更新"}</strong>
+          <p>{latestPost?.body ?? "这里会展示作品集维护、Demo 调整、书摘更新和阶段想法，访客只读，站主可写。"}</p>
+        </div>
+        <div className="public-activity-signals">
+          {publicActivitySignals.map((signal) => (
+            <span key={signal.label}>
+              <small>{signal.label}</small>
+              <strong>{signal.value}</strong>
+            </span>
+          ))}
+        </div>
       </div>
       {isOwner ? (
         <div className="private-composer">
@@ -5375,6 +5397,12 @@ function CommentsSection({
   const [deletingCommentId, setDeletingCommentId] = useState<string | null>(null);
   const isOwner = currentUser?.role === "owner";
   const visibleComments = useMemo(() => comments.filter(isDisplayableComment), [comments]);
+  const commentHealthSignals = [
+    { label: "账号", value: currentUser ? "已登录" : "需登录" },
+    { label: "防刷", value: "算术 + 停留" },
+    { label: "留言", value: `${visibleComments.length} 条` },
+    { label: "后端", value: siteBackend.mode === "supabase" ? "Supabase" : "本地预览" },
+  ];
 
   useEffect(() => {
     let active = true;
@@ -5506,6 +5534,21 @@ function CommentsSection({
           onUpdatePassword={onUpdatePassword}
         />
       ) : null}
+      <div className="comment-health-console" aria-label="留言墙状态">
+        <div>
+          <span>Comment Channel</span>
+          <strong>{currentUser ? `你好，${currentUser.username || currentUser.email}` : "登录后即可公开留言"}</strong>
+          <p>{isOwner ? "站主账号可以删除不合适的留言；普通访客可以发布、回复和点赞。" : "留言会写入线上评论表，提交前需要完成轻量验证以降低刷屏。"}</p>
+        </div>
+        <div className="comment-health-signals">
+          {commentHealthSignals.map((signal) => (
+            <span key={signal.label}>
+              <small>{signal.label}</small>
+              <strong>{signal.value}</strong>
+            </span>
+          ))}
+        </div>
+      </div>
       <div className="comment-form">
         <div className="comment-avatar">{avatarContent(currentUser?.avatarUrl, currentUser?.username || "你")}</div>
         <div className="comment-author-lock">

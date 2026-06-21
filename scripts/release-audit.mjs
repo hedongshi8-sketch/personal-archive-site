@@ -306,7 +306,9 @@ assert(appSource.includes("reading-publication-board") && appSource.includes("co
 assert(appSource.includes("updateMusicTrack") && appSource.includes("deleteMusicTrack"), "music owner edit/delete UI exists");
 assert(appSource.includes("updateGalleryItem") && appSource.includes("deleteGalleryItem"), "gallery owner edit/delete UI exists");
 assert(appSource.includes("updateOwnerPost") && appSource.includes("deleteOwnerPost"), "owner post edit/delete UI exists");
+assert(appSource.includes("public-activity-console") && appSource.includes("Public Timeline"), "owner public activity console exists");
 assert(appSource.includes("deleteComment") && appSource.includes("只有站主账号可以删除留言"), "comment owner delete UI exists");
+assert(appSource.includes("comment-health-console") && appSource.includes("Comment Channel"), "comment health console exists");
 assert(backendSource.includes('.not("author_id", "is", null)'), "public comments exclude legacy anonymous rows");
 for (const localStore of [
   "localOwnerPosts",
