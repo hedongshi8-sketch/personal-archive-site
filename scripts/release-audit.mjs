@@ -298,6 +298,7 @@ assert(appSource.includes("updatePortfolioItem") && appSource.includes("deletePo
 assert(backendSource.includes("function assertPublicPortfolioInput") && backendSource.includes("已阻止公开发布"), "portfolio owner publish guard blocks internal files");
 assert(appSource.includes("function MusicSection"), "music upload section exists");
 assert(appSource.includes("function GallerySection"), "gallery upload section exists");
+assert(appSource.includes("gallery-command-console") && appSource.includes("Gallery Index"), "gallery command console exists");
 assert(appSource.includes("function NotesSection"), "reading notes section exists");
 assert(appSource.includes("notes-search-box") && appSource.includes("note-reader-panel"), "reading notes search and reader panel exist");
 assert(appSource.includes("parseReadingClipboardText") && appSource.includes("reading-import-guide"), "reading clipboard smart import exists");

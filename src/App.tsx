@@ -3540,6 +3540,7 @@ function GallerySection({
   const isSupabase = siteBackend.mode === "supabase";
   const galleryNavigationTarget = useSearchNavigationTarget("gallery");
   const editingGalleryItem = editingGalleryItemId ? items.find((item) => item.id === editingGalleryItemId) : null;
+  const coverItem = items.find((item) => item.isCover || (Boolean(settings.heroCoverUrl) && settings.heroCoverUrl === item.imageUrl));
 
   const filteredItems = useMemo(() => {
     if (filter === "全部") {
@@ -3548,6 +3549,12 @@ function GallerySection({
 
     return items.filter((item) => item.category === filter);
   }, [filter, items]);
+  const gallerySignals = [
+    { label: "当前筛选", value: filter },
+    { label: "可见图片", value: `${filteredItems.length} / ${items.length}` },
+    { label: "首页封面", value: coverItem?.title ?? "待选择" },
+    { label: "维护权限", value: isOwner ? "站主可写" : "公开浏览" },
+  ];
 
   useEffect(() => {
     if (!galleryNavigationTarget?.query) {
@@ -3716,6 +3723,21 @@ function GallerySection({
         title="灵感图库"
         description="图片收藏拥有完整画廊空间；站主可以上传图片、分类整理，并把任意图片设为首页封面。"
       />
+      <div className="gallery-command-console" aria-label="图库状态">
+        <div>
+          <span>Gallery Index</span>
+          <strong>{filter === "全部" ? "全部视觉收藏" : `${filter} 收藏`}</strong>
+          <p>{coverItem ? `首页封面当前使用「${coverItem.title}」。` : "站主可以把任意收藏图片设为首页封面，访客只会看到公开图库。"}</p>
+        </div>
+        <div className="gallery-signal-grid">
+          {gallerySignals.map((signal) => (
+            <span key={signal.label}>
+              <small>{signal.label}</small>
+              <strong>{signal.value}</strong>
+            </span>
+          ))}
+        </div>
+      </div>
       <div className="filter-row" role="tablist" aria-label="图库筛选">
         {galleryFilters.map((item) => (
           <button
