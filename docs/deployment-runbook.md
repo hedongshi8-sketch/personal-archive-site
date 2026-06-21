@@ -15,7 +15,7 @@
    - `https://hedongshi8-sketch.github.io`
    - `https://hedongshi8-sketch.github.io/personal-archive-site/`
 
-如果是已经上线过的旧库，且验证提示缺少 `site_logo_url` 或内部投递文件仍公开，直接执行 `supabase/fix-live-database.sql`。执行结果里 `site_logo_url_ready` 应为 `true`，`visible_internal_items` 应为 `0`。跑完后本地执行 `npm run verify:live-db-fix` 做单项验收。
+如果是已经上线过的旧库，且验证提示缺少 `site_logo_url`、Storage 上传失败、或内部投递文件仍公开，打开本地文件 `supabase/fix-live-database.sql`，复制里面的 SQL 内容到 Supabase SQL Editor 执行；不要把 `E:\...\fix-live-database.sql` 这种文件路径粘进 SQL Editor。执行结果里 `site_logo_url_ready`、`public_bucket_ready`、`owner_storage_upload_policy_ready` 应为 `true`，`visible_internal_items` 应为 `0`。跑完后本地执行 `npm run verify:live-db-fix` 做单项验收。
 
 ## 2. 设置站主账号
 

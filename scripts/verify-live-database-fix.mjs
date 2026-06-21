@@ -1,8 +1,11 @@
 import { createVerificationClient } from "./create-verification-client.mjs";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 
 const supabaseUrl = process.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY;
 const failures = [];
+const fixSqlSource = readFileSync(join(process.cwd(), "supabase", "fix-live-database.sql"), "utf8");
 
 const internalPortfolioIds = new Set([
   "70cf8c1d-3fae-0389-4fac-f458ee4a1247",
@@ -32,6 +35,10 @@ function assert(condition, label, detail = "") {
     fail(label, detail);
   }
 }
+
+assert(fixSqlSource.includes("insert into storage.buckets"), "live database fix creates public storage bucket");
+assert(fixSqlSource.includes("owner can upload portfolio storage"), "live database fix recreates owner upload storage policy");
+assert(fixSqlSource.includes("owner_storage_upload_policy_ready"), "live database fix reports storage upload policy readiness");
 
 if (!supabaseUrl || !supabaseAnonKey) {
   fail(

@@ -46,6 +46,9 @@ jobs:
       - name: Reading owner flow verification
         run: npm run verify:reading-owner-flow
 
+      - name: Music owner flow verification
+        run: npm run verify:music-owner-flow
+
       - name: Build
         run: npm run build
 

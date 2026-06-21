@@ -2934,11 +2934,19 @@ function MusicSection({
   const [statusMessage, setStatusMessage] = useState("");
   const [loadState, setLoadState] = useState<LoadState>("idle");
   const [saveState, setSaveState] = useState<"idle" | "saving">("idle");
+  const [audioUploadState, setAudioUploadState] = useState<"idle" | "uploading">("idle");
+  const [coverUploadState, setCoverUploadState] = useState<"idle" | "uploading">("idle");
   const [deletingTrackId, setDeletingTrackId] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const isOwner = currentUser?.role === "owner";
   const isSupabase = siteBackend.mode === "supabase";
+  const isAudioUploading = audioUploadState === "uploading";
+  const isCoverUploading = coverUploadState === "uploading";
+  const isUploadingMusicAsset = isAudioUploading || isCoverUploading;
+  const isSavingTrack = saveState === "saving";
+  const isDeletingTrack = Boolean(deletingTrackId);
+  const isMusicActionBusy = isUploadingMusicAsset || isSavingTrack || isDeletingTrack;
   const activeTrack = tracks.find((track) => track.id === activeTrackId) ?? tracks[0];
   const editingTrack = editingTrackId ? tracks.find((track) => track.id === editingTrackId) : null;
   const musicNavigationTarget = useSearchNavigationTarget("music");
@@ -2949,8 +2957,8 @@ function MusicSection({
   const canEnableBackgroundMusic = Boolean(settings.backgroundMusicUrl || activeTrack?.audioUrl);
   const activeTrackIsBackground = Boolean(activeTrack?.audioUrl && activeTrack.audioUrl === settings.backgroundMusicUrl);
   const musicDraftSignals = [
-    { label: "音频", value: draft.audioUrl ? "已上传" : "待上传", ready: Boolean(draft.audioUrl) },
-    { label: "封面", value: draft.coverUrl ? "已上传" : "可选", ready: Boolean(draft.coverUrl), optional: true },
+    { label: "音频", value: isAudioUploading ? "上传中..." : draft.audioUrl ? "已上传" : "待上传", ready: Boolean(draft.audioUrl) },
+    { label: "封面", value: isCoverUploading ? "上传中..." : draft.coverUrl ? "已上传" : "可选", ready: Boolean(draft.coverUrl), optional: true },
     { label: "默认", value: draft.isBackground ? "保存后启用" : activeTrackIsBackground ? "当前已默认" : "未选择", ready: draft.isBackground || activeTrackIsBackground },
   ];
 
@@ -3050,15 +3058,23 @@ function MusicSection({
     }
 
     try {
+      setAudioUploadState("uploading");
+      setStatusMessage(`正在上传音频《${file.name}》...`);
       const uploaded = await siteBackend.uploadAsset(file, "music-audio");
       setDraft((current) => ({
         ...current,
         title: current.title || makeFileTitle(file),
         audioUrl: uploaded.url,
       }));
-      setStatusMessage(isSupabase ? "音乐文件已上传。" : "本地音乐预览已准备好。");
+      setStatusMessage(
+        isSupabase
+          ? "音乐文件已上传，已填入草稿。现在点“保存音乐”才会公开显示到歌单里。"
+          : "本地音乐预览已准备好。现在点“保存音乐”可以在本地歌单里预览。",
+      );
     } catch (error) {
       setStatusMessage(error instanceof Error ? error.message : "音乐上传失败。");
+    } finally {
+      setAudioUploadState("idle");
     }
   }
 
@@ -3073,20 +3089,37 @@ function MusicSection({
     }
 
     try {
+      setCoverUploadState("uploading");
+      setStatusMessage(`正在上传封面《${file.name}》...`);
       const uploaded = await siteBackend.uploadAsset(file, "music-cover");
       setDraft((current) => ({ ...current, coverUrl: uploaded.url }));
-      setStatusMessage(isSupabase ? "音乐封面已上传。" : "本地封面预览已准备好。");
+      setStatusMessage(isSupabase ? "音乐封面已上传，已填入草稿。" : "本地封面预览已准备好。");
     } catch (error) {
       setStatusMessage(error instanceof Error ? error.message : "封面上传失败。");
+    } finally {
+      setCoverUploadState("idle");
     }
   }
 
-  function resetMusicDraft() {
+  function resetMusicDraft(options: { force?: boolean; announce?: boolean } = {}) {
+    if (!options.force && isMusicActionBusy) {
+      setStatusMessage("上传、保存或删除进行中，完成后再清空草稿。");
+      return;
+    }
+
     setDraft(defaultMusicDraft);
     setEditingTrackId(null);
+    if (options.announce !== false) {
+      setStatusMessage("音乐草稿已清空。");
+    }
   }
 
   function startEditingTrack(track: MusicTrack = activeTrack) {
+    if (isMusicActionBusy) {
+      setStatusMessage("上传、保存或删除进行中，完成后再切换编辑对象。");
+      return;
+    }
+
     if (!track) {
       return;
     }
@@ -3107,13 +3140,19 @@ function MusicSection({
     const mood = draft.mood.trim() || "未分类";
     const audioUrl = draft.audioUrl.trim();
 
+    if (isUploadingMusicAsset) {
+      setStatusMessage("音频或封面还在上传中，等上传完成后再保存。");
+      return;
+    }
+
     if (!title || !audioUrl) {
-      setStatusMessage("至少需要标题和音频文件。");
+      setStatusMessage(!title ? "先填写歌名，或先上传音频自动带出歌名。" : "先上传音频文件，再点保存音乐。");
       return;
     }
 
     try {
       setSaveState("saving");
+      setStatusMessage(editingTrackId ? "正在保存音乐修改..." : "正在把音乐写入公开歌单...");
       const payload: MusicTrackInput = {
         ...draft,
         title,
@@ -3147,7 +3186,7 @@ function MusicSection({
         window.dispatchEvent(new CustomEvent("linx-background-music-stop"));
       }
 
-      resetMusicDraft();
+      resetMusicDraft({ force: true, announce: false });
       setStatusMessage(
         editingTrackId
           ? "音乐信息已更新。"
@@ -3170,12 +3209,20 @@ function MusicSection({
       return;
     }
 
+    if (isMusicActionBusy) {
+      setStatusMessage("上传、保存或删除进行中，完成后再删除音乐。");
+      return;
+    }
+
+    setStatusMessage(`准备删除《${track.title}》。`);
     if (!window.confirm(`确定删除《${track.title}》这首音乐吗？`)) {
+      setStatusMessage("已取消删除。");
       return;
     }
 
     try {
       setDeletingTrackId(track.id);
+      setStatusMessage(`正在删除《${track.title}》...`);
       await siteBackend.deleteMusicTrack(track.id);
       setTracks((current) => {
         const nextTracks = current.filter((item) => item.id !== track.id);
@@ -3183,7 +3230,7 @@ function MusicSection({
         return nextTracks;
       });
       if (editingTrackId === track.id) {
-        resetMusicDraft();
+        resetMusicDraft({ force: true, announce: false });
       }
       setStatusMessage("音乐已删除。");
     } catch (error) {
@@ -3394,6 +3441,7 @@ function MusicSection({
           <strong>{editingTrack ? "编辑当前音乐" : isOwner ? "站主音乐上传入口" : "访客只能试听公开歌单"}</strong>
         </div>
         <BackendModeNotice isSupabase={isSupabase} />
+        {statusMessage ? <p className="backend-status music-action-status">{statusMessage}</p> : null}
         {isOwner ? (
           <>
             <div className="music-background-console">
@@ -3403,18 +3451,18 @@ function MusicSection({
             </div>
             <div className="owner-management-strip">
               <span>{activeTrack ? `当前：${activeTrack.title}` : "当前没有音乐"}</span>
-              <button className="ghost-button" disabled={!activeTrack || saveState === "saving"} onClick={() => startEditingTrack()} type="button">
+              <button className="ghost-button" disabled={!activeTrack || isMusicActionBusy} onClick={() => startEditingTrack()} type="button">
                 <Edit3 size={15} />
                 编辑当前
               </button>
               <button
                 className="ghost-button danger"
-                disabled={!activeTrack || deletingTrackId === activeTrack?.id}
+                disabled={!activeTrack || isMusicActionBusy}
                 onClick={() => void deleteTrack()}
                 type="button"
               >
                 <Trash2 size={15} />
-                删除当前
+                {deletingTrackId === activeTrack?.id ? "删除中..." : "删除当前"}
               </button>
               <button
                 className="ghost-button"
@@ -3482,23 +3530,41 @@ function MusicSection({
               </label>
             </div>
             <div className="portfolio-upload-row">
-              <label className="portfolio-file-picker">
+              <label className={clsx("portfolio-file-picker", isAudioUploading && "is-busy")}>
                 <Upload size={16} />
-                <span>上传音频</span>
-                <input accept="audio/*" onChange={(event) => void handleMusicFile(event.target.files?.[0] ?? null)} type="file" />
+                <span>{isAudioUploading ? "音频上传中..." : "上传音频"}</span>
+                <input
+                  accept="audio/*"
+                  disabled={isMusicActionBusy}
+                  onChange={(event) => void handleMusicFile(event.target.files?.[0] ?? null)}
+                  type="file"
+                />
               </label>
-              <label className="portfolio-file-picker">
+              <label className={clsx("portfolio-file-picker", isCoverUploading && "is-busy")}>
                 <ImageIcon size={16} />
-                <span>上传封面</span>
-                <input accept="image/*" onChange={(event) => void handleMusicCover(event.target.files?.[0] ?? null)} type="file" />
+                <span>{isCoverUploading ? "封面上传中..." : "上传封面"}</span>
+                <input
+                  accept="image/*"
+                  disabled={isMusicActionBusy}
+                  onChange={(event) => void handleMusicCover(event.target.files?.[0] ?? null)}
+                  type="file"
+                />
               </label>
-              <button className="ghost-button" disabled={saveState === "saving"} onClick={resetMusicDraft} type="button">
+              <button className="ghost-button" disabled={isMusicActionBusy} onClick={() => resetMusicDraft()} type="button">
                 <X size={15} />
                 {editingTrack ? "取消编辑" : "清空"}
               </button>
-              <button className="cyan-button" disabled={saveState === "saving"} onClick={saveTrack} type="button">
+              <button className="cyan-button" disabled={isMusicActionBusy} onClick={saveTrack} type="button">
                 <Check size={16} />
-                {saveState === "saving" ? "保存中..." : editingTrack ? "保存修改" : "保存音乐"}
+                {isAudioUploading
+                  ? "等音频上传"
+                  : isCoverUploading
+                    ? "等封面上传"
+                    : isSavingTrack
+                      ? "保存中..."
+                      : editingTrack
+                        ? "保存修改"
+                        : "保存音乐"}
               </button>
             </div>
             <label className="owner-toggle-row">
@@ -3512,7 +3578,6 @@ function MusicSection({
           </>
         ) : null}
         {loadState === "loading" ? <p className="backend-status">正在同步音乐...</p> : null}
-        {statusMessage ? <p className="backend-status">{statusMessage}</p> : null}
       </div>
     </section>
   );

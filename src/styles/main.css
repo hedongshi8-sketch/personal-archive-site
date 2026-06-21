@@ -1546,6 +1546,18 @@ p {
   cursor: pointer;
 }
 
+.portfolio-file-picker.is-busy {
+  border-color: rgba(33, 215, 222, 0.34);
+  background:
+    linear-gradient(90deg, rgba(33, 215, 222, 0.12), transparent),
+    rgba(255, 255, 255, 0.5);
+  color: var(--cyan-dark);
+}
+
+.portfolio-file-picker input:disabled {
+  cursor: not-allowed;
+}
+
 .owner-management-strip {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto auto;
@@ -2954,6 +2966,19 @@ p {
   color: var(--muted);
   font-size: 12px;
   font-weight: 760;
+}
+
+.music-action-status {
+  margin: 0;
+  border: 1px solid rgba(33, 215, 222, 0.2);
+  border-radius: 8px;
+  padding: 10px 12px;
+  background:
+    linear-gradient(90deg, rgba(33, 215, 222, 0.12), transparent),
+    rgba(255, 255, 255, 0.44);
+  color: #31545b;
+  font-weight: 820;
+  line-height: 1.55;
 }
 
 .music-draft-radar {
@@ -6078,6 +6103,7 @@ p {
 .dark-mode .reading-import-guide code,
 .dark-mode .music-draft-radar span,
 .dark-mode .music-background-console,
+.dark-mode .music-action-status,
 .dark-mode .owner-brand-status span,
 .dark-mode .demo-signal-grid span,
 .dark-mode .gallery-signal-grid span,
@@ -6305,6 +6331,7 @@ p {
 
 .dark-mode .music-draft-radar strong,
 .dark-mode .music-background-console strong,
+.dark-mode .music-action-status,
 .dark-mode .owner-brand-status strong,
 .dark-mode .demo-experience-console > div:first-child strong,
 .dark-mode .demo-signal-grid strong,
