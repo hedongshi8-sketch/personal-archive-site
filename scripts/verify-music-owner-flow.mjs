@@ -66,6 +66,9 @@ assertIncludes(appSource, "formatUploadSize(file.size)", "music upload feedback 
 assertIncludes(appSource, "音频文件太大", "oversized audio is blocked with clear feedback");
 assertIncludes(appSource, "音频 URL", "music owner can paste an external audio URL");
 assertIncludes(appSource, "已使用外部音频 URL", "external audio URL gives owner feedback");
+assertIncludes(appSource, "const initialMusicTracks = isSupabase ? [] : musicTracks", "Supabase music view does not flash seed tracks before remote load");
+assertIncludes(appSource, "setTracks(remoteTracks)", "remote empty music list replaces seed tracks");
+assertIncludes(appSource, "playlist-empty-state", "music playlist has an empty/loading state");
 assertIncludes(appSource, "isMusicActionBusy", "music action busy guard exists");
 assertIncludes(appSource, "正在上传音频《", "audio upload starts with visible status");
 assertIncludes(appSource, "正在上传封面《", "cover upload starts with visible status");
@@ -85,7 +88,13 @@ assertIncludes(appSource, "确认删除", "delete confirm action exists");
 assertIncludes(appSource, "确认要删除《", "delete preparation feedback exists");
 assertIncludes(appSource, "已取消删除。", "delete cancel feedback exists");
 assertIncludes(appSource, "正在删除《", "delete progress feedback exists");
+assertIncludes(appSource, "const previousTracks = tracks", "music delete performs optimistic UI update");
+assertIncludes(appSource, "setTracks(nextTracks)", "music delete removes the row before waiting for refresh");
+assertIncludes(appSource, "settings.backgroundMusicUrl === track.audioUrl", "music delete clears deleted background track");
 assertIncludes(appSource, "music-action-status", "music status is rendered near owner panel top");
+assertIncludes(appSource, "playbackState", "music player exposes loading state");
+assertIncludes(appSource, "stopCurrentPlayback", "music track switching stops stale audio immediately");
+assertIncludes(appSource, "preload=\"metadata\"", "music audio uses metadata preload instead of eager loading full files");
 assertIncludes(appSource, "isAudioUploading ? \"音频上传中...\"", "audio picker shows busy label");
 assertIncludes(appSource, "isCoverUploading ? \"封面上传中...\"", "cover picker shows busy label");
 assertIncludes(appSource, "deletingTrackId === activeTrack?.id ? \"删除中...\"", "delete button shows busy label");
@@ -98,6 +107,8 @@ assertIncludes(stylesSource, ".music-action-status", "music action status style 
 assertIncludes(stylesSource, ".music-upload-inline-status", "music inline upload status style exists");
 assertIncludes(stylesSource, ".portfolio-file-picker.is-busy", "busy file picker style exists");
 assertIncludes(stylesSource, ".music-delete-confirm", "music delete confirmation style exists");
+assertIncludes(stylesSource, ".playlist-empty-state", "music empty state style exists");
+assertIncludes(stylesSource, ".primary-play.is-loading", "music play button has loading feedback");
 assertIncludes(stylesSource, ".dark-mode .music-action-status", "music action status supports dark mode");
 
 if (failures.length > 0) {

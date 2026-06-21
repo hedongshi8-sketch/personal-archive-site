@@ -2786,6 +2786,17 @@ p {
   border-radius: 999px;
 }
 
+.primary-play.is-loading {
+  border-color: rgba(33, 215, 222, 0.9) !important;
+  color: var(--cyan);
+  box-shadow: 0 0 0 5px rgba(33, 215, 222, 0.1);
+}
+
+.primary-play:disabled {
+  cursor: not-allowed;
+  opacity: 0.48;
+}
+
 .ghost-icon-button {
   width: 44px;
   height: 44px;
@@ -2846,6 +2857,31 @@ p {
   color: var(--cyan);
   font-size: 10px;
   font-weight: 900;
+}
+
+.playlist-empty-state {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 4px;
+  border: 1px solid rgba(33, 215, 222, 0.18);
+  border-radius: 8px;
+  padding: 14px;
+  background:
+    linear-gradient(90deg, rgba(33, 215, 222, 0.1), transparent),
+    rgba(255, 255, 255, 0.38);
+  color: rgba(245, 243, 234, 0.72);
+}
+
+.playlist-empty-state strong {
+  color: #f5f3ea;
+  font-size: 14px;
+  font-weight: 920;
+}
+
+.playlist-empty-state span {
+  color: rgba(245, 243, 234, 0.58);
+  font-size: 12px;
+  font-weight: 780;
 }
 
 .playlist-mini-row {

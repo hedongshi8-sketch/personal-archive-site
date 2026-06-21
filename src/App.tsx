@@ -2353,7 +2353,7 @@ function BackgroundMusicDock({ settings }: { settings: SiteSettings }) {
 
   return (
     <div className={clsx("background-music-dock", playing && "is-playing", blocked && "is-blocked")} aria-label="网站背景音乐">
-      <audio ref={audioRef} src={settings.backgroundMusicUrl} loop preload="auto" />
+      <audio ref={audioRef} src={settings.backgroundMusicUrl} loop preload="metadata" />
       <button onClick={toggleBackgroundMusic} type="button" aria-label={playing ? "暂停背景音乐" : "播放背景音乐"}>
         {playing ? <Pause size={16} fill="currentColor" /> : <Volume2 size={16} />}
       </button>
@@ -2945,15 +2945,18 @@ function MusicSection({
   onSettingsChange: (settings: SiteSettings) => void;
   currentUser: AuthUser | null;
 }) {
+  const isSupabase = siteBackend.mode === "supabase";
+  const initialMusicTracks = isSupabase ? [] : musicTracks;
   const [isPlaying, setIsPlaying] = useState(false);
   const [favorite, setFavorite] = useLocalStorage("linx_music_favorite", true);
-  const [tracks, setTracks] = useState<MusicTrack[]>(musicTracks);
-  const [activeTrackId, setActiveTrackId] = useState(musicTracks[0].id);
+  const [tracks, setTracks] = useState<MusicTrack[]>(initialMusicTracks);
+  const [activeTrackId, setActiveTrackId] = useState(initialMusicTracks[0]?.id ?? "");
   const [draft, setDraft] = useState<MusicTrackInput>(defaultMusicDraft);
   const [editingTrackId, setEditingTrackId] = useState<string | null>(null);
   const [statusMessage, setStatusMessage] = useState("");
   const [loadState, setLoadState] = useState<LoadState>("idle");
   const [saveState, setSaveState] = useState<"idle" | "saving">("idle");
+  const [playbackState, setPlaybackState] = useState<"idle" | "loading">("idle");
   const [audioUploadState, setAudioUploadState] = useState<"idle" | "uploading">("idle");
   const [coverUploadState, setCoverUploadState] = useState<"idle" | "uploading">("idle");
   const [audioUploadMessage, setAudioUploadMessage] = useState("");
@@ -2963,14 +2966,13 @@ function MusicSection({
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const isOwner = currentUser?.role === "owner";
-  const isSupabase = siteBackend.mode === "supabase";
   const isAudioUploading = audioUploadState === "uploading";
   const isCoverUploading = coverUploadState === "uploading";
   const isUploadingMusicAsset = isAudioUploading || isCoverUploading;
   const isSavingTrack = saveState === "saving";
   const isDeletingTrack = Boolean(deletingTrackId);
   const isMusicActionBusy = isUploadingMusicAsset || isSavingTrack || isDeletingTrack;
-  const activeTrack = tracks.find((track) => track.id === activeTrackId) ?? tracks[0];
+  const activeTrack = tracks.find((track) => track.id === activeTrackId) ?? tracks[0] ?? null;
   const editingTrack = editingTrackId ? tracks.find((track) => track.id === editingTrackId) : null;
   const pendingDeleteTrack = pendingDeleteTrackId ? tracks.find((track) => track.id === pendingDeleteTrackId) : null;
   const musicNavigationTarget = useSearchNavigationTarget("music");
@@ -2980,6 +2982,7 @@ function MusicSection({
     : "未设置";
   const canEnableBackgroundMusic = Boolean(settings.backgroundMusicUrl || activeTrack?.audioUrl);
   const activeTrackIsBackground = Boolean(activeTrack?.audioUrl && activeTrack.audioUrl === settings.backgroundMusicUrl);
+  const isMusicLoading = loadState === "loading";
   const musicDraftSignals = [
     { label: "音频", value: isAudioUploading ? "上传中..." : draft.audioUrl ? "已上传" : "待上传", ready: Boolean(draft.audioUrl) },
     { label: "封面", value: isCoverUploading ? "上传中..." : draft.coverUrl ? "已上传" : "可选", ready: Boolean(draft.coverUrl), optional: true },
@@ -3003,14 +3006,12 @@ function MusicSection({
           return;
         }
 
-        if (remoteTracks.length > 0) {
-          setTracks(remoteTracks);
-          setActiveTrackId(
-            musicNavigationTarget?.targetId && remoteTracks.some((track) => track.id === musicNavigationTarget.targetId)
-              ? musicNavigationTarget.targetId
-              : remoteTracks[0].id,
-          );
-        }
+        setTracks(remoteTracks);
+        setActiveTrackId(
+          musicNavigationTarget?.targetId && remoteTracks.some((track) => track.id === musicNavigationTarget.targetId)
+            ? musicNavigationTarget.targetId
+            : remoteTracks[0]?.id ?? "",
+        );
         onSettingsChange(remoteSettings);
         setLoadState("ready");
       } catch (error) {
@@ -3037,39 +3038,10 @@ function MusicSection({
 
   useEffect(() => {
     const audio = audioRef.current;
-    if (!audio) {
-      return;
-    }
-
-    if (!isPlaying || !activeTrack?.audioUrl) {
-      audio.pause();
-      setIsPlaying(false);
-      return;
-    }
-
-    const selectedAudio = audio;
-    let cancelled = false;
-
-    async function playSelectedTrack() {
-      try {
-        window.dispatchEvent(new CustomEvent("linx-background-music-stop"));
-        await selectedAudio.play();
-        if (!cancelled) {
-          setIsPlaying(true);
-        }
-      } catch (error) {
-        if (!cancelled) {
-          setIsPlaying(false);
-          setStatusMessage(error instanceof Error ? error.message : "浏览器阻止了播放，请再点一次播放。");
-        }
-      }
-    }
-
-    void playSelectedTrack();
-    return () => {
-      cancelled = true;
-    };
-  }, [activeTrackId, activeTrack?.audioUrl, isPlaying]);
+    audio?.pause();
+    setIsPlaying(false);
+    setPlaybackState("idle");
+  }, [activeTrackId, activeTrack?.audioUrl]);
 
   async function handleMusicFile(file: File | null) {
     if (!file) {
@@ -3284,22 +3256,39 @@ function MusicSection({
       return;
     }
 
+    const previousTracks = tracks;
+    const previousActiveTrackId = activeTrackId;
+    const previousEditingTrackId = editingTrackId;
+    const track = pendingDeleteTrack;
+    const nextTracks = previousTracks.filter((item) => item.id !== track.id);
+
     try {
-      const track = pendingDeleteTrack;
       setDeletingTrackId(track.id);
-      setStatusMessage(`正在删除《${track.title}》...`);
-      await siteBackend.deleteMusicTrack(track.id);
-      setTracks((current) => {
-        const nextTracks = current.filter((item) => item.id !== track.id);
-        setActiveTrackId(nextTracks[0]?.id ?? "");
-        return nextTracks;
-      });
+      setTracks(nextTracks);
+      setActiveTrackId(nextTracks[0]?.id ?? "");
       if (editingTrackId === track.id) {
         resetMusicDraft({ force: true, announce: false });
       }
       setPendingDeleteTrackId(null);
+      setStatusMessage(`正在删除《${track.title}》，界面已先移除...`);
+      await siteBackend.deleteMusicTrack(track.id);
+      if (track.audioUrl && settings.backgroundMusicUrl === track.audioUrl) {
+        const nextBackgroundTrack = nextTracks.find((item) => item.audioUrl);
+        const nextSettings = await siteBackend.updateSiteSettings({
+          ...settings,
+          backgroundMusicUrl: nextBackgroundTrack?.audioUrl,
+          backgroundMusicTitle: nextBackgroundTrack?.title,
+          backgroundMusicEnabled: Boolean(nextBackgroundTrack?.audioUrl) && settings.backgroundMusicEnabled,
+        });
+        onSettingsChange(nextSettings);
+        window.dispatchEvent(new CustomEvent("linx-background-music-stop"));
+      }
       setStatusMessage("音乐已删除。");
     } catch (error) {
+      setTracks(previousTracks);
+      setActiveTrackId(previousActiveTrackId);
+      setEditingTrackId(previousEditingTrackId);
+      setPendingDeleteTrackId(track.id);
       setStatusMessage(error instanceof Error ? error.message : "删除音乐失败。");
     } finally {
       setDeletingTrackId(null);
@@ -3363,24 +3352,40 @@ function MusicSection({
   async function toggleTrackPlayback() {
     const audio = audioRef.current;
     if (!audio || !activeTrack?.audioUrl) {
-      setIsPlaying((current) => !current);
+      setIsPlaying(false);
+      setPlaybackState("idle");
+      setStatusMessage("这首歌没有可播放的音频。");
       return;
     }
 
     if (isPlaying) {
       audio.pause();
       setIsPlaying(false);
+      setPlaybackState("idle");
       return;
     }
 
     try {
       window.dispatchEvent(new CustomEvent("linx-background-music-stop"));
-      await audio.play();
       setIsPlaying(true);
+      setPlaybackState("loading");
+      await audio.play();
+      setPlaybackState("idle");
     } catch (error) {
       setIsPlaying(false);
+      setPlaybackState("idle");
       setStatusMessage(error instanceof Error ? error.message : "浏览器阻止了自动播放，请再点一次播放。");
     }
+  }
+
+  function stopCurrentPlayback() {
+    const audio = audioRef.current;
+    audio?.pause();
+    if (audio) {
+      audio.currentTime = 0;
+    }
+    setIsPlaying(false);
+    setPlaybackState("idle");
   }
 
   function selectTrackByOffset(offset: number) {
@@ -3390,6 +3395,7 @@ function MusicSection({
 
     const currentIndex = Math.max(0, tracks.findIndex((track) => track.id === activeTrack?.id));
     const nextIndex = (currentIndex + offset + tracks.length) % tracks.length;
+    stopCurrentPlayback();
     setActiveTrackId(tracks[nextIndex].id);
   }
 
@@ -3400,6 +3406,7 @@ function MusicSection({
 
     const candidates = tracks.filter((track) => track.id !== activeTrack?.id);
     const nextTrack = candidates[Math.floor(Math.random() * candidates.length)];
+    stopCurrentPlayback();
     setActiveTrackId(nextTrack.id);
   }
 
@@ -3413,9 +3420,9 @@ function MusicSection({
         <audio ref={audioRef} src={activeTrack?.audioUrl} onEnded={() => setIsPlaying(false)} preload="metadata" />
         <MediaTile tile={activeTrack?.tile ?? 3} imageUrl={activeTrack?.coverUrl} className="album-art" />
         <div className="track-copy">
-          <span>Now Playing</span>
-          <h3>{activeTrack?.title ?? "Sable Drift"}</h3>
-          <p>{activeTrack?.artist ?? "Floating Points"} · {activeTrack?.mood ?? "氛围"}</p>
+          <span>{isMusicLoading ? "Syncing Music" : activeTrack ? "Now Playing" : "No Track"}</span>
+          <h3>{isMusicLoading ? "正在同步公开歌单" : activeTrack?.title ?? "还没有公开音乐"}</h3>
+          <p>{activeTrack ? `${activeTrack.artist} · ${activeTrack.mood}` : isMusicLoading ? "读取 Supabase 音乐数据中" : "站主添加音乐后会显示在这里"}</p>
         </div>
         <button
           className={clsx("heart-button", favorite && "liked")}
@@ -3434,11 +3441,11 @@ function MusicSection({
           ))}
         </div>
         <div className="progress-row">
-          <span>{activeTrack?.audioUrl ? "在线" : "示例"}</span>
+          <span>{activeTrack?.audioUrl ? (playbackState === "loading" ? "加载中" : "在线") : isMusicLoading ? "同步中" : "空歌单"}</span>
           <div className="progress-track">
             <span />
           </div>
-          <span>{activeTrack?.duration ?? "06:41"}</span>
+          <span>{activeTrack?.duration ?? "--:--"}</span>
         </div>
         <div className="player-controls">
           <button onClick={shuffleTrack} type="button" aria-label="随机播放">
@@ -3448,12 +3455,13 @@ function MusicSection({
             <SkipBack size={20} fill="currentColor" />
           </button>
           <button
-            className="primary-play"
+            className={clsx("primary-play", playbackState === "loading" && "is-loading")}
             onClick={() => void toggleTrackPlayback()}
             type="button"
-            aria-label={isPlaying ? "暂停" : "播放"}
+            aria-label={isPlaying ? "暂停" : playbackState === "loading" ? "加载中" : "播放"}
+            disabled={!activeTrack?.audioUrl && !isPlaying}
           >
-            {isPlaying ? <Pause size={24} fill="currentColor" /> : <Play size={24} fill="currentColor" />}
+            {isPlaying || playbackState === "loading" ? <Pause size={24} fill="currentColor" /> : <Play size={24} fill="currentColor" />}
           </button>
           <button onClick={() => selectTrackByOffset(1)} type="button" aria-label="下一首">
             <SkipForward size={20} fill="currentColor" />
@@ -3477,6 +3485,12 @@ function MusicSection({
         </div>
       </div>
       <div className="playlist-panel">
+        {tracks.length === 0 ? (
+          <div className="playlist-empty-state">
+            <strong>{isMusicLoading ? "正在同步音乐..." : "还没有公开音乐"}</strong>
+            <span>{isMusicLoading ? "不会再先显示默认歌单。" : "站主保存音乐后会立刻出现在这里。"}</span>
+          </div>
+        ) : null}
         {tracks.map((track) => {
           const isBackgroundTrack = Boolean(track.audioUrl && track.audioUrl === settings.backgroundMusicUrl);
           return (
