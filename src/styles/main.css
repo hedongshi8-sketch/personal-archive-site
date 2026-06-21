@@ -2388,6 +2388,36 @@ p {
   box-shadow: var(--shadow);
 }
 
+.demo-feature-overlay {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: 16px;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: rgba(8, 12, 13, 0.62);
+  color: #f5f3ea;
+  backdrop-filter: blur(12px);
+}
+
+.demo-feature-overlay span {
+  color: rgba(245, 243, 234, 0.68);
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.demo-feature-overlay strong {
+  font-size: 13px;
+  font-weight: 920;
+}
+
 .play-orb {
   position: absolute;
   inset: 0;
@@ -2447,6 +2477,90 @@ p {
   min-height: 40px;
   padding-inline: 13px;
   font-size: 13px;
+}
+
+.demo-experience-console {
+  grid-column: 2;
+  display: grid;
+  grid-template-columns: minmax(220px, 0.48fr) minmax(0, 1fr);
+  gap: 12px;
+  align-items: stretch;
+  margin-top: 14px;
+  border: 1px solid rgba(30, 29, 25, 0.12);
+  border-radius: 8px;
+  padding: 14px;
+  background:
+    linear-gradient(115deg, rgba(255, 125, 99, 0.1), transparent 52%),
+    rgba(255, 255, 255, 0.42);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.58) inset;
+}
+
+.demo-experience-console > div:first-child {
+  display: grid;
+  align-content: start;
+  gap: 5px;
+  min-width: 0;
+}
+
+.demo-experience-console > div:first-child span {
+  color: var(--cyan-dark);
+  font-size: 11px;
+  font-weight: 920;
+  text-transform: uppercase;
+}
+
+.demo-experience-console > div:first-child strong {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--ink);
+  font-size: 16px;
+  font-weight: 920;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.demo-experience-console > div:first-child p {
+  display: -webkit-box;
+  margin: 0;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.6;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.demo-signal-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.demo-signal-grid span {
+  min-width: 0;
+  display: grid;
+  align-content: center;
+  gap: 3px;
+  border: 1px solid rgba(30, 29, 25, 0.1);
+  border-radius: 8px;
+  padding: 9px 10px;
+  background: rgba(255, 255, 255, 0.36);
+}
+
+.demo-signal-grid small {
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.demo-signal-grid strong {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 920;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .demo-shelf {
@@ -5811,6 +5925,7 @@ p {
 .dark-mode .github-comments-panel,
 .dark-mode .owner-management-strip,
 .dark-mode .brand-edit-panel,
+.dark-mode .demo-experience-console,
 .dark-mode .public-activity-console,
 .dark-mode .comment-health-console {
   background: rgba(20, 24, 25, 0.72);
@@ -5880,6 +5995,7 @@ p {
 .dark-mode .music-draft-radar span,
 .dark-mode .music-background-console,
 .dark-mode .owner-brand-status span,
+.dark-mode .demo-signal-grid span,
 .dark-mode .public-activity-signals span,
 .dark-mode .comment-health-signals span,
 .dark-mode .reading-workflow-rail span,
@@ -6090,6 +6206,8 @@ p {
 .dark-mode .music-draft-radar small,
 .dark-mode .music-background-console span,
 .dark-mode .owner-brand-status small,
+.dark-mode .demo-experience-console > div:first-child span,
+.dark-mode .demo-signal-grid small,
 .dark-mode .public-activity-head span,
 .dark-mode .comment-health-console > div:first-child span,
 .dark-mode .public-activity-signals small,
@@ -6101,6 +6219,8 @@ p {
 .dark-mode .music-draft-radar strong,
 .dark-mode .music-background-console strong,
 .dark-mode .owner-brand-status strong,
+.dark-mode .demo-experience-console > div:first-child strong,
+.dark-mode .demo-signal-grid strong,
 .dark-mode .public-activity-head strong,
 .dark-mode .comment-health-console > div:first-child strong,
 .dark-mode .public-activity-signals strong,
@@ -6110,6 +6230,7 @@ p {
 }
 
 .dark-mode .music-background-console small,
+.dark-mode .demo-experience-console > div:first-child p,
 .dark-mode .public-activity-head p,
 .dark-mode .comment-health-console > div:first-child p {
   color: rgba(247, 241, 230, 0.62);
@@ -6391,6 +6512,7 @@ p {
   }
 
   .demo-shelf,
+  .demo-experience-console,
   .playlist-panel,
   .music-upload-panel,
   .gallery-upload-panel,
@@ -6691,6 +6813,7 @@ p {
   .brand-edit-grid,
   .brand-media-editors,
   .owner-brand-status,
+  .demo-experience-console,
   .music-draft-radar,
   .music-background-console {
     grid-template-columns: 1fr;
@@ -6833,6 +6956,7 @@ p {
 
   .note-reader-signals,
   .reading-composer-helper,
+  .demo-signal-grid,
   .public-activity-signals,
   .comment-health-signals {
     grid-template-columns: 1fr;

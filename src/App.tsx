@@ -2833,6 +2833,12 @@ function DemosSection() {
   const activePortfolioHref = activeDemo.portfolioTargetId
     ? `?fromSearch=1&target=${encodeURIComponent(activeDemo.portfolioTargetId)}#docs`
     : "#docs";
+  const demoSignals = [
+    { label: "当前展台", value: activeDemo.status ?? "Demo 展台" },
+    { label: "体验方式", value: activeDemo.duration },
+    { label: "平台", value: activeDemo.platform },
+    { label: "档案链接", value: activeDemo.portfolioTargetId ? "已绑定" : "待补充" },
+  ];
 
   return (
     <section className="screen-section demos-section" id="demos">
@@ -2847,6 +2853,10 @@ function DemosSection() {
           <button className="play-orb" type="button" aria-label={`播放 ${activeDemo.title}`} onClick={playActiveDemo}>
             <Play size={34} fill="currentColor" />
           </button>
+          <div className="demo-feature-overlay">
+            <span>{activeDemo.platform}</span>
+            <strong>{activeDemo.duration}</strong>
+          </div>
         </MediaTile>
         <div className="demo-feature-copy">
           <span className="demo-status">{activeDemo.status ?? "Demo 展台"}</span>
@@ -2869,6 +2879,21 @@ function DemosSection() {
               查看作品档案
             </a>
           </div>
+        </div>
+      </div>
+      <div className="demo-experience-console" aria-label="Demo 体验状态">
+        <div>
+          <span>Demo Control</span>
+          <strong>{activeDemo.title}</strong>
+          <p>{activeDemo.prototypeUrl ? "可以直接打开可交互原型；旁边的作品档案会展示文档、配置表和预览材料。" : "当前条目以作品档案为主，适合查看规则说明、配置表和设计文档。"}</p>
+        </div>
+        <div className="demo-signal-grid">
+          {demoSignals.map((signal) => (
+            <span key={signal.label}>
+              <small>{signal.label}</small>
+              <strong>{signal.value}</strong>
+            </span>
+          ))}
         </div>
       </div>
       <div className="demo-shelf">
