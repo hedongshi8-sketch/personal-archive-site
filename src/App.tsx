@@ -2964,6 +2964,7 @@ function MusicSection({
   const [deletingTrackId, setDeletingTrackId] = useState<string | null>(null);
   const [pendingDeleteTrackId, setPendingDeleteTrackId] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const playbackTimeoutRef = useRef<number | null>(null);
 
   const isOwner = currentUser?.role === "owner";
   const isAudioUploading = audioUploadState === "uploading";
@@ -3041,6 +3042,58 @@ function MusicSection({
     audio?.pause();
     setIsPlaying(false);
     setPlaybackState("idle");
+  }, [activeTrackId, activeTrack?.audioUrl]);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) {
+      return;
+    }
+
+    function clearPlaybackTimeout() {
+      if (playbackTimeoutRef.current !== null) {
+        window.clearTimeout(playbackTimeoutRef.current);
+        playbackTimeoutRef.current = null;
+      }
+    }
+
+    function handlePlaying() {
+      clearPlaybackTimeout();
+      setIsPlaying(true);
+      setPlaybackState("idle");
+    }
+
+    function handleWaiting() {
+      setPlaybackState("loading");
+    }
+
+    function handleEnded() {
+      clearPlaybackTimeout();
+      setIsPlaying(false);
+      setPlaybackState("idle");
+    }
+
+    function handleError() {
+      clearPlaybackTimeout();
+      setIsPlaying(false);
+      setPlaybackState("idle");
+      setStatusMessage("音频加载失败。这个文件可能太大、网络较慢，建议换 MP3/M4A 或使用更快的直链。");
+    }
+
+    audio.addEventListener("playing", handlePlaying);
+    audio.addEventListener("canplay", handlePlaying);
+    audio.addEventListener("waiting", handleWaiting);
+    audio.addEventListener("ended", handleEnded);
+    audio.addEventListener("error", handleError);
+
+    return () => {
+      clearPlaybackTimeout();
+      audio.removeEventListener("playing", handlePlaying);
+      audio.removeEventListener("canplay", handlePlaying);
+      audio.removeEventListener("waiting", handleWaiting);
+      audio.removeEventListener("ended", handleEnded);
+      audio.removeEventListener("error", handleError);
+    };
   }, [activeTrackId, activeTrack?.audioUrl]);
 
   async function handleMusicFile(file: File | null) {
@@ -3349,7 +3402,7 @@ function MusicSection({
     }
   }
 
-  async function toggleTrackPlayback() {
+  function toggleTrackPlayback() {
     const audio = audioRef.current;
     if (!audio || !activeTrack?.audioUrl) {
       setIsPlaying(false);
@@ -3362,20 +3415,34 @@ function MusicSection({
       audio.pause();
       setIsPlaying(false);
       setPlaybackState("idle");
+      if (playbackTimeoutRef.current !== null) {
+        window.clearTimeout(playbackTimeoutRef.current);
+        playbackTimeoutRef.current = null;
+      }
       return;
     }
 
-    try {
-      window.dispatchEvent(new CustomEvent("linx-background-music-stop"));
-      setIsPlaying(true);
+    window.dispatchEvent(new CustomEvent("linx-background-music-stop"));
+    setIsPlaying(true);
+    setPlaybackState("loading");
+    setStatusMessage("");
+    if (playbackTimeoutRef.current !== null) {
+      window.clearTimeout(playbackTimeoutRef.current);
+    }
+    playbackTimeoutRef.current = window.setTimeout(() => {
       setPlaybackState("loading");
-      await audio.play();
-      setPlaybackState("idle");
-    } catch (error) {
+      setStatusMessage("音频还在缓冲。FLAC 文件比较大时会慢，建议后面换成 MP3/M4A 或更快的音频直链。");
+    }, 8000);
+
+    void audio.play().catch((error) => {
+      if (playbackTimeoutRef.current !== null) {
+        window.clearTimeout(playbackTimeoutRef.current);
+        playbackTimeoutRef.current = null;
+      }
       setIsPlaying(false);
       setPlaybackState("idle");
       setStatusMessage(error instanceof Error ? error.message : "浏览器阻止了自动播放，请再点一次播放。");
-    }
+    });
   }
 
   function stopCurrentPlayback() {
@@ -3383,6 +3450,10 @@ function MusicSection({
     audio?.pause();
     if (audio) {
       audio.currentTime = 0;
+    }
+    if (playbackTimeoutRef.current !== null) {
+      window.clearTimeout(playbackTimeoutRef.current);
+      playbackTimeoutRef.current = null;
     }
     setIsPlaying(false);
     setPlaybackState("idle");
@@ -3456,7 +3527,7 @@ function MusicSection({
           </button>
           <button
             className={clsx("primary-play", playbackState === "loading" && "is-loading")}
-            onClick={() => void toggleTrackPlayback()}
+            onClick={toggleTrackPlayback}
             type="button"
             aria-label={isPlaying ? "暂停" : playbackState === "loading" ? "加载中" : "播放"}
             disabled={!activeTrack?.audioUrl && !isPlaying}

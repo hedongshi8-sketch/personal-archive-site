@@ -95,6 +95,9 @@ assertIncludes(appSource, "music-action-status", "music status is rendered near 
 assertIncludes(appSource, "playbackState", "music player exposes loading state");
 assertIncludes(appSource, "stopCurrentPlayback", "music track switching stops stale audio immediately");
 assertIncludes(appSource, "preload=\"metadata\"", "music audio uses metadata preload instead of eager loading full files");
+assertIncludes(appSource, "playbackTimeoutRef", "music player warns when buffering is slow");
+assertIncludes(appSource, "void audio.play().catch", "music playback starts without blocking the click handler");
+assertIncludes(appSource, "音频还在缓冲", "music player gives slow-buffer feedback");
 assertIncludes(appSource, "isAudioUploading ? \"音频上传中...\"", "audio picker shows busy label");
 assertIncludes(appSource, "isCoverUploading ? \"封面上传中...\"", "cover picker shows busy label");
 assertIncludes(appSource, "deletingTrackId === activeTrack?.id ? \"删除中...\"", "delete button shows busy label");
