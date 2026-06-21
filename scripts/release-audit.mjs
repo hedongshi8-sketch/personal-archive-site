@@ -128,6 +128,8 @@ assert(packageJson.scripts?.["verify:email"] === "node scripts/verify-email-stac
 assert(read("scripts/verify-email-stack.mjs").includes("EMAIL_STACK_SEND_GMAIL"), "email stack verification supports gated real email send");
 assert(packageJson.scripts?.["verify:email:final"] === "node scripts/verify-email-final.mjs", "final email verification script exists");
 assert(read("scripts/verify-email-final.mjs").includes("EMAIL_STACK_TRIGGER_PASSWORD_RESET"), "final email verification triggers password reset email");
+assert(packageJson.scripts?.["verify:email:guided"] === "node scripts/verify-email-guided.mjs", "guided email verification script exists");
+assert(read("scripts/verify-email-guided.mjs").includes("askHidden") && read("scripts/verify-email-guided.mjs").includes("GMAIL_APP_PASSWORD"), "guided email verification reads app password interactively");
 assert(packageJson.scripts?.["verify:gmail-smtp"] === "node scripts/verify-gmail-smtp.mjs", "Gmail SMTP verification script exists");
 assert(read("scripts/verify-gmail-smtp.mjs").includes("load-local-env.mjs"), "Gmail SMTP verification loads local env");
 assert(
@@ -281,6 +283,7 @@ assert(appSource.includes("sendPasswordReset") && appSource.includes("忘记密�
 assert(appSource.includes("passwordRecoveryReady") && appSource.includes("保存新密码"), "password recovery update UI is wired");
 assert(backendSource.includes("updatePassword(password") && backendSource.includes("auth.updateUser({ password })"), "password recovery backend update is wired");
 assert(appSource.includes("function AccountPanel"), "account panel exists");
+assert(appSource.includes("function AccountDock") && appSource.includes("account-trigger"), "compact account dock exists");
 assert(appSource.includes("account-mail-radar") && appSource.includes("邮件登录链路状态"), "account email status radar exists");
 assert(appSource.includes("function EditableText"), "graphical editable text exists");
 assert(appSource.includes("编辑模式"), "owner edit mode exists");

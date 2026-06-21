@@ -361,9 +361,7 @@ p {
   top: var(--account-bar-top, 18px);
   right: 18px;
   z-index: 60;
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
+  display: block;
   max-width: min(500px, calc(100vw - var(--sidebar-width) - 52px));
   pointer-events: none;
 }
@@ -376,6 +374,152 @@ p {
   grid-column: 1 / -1;
   margin: 0;
   font-size: 11px;
+}
+
+.account-dock {
+  position: relative;
+  display: grid;
+  justify-items: end;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.account-dock > * {
+  pointer-events: auto;
+}
+
+.account-dock-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.account-trigger {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+  width: min(280px, calc(100vw - var(--sidebar-width) - 76px));
+  min-height: 46px;
+  border: 1px solid rgba(30, 29, 25, 0.14);
+  border-radius: 8px;
+  padding: 6px 8px;
+  background: rgba(251, 248, 240, 0.84);
+  box-shadow: 0 12px 26px rgba(17, 19, 22, 0.12);
+  backdrop-filter: blur(18px);
+  color: var(--ink);
+  text-align: left;
+}
+
+.account-trigger:hover,
+.account-trigger.is-open {
+  border-color: rgba(33, 215, 222, 0.32);
+  background:
+    linear-gradient(90deg, rgba(33, 215, 222, 0.12), transparent),
+    rgba(251, 248, 240, 0.9);
+}
+
+.account-trigger-avatar {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border-radius: 8px;
+  background: #111316;
+  color: #f7f1e6;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.account-trigger-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.account-trigger > span:nth-child(2) {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.account-trigger small {
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 850;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.account-trigger strong {
+  overflow: hidden;
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 900;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.account-trigger-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--cyan);
+  box-shadow: 0 0 0 4px rgba(33, 215, 222, 0.16);
+}
+
+.account-trigger-dot.is-loading {
+  background: var(--coral);
+  box-shadow: 0 0 0 4px rgba(255, 125, 99, 0.16);
+}
+
+.account-edit-toggle {
+  min-height: 46px;
+  padding-inline: 13px;
+  background: rgba(251, 248, 240, 0.84);
+  box-shadow: 0 12px 26px rgba(17, 19, 22, 0.1);
+  backdrop-filter: blur(18px);
+}
+
+.account-popover {
+  width: min(500px, calc(100vw - var(--sidebar-width) - 52px));
+  display: grid;
+  gap: 8px;
+  border: 1px solid rgba(30, 29, 25, 0.14);
+  border-radius: 8px;
+  padding: 8px;
+  background: rgba(251, 248, 240, 0.92);
+  box-shadow: 0 18px 44px rgba(17, 19, 22, 0.18);
+  backdrop-filter: blur(22px);
+}
+
+.account-popover-head {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+  min-width: 0;
+}
+
+.account-popover-head span {
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 820;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.account-popover .account-panel {
+  max-width: none;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
 }
 
 .account-panel {
@@ -5670,6 +5814,31 @@ p {
     rgba(255, 255, 255, 0.06);
 }
 
+.dark-mode .account-trigger,
+.dark-mode .account-edit-toggle,
+.dark-mode .account-popover {
+  border-color: rgba(255, 255, 255, 0.12);
+  background: rgba(20, 24, 25, 0.82);
+  color: #f7f1e6;
+}
+
+.dark-mode .account-trigger:hover,
+.dark-mode .account-trigger.is-open {
+  border-color: rgba(33, 215, 222, 0.34);
+  background:
+    linear-gradient(90deg, rgba(33, 215, 222, 0.12), transparent),
+    rgba(20, 24, 25, 0.9);
+}
+
+.dark-mode .account-trigger strong {
+  color: #fff7e8;
+}
+
+.dark-mode .account-popover-head span,
+.dark-mode .account-trigger small {
+  color: rgba(247, 241, 230, 0.62);
+}
+
 .dark-mode .reading-workflow-rail em {
   background: rgba(255, 255, 255, 0.07);
   color: rgba(247, 241, 230, 0.52);
@@ -6158,18 +6327,35 @@ p {
   }
 
   .global-account-bar {
-    position: relative;
-    top: auto;
-    right: auto;
+    position: fixed;
+    top: 56px;
+    right: 10px;
     z-index: 19;
-    max-width: none;
-    padding: 8px 12px 0;
-    background: rgba(248, 244, 234, 0.92);
-    backdrop-filter: blur(12px);
+    max-width: calc(100vw - 20px);
   }
 
-  .dark-mode .global-account-bar {
-    background: rgba(20, 22, 22, 0.92);
+  .account-dock {
+    justify-items: end;
+  }
+
+  .account-dock-actions {
+    justify-content: flex-end;
+  }
+
+  .account-trigger {
+    width: min(220px, calc(100vw - 20px));
+    min-height: 42px;
+  }
+
+  .account-edit-toggle {
+    min-height: 42px;
+    padding-inline: 11px;
+  }
+
+  .account-popover {
+    width: min(360px, calc(100vw - 20px));
+    max-height: calc(100svh - 112px);
+    overflow: auto;
   }
 
   .global-account-bar,

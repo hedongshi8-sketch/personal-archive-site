@@ -1228,6 +1228,128 @@ function AccountPanel({
   );
 }
 
+function AccountDock({
+  user,
+  authState,
+  authMessage,
+  passwordRecoveryReady,
+  editMode,
+  canEdit,
+  onEditModeChange,
+  onSubmit,
+  onSignOut,
+  onProfileUpdate,
+  onAvatarUpload,
+  onResendConfirmation,
+  onPasswordReset,
+  onUpdatePassword,
+}: {
+  user: AuthUser | null;
+  authState: LoadState;
+  authMessage: string;
+  passwordRecoveryReady: boolean;
+  editMode: boolean;
+  canEdit: boolean;
+  onEditModeChange: (value: boolean) => void;
+  onSubmit: (input: AccountDraft) => Promise<void>;
+  onSignOut: () => Promise<void>;
+  onProfileUpdate: (input: { username: string; avatarUrl?: string }) => Promise<AuthUser>;
+  onAvatarUpload: (file: File) => Promise<{ publicUrl: string; storagePath: string }>;
+  onResendConfirmation: (email: string) => Promise<void>;
+  onPasswordReset: (email: string) => Promise<void>;
+  onUpdatePassword: (password: string) => Promise<void>;
+}) {
+  const [open, setOpen] = useState(passwordRecoveryReady);
+  const dockRef = useRef<HTMLDivElement | null>(null);
+  const accountTitle = user ? user.username || user.email.split("@")[0] : passwordRecoveryReady ? "设置新密码" : "登录 / 注册";
+  const accountLabel = user ? (user.role === "owner" ? "站主账号" : "访客账号") : passwordRecoveryReady ? "恢复会话" : "账号入口";
+  const accountDetail = user ? user.email : authMessage || "点开后登录、注册或重置密码";
+  const accountInitial = user ? avatarContent(user.avatarUrl, user.username || user.email) : <LockKeyhole size={15} />;
+  const shouldOpenForAuthMessage = /密码|确认邮件|请先|请填写|失败|重置模式|需要邮箱确认/.test(authMessage);
+
+  useEffect(() => {
+    if (passwordRecoveryReady || shouldOpenForAuthMessage) {
+      setOpen(true);
+    }
+  }, [passwordRecoveryReady, shouldOpenForAuthMessage]);
+
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    function handlePointerDown(event: PointerEvent) {
+      if (dockRef.current?.contains(event.target as Node)) {
+        return;
+      }
+      setOpen(false);
+    }
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setOpen(false);
+      }
+    }
+
+    document.addEventListener("pointerdown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [open]);
+
+  return (
+    <div className="account-dock" ref={dockRef}>
+      <div className="account-dock-actions">
+        <button
+          className={clsx("account-trigger", open && "is-open", user?.role === "owner" && "is-owner")}
+          type="button"
+          aria-expanded={open}
+          aria-controls="account-dock-panel"
+          onClick={() => setOpen((visible) => !visible)}
+        >
+          <span className="account-trigger-avatar">{accountInitial}</span>
+          <span>
+            <small>{accountLabel}</small>
+            <strong>{accountTitle}</strong>
+          </span>
+          {authState === "loading" ? <span className="account-trigger-dot is-loading" /> : <span className="account-trigger-dot" />}
+        </button>
+        {canEdit ? (
+          <button className={clsx("ghost-button account-edit-toggle", editMode && "active")} onClick={() => onEditModeChange(!editMode)} type="button">
+            <Edit3 size={16} />
+            {editMode ? "退出编辑" : "编辑"}
+          </button>
+        ) : null}
+      </div>
+      {open ? (
+        <div className="account-popover" id="account-dock-panel" role="dialog" aria-label="账号面板">
+          <div className="account-popover-head">
+            <span>{accountDetail}</span>
+            <button className="ghost-icon-button" onClick={() => setOpen(false)} type="button" aria-label="收起账号面板">
+              <X size={15} />
+            </button>
+          </div>
+          <AccountPanel
+            user={user}
+            authState={authState}
+            authMessage={authMessage}
+            passwordRecoveryReady={passwordRecoveryReady}
+            onSubmit={onSubmit}
+            onSignOut={onSignOut}
+            onProfileUpdate={onProfileUpdate}
+            onAvatarUpload={onAvatarUpload}
+            onResendConfirmation={onResendConfirmation}
+            onPasswordReset={onPasswordReset}
+            onUpdatePassword={onUpdatePassword}
+          />
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 function avatarContent(value: string | undefined, fallback = "访") {
   if (value && /^(https?:|blob:|data:)/.test(value)) {
     return <img src={value} alt="" />;
@@ -5617,11 +5739,14 @@ export function App() {
           onSaveSettings={saveSiteSettings}
         />
         <div className="global-account-bar">
-          <AccountPanel
+          <AccountDock
             user={currentUser}
             authState={auth.authState}
             authMessage={auth.authMessage}
             passwordRecoveryReady={auth.passwordRecoveryReady}
+            editMode={editMode && currentUser?.role === "owner"}
+            canEdit={currentUser?.role === "owner"}
+            onEditModeChange={setEditMode}
             onSubmit={auth.signIn}
             onSignOut={auth.signOut}
             onProfileUpdate={auth.updateUserProfile}
@@ -5630,12 +5755,6 @@ export function App() {
             onPasswordReset={auth.sendPasswordReset}
             onUpdatePassword={auth.updatePassword}
           />
-          {currentUser?.role === "owner" ? (
-            <button className={clsx("ghost-button", editMode && "active")} onClick={() => setEditMode((enabled) => !enabled)} type="button">
-              <Edit3 size={16} />
-              {editMode ? "退出编辑" : "编辑模式"}
-            </button>
-          ) : null}
         </div>
         {activeScreen}
       </main>
