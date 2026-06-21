@@ -2956,7 +2956,7 @@ function MusicSection({
   const [statusMessage, setStatusMessage] = useState("");
   const [loadState, setLoadState] = useState<LoadState>("idle");
   const [saveState, setSaveState] = useState<"idle" | "saving">("idle");
-  const [playbackState, setPlaybackState] = useState<"idle" | "loading">("idle");
+  const [playbackState, setPlaybackState] = useState<"idle" | "loading" | "error">("idle");
   const [audioUploadState, setAudioUploadState] = useState<"idle" | "uploading">("idle");
   const [coverUploadState, setCoverUploadState] = useState<"idle" | "uploading">("idle");
   const [audioUploadMessage, setAudioUploadMessage] = useState("");
@@ -3076,7 +3076,7 @@ function MusicSection({
     function handleError() {
       clearPlaybackTimeout();
       setIsPlaying(false);
-      setPlaybackState("idle");
+      setPlaybackState("error");
       setStatusMessage("音频加载失败。这个文件可能太大、网络较慢，建议换 MP3/M4A 或使用更快的直链。");
     }
 
@@ -3425,7 +3425,7 @@ function MusicSection({
     window.dispatchEvent(new CustomEvent("linx-background-music-stop"));
     setIsPlaying(true);
     setPlaybackState("loading");
-    setStatusMessage("");
+    setStatusMessage("正在请求音频，文件较大时可能需要几秒缓冲。");
     if (playbackTimeoutRef.current !== null) {
       window.clearTimeout(playbackTimeoutRef.current);
     }
@@ -3440,8 +3440,12 @@ function MusicSection({
         playbackTimeoutRef.current = null;
       }
       setIsPlaying(false);
-      setPlaybackState("idle");
-      setStatusMessage(error instanceof Error ? error.message : "浏览器阻止了自动播放，请再点一次播放。");
+      setPlaybackState("error");
+      setStatusMessage(
+        error instanceof Error
+          ? `播放失败：${error.message}。如果这是 FLAC 文件，建议换成 MP3/M4A 或使用更快的音频直链。`
+          : "浏览器阻止了播放，请再点一次；如果仍失败，建议换 MP3/M4A。",
+      );
     });
   }
 
@@ -3512,7 +3516,7 @@ function MusicSection({
           ))}
         </div>
         <div className="progress-row">
-          <span>{activeTrack?.audioUrl ? (playbackState === "loading" ? "加载中" : "在线") : isMusicLoading ? "同步中" : "空歌单"}</span>
+          <span>{activeTrack?.audioUrl ? (playbackState === "loading" ? "缓冲中" : playbackState === "error" ? "播放失败" : "在线") : isMusicLoading ? "同步中" : "空歌单"}</span>
           <div className="progress-track">
             <span />
           </div>

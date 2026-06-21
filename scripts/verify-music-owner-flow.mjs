@@ -98,6 +98,8 @@ assertIncludes(appSource, "preload=\"metadata\"", "music audio uses metadata pre
 assertIncludes(appSource, "playbackTimeoutRef", "music player warns when buffering is slow");
 assertIncludes(appSource, "void audio.play().catch", "music playback starts without blocking the click handler");
 assertIncludes(appSource, "音频还在缓冲", "music player gives slow-buffer feedback");
+assertIncludes(appSource, "正在请求音频", "music player acknowledges playback click immediately");
+assertIncludes(appSource, "播放失败", "music player surfaces playback failures instead of silently resetting");
 assertIncludes(appSource, "isAudioUploading ? \"音频上传中...\"", "audio picker shows busy label");
 assertIncludes(appSource, "isCoverUploading ? \"封面上传中...\"", "cover picker shows busy label");
 assertIncludes(appSource, "deletingTrackId === activeTrack?.id ? \"删除中...\"", "delete button shows busy label");
