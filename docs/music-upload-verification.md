@@ -9,7 +9,13 @@ The command signs in as the owner, uploads test files with the same risky filena
 
 Then it saves a temporary music row, deletes it, and removes the uploaded Storage objects.
 
-Run it only from your own local terminal:
+The easiest local check is guided. It asks for the owner email and hides the password input:
+
+```powershell
+npm run verify:owner-music-storage:guided
+```
+
+You can also run it with temporary environment variables:
 
 ```powershell
 $env:OWNER_EMAIL="your-owner-email@example.com"

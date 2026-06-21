@@ -154,11 +154,17 @@ assert(read("scripts/verify-reading-owner-flow.mjs").includes("站主书摘发�
 assert(packageJson.scripts?.["verify:music-owner-flow"] === "node scripts/verify-music-owner-flow.mjs", "music owner flow verification script exists");
 assert(read("scripts/verify-music-owner-flow.mjs").includes("createSupabaseStoragePath"), "music owner flow verifier checks safe storage paths");
 assert(packageJson.scripts?.["verify:owner-music-storage"] === "node scripts/verify-owner-music-storage.mjs", "owner music storage verification script exists");
+assert(
+  packageJson.scripts?.["verify:owner-music-storage:guided"] === "node scripts/verify-owner-music-storage-guided.mjs",
+  "guided owner music storage verification script exists",
+);
 const ownerMusicStorageVerifier = read("scripts/verify-owner-music-storage.mjs");
+const guidedOwnerMusicStorageVerifier = read("scripts/verify-owner-music-storage-guided.mjs");
 assert(ownerMusicStorageVerifier.includes("signInWithPassword"), "owner music storage verifier signs in as owner");
 assert(ownerMusicStorageVerifier.includes("music-audio") && ownerMusicStorageVerifier.includes("music-cover"), "owner music storage verifier uploads audio and cover fixtures");
 assert(ownerMusicStorageVerifier.includes("Travelers' encore.flac") && ownerMusicStorageVerifier.includes("星际拓荒.jpg"), "owner music storage verifier covers unsafe original filenames");
 assert(ownerMusicStorageVerifier.includes("music_tracks") && ownerMusicStorageVerifier.includes(".delete().eq(\"id\""), "owner music storage verifier saves and deletes a music row");
+assert(guidedOwnerMusicStorageVerifier.includes("askHidden") && guidedOwnerMusicStorageVerifier.includes("OWNER_PASSWORD"), "guided owner music storage verifier hides owner password");
 assert(packageJson.scripts?.["verify:mail-dns"] === "node scripts/verify-mail-dns.mjs", "mail DNS verification script exists");
 assert(
   packageJson.scripts?.["sql:supabase-upgrade"] === "node scripts/compose-supabase-upgrade-sql.mjs",
