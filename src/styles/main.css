@@ -2724,6 +2724,35 @@ p {
   background: var(--cyan);
 }
 
+.player-feedback {
+  grid-column: 1 / 4;
+  margin: 0;
+  border: 1px solid rgba(33, 215, 222, 0.18);
+  border-radius: 8px;
+  padding: 9px 11px;
+  background: rgba(33, 215, 222, 0.1);
+  color: rgba(245, 243, 234, 0.78);
+  font-size: 12px;
+  font-weight: 780;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.player-feedback.is-error {
+  border-color: rgba(236, 109, 83, 0.28);
+  background: rgba(236, 109, 83, 0.13);
+  color: rgba(255, 232, 224, 0.92);
+}
+
+.player-audio-element {
+  grid-column: 1 / 4;
+  width: 100%;
+}
+
+.player-audio-element:not([controls]) {
+  display: none;
+}
+
 .player-controls {
   grid-column: 1 / 4;
   display: flex;

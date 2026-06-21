@@ -1,4 +1,14 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ClipboardEvent, type CSSProperties, type ReactNode } from "react";
+import {
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ClipboardEvent,
+  type CSSProperties,
+  type PointerEvent as ReactPointerEvent,
+  type ReactNode,
+} from "react";
 import clsx from "clsx";
 import {
   Archive,
@@ -2962,6 +2972,7 @@ function MusicSection({
   const [loadState, setLoadState] = useState<LoadState>("idle");
   const [saveState, setSaveState] = useState<"idle" | "saving">("idle");
   const [playbackState, setPlaybackState] = useState<"idle" | "loading" | "error">("idle");
+  const [playbackMessage, setPlaybackMessage] = useState("");
   const [audioUploadState, setAudioUploadState] = useState<"idle" | "uploading">("idle");
   const [coverUploadState, setCoverUploadState] = useState<"idle" | "uploading">("idle");
   const [audioUploadMessage, setAudioUploadMessage] = useState("");
@@ -2970,6 +2981,7 @@ function MusicSection({
   const [pendingDeleteTrackId, setPendingDeleteTrackId] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const playbackTimeoutRef = useRef<number | null>(null);
+  const pointerPlaybackHandledRef = useRef(false);
 
   const isOwner = currentUser?.role === "owner";
   const isAudioUploading = audioUploadState === "uploading";
@@ -3047,6 +3059,7 @@ function MusicSection({
     audio?.pause();
     setIsPlaying(false);
     setPlaybackState("idle");
+    setPlaybackMessage("");
   }, [activeTrackId, activeTrack?.audioUrl]);
 
   useEffect(() => {
@@ -3067,30 +3080,36 @@ function MusicSection({
       clearPlaybackTimeout();
       setIsPlaying(true);
       setPlaybackState("idle");
+      setPlaybackMessage("正在播放。");
     }
 
     function handleCanPlay() {
       if (musicAudio.paused) {
         clearPlaybackTimeout();
         setPlaybackState("idle");
+        setPlaybackMessage("音频已就绪，点击播放。");
       }
     }
 
     function handleWaiting() {
       setPlaybackState("loading");
+      setPlaybackMessage("音频正在缓冲，请稍等。");
     }
 
     function handleEnded() {
       clearPlaybackTimeout();
       setIsPlaying(false);
       setPlaybackState("idle");
+      setPlaybackMessage("播放结束。");
     }
 
     function handleError() {
       clearPlaybackTimeout();
       setIsPlaying(false);
       setPlaybackState("error");
-      setStatusMessage("音频加载失败。这个文件可能太大、网络较慢，建议换 MP3/M4A 或使用更快的直链。");
+      const message = "音频加载失败。这个文件可能太大、网络较慢，建议换 MP3/M4A 或使用更快的直链。";
+      setPlaybackMessage(message);
+      setStatusMessage(message);
     }
 
     musicAudio.addEventListener("playing", handlePlaying);
@@ -3427,36 +3446,31 @@ function MusicSection({
     }
   }
 
-  function toggleTrackPlayback() {
-    const audio = audioRef.current;
-    if (!audio || !activeTrack?.audioUrl) {
-      setIsPlaying(false);
-      setPlaybackState("idle");
-      setStatusMessage("这首歌没有可播放的音频。");
-      return;
+  function pauseTrackPlayback(audio: HTMLAudioElement) {
+    audio.pause();
+    setIsPlaying(false);
+    setPlaybackState("idle");
+    setPlaybackMessage("已暂停。");
+    if (playbackTimeoutRef.current !== null) {
+      window.clearTimeout(playbackTimeoutRef.current);
+      playbackTimeoutRef.current = null;
     }
+  }
 
-    if (isPlaying) {
-      audio.pause();
-      setIsPlaying(false);
-      setPlaybackState("idle");
-      if (playbackTimeoutRef.current !== null) {
-        window.clearTimeout(playbackTimeoutRef.current);
-        playbackTimeoutRef.current = null;
-      }
-      return;
-    }
-
+  function requestTrackPlayback(audio: HTMLAudioElement) {
     window.dispatchEvent(new CustomEvent("linx-background-music-stop"));
     setIsPlaying(true);
     setPlaybackState("loading");
+    setPlaybackMessage("正在请求音频，文件较大时可能需要几秒缓冲。");
     setStatusMessage("正在请求音频，文件较大时可能需要几秒缓冲。");
     if (playbackTimeoutRef.current !== null) {
       window.clearTimeout(playbackTimeoutRef.current);
     }
     playbackTimeoutRef.current = window.setTimeout(() => {
       setPlaybackState("loading");
-      setStatusMessage("音频还在缓冲。FLAC 文件比较大时会慢，建议后面换成 MP3/M4A 或更快的音频直链。");
+      const message = "音频还在缓冲。FLAC 文件比较大时会慢，建议后面换成 MP3/M4A 或更快的音频直链。";
+      setPlaybackMessage(message);
+      setStatusMessage(message);
     }, 8000);
 
     void audio.play().catch((error) => {
@@ -3466,12 +3480,62 @@ function MusicSection({
       }
       setIsPlaying(false);
       setPlaybackState("error");
-      setStatusMessage(
+      const message =
         error instanceof Error
-          ? `播放失败：${error.message}。如果这是 FLAC 文件，建议换成 MP3/M4A 或使用更快的音频直链。`
-          : "浏览器阻止了播放，请再点一次；如果仍失败，建议换 MP3/M4A。",
-      );
+          ? `播放失败：${error.message}。已显示浏览器原生播放条；如果这是 FLAC 文件，建议换成 MP3/M4A 或使用更快的音频直链。`
+          : "浏览器阻止了播放，已显示浏览器原生播放条；如果仍失败，建议换 MP3/M4A。";
+      setPlaybackMessage(message);
+      setStatusMessage(message);
     });
+  }
+
+  function handlePlaybackPointerDown(event: ReactPointerEvent<HTMLButtonElement>) {
+    if (event.pointerType !== "mouse" && event.pointerType !== "touch" && event.pointerType !== "pen") {
+      pointerPlaybackHandledRef.current = false;
+      return;
+    }
+
+    const audio = audioRef.current;
+    if (!audio || !activeTrack?.audioUrl || isPlaying || playbackState === "loading") {
+      pointerPlaybackHandledRef.current = false;
+      return;
+    }
+
+    pointerPlaybackHandledRef.current = true;
+    requestTrackPlayback(audio);
+  }
+
+  function toggleTrackPlayback() {
+    if (pointerPlaybackHandledRef.current) {
+      pointerPlaybackHandledRef.current = false;
+      return;
+    }
+
+    const audio = audioRef.current;
+    if (!activeTrack) {
+      setIsPlaying(false);
+      setPlaybackState("idle");
+      const message = isMusicLoading ? "公开歌单还在同步，稍等几秒再点播放。" : "还没有可播放的音乐。";
+      setPlaybackMessage(message);
+      setStatusMessage(message);
+      return;
+    }
+
+    if (!audio || !activeTrack.audioUrl) {
+      setIsPlaying(false);
+      setPlaybackState("idle");
+      const message = `《${activeTrack.title}》还没有上传音频文件。站主需要先在下方上传音频或填写音频 URL，再保存音乐。`;
+      setPlaybackMessage(message);
+      setStatusMessage(message);
+      return;
+    }
+
+    if (isPlaying) {
+      pauseTrackPlayback(audio);
+      return;
+    }
+
+    requestTrackPlayback(audio);
   }
 
   function stopCurrentPlayback() {
@@ -3486,6 +3550,7 @@ function MusicSection({
     }
     setIsPlaying(false);
     setPlaybackState("idle");
+    setPlaybackMessage("");
   }
 
   function selectTrackByOffset(offset: number) {
@@ -3517,7 +3582,14 @@ function MusicSection({
         description="这里可以公开展示歌单；站主登录后可以上传音乐、封面，并把任意一首设为访客进入网站时默认播放的背景音乐。"
       />
       <div className="player-surface">
-        <audio ref={audioRef} src={activeTrack?.audioUrl} onEnded={() => setIsPlaying(false)} preload="auto" />
+        <audio
+          className="player-audio-element"
+          controls={playbackState === "error"}
+          ref={audioRef}
+          src={activeTrack?.audioUrl}
+          onEnded={() => setIsPlaying(false)}
+          preload="auto"
+        />
         <MediaTile tile={activeTrack?.tile ?? 3} imageUrl={activeTrack?.coverUrl} className="album-art" />
         <div className="track-copy">
           <span>{isMusicLoading ? "Syncing Music" : activeTrack ? "Now Playing" : "No Track"}</span>
@@ -3547,6 +3619,9 @@ function MusicSection({
           </div>
           <span>{activeTrack?.duration ?? "--:--"}</span>
         </div>
+        {playbackMessage ? (
+          <p className={clsx("player-feedback", playbackState === "error" && "is-error")}>{playbackMessage}</p>
+        ) : null}
         <div className="player-controls">
           <button onClick={shuffleTrack} type="button" aria-label="随机播放">
             <Shuffle size={18} />
@@ -3556,10 +3631,10 @@ function MusicSection({
           </button>
           <button
             className={clsx("primary-play", playbackState === "loading" && "is-loading")}
+            onPointerDown={handlePlaybackPointerDown}
             onClick={toggleTrackPlayback}
             type="button"
             aria-label={isPlaying ? "暂停" : playbackState === "loading" ? "加载中" : "播放"}
-            disabled={!activeTrack?.audioUrl && !isPlaying}
           >
             {isPlaying || playbackState === "loading" ? <Pause size={24} fill="currentColor" /> : <Play size={24} fill="currentColor" />}
           </button>
