@@ -360,8 +360,18 @@ function getStorageUploadErrorMessage(
     return `Supabase Storage 没有放行站主上传。请在 SQL Editor 粘贴并运行 supabase/fix-live-database.sql 的内容后重试。原始错误：${message}`;
   }
 
+  if (
+    status === "413"
+    || lowerMessage.includes("too large")
+    || lowerMessage.includes("payload too large")
+    || lowerMessage.includes("exceeded")
+    || lowerMessage.includes("file size")
+  ) {
+    return `Supabase Storage 上传失败：文件过大。文件：${file.name}（${formatFileSize(file.size)}）。请先压缩音频，或在 Supabase SQL Editor 运行 supabase/fix-live-database.sql 把 portfolio-public bucket 上限更新到 100 MB 后重试。`;
+  }
+
   if (status === "400" || lowerMessage.includes("bad request")) {
-    return `Supabase Storage 上传失败（400）。已使用安全路径 ${storagePath}；如果仍失败，通常是 bucket/上传策略或文件过大。文件：${file.name}（${formatFileSize(file.size)}）。原始错误：${message}`;
+    return `Supabase Storage 上传失败（400）。已使用安全路径 ${storagePath}；如果仍失败，通常是 bucket/上传策略或文件过大。文件：${file.name}（${formatFileSize(file.size)}）。请先压缩音频，或运行 supabase/fix-live-database.sql 更新上传上限后重试。原始错误：${message}`;
   }
 
   return `Supabase Storage 上传失败：${message}。文件：${file.name}（${formatFileSize(file.size)}）。`;

@@ -13,6 +13,10 @@ on conflict (id) do update set
   name = excluded.name,
   public = excluded.public;
 
+update storage.buckets
+set file_size_limit = 104857600
+where id = 'portfolio-public';
+
 drop policy if exists "public portfolio storage is readable" on storage.objects;
 create policy "public portfolio storage is readable"
 on storage.objects for select
@@ -97,6 +101,12 @@ select
     where id = 'portfolio-public'
       and public = true
   ) as public_bucket_ready,
+  exists (
+    select 1
+    from storage.buckets
+    where id = 'portfolio-public'
+      and coalesce(file_size_limit, 0) >= 104857600
+  ) as public_bucket_100mb_limit_ready,
   exists (
     select 1
     from pg_policies

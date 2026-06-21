@@ -157,6 +157,8 @@ const defaultMusicDraft: MusicTrackInput = {
   isBackground: false,
 };
 
+const maxMusicUploadBytes = 100 * 1024 * 1024;
+
 const defaultGalleryDraft: GalleryItemInput = {
   title: "",
   category: "概念",
@@ -413,6 +415,23 @@ function portfolioItemToDraft(item: PortfolioItem): PortfolioItemInput {
 
 function makeFileTitle(file: File) {
   return file.name.replace(/\.[^.]+$/, "");
+}
+
+function formatUploadSize(bytes: number) {
+  if (!Number.isFinite(bytes) || bytes <= 0) {
+    return "未知大小";
+  }
+
+  const units = ["B", "KB", "MB", "GB"];
+  let value = bytes;
+  let unitIndex = 0;
+
+  while (value >= 1024 && unitIndex < units.length - 1) {
+    value /= 1024;
+    unitIndex += 1;
+  }
+
+  return `${value.toFixed(value >= 10 || unitIndex === 0 ? 0 : 1)} ${units[unitIndex]}`;
 }
 
 function isLocalRuntimeHost() {
@@ -3061,10 +3080,18 @@ function MusicSection({
       return;
     }
 
+    const readableSize = formatUploadSize(file.size);
+    if (file.size > maxMusicUploadBytes) {
+      const message = `音频文件太大：${readableSize}。当前站点上传上限是 ${formatUploadSize(maxMusicUploadBytes)}，请先压缩成 MP3/M4A，或把 Supabase bucket 上限调高后再试。`;
+      setAudioUploadMessage(message);
+      setStatusMessage(message);
+      return;
+    }
+
     try {
       setAudioUploadState("uploading");
-      setAudioUploadMessage(`正在上传音频：${file.name}`);
-      setStatusMessage(`正在上传音频《${file.name}》...`);
+      setAudioUploadMessage(`正在上传音频：${file.name}（${readableSize}）`);
+      setStatusMessage(`正在上传音频《${file.name}》（${readableSize}）...`);
       const uploaded = await siteBackend.uploadAsset(file, "music-audio");
       setDraft((current) => ({
         ...current,
@@ -3097,10 +3124,12 @@ function MusicSection({
       return;
     }
 
+    const readableSize = formatUploadSize(file.size);
+
     try {
       setCoverUploadState("uploading");
-      setCoverUploadMessage(`正在上传封面：${file.name}`);
-      setStatusMessage(`正在上传封面《${file.name}》...`);
+      setCoverUploadMessage(`正在上传封面：${file.name}（${readableSize}）`);
+      setStatusMessage(`正在上传封面《${file.name}》（${readableSize}）...`);
       const uploaded = await siteBackend.uploadAsset(file, "music-cover");
       setDraft((current) => ({ ...current, coverUrl: uploaded.url }));
       setPendingDeleteTrackId(null);

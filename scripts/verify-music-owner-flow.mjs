@@ -39,6 +39,8 @@ assertIncludes(backendSource, "getStorageUploadErrorMessage", "friendly storage 
 assertIncludes(backendSource, "formatFileSize(file.size)", "storage upload errors include file size");
 assertIncludes(backendSource, "Supabase Storage 没有放行站主上传", "RLS storage error points to live database fix");
 assertIncludes(backendSource, "Supabase Storage 上传失败（400）", "400 storage error has user-facing explanation");
+assertIncludes(backendSource, "文件过大", "storage upload errors explain oversized files");
+assertIncludes(backendSource, "status === \"413\"", "storage upload errors handle payload-too-large responses");
 assertIncludes(backendSource, "createSupabaseStoragePath(`portfolio/${kind}`, owner.id, file, kind)", "portfolio uploads use safe owner-scoped storage paths");
 assertIncludes(backendSource, "createSupabaseStoragePath(kind, owner.id, file, kind)", "asset uploads use safe owner-scoped storage paths");
 
@@ -55,6 +57,9 @@ assertIncludes(appSource, "audioUploadState", "music audio upload state exists")
 assertIncludes(appSource, "coverUploadState", "music cover upload state exists");
 assertIncludes(appSource, "audioUploadMessage", "music audio upload inline feedback exists");
 assertIncludes(appSource, "coverUploadMessage", "music cover upload inline feedback exists");
+assertIncludes(appSource, "maxMusicUploadBytes", "music upload has a size limit guard");
+assertIncludes(appSource, "formatUploadSize(file.size)", "music upload feedback includes selected file size");
+assertIncludes(appSource, "音频文件太大", "oversized audio is blocked with clear feedback");
 assertIncludes(appSource, "isMusicActionBusy", "music action busy guard exists");
 assertIncludes(appSource, "正在上传音频《", "audio upload starts with visible status");
 assertIncludes(appSource, "正在上传封面《", "cover upload starts with visible status");

@@ -192,6 +192,10 @@ insert into storage.buckets (id, name, public)
 values ('portfolio-public', 'portfolio-public', true)
 on conflict (id) do update set public = excluded.public;
 
+update storage.buckets
+set file_size_limit = 104857600
+where id = 'portfolio-public';
+
 create or replace function public.handle_new_user()
 returns trigger
 language plpgsql
