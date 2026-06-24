@@ -27,6 +27,7 @@
     "verify:reading-import": "node scripts/verify-reading-import.mjs",
     "verify:reading-owner-flow": "node scripts/verify-reading-owner-flow.mjs",
     "verify:music-owner-flow": "node scripts/verify-music-owner-flow.mjs",
+    "verify:music-upload-limits": "node scripts/verify-music-upload-limits.mjs",
     "verify:owner-music-storage": "node scripts/verify-owner-music-storage.mjs",
     "verify:owner-music-storage:guided": "node scripts/verify-owner-music-storage-guided.mjs",
     "verify:gmail-smtp": "node scripts/verify-gmail-smtp.mjs",

@@ -169,8 +169,10 @@ const defaultMusicDraft: MusicTrackInput = {
 
 const freeSupabaseMusicUploadLimitBytes = 50 * 1024 * 1024;
 const configuredMusicUploadLimitMb = Number(import.meta.env.VITE_MAX_MUSIC_UPLOAD_MB);
+const hasCustomMusicUploadLimit =
+  Number.isFinite(configuredMusicUploadLimitMb) && configuredMusicUploadLimitMb > 0;
 const maxMusicUploadBytes =
-  Number.isFinite(configuredMusicUploadLimitMb) && configuredMusicUploadLimitMb > 0
+  hasCustomMusicUploadLimit
     ? configuredMusicUploadLimitMb * 1024 * 1024
     : freeSupabaseMusicUploadLimitBytes;
 const largeMusicUploadBytes = 6 * 1024 * 1024;
@@ -3142,7 +3144,7 @@ function MusicSection({
 
     const readableSize = formatUploadSize(file.size);
     if (file.size > maxMusicUploadBytes) {
-      const message = `音频文件太大：${readableSize}。当前站点上传上限是 ${formatUploadSize(maxMusicUploadBytes)}；免费 Supabase 项目的 Global file size limit 最高就是 50 MB，SQL 不能突破。请先压缩成 MP3/M4A，或把音频放到可直链存储后粘贴音频 URL。`;
+      const message = `音频文件太大：${readableSize}。当前站点上传上限是 ${formatUploadSize(maxMusicUploadBytes)}。免费 Supabase 项目的 Global file size limit 最高就是 50 MB，SQL 只能调 bucket 上限，不能突破项目全局上限。请先压缩成 50 MB 以内的 MP3/M4A，或把音频放到可直链存储后粘贴下方“音频 URL”。`;
       setAudioUploadMessage(message);
       setStatusMessage(message);
       return;
@@ -3152,7 +3154,7 @@ function MusicSection({
       setAudioUploadState("uploading");
       setAudioUploadMessage(
         file.size > largeMusicUploadBytes
-          ? `正在分片上传音频：${file.name}（${readableSize}）。免费 Supabase 只适合 50 MB 以内文件；更大的文件请用 MP3/M4A 或外部直链。`
+          ? `正在分片上传音频：${file.name}（${readableSize}）。6 MB 以上已走 TUS 分片；如果 Supabase 项目仍是 Free，超过 50 MB 会被服务器拒绝，这不是你电脑内存问题。`
           : `正在上传音频：${file.name}（${readableSize}）`,
       );
       setStatusMessage(`正在上传音频《${file.name}》（${readableSize}）...`);
@@ -3809,7 +3811,7 @@ function MusicSection({
               </label>
             </div>
             <p className="music-upload-note">
-              6 MB 以上音频会自动用 Supabase 分片上传；免费 Supabase 项目最高只能传 50 MB。70 MB 这类 FLAC 请压缩成 MP3/M4A，或把音频放到可直链存储后粘贴 URL；升级 Supabase 后可用 VITE_MAX_MUSIC_UPLOAD_MB 调高站点上限。
+              6 MB 以上音频会自动用 Supabase TUS 分片上传；免费 Supabase 项目的 Global file size limit 最高只能到 50 MB，SQL 不能突破。70 MB 这类 FLAC 请压缩成 50 MB 以内的 MP3/M4A，或把音频放到可直链存储后粘贴 URL；升级 Supabase 或换对象存储后，再用 VITE_MAX_MUSIC_UPLOAD_MB 调高站点前端上限。
             </p>
             <div className="portfolio-upload-row">
               <label className={clsx("portfolio-file-picker", isAudioUploading && "is-busy")}>

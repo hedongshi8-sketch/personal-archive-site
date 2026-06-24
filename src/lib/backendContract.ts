@@ -257,6 +257,7 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undef
 const supabaseAssetBucket = import.meta.env.VITE_SUPABASE_PUBLIC_BUCKET || "portfolio-public";
 const forceLocalPreview = import.meta.env.VITE_FORCE_LOCAL_PREVIEW === "true";
 const baseUrl = import.meta.env.BASE_URL;
+const freeSupabaseProjectUploadLimitBytes = 50 * 1024 * 1024;
 const resumableUploadThresholdBytes = 6 * 1024 * 1024;
 const resumableUploadChunkBytes = 6 * 1024 * 1024;
 
@@ -386,6 +387,9 @@ function getStorageUploadErrorMessage(
   const message = error.message?.trim() || "未知错误";
   const status = String(error.statusCode ?? error.status ?? "");
   const lowerMessage = message.toLowerCase();
+  const readableSize = formatFileSize(file.size);
+  const freeLimit = formatFileSize(freeSupabaseProjectUploadLimitBytes);
+  const isProbablyFreeLimit = file.size > freeSupabaseProjectUploadLimitBytes;
 
   if (lowerMessage.includes("row-level") || lowerMessage.includes("rls") || lowerMessage.includes("policy")) {
     return `Supabase Storage 没有放行站主上传。请在 SQL Editor 粘贴并运行 supabase/fix-live-database.sql 的内容后重试。原始错误：${message}`;
@@ -399,14 +403,17 @@ function getStorageUploadErrorMessage(
     || lowerMessage.includes("file size")
     || lowerMessage.includes("global file size")
   ) {
-    return `Supabase Storage 上传失败：文件过大。文件：${file.name}（${formatFileSize(file.size)}）。请确认 Supabase Dashboard > Storage > Settings 里的 Global file size limit 已高于这个文件大小；如果仍在免费项目常见的 50 MB 上限，请先压缩音频、粘贴外部音频 URL，或升级/更换对象存储。`;
+    return `Supabase Storage 上传失败：文件过大。文件：${file.name}（${readableSize}）。请确认 Supabase Dashboard > Storage > Settings 里的 Global file size limit 高于这个文件大小。bucket 的 file_size_limit 只能在全局上限以内生效；如果项目仍是 Free，超过 ${freeLimit} 的音频会被服务器拒绝，请压缩成 MP3/M4A、粘贴外部音频 URL，或升级/更换对象存储。`;
   }
 
   if (status === "400" || lowerMessage.includes("bad request")) {
-    return `Supabase Storage 上传失败（400）。已使用安全路径 ${storagePath}；如果仍失败，通常是 bucket/上传策略、Global file size limit 或文件过大。文件：${file.name}（${formatFileSize(file.size)}）。请先运行 supabase/fix-live-database.sql，并确认 Storage Settings 的全局上限高于文件大小。原始错误：${message}`;
+    const limitHint = isProbablyFreeLimit
+      ? `这个文件超过 ${freeLimit}，如果你的 Supabase 项目还是 Free，运行 SQL 也无法突破项目 Global file size limit。`
+      : "请确认 Storage Settings 的 Global file size limit 高于文件大小。";
+    return `Supabase Storage 上传失败（400）。已使用安全路径 ${storagePath}；如果仍失败，通常是 bucket/上传策略、Global file size limit 或文件过大。文件：${file.name}（${readableSize}）。${limitHint} 原始错误：${message}`;
   }
 
-  return `Supabase Storage 上传失败：${message}。文件：${file.name}（${formatFileSize(file.size)}）。`;
+  return `Supabase Storage 上传失败：${message}。文件：${file.name}（${readableSize}）。`;
 }
 
 async function uploadSupabaseStorageFile(

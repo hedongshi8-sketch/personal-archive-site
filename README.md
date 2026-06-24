@@ -72,6 +72,13 @@ GitHub Pages 或 Vercel 部署时，也要把这些变量配置到平台 Secrets
 4. 进入“我的策划档案”“音乐雷达”“灵感图库”“书摘心得”可以上传对应内容。
 5. 进入“站主动态”可以发布公开更新记录。
 
+## 音乐上传限制
+
+- 6 MB 以上音频会自动走 Supabase TUS 分片上传，分片上传解决的是请求体过大和中途断线，不会突破 Supabase 套餐限制。
+- 免费 Supabase 项目的 Storage `Global file size limit` 最高是 50 MB；`supabase/fix-live-database.sql` 只能把 `portfolio-public` bucket 的 `file_size_limit` 调高，不能突破项目全局上限。
+- 70 MB 这类 FLAC 建议先转成 50 MB 以内的 MP3/M4A；不想压缩的话，把音频放到可公开直链的对象存储或网盘直链，再在“音乐雷达”的“音频 URL”里粘贴。
+- 升级 Supabase 或换对象存储后，再在部署环境里设置 `VITE_MAX_MUSIC_UPLOAD_MB` 调高站点前端限制。
+
 ## 常用检查
 
 ```bash

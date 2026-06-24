@@ -152,6 +152,7 @@ assert(read("scripts/verify-reading-import.mjs").includes("parseReadingClipboard
 assert(packageJson.scripts?.["verify:reading-owner-flow"] === "node scripts/verify-reading-owner-flow.mjs", "reading owner flow verification script exists");
 assert(read("scripts/verify-reading-owner-flow.mjs").includes("站主书摘发布入口"), "reading owner flow verifier checks owner composer");
 assert(packageJson.scripts?.["verify:music-owner-flow"] === "node scripts/verify-music-owner-flow.mjs", "music owner flow verification script exists");
+assert(packageJson.scripts?.["verify:music-upload-limits"] === "node scripts/verify-music-upload-limits.mjs", "music upload limit verification script exists");
 assert(read("scripts/verify-music-owner-flow.mjs").includes("createSupabaseStoragePath"), "music owner flow verifier checks safe storage paths");
 assert(packageJson.scripts?.["verify:owner-music-storage"] === "node scripts/verify-owner-music-storage.mjs", "owner music storage verification script exists");
 assert(
@@ -391,6 +392,8 @@ assert(backendSource.includes("tus.Upload") && backendSource.includes("/storage/
 assert(appSource.includes("音频 URL") && appSource.includes("已使用外部音频 URL"), "music owner can save external audio URLs");
 assert(backendSource.includes("Supabase Storage 上传失败（400）"), "Supabase storage upload errors explain 400 failures");
 assert(backendSource.includes("文件过大") && backendSource.includes("status === \"413\""), "Supabase storage upload errors explain oversized files");
+assert(appSource.includes("这不是你电脑内存问题"), "large music upload copy does not misattribute Supabase limit to local memory");
+assert(backendSource.includes("bucket 的 file_size_limit 只能在全局上限以内生效"), "storage upload errors explain bucket limit cannot bypass global limit");
 
 try {
   const status = command(["git", "status", "--short"]);
