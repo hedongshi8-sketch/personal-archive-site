@@ -147,6 +147,8 @@ assert(
 );
 assert(read("scripts/verify-password-reset-email.mjs").includes("resetPasswordForEmail"), "password reset email verifier triggers Supabase reset email");
 assert(read("scripts/verify-email-stack.mjs").includes("EMAIL_STACK_TRIGGER_PASSWORD_RESET"), "email stack verification supports password reset trigger");
+assert(packageJson.scripts?.["verify:portfolio-mobile-preview"] === "node scripts/verify-portfolio-mobile-preview.mjs", "portfolio mobile preview verification script exists");
+assert(read("scripts/verify-portfolio-mobile-preview.mjs").includes("查看站内预览"), "portfolio mobile preview verifier checks in-site preview action");
 assert(packageJson.scripts?.["verify:reading-import"] === "node scripts/verify-reading-import.mjs", "reading import verification script exists");
 assert(read("scripts/verify-reading-import.mjs").includes("parseReadingClipboardText"), "reading import verifier checks clipboard parsing");
 assert(packageJson.scripts?.["verify:reading-owner-flow"] === "node scripts/verify-reading-owner-flow.mjs", "reading owner flow verification script exists");
@@ -239,8 +241,8 @@ const distPreviewSize = distPreviews.reduce((sum, file) => sum + sizeOf(file), 0
 assert(publicAssets.length === 84, "public portfolio asset count is 84", `${publicAssets.length}`);
 assert(distAssets.length === 84, "dist portfolio asset count is 84", `${distAssets.length}`);
 assert(publicSize === distSize, "portfolio asset byte size matches", `${publicSize} vs ${distSize}`);
-assert(publicPreviews.length === 8, "public portfolio preview count is 8", `${publicPreviews.length}`);
-assert(distPreviews.length === 8, "dist portfolio preview count is 8", `${distPreviews.length}`);
+assert(publicPreviews.length === 11, "public portfolio preview count is 11", `${publicPreviews.length}`);
+assert(distPreviews.length === 11, "dist portfolio preview count is 11", `${distPreviews.length}`);
 assert(publicPreviewSize === distPreviewSize, "portfolio preview byte size matches", `${publicPreviewSize} vs ${distPreviewSize}`);
 const textLikeExtensions = new Set([".html", ".json", ".md", ".txt"]);
 const publicPortfolioText = [...publicAssets, ...publicPreviews]
@@ -256,6 +258,7 @@ assert(seedItems === 17, "portfolio seed item count is 17", `${seedItems}`);
 assert(seed.includes("on conflict (id) do update set"), "portfolio seed is rerunnable");
 assert(seed.includes("/portfolio-previews/barbarq-main-sheet.json"), "portfolio seed includes Excel preview URLs");
 assert(seed.includes("/portfolio-previews/game-town-design-doc.json"), "portfolio seed includes document preview URLs");
+assert(seed.includes("/portfolio-previews/barbarq-main-design.json"), "portfolio seed includes PDF JSON preview URLs");
 for (const internalMarker of ["待替换个人信息", "系统策划投递说明", "投递说明_只看这个"]) {
   assert(!seed.includes(internalMarker), `portfolio seed excludes internal marker ${internalMarker}`);
 }
@@ -318,6 +321,8 @@ assert(appSource.includes("createGlobalSearchIndex") && appSource.includes("glob
 assert(appSource.includes("站主动态"), "public owner updates copy exists");
 assert(appSource.includes("ExcelSheetPreview"), "Excel in-site preview reader exists");
 assert(appSource.includes("DocumentReader"), "document in-site preview reader exists");
+assert(appSource.includes("查看站内预览") && !appSource.includes("打开预览"), "portfolio preview action stays in-site");
+assert(backendSource.includes("normalizePortfolioPreviewUrl(item)"), "remote portfolio rows normalize raw PDF preview URLs");
 assert(appSource.includes("demo-experience-console") && appSource.includes("Demo Control"), "demo experience console exists");
 assert(appSource.includes("updatePortfolioItem") && appSource.includes("deletePortfolioItem"), "portfolio owner edit/delete UI exists");
 assert(backendSource.includes("function assertPublicPortfolioInput") && backendSource.includes("已阻止公开发布"), "portfolio owner publish guard blocks internal files");

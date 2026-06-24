@@ -5,6 +5,7 @@ import {
   portfolioItems,
   portfolioKindLabels,
   portfolioProjectLabels,
+  normalizePortfolioPreviewUrl,
   type PortfolioItem,
   type PortfolioKind,
   type PortfolioProject,
@@ -568,7 +569,7 @@ function mapComment(row: CommentRow): Comment {
 }
 
 function mapPortfolioItem(row: PortfolioItemRow): PortfolioItem {
-  return {
+  const item = {
     id: row.id,
     title: row.title,
     project: row.project_id,
@@ -584,6 +585,11 @@ function mapPortfolioItem(row: PortfolioItemRow): PortfolioItem {
     updatedAt: row.updated_at.slice(0, 10),
     featured: row.featured,
     downloadable: true,
+  };
+
+  return {
+    ...item,
+    previewUrl: normalizePortfolioPreviewUrl(item),
   };
 }
 
@@ -712,7 +718,7 @@ function createLocalId(prefix: string) {
 }
 
 function createLocalPortfolioItem(input: PortfolioItemInput, id = createLocalId("local-portfolio")): PortfolioItem {
-  return {
+  const item = {
     id,
     title: input.title,
     project: input.project,
@@ -728,6 +734,11 @@ function createLocalPortfolioItem(input: PortfolioItemInput, id = createLocalId(
     updatedAt: new Date().toISOString().slice(0, 10),
     featured: input.featured,
     downloadable: true,
+  };
+
+  return {
+    ...item,
+    previewUrl: normalizePortfolioPreviewUrl(item),
   };
 }
 

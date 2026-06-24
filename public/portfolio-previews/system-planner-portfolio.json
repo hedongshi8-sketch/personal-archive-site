@@ -1,0 +1,745 @@
+{
+  "kind": "document",
+  "title": "系统策划实习生作品集",
+  "sourceFile": "portfolio-assets/system-planner/docs/01_作品集_系统策划实习生_最终投递版.pdf",
+  "blockLimit": 180,
+  "truncatedBlocks": true,
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "第 1 页 / 共 9 页"
+    },
+    {
+      "type": "paragraph",
+      "text": "系统策划实习生作品集"
+    },
+    {
+      "type": "paragraph",
+      "text": "战争策略系统拆解 / A4正式文档版"
+    },
+    {
+      "type": "paragraph",
+      "text": "[你的姓名] [学校/专业/年级] [手机号] [邮箱]"
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "内容摘要"
+    },
+    {
+      "type": "paragraph",
+      "text": "围绕目标岗位要求，选取《战意》《骑马与砍杀2：霸主》《全面战争：三国》三个战争策略样本做系统拆解。重点不放在泛"
+    },
+    {
+      "type": "paragraph",
+      "text": "泛描述玩法，而放在系统对象、资源流、玩家决策、约束条件、问题诊断和数据验证。"
+    },
+    {
+      "type": "paragraph",
+      "text": "项目 拆解重点 对应岗位能力"
+    },
+    {
+      "type": "paragraph",
+      "text": "《战意》赛季经济与 兵团成长、兵装损耗、器械投入、家族领土、赛季挑战、战 赛季经济系统、战争社交生态、数据分析"
+    },
+    {
+      "type": "paragraph",
+      "text": "兵团生态 场经济指标"
+    },
+    {
+      "type": "paragraph",
+      "text": "《骑马与砍杀2：霸 个人到家族的身份升级、部队薪资/粮草、俘虏赎金、商队 真实战争逻辑成长体系、后勤压力"
+    },
+    {
+      "type": "paragraph",
+      "text": "主》家族-部队-封地 工坊、封地治理"
+    },
+    {
+      "type": "paragraph",
+      "text": "成长"
+    },
+    {
+      "type": "paragraph",
+      "text": "《全面战争：三国》 将领部曲、兵种克制、士气崩溃、战后补员、战役经济和关 兵种克制、城防、长期战略反馈"
+    },
+    {
+      "type": "paragraph",
+      "text": "战役-战斗联动 系系统"
+    },
+    {
+      "type": "paragraph",
+      "text": "3D战争界面原型 战前预算、兵团编队、攻城目标、补给事件、战后复盘、SQ 原型表达、界面交互、数据闭环"
+    },
+    {
+      "type": "paragraph",
+      "text": "L口径联动"
+    },
+    {
+      "type": "paragraph",
+      "text": "系统策划实习生作品集 1"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "第 2 页 / 共 9 页"
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "目录"
+    },
+    {
+      "type": "paragraph",
+      "text": "章节 内容"
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "1 《战意》赛季经济与兵团生态拆解"
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "2 《骑马与砍杀2：霸主》家族-部队-封地成长拆解"
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "3 《全面战争：三国》战役-战斗联动拆解"
+    },
+    {
+      "type": "paragraph",
+      "text": "4 3D战争界面原型与数据验证"
+    },
+    {
+      "type": "paragraph",
+      "text": "5 参考资料"
+    },
+    {
+      "type": "paragraph",
+      "text": "系统策划实习生作品集 2"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "第 3 页 / 共 9 页"
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "1. 《战意》赛季经济与兵团生态拆解"
+    },
+    {
+      "type": "paragraph",
+      "text": "1.1 可观察玩法边界"
+    },
+    {
+      "type": "paragraph",
+      "text": "《战意》的公开页面将其描述为“战术动作 MMO”：玩家创建武将、指挥中世纪单位，参与大型在线攻城；页面同时提到队"
+    },
+    {
+      "type": "paragraph",
+      "text": "伍协同、攻城武器、最多15v15的攻城战、家族/领土战、赛季挑战、新单位与战斗通行证奖励。拆解时可以把它视为“动作"
+    },
+    {
+      "type": "paragraph",
+      "text": "操作 + RTS式兵团指挥 + MMO长期经济 + 公会领土战”的组合。"
+    },
+    {
+      "type": "paragraph",
+      "text": "因此，《战意》的经济设计不应只看货币奖励，而要看一次出兵背后的成本结构：兵团养成、统御限制、兵装损耗、器械投"
+    },
+    {
+      "type": "paragraph",
+      "text": "入、地图目标、家族收益和赛季目标共同决定玩家是否愿意投入。"
+    },
+    {
+      "type": "paragraph",
+      "text": "1.2 系统对象"
+    },
+    {
+      "type": "paragraph",
+      "text": "对象 可观察内容 系统作用 拆解重点"
+    },
+    {
+      "type": "paragraph",
+      "text": "武将 武器职业、技能、装备、战场 提供动作游戏手感和个人英雄表达 不能让武将价值压过兵团指挥，否则"
+    },
+    {
+      "type": "paragraph",
+      "text": "操作 战争题材会退化成个人动作竞技"
+    },
+    {
+      "type": "paragraph",
+      "text": "兵团 近战/远程/骑兵/特殊兵种、星 玩家最核心的长期战术资产 强度、统御、兵装成本、地图适配必"
+    },
+    {
+      "type": "paragraph",
+      "text": "级、等级、技能线、军魂/特性 须一起判断"
+    },
+    {
+      "type": "paragraph",
+      "text": "统御 限制一局可携带兵团组合 把高阶兵团变成编队选择而非无脑堆 统御定价决定低阶兵团是否还有生态"
+    },
+    {
+      "type": "paragraph",
+      "text": "叠 位置"
+    },
+    {
+      "type": "paragraph",
+      "text": "兵装/补给 出战后损耗，需要补充 把战斗结果转成后勤成本 成本过高会导致“不敢出精锐”，过"
+    },
+    {
+      "type": "paragraph",
+      "text": "低会导致高阶常驻"
+    },
+    {
+      "type": "paragraph",
+      "text": "器械 攻城武器、防守器械、部署点 把攻城做成团队投入，而不是单纯打 需要让器械贡献和损耗在战后可见"
+    },
+    {
+      "type": "paragraph",
+      "text": "门"
+    },
+    {
+      "type": "paragraph",
+      "text": "家族/领土 家族、联盟、领土战、税率/资 把个人战斗接入组织收益 后勤贡献要可见，否则会集中到少数"
+    },
+    {
+      "type": "paragraph",
+      "text": "源/战争物资 玩家身上"
+    },
+    {
+      "type": "paragraph",
+      "text": "赛季 主题、挑战、通行证、新单位 周期性重置目标与兵团生态 任务过窄会让赛季目标变成作业"
+    },
+    {
+      "type": "paragraph",
+      "text": "、新战场"
+    },
+    {
+      "type": "paragraph",
+      "text": "1.3 战斗-经济循环"
+    },
+    {
+      "type": "paragraph",
+      "text": "单局循环：选择模式与地图 -> 配置武将、兵团、器械 -> 战斗中争夺城门/城墙/据点/补给线 ->"
+    },
+    {
+      "type": "paragraph",
+      "text": "战后获得基础收益、赛季进度和战场贡献 -> 支付兵装、器械、维修等成本 -> 决定下一局阵容。"
+    },
+    {
+      "type": "paragraph",
+      "text": "赛季循环：赛季主题上线 -> 新单位与挑战带来目标 -> 玩家解锁和练兵 -> 新单位进入攻城/领土战 ->"
+    },
+    {
+      "type": "paragraph",
+      "text": "家族和玩家重新配置阵容、军魂、器械与补给 -> 中后期形成稳定生态 -> 下赛季再重置一部分注意力。"
+    },
+    {
+      "type": "paragraph",
+      "text": "核心经济判断：一套阵容是否值得出，不只取决于胜率，还取决于本局地图价值、队友协作概率、兵装成本、器械沉没成本、赛季任"
+    },
+    {
+      "type": "paragraph",
+      "text": "务推进价值和家族目标收益。"
+    },
+    {
+      "type": "paragraph",
+      "text": "1.4 兵团生态判断"
+    },
+    {
+      "type": "paragraph",
+      "text": "维度 问题 例子"
+    },
+    {
+      "type": "paragraph",
+      "text": "强度 能否完成定位内的输出、承伤、控制或机动任务 骑兵负责突破和追击，盾步负责抗线和守点"
+    },
+    {
+      "type": "paragraph",
+      "text": "统御 同样强度下占用多少编队容量 高统御精锐需要挤掉一队中低阶工具兵"
+    },
+    {
+      "type": "paragraph",
+      "text": "兵装成本 出战和战损是否可持续 普通匹配亏损过高会压低高阶出场率"
+    },
+    {
+      "type": "paragraph",
+      "text": "地图适配 城门、城墙、巷战、开阔地价值是否不同 骑兵在开阔地强，巷战与城墙阶段受限"
+    },
+    {
+      "type": "paragraph",
+      "text": "团队依赖 是否需要前排、远程、器械或指挥配合 弩兵/器械价值依赖保护，孤立时容易被切"
+    },
+    {
+      "type": "paragraph",
+      "text": "赛季目标 该兵团是否被任务、活动或新机制推高出场 赛季挑战可能短期扭曲真实生态"
+    },
+    {
+      "type": "paragraph",
+      "text": "系统策划实习生作品集 3"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "第 4 页 / 共 9 页"
+    },
+    {
+      "type": "paragraph",
+      "text": "1.5 问题诊断"
+    },
+    {
+      "type": "paragraph",
+      "text": "问题 表现 成因 设计后果"
+    },
+    {
+      "type": "paragraph",
+      "text": "高阶兵团不敢出 玩家养了精锐，但普通局仍偏向 战前不知道本局收益是否覆盖兵装和器 养成资产沉默，战斗体验变"
+    },
+    {
+      "type": "paragraph",
+      "text": "低成本兵团 械成本 保守"
+    },
+    {
+      "type": "paragraph",
+      "text": "赛季任务作业感 为了任务刷击杀/指定行为，反 任务条件窄，完成口径不贴合战场目标 正常匹配体验被任务污染"
+    },
+    {
+      "type": "paragraph",
+      "text": "而忽略占点和胜负"
+    },
+    {
+      "type": "paragraph",
+      "text": "新单位冲击旧生 新单位过强旧兵团失业；过弱又 只看胜率容易忽略成本、统御和地图 赛季热度与长期生态冲突"
+    },
+    {
+      "type": "paragraph",
+      "text": "态 无赛季热度"
+    },
+    {
+      "type": "paragraph",
+      "text": "家族后勤贡献不 运输、制造、护送、修械等行为 战后复盘偏击杀和胜负，低展示后勤价 组织劳动集中到少数核心玩"
+    },
+    {
+      "type": "paragraph",
+      "text": "可见 存在但存在感弱 值 家"
+    },
+    {
+      "type": "paragraph",
+      "text": "1.6 方案一：战前军需预算"
+    },
+    {
+      "type": "paragraph",
+      "text": "目标：玩家进入战斗前，就能看到当前编队的成本、风险和替代方案。这个功能不是为了降低消耗，而是让消耗可解释。"
+    },
+    {
+      "type": "paragraph",
+      "text": "模块 显示内容 交互"
+    },
+    {
+      "type": "paragraph",
+      "text": "阵容成本 三队兵团预计兵装消耗、器械消耗、维修风险 换兵团时实时刷新成本和风险等级"
+    },
+    {
+      "type": "paragraph",
+      "text": "地图适配 本地图当前阶段推荐定位：盾步/远程/骑兵/器械 点击地图阶段切换推荐组合"
+    },
+    {
+      "type": "paragraph",
+      "text": "库存续航 当前库存还能支持几局同类出战 不足时提示补给入口或低成本替代"
+    },
+    {
+      "type": "paragraph",
+      "text": "收益预估 本模式平均收益区间和关键目标奖励 胜负/占点/攻城目标影响收益预估"
+    },
+    {
+      "type": "paragraph",
+      "text": "低成本替代 同定位低星或低成本兵团 一键替换并显示能力损失和成本下降"
+    },
+    {
+      "type": "paragraph",
+      "text": "1.7 方案二：赛季挑战多路径"
+    },
+    {
+      "type": "paragraph",
+      "text": "目标：保留赛季目标的引导价值，但减少作业感。每个阶段给同一进度条提供三类完成路径：前线作战、团队协同、后勤贡"
+    },
+    {
+      "type": "paragraph",
+      "text": "献。"
+    },
+    {
+      "type": "paragraph",
+      "text": "路径 任务样例 设计意义"
+    },
+    {
+      "type": "paragraph",
+      "text": "前线作战 参与攻城、占领据点、破坏城门、击败指定兵种 让核心玩家通过正常胜负目标推进"
+    },
+    {
+      "type": "paragraph",
+      "text": "团队协同 保护攻城器械、协助击杀、队友集结响应、守住关键点 把团队行为纳入进度，减少单刷目标"
+    },
+    {
+      "type": "paragraph",
+      "text": "后勤贡献 提交军需、制造器械、参与家族运输、修复城防 让非击杀玩家有赛季参与价值"
+    },
+    {
+      "type": "paragraph",
+      "text": "1.8 数据验证"
+    },
+    {
+      "type": "paragraph",
+      "text": "目标 指标 异常信号"
+    },
+    {
+      "type": "paragraph",
+      "text": "预算面板有效 高阶兵团出场率、补给中断率、战后继续匹配率、低成本替代 高阶仍不出，说明成本/收益关系未"
+    },
+    {
+      "type": "paragraph",
+      "text": "点击率 解释清楚"
+    },
+    {
+      "type": "paragraph",
+      "text": "赛季任务减负 三路径选择占比、阶段完成率、平均完成小时、任务放弃率 某路径长期低选，说明奖励或难度不"
+    },
+    {
+      "type": "paragraph",
+      "text": "平衡"
+    },
+    {
+      "type": "paragraph",
+      "text": "兵团生态健康 pick rate、win rate、kit_cost_per_min、contribution_per 高胜率+高出场+低成本优先排查"
+    },
+    {
+      "type": "paragraph",
+      "text": "_kit、地图/段位分布"
+    },
+    {
+      "type": "paragraph",
+      "text": "后勤贡献成立 家族后勤参与人数、器械护送次数、资源提交人数、领土战参 少数玩家贡献占比过高，说明系统没"
+    },
+    {
+      "type": "paragraph",
+      "text": "与率 有让普通成员参与"
+    },
+    {
+      "type": "paragraph",
+      "text": "SELECT unit_id, map_id, battle_mode,"
+    },
+    {
+      "type": "paragraph",
+      "text": "COUNT(DISTINCT battle_id) AS battle_cnt,"
+    },
+    {
+      "type": "paragraph",
+      "text": "AVG(CASE WHEN result='win' THEN 1.0 ELSE 0.0 END) AS win_rate,"
+    },
+    {
+      "type": "paragraph",
+      "text": "SUM(damage + tank_damage*0.35 + capture_score*200) AS contribution_score,"
+    },
+    {
+      "type": "paragraph",
+      "text": "系统策划实习生作品集 4"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "第 5 页 / 共 9 页"
+    },
+    {
+      "type": "paragraph",
+      "text": "SUM(kit_cost) / NULLIF(SUM(deploy_time_sec)/60.0, 0) AS kit_cost_per_min,"
+    },
+    {
+      "type": "paragraph",
+      "text": "SUM(damage + tank_damage*0.35 + capture_score*200) / NULLIF(SUM(kit_cost), 0) AS contribution_per_kit"
+    },
+    {
+      "type": "paragraph",
+      "text": "FROM unit_battle_detail"
+    },
+    {
+      "type": "paragraph",
+      "text": "WHERE season_id='SXX'"
+    },
+    {
+      "type": "paragraph",
+      "text": "GROUP BY unit_id, map_id, battle_mode"
+    },
+    {
+      "type": "paragraph",
+      "text": "HAVING COUNT(DISTINCT battle_id) >= 100;"
+    },
+    {
+      "type": "paragraph",
+      "text": "系统策划实习生作品集 5"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "第 6 页 / 共 9 页"
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "2. 《骑马与砍杀2：霸主》家族-部队-封地成长拆解"
+    },
+    {
+      "type": "paragraph",
+      "text": "2.1 样本价值"
+    },
+    {
+      "type": "paragraph",
+      "text": "《骑砍2》官方页面强调创建角色、外交、贸易、锻造、征服、招募同伴、管理封地、率领军队并与士兵并肩作战。它适合作"
+    },
+    {
+      "type": "paragraph",
+      "text": "为“真实战争逻辑成长体系”的参照：成长不是角色攻击力上涨，而是从个人战士扩展为能维持部队、经营家族、参与政治"
+    },
+    {
+      "type": "paragraph",
+      "text": "和治理封地的人。"
+    },
+    {
+      "type": "paragraph",
+      "text": "2.2 成长层级"
+    },
+    {
+      "type": "paragraph",
+      "text": "层级 成长对象 投入 产出 压力来源"
+    },
+    {
+      "type": "paragraph",
+      "text": "个人 技能、装备、武器熟练、 战斗、任务、交易、竞技 个人战斗能力和早期收入 装备成本、受伤风险"
+    },
+    {
+      "type": "paragraph",
+      "text": "声望"
+    },
+    {
+      "type": "paragraph",
+      "text": "部队 兵员、俘虏、粮草、士气 招募、训练、薪资、补给 战术规模和战役机动 工资、粮食、士气、战"
+    },
+    {
+      "type": "paragraph",
+      "text": "、移动速度 损"
+    },
+    {
+      "type": "paragraph",
+      "text": "家族 家族等级、同伴、商队、 声望、资金、关系 多线经营和身份提升 经营风险、同伴配置"
+    },
+    {
+      "type": "paragraph",
+      "text": "工坊"
+    },
+    {
+      "type": "paragraph",
+      "text": "政治 王国、封臣、影响力、关 战功、外交、投票、封臣 参战权、封地权、战争目 关系维护、影响力消耗"
+    },
+    {
+      "type": "paragraph",
+      "text": "系 义务 标"
+    },
+    {
+      "type": "paragraph",
+      "text": "封地 城镇、城堡、村庄、驻军 治安、粮食、繁荣、驻军 税收、补给、战略纵深 围城、叛乱、治安、粮"
+    },
+    {
+      "type": "paragraph",
+      "text": "、建设 工资 食"
+    },
+    {
+      "type": "paragraph",
+      "text": "2.3 核心循环"
+    },
+    {
+      "type": "paragraph",
+      "text": "前期：做任务/竞技/贸易获得第一桶金 -> 招募低阶兵 -> 打劫匪练兵 -> 出售战利品和俘虏 ->"
+    },
+    {
+      "type": "paragraph",
+      "text": "扩大部队。中期：加入王国或佣兵合同 -> 参与大规模战斗 -> 获得影响力和关系 -> 建立商队/工坊。后期：取得封地 ->"
+    },
+    {
+      "type": "paragraph",
+      "text": "支付驻军和建设成本 -> 管理粮食、治安、繁荣 -> 用封地收入支撑更大规模战争。"
+    },
+    {
+      "type": "paragraph",
+      "text": "2.4 系统可迁移点"
+    },
+    {
+      "type": "paragraph",
+      "text": "机制 设计价值 可迁移到《战意》类MMO的方式"
+    },
+    {
+      "type": "paragraph",
+      "text": "薪资和粮草 军队规模不是越大越好，而是受 军团出征前显示补给半径、库存续航和高阶兵团维护压力"
+    },
+    {
+      "type": "paragraph",
+      "text": "后勤约束"
+    },
+    {
+      "type": "paragraph",
+      "text": "俘虏与赎金 战斗收益不只来自击杀，还有战 领土战后增加俘虏、战利品、军需回收等经济复盘"
+    },
+    {
+      "type": "paragraph",
+      "text": "后处理"
+    },
+    {
+      "type": "paragraph",
+      "text": "同伴与家族职位 个人成长扩展为组织分工 家族中设置军需官、器械官、侦察官、指挥官等贡献角色"
+    },
+    {
+      "type": "paragraph",
+      "text": "封地经营 土地不是装饰，而是税收、粮食 领土收益影响器械制造、补给成本、城防等级"
+    },
+    {
+      "type": "paragraph",
+      "text": "、驻军和战略纵深"
+    },
+    {
+      "type": "paragraph",
+      "text": "部队战损 精锐死亡有真实痛感 高级兵团损耗后提供伤兵恢复、部分训练继承和低成本替代"
+    },
+    {
+      "type": "paragraph",
+      "text": "2.5 对作品主题的结论"
+    },
+    {
+      "type": "paragraph",
+      "text": "《骑砍2》的成长线说明，战争题材的成长可以分为“个人能力、部队组织、家族经营、政治身份、封地后勤”五层。把这个结构迁移"
+    },
+    {
+      "type": "paragraph",
+      "text": "到 MMO，不应只做兵团星级，而应让玩家在家族/领土/军需中承担更高层级的战争责任。"
+    },
+    {
+      "type": "paragraph",
+      "text": "系统策划实习生作品集 6"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "第 7 页 / 共 9 页"
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "3. 《全面战争：三国》士气-补员-战役经济联动拆解"
+    },
+    {
+      "type": "paragraph",
+      "text": "3.1 样本价值"
+    },
+    {
+      "type": "paragraph",
+      "text": "《全面战争：三国》官方页面强调回合制帝国经营与实时战斗结合，使用关系系统、外交、联盟和大量步兵/骑兵/攻城单位"
+    },
+    {
+      "type": "paragraph",
+      "text": "。它适合作为“战斗结果如何回到长期战略”的参照：一场战斗不是孤立胜负，而会影响将领关系、军队战损、补员、经济"
+    },
+    {
+      "type": "paragraph",
+      "text": "和下一回合战略。"
+    },
+    {
+      "type": "paragraph",
+      "text": "3.2 系统层级"
+    },
+    {
+      "type": "paragraph",
+      "text": "层级 系统对象 玩家决策 长期影响"
+    },
+    {
+      "type": "paragraph",
+      "text": "势力经营 城镇、建筑、粮食、收入、改革 先扩张还是先发展经济，结盟还是吞 决定可维持的军队数量和战争"
+    },
+    {
+      "type": "paragraph",
+      "text": "、外交 并 方向"
+    },
+    {
+      "type": "paragraph",
+      "text": "将领/部曲 将领类型、随从部队、装备、关 用什么将领带什么兵，是否拆分军队 影响战场战术和人物关系"
+    },
+    {
+      "type": "paragraph",
+      "text": "系"
+    },
+    {
+      "type": "paragraph",
+      "text": "战斗部署 阵型、地形、骑兵侧翼、远程射 抢高地、包抄、守桥、攻城路线 决定伤亡和战后补员压力"
+    },
+    {
+      "type": "paragraph",
+      "text": "界、攻城器械"
+    },
+    {
+      "type": "paragraph",
+      "text": "士气系统 伤亡、侧击、将领死亡、疲劳、 制造敌方崩溃而不是只拼血量 低伤亡获胜能保留战略节奏"
+    },
+    {
+      "type": "paragraph",
+      "text": "被包围"
+    },
+    {
+      "type": "paragraph",
+      "text": "补员和战损 战后部队恢复、回合时间、领地 继续追击还是停下恢复 把单场战斗结果带回战役地图"
+    },
+    {
+      "type": "paragraph",
+      "text": "补给"
+    },
+    {
+      "type": "paragraph",
+      "text": "3.3 兵种与士气不是简单剪刀石头布"
+    },
+    {
+      "type": "paragraph",
+      "text": "枪兵克骑兵的前提是正面、密阵、士气稳定；骑兵克远程的前提是有侧翼空间且没有被枪阵保护；远程压制的价值不只是击"
+    },
+    {
+      "type": "paragraph",
+      "text": "杀，还包括迫使敌人移动、破坏阵型和消耗士气；将领死亡、侧翼崩溃、疲劳累积往往比单位血量更早决定战斗结果。"
+    },
+    {
+      "type": "paragraph",
+      "text": "机制 在全战中的价值 迁移到《战意》类系统"
+    },
+    {
+      "type": "paragraph",
+      "text": "士气 侧击、包围、将领死亡导致单位溃逃 增加阵线压力和组织度，避免战斗只看血条"
+    },
+    {
+      "type": "paragraph",
+      "text": "补员 战损影响下一回合推进 战后复盘显示兵装损耗、伤兵恢复和继续匹配风险"
+    },
+    {
+      "type": "paragraph",
+      "text": "部曲 将领带队决定兵种组合 兵团编队给出前排、远程、机动、器械角色标签"
+    },
+    {
+      "type": "paragraph",
+      "text": "城防 城墙、箭塔、城门、街道改变兵种价值 3D界面突出威胁区和突破路线"
+    },
+    {
+      "type": "paragraph",
+      "text": "战役经济 收入和粮食决定军队维持 家族领土收益进入军需库和器械制造"
+    },
+    {
+      "type": "paragraph",
+      "text": "3.4 对作品主题的结论"
+    }
+  ],
+  "generatedAt": "2026-06-24"
+}

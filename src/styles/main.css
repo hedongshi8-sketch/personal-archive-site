@@ -1811,6 +1811,12 @@ p {
   border-radius: 7px;
   overflow: hidden;
   background: #101316;
+  scroll-margin-top: 72px;
+}
+
+.portfolio-preview:focus {
+  outline: 2px solid rgba(33, 215, 222, 0.72);
+  outline-offset: 3px;
 }
 
 .portfolio-preview iframe,
@@ -7348,24 +7354,43 @@ p {
 
   .portfolio-content {
     grid-template-columns: 1fr;
-    grid-template-rows: minmax(320px, auto) minmax(520px, auto);
+    grid-template-rows: auto auto;
     overflow: visible;
   }
 
   .portfolio-list {
-    max-height: 360px;
+    min-height: auto;
+    max-height: none;
+    overflow: visible;
     padding-right: 0;
   }
 
   .portfolio-detail {
-    min-height: 520px;
+    min-height: auto;
+    overflow: visible;
   }
 
   .portfolio-preview iframe,
   .portfolio-preview img,
   .portfolio-preview-empty,
-  .portfolio-fallback-preview {
+  .portfolio-fallback-preview,
+  .structured-empty,
+  .excel-reader,
+  .document-reader {
     min-height: 330px;
+  }
+
+  .portfolio-preview {
+    min-height: min(72vh, 620px);
+  }
+
+  .portfolio-detail-actions {
+    justify-content: stretch;
+  }
+
+  .portfolio-detail-actions .ghost-button,
+  .portfolio-detail-actions .cyan-button {
+    flex: 1 1 150px;
   }
 
   .fallback-signal-grid {

@@ -1,0 +1,749 @@
+{
+  "kind": "document",
+  "title": "野蛮人大作战2 - 菇霸争夺战策划案",
+  "sourceFile": "portfolio-assets/barbarq/docs/野蛮人大作战2-菇霸争夺战.pdf",
+  "blockLimit": 180,
+  "truncatedBlocks": true,
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "第 1 页 / 共 14 页"
+    },
+    {
+      "type": "paragraph",
+      "text": "野蛮人大作战2-菇霸争夺战"
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "功能说明"
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "一、功能开启条件与入口"
+    },
+    {
+      "type": "paragraph",
+      "text": "1.打开游戏并完成新手教程，点击主界面右下角选择模式，选择菇霸争夺战并进入。"
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "二、局内战斗说明"
+    },
+    {
+      "type": "paragraph",
+      "text": "概述：此为3v3v3战斗模式，变身魔王坚持到最后的玩家所在队伍获得胜利。"
+    },
+    {
+      "type": "paragraph",
+      "text": "帧率 58 21毫秒"
+    },
+    {
+      "type": "paragraph",
+      "text": "河东虎"
+    },
+    {
+      "type": "paragraph",
+      "text": "14"
+    },
+    {
+      "type": "paragraph",
+      "text": "1"
+    },
+    {
+      "type": "paragraph",
+      "text": "00:50"
+    },
+    {
+      "type": "paragraph",
+      "text": "选择替换天赋"
+    },
+    {
+      "type": "paragraph",
+      "text": "闪电球 龙卷风 我还能活！搞快点！"
+    },
+    {
+      "type": "paragraph",
+      "text": "ID:xxxxxxxxxxxxx 伤害减免+2.5% ... ..."
+    },
+    {
+      "type": "paragraph",
+      "text": "1.角色移动相关"
+    },
+    {
+      "type": "paragraph",
+      "text": "河东虎"
+    },
+    {
+      "type": "paragraph",
+      "text": "1"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "第 2 页 / 共 14 页"
+    },
+    {
+      "type": "paragraph",
+      "text": "① 角色朝着摇杆 远离圆框中心点方向移动"
+    },
+    {
+      "type": "paragraph",
+      "text": "· 手机端摇杆可在圆框内跟随使用者触碰屏幕位置方向移动。"
+    },
+    {
+      "type": "paragraph",
+      "text": "· 电脑端摇杆跟随wasd方向移动，四个键方向分别是上左下右，且可以通过相应按键组合实现左上、左下、右上、右下移动。"
+    },
+    {
+      "type": "paragraph",
+      "text": "· 当摇杆位置发生变化时，角色下面的绿圈外部会出现与摇杆方向一致的箭头 ，且角色朝着箭头方向移动"
+    },
+    {
+      "type": "paragraph",
+      "text": "· 手机端根据摇杆离开中心点的距离设置角色速度，距离与速度成正比；由于输入方式问题，电脑端除了静止状态以外角色永远是最大速度。"
+    },
+    {
+      "type": "paragraph",
+      "text": "② 点按翻滚按键 ，角色会朝着箭头方向翻滚，即迅速位移一小段距离，并做出翻滚动作。"
+    },
+    {
+      "type": "paragraph",
+      "text": "2.角色普通攻击相关交互"
+    },
+    {
+      "type": "paragraph",
+      "text": "xxx 河东虎"
+    },
+    {
+      "type": "paragraph",
+      "text": "1 1"
+    },
+    {
+      "type": "paragraph",
+      "text": "① 点按普攻按键 操控角色进行普通攻击"
+    },
+    {
+      "type": "paragraph",
+      "text": "· 每个角色都有不同普攻范围，点按普通攻击按键会做出普攻动作，并对范围内对象进行交互。"
+    },
+    {
+      "type": "paragraph",
+      "text": "·不同对象有不同交互结果，对于敌方(包括玩家 和怪物 ),交互结果是对他们血量进行削减；对于场景可交互物品，如木桶 ，结果是破坏并产出资源"
+    },
+    {
+      "type": "paragraph",
+      "text": "· 如果范围内同时存在多个可交互对象，会优先与角色面对方向对象交互 。"
+    },
+    {
+      "type": "paragraph",
+      "text": "3.角色必杀技相关"
+    },
+    {
+      "type": "paragraph",
+      "text": "河东虎"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "第 3 页 / 共 14 页"
+    },
+    {
+      "type": "paragraph",
+      "text": "河东虎"
+    },
+    {
+      "type": "paragraph",
+      "text": "1"
+    },
+    {
+      "type": "paragraph",
+      "text": "100%"
+    },
+    {
+      "type": "paragraph",
+      "text": "① 点按必杀技按键 使出角色必杀技"
+    },
+    {
+      "type": "paragraph",
+      "text": "· 必杀技必须充能完成才能使用。"
+    },
+    {
+      "type": "paragraph",
+      "text": "·必杀技充能只受时间和天赋影响，无天赋时65秒从0%充满到100%，黄色圆圈进度条对应增长。"
+    },
+    {
+      "type": "paragraph",
+      "text": "· 角色不同，必杀技不同，动作不同，效果也不同"
+    },
+    {
+      "type": "paragraph",
+      "text": "4.角色等级相关"
+    },
+    {
+      "type": "paragraph",
+      "text": "河东虎"
+    },
+    {
+      "type": "paragraph",
+      "text": "2"
+    },
+    {
+      "type": "paragraph",
+      "text": "① 角色积攒小蓝菇 到一定数量，等级 会加1"
+    },
+    {
+      "type": "paragraph",
+      "text": "·角色等级上升只会提升角色的基础数值(攻击力、防御力、血量)。"
+    },
+    {
+      "type": "paragraph",
+      "text": "· 角色每升一级到下一级所需小蓝菇数量等比增加。"
+    },
+    {
+      "type": "paragraph",
+      "text": "5.局内资源相关"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "第 4 页 / 共 14 页"
+    },
+    {
+      "type": "paragraph",
+      "text": "河东虎"
+    },
+    {
+      "type": "paragraph",
+      "text": "2"
+    },
+    {
+      "type": "paragraph",
+      "text": "① 局内资源分为小蓝菇 、天赋蘑菇 、紫色天赋蘑菇 和魔王菇"
+    },
+    {
+      "type": "paragraph",
+      "text": "· 角色靠近资源时会自动拾取，并产生作用"
+    },
+    {
+      "type": "paragraph",
+      "text": "· 小蓝菇作用是为角色提供用于升级的经验值，如前段所述。"
+    },
+    {
+      "type": "paragraph",
+      "text": "·天赋蘑菇作用是为角色提供三选一的蓝色天赋(天赋详情见菇霸争夺战-天赋表)。"
+    },
+    {
+      "type": "paragraph",
+      "text": "· 紫色天赋蘑菇顾名思义就是为角色提供三选一的紫色天赋，比普通天赋蘑菇要高一级。"
+    },
+    {
+      "type": "paragraph",
+      "text": "· 魔王菇的作用是为角色提供三选一的橙色天赋，并将拾取者转换为魔王。"
+    },
+    {
+      "type": "paragraph",
+      "text": "② 资源获取方式"
+    },
+    {
+      "type": "paragraph",
+      "text": "· 小蓝菇可通过打败怪物，破坏场景可交互物品(如木桶 ),以及打败其他队伍玩家的方式产出，等级越高的玩家被打败产出小蓝菇越多。"
+    },
+    {
+      "type": "paragraph",
+      "text": "· 天赋蘑菇可通过打败地图上小怪群获得。"
+    },
+    {
+      "type": "paragraph",
+      "text": "· 紫色天赋蘑菇可通过打败地图上精英怪获得，魔王菇通过打败菇霸获得。"
+    },
+    {
+      "type": "paragraph",
+      "text": "· 紫色天赋蘑菇和魔王菇获取时，需要己方角色所属队伍成员站在圈内 且圈内没有其他队伍的队伍成员持续一段时间之后才能成功获取，圈内己方成员越多获取速度越快"
+    },
+    {
+      "type": "paragraph",
+      "text": "6.地图怪物相关"
+    },
+    {
+      "type": "paragraph",
+      "text": "河东虎"
+    },
+    {
+      "type": "paragraph",
+      "text": "2"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "第 5 页 / 共 14 页"
+    },
+    {
+      "type": "paragraph",
+      "text": "① 局内怪物分为精英怪 、普通怪 和菇霸"
+    },
+    {
+      "type": "paragraph",
+      "text": "· 普通怪都是以群体的方式出现，打完会掉落一个天赋蘑菇，每只小怪都会掉落固定数目的少量小蓝菇。"
+    },
+    {
+      "type": "paragraph",
+      "text": "· 菇霸和精英怪以单体方式出现，血量比小怪厚很多，打败菇霸会掉落一个魔王菇以及大量小蓝菇，菇霸只在地图中间生成。"
+    },
+    {
+      "type": "paragraph",
+      "text": "· 小怪在地图上分布较密集，精英怪只在几个固定点位出现，地图中间的精英怪就是菇霸。"
+    },
+    {
+      "type": "paragraph",
+      "text": "7.天赋相关"
+    },
+    {
+      "type": "paragraph",
+      "text": "河东虎"
+    },
+    {
+      "type": "paragraph",
+      "text": "2"
+    },
+    {
+      "type": "paragraph",
+      "text": "0%选择 5%选择 10%选择"
+    },
+    {
+      "type": "paragraph",
+      "text": "绿茵魅影 磁铁武器 我弹弹弹！"
+    },
+    {
+      "type": "paragraph",
+      "text": "进草后增加移速 命中敌方概率掉落蘑菇 受伤时反弹伤害 放弃"
+    },
+    {
+      "type": "paragraph",
+      "text": "技能暴击率+1% 生命回复+80% 伤害减免+2.5%"
+    },
+    {
+      "type": "paragraph",
+      "text": "① 天赋是对于角色的一种特殊强化手段，可以让角色有基础属性之外的能力加成"
+    },
+    {
+      "type": "paragraph",
+      "text": "· 天赋分为蓝色天赋，紫色天赋和橙色天赋。只有你有原型蓝色天赋，后续才能获取到其进阶的紫色和橙色天赋。"
+    },
+    {
+      "type": "paragraph",
+      "text": "· 蓝色天赋是基石，后续获取的紫色天赋与橙色天赋都是根据你有的蓝色天赋给你强化，例如图中磁铁武器的橙色版本就是命中敌方大概率掉落蘑菇。"
+    },
+    {
+      "type": "paragraph",
+      "text": "· 蓝色天赋除了新能力以外还会给你一些基础属性加成。天赋只有四个栏位 ，不想要的可以放弃 ，后续满了可以更换。"
+    },
+    {
+      "type": "paragraph",
+      "text": "· 天赋上方会显示系统计算的所有人选择概率来辅助玩家选择。"
+    },
+    {
+      "type": "paragraph",
+      "text": "· 替换天赋操作 :先点选不要的天赋，再点击确认。"
+    },
+    {
+      "type": "paragraph",
+      "text": "② 天赋获取方式"
+    },
+    {
+      "type": "paragraph",
+      "text": "· 蓝色天赋通过天赋蘑菇获取"
+    },
+    {
+      "type": "paragraph",
+      "text": "· 紫色天赋和橙色天赋通过紫色天赋蘑菇和魔王菇获取，注意只有菇霸掉的魔王菇能产生橙色天赋"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "第 6 页 / 共 14 页"
+    },
+    {
+      "type": "paragraph",
+      "text": "· 开局可获取初始天赋 基本上决定了一局的流派方向，进度条到底玩家还未做出选择，那就由系统自动选择。"
+    },
+    {
+      "type": "paragraph",
+      "text": "角色名"
+    },
+    {
+      "type": "paragraph",
+      "text": "请选择你的初始天赋"
+    },
+    {
+      "type": "paragraph",
+      "text": "龟速猎手"
+    },
+    {
+      "type": "paragraph",
+      "text": "移速比敌人越快，对"
+    },
+    {
+      "type": "paragraph",
+      "text": "其造成伤害等比增加"
+    },
+    {
+      "type": "paragraph",
+      "text": "10%选择"
+    },
+    {
+      "type": "paragraph",
+      "text": "*20"
+    },
+    {
+      "type": "paragraph",
+      "text": "换一批"
+    },
+    {
+      "type": "paragraph",
+      "text": "8.积分与获胜机制相关"
+    },
+    {
+      "type": "paragraph",
+      "text": "① 个人变成魔王状态持续到倒计时结束 ，则个人所在队伍获胜"
+    },
+    {
+      "type": "paragraph",
+      "text": "· 首个积分>=3000或者拾取魔王菇的玩家变身魔王，其他人可通过将其击败并占领其掉落魔王菇的形式来变身魔王。"
+    },
+    {
+      "type": "paragraph",
+      "text": "· 拾取魔王菇直接+1500积分并变身魔王，击败普通野怪获得少量积分，击败精英怪获得大量积分，随机事件可获取积分，击败玩家其积分越高击杀者获取积分越高。"
+    },
+    {
+      "type": "paragraph",
+      "text": "9.缩圈机制相关"
+    },
+    {
+      "type": "paragraph",
+      "text": "① 游戏会随着时间划定可活动范围，在规定时间内未到达安全范围的玩家死亡，并在安全范围内重生，掉落一定积分。"
+    },
+    {
+      "type": "paragraph",
+      "text": "10.地图区域交互"
+    },
+    {
+      "type": "paragraph",
+      "text": "① 三个按钮分别对应自己语音开启，自己语音关闭和队友语音开启\\关闭功能，点按即可触发。"
+    },
+    {
+      "type": "paragraph",
+      "text": "① 代表精英怪， 代表小怪群， 代表回血道具，都会随着图标对应对象实际位置变动而相应变动，精英怪有重生倒计时显示。"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "第 7 页 / 共 14 页"
+    },
+    {
+      "type": "paragraph",
+      "text": "9.事件相关"
+    },
+    {
+      "type": "paragraph",
+      "text": "① 游戏中会出现随机事件，详情见<随机事件表>。"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "第 8 页 / 共 14 页"
+    },
+    {
+      "type": "paragraph",
+      "text": "野蛮人大作战2-菇霸争夺战"
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "功能说明"
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "一、功能开启条件与入口"
+    },
+    {
+      "type": "paragraph",
+      "text": "1.打开游戏并完成新手教程，点击主界面右下角选择模式，选择菇霸争夺战并进入。"
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "二、局内战斗说明"
+    },
+    {
+      "type": "paragraph",
+      "text": "概述：此为3v3v3战斗模式，变身魔王坚持到最后的玩家所在队伍获得胜利。"
+    },
+    {
+      "type": "paragraph",
+      "text": "05：50 0 0"
+    },
+    {
+      "type": "paragraph",
+      "text": "达到4000成为魔王"
+    },
+    {
+      "type": "paragraph",
+      "text": "1 xxx1 56"
+    },
+    {
+      "type": "paragraph",
+      "text": "2 xxx2 12"
+    },
+    {
+      "type": "paragraph",
+      "text": "3 xxx3 6"
+    },
+    {
+      "type": "paragraph",
+      "text": "4 河东虎 1"
+    },
+    {
+      "type": "paragraph",
+      "text": "100%"
+    },
+    {
+      "type": "paragraph",
+      "text": "1.角色移动相关"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "第 9 页 / 共 14 页"
+    },
+    {
+      "type": "paragraph",
+      "text": "① 角色朝着摇杆 远离圆框中心点方向移动"
+    },
+    {
+      "type": "paragraph",
+      "text": "· 手机端摇杆可在圆框内跟随使用者触碰屏幕位置方向移动。"
+    },
+    {
+      "type": "paragraph",
+      "text": "· 电脑端摇杆跟随wasd方向移动，四个键方向分别是上左下右，且可以通过相应按键组合实现左上、左下、右上、右下移动。"
+    },
+    {
+      "type": "paragraph",
+      "text": "· 当摇杆位置发生变化时，角色下面的绿圈外部会出现与摇杆方向一致的箭头 ，且角色朝着箭头方向移动"
+    },
+    {
+      "type": "paragraph",
+      "text": "· 手机端根据摇杆离开中心点的距离设置角色速度，距离与速度成正比；由于输入方式问题，电脑端除了静止状态以外角色永远是最大速度。"
+    },
+    {
+      "type": "paragraph",
+      "text": "② 点按翻滚按键 ，角色会朝着箭头方向翻滚，即迅速位移一小段距离，并做出翻滚动作。"
+    },
+    {
+      "type": "paragraph",
+      "text": "2.角色普通攻击相关交互"
+    },
+    {
+      "type": "paragraph",
+      "text": "① 点按普攻按键 操控角色进行普通攻击"
+    },
+    {
+      "type": "paragraph",
+      "text": "· 每个角色都有不同普攻范围，点按普通攻击按键会做出普攻动作，并对范围内对象进行交互。"
+    },
+    {
+      "type": "paragraph",
+      "text": "·不同对象有不同交互结果，对于敌方(包括玩家 和怪物 ),交互结果是对他们血量进行削减；对于场景可交互物品，如木桶 ，结果是破坏并产出资源"
+    },
+    {
+      "type": "paragraph",
+      "text": "· 如果范围内同时存在多个可交互对象，会优先与角色面对方向对象交互 。"
+    },
+    {
+      "type": "paragraph",
+      "text": "3.角色必杀技相关"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "第 10 页 / 共 14 页"
+    },
+    {
+      "type": "paragraph",
+      "text": "① 点按必杀技按键 使出角色必杀技"
+    },
+    {
+      "type": "paragraph",
+      "text": "· 必杀技必须充能完成才能使用。"
+    },
+    {
+      "type": "paragraph",
+      "text": "·必杀技充能只受时间和天赋影响，无天赋时65秒从0%充满到100%，黄色圆圈进度条对应增长。"
+    },
+    {
+      "type": "paragraph",
+      "text": "· 角色不同，必杀技不同，动作不同，效果也不同"
+    },
+    {
+      "type": "paragraph",
+      "text": "4.角色等级相关"
+    },
+    {
+      "type": "paragraph",
+      "text": "① 角色积攒小蓝菇 到一定数量，等级 会加1"
+    },
+    {
+      "type": "paragraph",
+      "text": "·角色等级上升只会提升角色的基础数值(攻击力、防御力、血量)。"
+    },
+    {
+      "type": "paragraph",
+      "text": "· 角色每升一级到下一级所需小蓝菇数量等比增加。"
+    },
+    {
+      "type": "paragraph",
+      "text": "5.局内资源相关"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "第 11 页 / 共 14 页"
+    },
+    {
+      "type": "paragraph",
+      "text": "① 局内资源分为小蓝菇 、天赋蘑菇 、紫色天赋蘑菇 和魔王菇"
+    },
+    {
+      "type": "paragraph",
+      "text": "· 角色靠近资源时会自动拾取，并产生作用"
+    },
+    {
+      "type": "paragraph",
+      "text": "· 小蓝菇作用是为角色提供用于升级的经验值，如前段所述。"
+    },
+    {
+      "type": "paragraph",
+      "text": "·天赋蘑菇作用是为角色提供三选一的蓝色天赋(天赋详情见菇霸争夺战-天赋表)。"
+    },
+    {
+      "type": "paragraph",
+      "text": "· 紫色天赋蘑菇顾名思义就是为角色提供三选一的紫色天赋，比普通天赋蘑菇要高一级。"
+    },
+    {
+      "type": "paragraph",
+      "text": "· 魔王菇的作用是为角色提供三选一的橙色天赋，并将拾取者转换为魔王。"
+    },
+    {
+      "type": "paragraph",
+      "text": "② 资源获取方式"
+    },
+    {
+      "type": "paragraph",
+      "text": "· 小蓝菇可通过打败怪物，破坏场景可交互物品(如木桶 ),以及打败其他队伍玩家的方式产出，等级越高的玩家被打败产出小蓝菇越多。"
+    },
+    {
+      "type": "paragraph",
+      "text": "· 天赋蘑菇可通过打败地图上小怪群获得。"
+    },
+    {
+      "type": "paragraph",
+      "text": "· 紫色天赋蘑菇可通过打败地图上精英怪获得，魔王菇通过打败菇霸获得。"
+    },
+    {
+      "type": "paragraph",
+      "text": "· 紫色天赋蘑菇和魔王菇获取时，需要己方角色所属队伍成员站在圈内 且圈内没有其他队伍的队伍成员持续一段时间之后才能成功获取，圈内己方成员越多获取速度越快"
+    },
+    {
+      "type": "paragraph",
+      "text": "6.地图怪物相关"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "第 12 页 / 共 14 页"
+    },
+    {
+      "type": "paragraph",
+      "text": "① 局内怪物分为精英怪 、普通怪 和菇霸"
+    },
+    {
+      "type": "paragraph",
+      "text": "· 普通怪都是以群体的方式出现，打完会掉落一个天赋蘑菇，每只小怪都会掉落固定数目的少量小蓝菇。"
+    },
+    {
+      "type": "paragraph",
+      "text": "· 菇霸和精英怪以单体方式出现，血量比小怪厚很多，打败菇霸会掉落一个魔王菇以及大量小蓝菇，菇霸只在地图中间生成。"
+    },
+    {
+      "type": "paragraph",
+      "text": "· 小怪在地图上分布较密集，精英怪只在几个固定点位出现，地图中间的精英怪就是菇霸。"
+    },
+    {
+      "type": "paragraph",
+      "text": "7.天赋相关"
+    },
+    {
+      "type": "paragraph",
+      "text": "① 天赋是对于角色的一种特殊强化手段，可以让角色有基础属性之外的能力加成"
+    },
+    {
+      "type": "paragraph",
+      "text": "· 天赋分为蓝色天赋，紫色天赋和橙色天赋。只有你有原型蓝色天赋，后续才能获取到其进阶的紫色和橙色天赋。"
+    },
+    {
+      "type": "paragraph",
+      "text": "· 蓝色天赋是基石，后续获取的紫色天赋与橙色天赋都是根据你有的蓝色天赋给你强化，例如图中磁铁武器的橙色版本就是命中敌方大概率掉落蘑菇。"
+    },
+    {
+      "type": "paragraph",
+      "text": "· 蓝色天赋除了新能力以外还会给你一些基础属性加成。天赋只有四个栏位 ，不想要的可以放弃 ，后续满了可以更换。"
+    },
+    {
+      "type": "paragraph",
+      "text": "· 天赋上方会显示系统计算的所有人选择概率来辅助玩家选择。"
+    },
+    {
+      "type": "paragraph",
+      "text": "· 替换天赋操作 :先点选不要的天赋，再点击确认。"
+    },
+    {
+      "type": "paragraph",
+      "text": "② 天赋获取方式"
+    },
+    {
+      "type": "paragraph",
+      "text": "· 蓝色天赋通过天赋蘑菇获取"
+    },
+    {
+      "type": "paragraph",
+      "text": "· 紫色天赋和橙色天赋通过紫色天赋蘑菇和魔王菇获取，注意只有菇霸掉的魔王菇能产生橙色天赋"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "第 13 页 / 共 14 页"
+    },
+    {
+      "type": "paragraph",
+      "text": "· 开局可获取初始天赋 基本上决定了一局的流派方向，进度条到底玩家还未做出选择，那就由系统自动选择。"
+    },
+    {
+      "type": "paragraph",
+      "text": "0"
+    },
+    {
+      "type": "paragraph",
+      "text": "8.积分与获胜机制相关"
+    },
+    {
+      "type": "paragraph",
+      "text": "① 个人变成魔王状态持续到倒计时结束 ，则个人所在队伍获胜"
+    }
+  ],
+  "generatedAt": "2026-06-24"
+}

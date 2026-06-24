@@ -12,6 +12,7 @@ from docx.oxml.text.paragraph import CT_P
 from docx.table import Table
 from docx.text.paragraph import Paragraph
 from openpyxl import load_workbook
+import pdfplumber
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -24,6 +25,7 @@ MAX_EXCEL_COLS = 40
 MAX_DOCUMENT_BLOCKS = 180
 MAX_TABLE_ROWS = 80
 MAX_TABLE_COLS = 16
+MAX_PDF_BLOCKS = 180
 
 
 def public_path(path: Path) -> str:
@@ -214,6 +216,53 @@ def build_docx_preview(item_id: str, title: str, source: Path) -> None:
     )
 
 
+def build_pdf_preview(item_id: str, title: str, source: Path) -> None:
+    blocks: list[dict[str, Any]] = []
+
+    with pdfplumber.open(source) as pdf:
+        page_count = len(pdf.pages)
+        for page_index, page in enumerate(pdf.pages, start=1):
+            text = page.extract_text(layout=False) or ""
+            lines = [line.strip() for line in text.splitlines() if line.strip()]
+            if not lines:
+                continue
+
+            blocks.append(
+                {
+                    "type": "heading",
+                    "level": 2,
+                    "text": f"第 {page_index} 页 / 共 {page_count} 页",
+                }
+            )
+
+            for line in lines:
+                if len(blocks) >= MAX_PDF_BLOCKS:
+                    break
+
+                if len(line) <= 34 and (
+                    line.startswith(("一、", "二、", "三、", "四、", "五、", "六、"))
+                    or line.endswith(("说明", "拆解", "目录", "内容摘要", "功能说明"))
+                ):
+                    blocks.append({"type": "heading", "level": 3, "text": line})
+                else:
+                    blocks.append({"type": "paragraph", "text": line})
+
+            if len(blocks) >= MAX_PDF_BLOCKS:
+                break
+
+    write_json(
+        f"{item_id}.json",
+        {
+            "kind": "document",
+            "title": title,
+            "sourceFile": public_path(source),
+            "blockLimit": MAX_PDF_BLOCKS,
+            "truncatedBlocks": len(blocks) >= MAX_PDF_BLOCKS,
+            "blocks": blocks,
+        },
+    )
+
+
 def build_text_preview(item_id: str, title: str, source: Path, kind: str) -> None:
     write_json(
         f"{item_id}.json",
@@ -253,6 +302,21 @@ def main() -> None:
         "game-town-config-sheets",
         "游戏小镇系统配置表合集",
         sorted((ASSETS / "game-town" / "sheets").glob("*.xlsx")),
+    )
+    build_pdf_preview(
+        "barbarq-main-design",
+        "野蛮人大作战2 - 菇霸争夺战策划案",
+        ASSETS / "barbarq" / "docs" / "野蛮人大作战2-菇霸争夺战.pdf",
+    )
+    build_pdf_preview(
+        "barbarq-art-requirement",
+        "菇霸争夺战部分美术需求",
+        ASSETS / "barbarq" / "docs" / "野蛮人大作战2-菇霸争夺战部分美术需求.pdf",
+    )
+    build_pdf_preview(
+        "system-planner-portfolio",
+        "系统策划实习生作品集",
+        ASSETS / "system-planner" / "docs" / "01_作品集_系统策划实习生_最终投递版.pdf",
     )
 
     build_docx_preview(

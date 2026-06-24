@@ -38,6 +38,38 @@ const withBase = (path: string) => `${import.meta.env.BASE_URL}${path.replace(/^
 const assetRoot = withBase("portfolio-assets");
 const previewRoot = withBase("portfolio-previews");
 
+const pdfPreviewOverrides = [
+  {
+    matchers: ["barbarq-main-design", "野蛮人大作战2-菇霸争夺战.pdf", "野蛮人大作战2 - 菇霸争夺战策划案"],
+    previewUrl: `${previewRoot}/barbarq-main-design.json`,
+  },
+  {
+    matchers: ["barbarq-art-requirement", "野蛮人大作战2-菇霸争夺战部分美术需求.pdf", "菇霸争夺战部分美术需求"],
+    previewUrl: `${previewRoot}/barbarq-art-requirement.json`,
+  },
+  {
+    matchers: ["system-planner-portfolio", "01_作品集_系统策划实习生_最终投递版.pdf", "系统策划实习生作品集"],
+    previewUrl: `${previewRoot}/system-planner-portfolio.json`,
+  },
+];
+
+export function normalizePortfolioPreviewUrl(item: Pick<PortfolioItem, "id" | "title" | "kind" | "publicUrl" | "previewUrl">) {
+  if (!item.previewUrl) {
+    return undefined;
+  }
+
+  if (item.previewUrl.endsWith(".json")) {
+    return item.previewUrl;
+  }
+
+  if (item.kind !== "pdf") {
+    return item.previewUrl;
+  }
+
+  const searchable = [item.id, item.title, item.publicUrl, item.previewUrl].join(" ");
+  return pdfPreviewOverrides.find((override) => override.matchers.some((matcher) => searchable.includes(matcher)))?.previewUrl ?? item.previewUrl;
+}
+
 export const portfolioProjectLabels: Record<Exclude<PortfolioProject, "all">, string> = {
   barbarq: "野蛮人大作战",
   "game-town": "游戏小镇",
@@ -76,7 +108,7 @@ const rawPortfolioItems: PortfolioItem[] = [
     summary: "围绕菇霸争夺战玩法模式整理的规则、目标、节奏与核心体验说明。",
     tags: ["玩法模式", "战斗规则", "活动策划"],
     publicUrl: `${assetRoot}/barbarq/docs/野蛮人大作战2-菇霸争夺战.pdf`,
-    previewUrl: `${assetRoot}/barbarq/docs/野蛮人大作战2-菇霸争夺战.pdf`,
+    previewUrl: `${previewRoot}/barbarq-main-design.json`,
     sourcePath: "E:\\工作相关\\野蛮人大作战2-菇霸争夺战.pdf",
     updatedAt: "2026-04-07",
     featured: true,
@@ -123,7 +155,7 @@ const rawPortfolioItems: PortfolioItem[] = [
     summary: "玩法设计转化到美术需求的说明，展示需求拆分、表达和协作交付。",
     tags: ["美术需求", "协作文档", "PDF"],
     publicUrl: `${assetRoot}/barbarq/docs/野蛮人大作战2-菇霸争夺战部分美术需求.pdf`,
-    previewUrl: `${assetRoot}/barbarq/docs/野蛮人大作战2-菇霸争夺战部分美术需求.pdf`,
+    previewUrl: `${previewRoot}/barbarq-art-requirement.json`,
     sourcePath: "E:\\工作相关\\野蛮人大作战2-菇霸争夺战部分美术需求.pdf",
     updatedAt: "2026-04-07",
     downloadable: true,
@@ -153,7 +185,7 @@ const rawPortfolioItems: PortfolioItem[] = [
     summary: "最终投递版作品集，集中展示系统拆解、文档表达和策划分析能力。",
     tags: ["作品集", "系统策划", "PDF"],
     publicUrl: `${assetRoot}/system-planner/docs/01_作品集_系统策划实习生_最终投递版.pdf`,
-    previewUrl: `${assetRoot}/system-planner/docs/01_作品集_系统策划实习生_最终投递版.pdf`,
+    previewUrl: `${previewRoot}/system-planner-portfolio.json`,
     sourcePath: "E:\\策划文档\\系统策划实习生投递包\\最终投递版\\01_作品集_系统策划实习生_最终投递版.pdf",
     updatedAt: "2026-06-16",
     featured: true,

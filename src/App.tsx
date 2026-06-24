@@ -1593,6 +1593,10 @@ function isJsonPreview(item: PortfolioItem) {
   return Boolean(item.previewUrl?.endsWith(".json"));
 }
 
+function isInlinePreview(item: PortfolioItem) {
+  return Boolean(item.previewUrl && (isJsonPreview(item) || item.kind === "image" || item.kind === "html-prototype"));
+}
+
 function getColumnLabel(index: number) {
   let value = index + 1;
   let label = "";
@@ -1936,7 +1940,7 @@ function PortfolioPreview({ item }: { item: PortfolioItem }) {
     return <StructuredPortfolioPreview item={item} />;
   }
 
-  if (item.previewUrl && (item.kind === "pdf" || item.kind === "html-prototype")) {
+  if (item.previewUrl && item.kind === "html-prototype") {
     return <iframe title={item.title} src={item.previewUrl} loading="lazy" />;
   }
 
@@ -2395,6 +2399,7 @@ function DocsSection({ currentUser }: { currentUser: AuthUser | null }) {
   const [deletingPortfolioItemId, setDeletingPortfolioItemId] = useState<string | null>(null);
   const [docsState, setDocsState] = useState<LoadState>("idle");
   const [statusMessage, setStatusMessage] = useState("");
+  const previewRef = useRef<HTMLDivElement | null>(null);
 
   const isOwner = currentUser?.role === "owner";
   const isSupabase = siteBackend.mode === "supabase";
@@ -2416,6 +2421,19 @@ function DocsSection({ currentUser }: { currentUser: AuthUser | null }) {
 
   const activeItem = filteredItems.find((item) => item.id === activeId) ?? filteredItems[0] ?? portfolioItems[0];
   const editingPortfolioItem = editingPortfolioItemId ? items.find((item) => item.id === editingPortfolioItemId) : null;
+
+  function focusPortfolioPreview() {
+    previewRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function selectPortfolioItem(item: PortfolioItem) {
+    setActiveId(item.id);
+    if (typeof window !== "undefined" && window.matchMedia("(max-width: 860px)").matches) {
+      window.requestAnimationFrame(() => {
+        focusPortfolioPreview();
+      });
+    }
+  }
 
   useEffect(() => {
     if (!docsNavigationTarget) {
@@ -2747,7 +2765,7 @@ function DocsSection({ currentUser }: { currentUser: AuthUser | null }) {
               <button
                 className={clsx("portfolio-card", activeItem.id === item.id && "selected")}
                 key={item.id}
-                onClick={() => setActiveId(item.id)}
+                onClick={() => selectPortfolioItem(item)}
                 type="button"
               >
                 <span className="portfolio-card-icon">
@@ -2802,17 +2820,17 @@ function DocsSection({ currentUser }: { currentUser: AuthUser | null }) {
                 </div>
               ) : null}
             </div>
-            <div className="portfolio-preview">
+            <div className="portfolio-preview" ref={previewRef} tabIndex={-1}>
               <PortfolioPreview item={activeItem} />
             </div>
             <div className="portfolio-detail-actions">
-              {activeItem.previewUrl && !isJsonPreview(activeItem) ? (
-                <a className="ghost-button" href={activeItem.previewUrl} target="_blank" rel="noreferrer">
-                  <ExternalLink size={16} />
-                  打开预览
-                </a>
+              {isInlinePreview(activeItem) ? (
+                <button className="ghost-button" onClick={focusPortfolioPreview} type="button">
+                  <FileText size={16} />
+                  查看站内预览
+                </button>
               ) : null}
-              {isJsonPreview(activeItem) ? (
+              {activeItem.publicUrl ? (
                 <a className="ghost-button" href={activeItem.publicUrl} target="_blank" rel="noreferrer">
                   <ExternalLink size={16} />
                   打开原文件
