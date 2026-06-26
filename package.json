@@ -26,6 +26,7 @@
     "verify:email:guided": "node scripts/verify-email-guided.mjs",
     "verify:portfolio-mobile-preview": "node scripts/verify-portfolio-mobile-preview.mjs",
     "verify:reading-import": "node scripts/verify-reading-import.mjs",
+    "verify:reading-seeds": "node scripts/verify-reading-seeds.mjs",
     "verify:reading-owner-flow": "node scripts/verify-reading-owner-flow.mjs",
     "verify:music-owner-flow": "node scripts/verify-music-owner-flow.mjs",
     "verify:music-upload-limits": "node scripts/verify-music-upload-limits.mjs",

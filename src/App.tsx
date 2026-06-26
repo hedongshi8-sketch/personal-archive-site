@@ -307,6 +307,25 @@ function normalizeSearchText(value: string) {
   return value.normalize("NFKC").trim().toLowerCase();
 }
 
+function mergeReadingNotesWithSeeds(remoteNotes: ReadingNote[]) {
+  const seenIds = new Set<string>();
+  const seenContent = new Set<string>();
+  const mergedNotes: ReadingNote[] = [];
+
+  for (const note of [...remoteNotes, ...readingNotes]) {
+    const contentKey = normalizeSearchText(`${note.title}|${note.creator}|${note.quote}`);
+    if (seenIds.has(note.id) || seenContent.has(contentKey)) {
+      continue;
+    }
+
+    seenIds.add(note.id);
+    seenContent.add(contentKey);
+    mergedNotes.push(note);
+  }
+
+  return mergedNotes;
+}
+
 function createGlobalSearchIndex(): GlobalSearchItem[] {
   return [
     ...portfolioItems.map((item) => ({
@@ -4226,7 +4245,7 @@ function GallerySection({
 }
 
 function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
-  const [notes, setNotes] = useState<ReadingNote[]>(() => (siteBackend.mode === "supabase" ? [] : readingNotes));
+  const [notes, setNotes] = useState<ReadingNote[]>(readingNotes);
   const [activeKind, setActiveKind] = useState<"all" | ReadingNote["kind"]>("all");
   const [activeTag, setActiveTag] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
@@ -4426,9 +4445,7 @@ function NotesSection({ currentUser }: { currentUser: AuthUser | null }) {
           return;
         }
 
-        if (remoteNotes.length > 0 || siteBackend.mode === "supabase") {
-          setNotes(remoteNotes);
-        }
+        setNotes(mergeReadingNotesWithSeeds(remoteNotes));
         setLoadState("ready");
       } catch (error) {
         if (!active) {

@@ -76,6 +76,7 @@ assert(exists(".github/workflows/github-pages.yml"), "GitHub Pages workflow exis
 assert(exists("docs/deployment-runbook.md"), "deployment runbook exists");
 assert(exists("docs/release-checklist.md"), "release checklist exists");
 assert(exists("docs/development-maintenance.md"), "development maintenance docs exist");
+assert(exists("docs/reading-seeds.md"), "reading seed maintenance docs exist");
 assert(exists("docs/supabase-smtp.md"), "Supabase SMTP docs exist");
 assert(exists(".env.example"), ".env.example exists");
 assert(exists("supabase/fix-live-database.sql"), "Supabase live database fix script exists");
@@ -97,6 +98,7 @@ assert(read("docs/supabase-smtp.md").includes("Gmail App Password"), "SMTP docs 
 assert(read("docs/supabase-smtp.md").includes("从买域名到正式 SMTP 配完"), "SMTP docs include domain purchase flow");
 assert(read("docs/supabase-smtp.md").includes("verify:auth-email"), "SMTP docs include Supabase auth email verification");
 assert(read("docs/supabase-smtp.md").includes("verify:mail-dns"), "SMTP docs include mail DNS verification");
+assert(read("docs/reading-seeds.md").includes("seed-reading-notes.sql"), "reading seed docs explain Supabase seed SQL");
 
 const packageJson = JSON.parse(read("package.json"));
 assert(packageJson.scripts?.["smoke:dist"] === "node scripts/dist-smoke-test.mjs", "dist smoke script exists");
@@ -151,6 +153,10 @@ assert(packageJson.scripts?.["verify:portfolio-mobile-preview"] === "node script
 assert(read("scripts/verify-portfolio-mobile-preview.mjs").includes("查看站内预览"), "portfolio mobile preview verifier checks in-site preview action");
 assert(packageJson.scripts?.["verify:reading-import"] === "node scripts/verify-reading-import.mjs", "reading import verification script exists");
 assert(read("scripts/verify-reading-import.mjs").includes("parseReadingClipboardText"), "reading import verifier checks clipboard parsing");
+assert(packageJson.scripts?.["verify:reading-seeds"] === "node scripts/verify-reading-seeds.mjs", "reading seed verification script exists");
+assert(read("scripts/verify-reading-seeds.mjs").includes("通关！游戏设计之道（第2版）"), "reading seed verifier checks game design book list");
+assert(exists("supabase/seed-reading-notes.sql"), "Supabase reading notes seed exists");
+assert(read("supabase/seed-reading-notes.sql").includes("on conflict (id) do update set"), "Supabase reading notes seed is rerunnable");
 assert(packageJson.scripts?.["verify:reading-owner-flow"] === "node scripts/verify-reading-owner-flow.mjs", "reading owner flow verification script exists");
 assert(read("scripts/verify-reading-owner-flow.mjs").includes("站主书摘发布入口"), "reading owner flow verifier checks owner composer");
 assert(packageJson.scripts?.["verify:music-owner-flow"] === "node scripts/verify-music-owner-flow.mjs", "music owner flow verification script exists");
@@ -191,6 +197,9 @@ assert(pagesWorkflow.includes("npm run smoke:dist"), "GitHub Pages deploy runs d
 assert(ciWorkflow.includes("npm run verify:reading-import"), "CI verifies reading import parsing");
 assert(vercelWorkflow.includes("npm run verify:reading-import"), "Vercel deploy verifies reading import parsing");
 assert(pagesWorkflow.includes("npm run verify:reading-import"), "GitHub Pages deploy verifies reading import parsing");
+assert(ciWorkflow.includes("npm run verify:reading-seeds"), "CI verifies reading seed data");
+assert(vercelWorkflow.includes("npm run verify:reading-seeds"), "Vercel deploy verifies reading seed data");
+assert(pagesWorkflow.includes("npm run verify:reading-seeds"), "GitHub Pages deploy verifies reading seed data");
 assert(ciWorkflow.includes("npm run verify:music-owner-flow"), "CI verifies music owner flow");
 assert(vercelWorkflow.includes("npm run verify:music-owner-flow"), "Vercel deploy verifies music owner flow");
 assert(pagesWorkflow.includes("npm run verify:music-owner-flow"), "GitHub Pages deploy verifies music owner flow");
