@@ -53,7 +53,20 @@ for (let index = 201; index <= 211; index += 1) {
   assert(seedSql.includes(`'${id}'::uuid`), `Supabase reading seed uses UUID ${id}`);
 }
 assert(countMatches(siteData, /reflection: ""/g) === 11, "seed reading notes have empty reflections");
-assert(siteData.includes("摘记："), "reading seeds are labeled as short excerpts/notes");
+for (const quote of [
+  "短摘：游戏玩法应该是你要一直琢磨的。",
+  "短摘：玩游戏的场景对游戏会产生巨大的影响。",
+  "短摘：玩家做出的决定会反映他的游戏风格。",
+  "目录摘记：情感触发器、虚构层、心流和沉浸共同构成体验引擎。",
+  "短摘：你必须在长远目标和短期需求之间找到一个平衡点。",
+  "短摘：在游戏一开始就设计一些小回报。",
+  "短摘：玩家通过游戏角色把自己和虚拟形象联系起来。",
+]) {
+  assert(siteData.includes(quote), `static reading seed includes ${quote}`);
+  assert(seedSql.includes(quote), `Supabase reading seed includes ${quote}`);
+}
+assert(siteData.includes("短摘：") && siteData.includes("目录摘记："), "reading seeds are labeled as excerpts or outline notes");
+assert(readFileSync("docs/reading-seeds.md", "utf8").includes("reflection` 统一留空"), "reading seed docs explain no reviews are written");
 assert(appSource.includes("function mergeReadingNotesWithSeeds"), "reading seeds merge with remote notes");
 assert(appSource.includes("setNotes(mergeReadingNotesWithSeeds(remoteNotes))"), "Supabase reading list falls back to seeds");
 assert(seedSql.includes("on conflict (id) do update set"), "Supabase reading seed is rerunnable");
