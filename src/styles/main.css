@@ -7544,6 +7544,38 @@ p {
     max-height: none;
   }
 
+  .portfolio-preview .document-reader.has-page-images .document-page-preview {
+    gap: 12px;
+    border-bottom: 0;
+    padding: 12px;
+    background: #fffdf6;
+  }
+
+  .portfolio-preview .document-reader.has-page-images .document-page-strip {
+    display: grid;
+    gap: 12px;
+    overflow: visible;
+    padding-bottom: 0;
+    scroll-snap-type: none;
+  }
+
+  .portfolio-preview .document-reader.has-page-images .document-page-card {
+    display: grid;
+    width: 100%;
+    padding: 6px;
+  }
+
+  .portfolio-preview .document-reader.has-page-images .document-page-card img {
+    width: 100%;
+    height: auto;
+    min-height: 0;
+    max-height: none;
+  }
+
+  .portfolio-preview .document-reader.has-page-images .document-blocks {
+    display: none;
+  }
+
   .portfolio-detail-actions {
     justify-content: stretch;
   }

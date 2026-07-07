@@ -1,6 +1,6 @@
 /* global self, caches, fetch, URL */
 
-const CACHE_NAME = "linx-archive-v4";
+const CACHE_NAME = "linx-archive-v5";
 
 function sameScopePath(path) {
   return new URL(path, self.registration.scope).href;
@@ -35,6 +35,7 @@ self.addEventListener("fetch", (event) => {
   const requestUrl = new URL(event.request.url);
   const isSameScope = requestUrl.href.startsWith(self.registration.scope);
   const relativePath = isSameScope ? requestUrl.href.slice(self.registration.scope.length) : "";
+  const isPortfolioPreview = relativePath.startsWith("portfolio-previews/");
   const isAppShell =
     event.request.mode === "navigate" ||
     relativePath === "" ||
@@ -51,6 +52,19 @@ self.addEventListener("fetch", (event) => {
           return response;
         })
         .catch(() => caches.match(event.request).then((cached) => cached || caches.match(sameScopePath("index.html")))),
+    );
+    return;
+  }
+
+  if (isPortfolioPreview) {
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+          return response;
+        })
+        .catch(() => caches.match(event.request).then((cached) => cached || caches.match(sameScopePath("./")))),
     );
     return;
   }

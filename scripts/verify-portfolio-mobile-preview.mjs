@@ -7,6 +7,8 @@ const dataSource = readFileSync(join(root, "src", "data", "portfolioItems.ts"), 
 const backendSource = readFileSync(join(root, "src", "lib", "backendContract.ts"), "utf8");
 const stylesSource = readFileSync(join(root, "src", "styles", "main.css"), "utf8");
 const seedSource = readFileSync(join(root, "supabase", "seed-portfolio.sql"), "utf8");
+const serviceWorkerSource = readFileSync(join(root, "public", "sw.js"), "utf8");
+const headersSource = readFileSync(join(root, "public", "_headers"), "utf8");
 const failures = [];
 
 const pdfPreviewFiles = [
@@ -108,6 +110,9 @@ includes(appSource, "window.matchMedia(\"(max-width: 860px)\")", "mobile card se
 includes(appSource, "查看站内预览", "preview action stays in the site");
 includes(appSource, "表内图片", "Excel reader renders embedded images");
 includes(appSource, "版面预览", "document reader renders visual page previews");
+includes(appSource, "has-page-images", "document reader marks visual-page documents for mobile layout");
+includes(appSource, "getVersionedPreviewUrl", "JSON previews bypass stale browser caches");
+includes(appSource, "recoverDocumentPageImages", "PDF document previews recover visual page images if cached JSON is stale");
 assert(!appSource.includes("打开预览"), "raw preview action label is removed");
 assert(!appSource.includes("href={activeItem.previewUrl} target=\"_blank\""), "preview action no longer opens raw files");
 
@@ -117,7 +122,14 @@ includes(stylesSource, ".excel-image-board", "Excel embedded images have mobile 
 includes(stylesSource, ".document-page-preview", "document page images have mobile styles");
 includes(stylesSource, ".portfolio-preview .document-image-block img", "mobile DOCX embedded images override global preview image sizing");
 includes(stylesSource, "max-height: none", "mobile DOCX embedded images are not vertically clipped");
+includes(stylesSource, ".document-reader.has-page-images .document-page-strip", "mobile visual-page documents render page images as a vertical reading flow");
+includes(stylesSource, ".document-reader.has-page-images .document-blocks", "mobile visual-page documents hide extracted text blocks");
 includes(stylesSource, ".portfolio-detail-actions .cyan-button", "mobile preview actions stretch cleanly");
+
+includes(serviceWorkerSource, "linx-archive-v5", "service worker cache version is bumped for portfolio preview fixes");
+includes(serviceWorkerSource, "isPortfolioPreview", "service worker detects portfolio preview requests");
+includes(headersSource, "/portfolio-previews/*", "portfolio preview headers are configured");
+includes(headersSource, "Cache-Control: no-cache", "portfolio previews revalidate instead of staying stale");
 
 for (const fileName of pdfPreviewFiles) {
   includes(seedSource, `/portfolio-previews/${fileName}`, `seed uses ${fileName}`);

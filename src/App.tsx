@@ -1665,6 +1665,65 @@ function getOfficeViewerUrl(value: string) {
   return `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(absoluteUrl)}`;
 }
 
+const previewFetchVersion = "20260707-mobile-page-previews";
+
+function getVersionedPreviewUrl(value: string) {
+  try {
+    const url = new URL(value, typeof window === "undefined" ? "http://localhost/" : window.location.href);
+    if (url.pathname.endsWith(".json") && url.pathname.includes("/portfolio-previews/")) {
+      url.searchParams.set("v", previewFetchVersion);
+      return url.href;
+    }
+  } catch {
+    // Fall through to the original URL when the browser cannot parse it.
+  }
+
+  return value;
+}
+
+const documentPageImageRecoveries = [
+  {
+    matchers: ["system-planner-portfolio", "系统策划实习生作品集", "system-planner-portfolio.json"],
+    count: 9,
+    src: (page: number) => `portfolio-previews/media/system-planner-portfolio/page-${page}.png`,
+  },
+  {
+    matchers: ["barbarq-main-design", "野蛮人大作战2 - 菇霸争夺战策划案", "barbarq-main-design.json"],
+    count: 14,
+    src: (page: number) => `portfolio-previews/media/barbarq-main-design/page-${String(page).padStart(2, "0")}.png`,
+  },
+  {
+    matchers: ["barbarq-art-requirement", "菇霸争夺战部分美术需求", "barbarq-art-requirement.json"],
+    count: 6,
+    src: (page: number) => `portfolio-previews/media/barbarq-art-requirement/page-${page}.png`,
+  },
+];
+
+function recoverDocumentPageImages(item: PortfolioItem, data: DocumentPreviewData): DocumentPreviewData {
+  if (data.pageImages?.length || item.kind !== "pdf") {
+    return data;
+  }
+
+  const searchable = [item.id, item.title, item.publicUrl, item.previewUrl, data.title, data.sourceFile].filter(Boolean).join(" ");
+  const recovery = documentPageImageRecoveries.find((candidate) => candidate.matchers.some((matcher) => searchable.includes(matcher)));
+  if (!recovery) {
+    return data;
+  }
+
+  return {
+    ...data,
+    pageImages: Array.from({ length: recovery.count }, (_, index) => {
+      const page = index + 1;
+      return {
+        page,
+        src: recovery.src(page),
+        alt: `第 ${page} 页预览`,
+      };
+    }),
+    truncatedPageImages: false,
+  };
+}
+
 function getColumnLabel(index: number) {
   let value = index + 1;
   let label = "";
@@ -1843,7 +1902,7 @@ function PreviewTable({ rows }: { rows: string[][] }) {
 
 function DocumentReader({ data }: { data: DocumentPreviewData }) {
   return (
-    <article className="document-reader">
+    <article className={clsx("document-reader", data.pageImages?.length && "has-page-images")}>
       <div className="document-reader-head">
         <span>站内文档预览</span>
         <strong>{data.title}</strong>
@@ -1974,7 +2033,7 @@ function StructuredPortfolioPreview({ item }: { item: PortfolioItem }) {
       setErrorMessage("");
 
       try {
-        const response = await fetch(item.previewUrl);
+        const response = await fetch(getVersionedPreviewUrl(item.previewUrl), { cache: "no-store" });
         if (!response.ok) {
           throw new Error(`预览文件加载失败：${response.status}`);
         }
@@ -1984,7 +2043,7 @@ function StructuredPortfolioPreview({ item }: { item: PortfolioItem }) {
           return;
         }
 
-        setData(payload);
+        setData(payload.kind === "document" ? recoverDocumentPageImages(item, payload) : payload);
         setState("ready");
       } catch (error) {
         if (!active) {
@@ -2000,7 +2059,7 @@ function StructuredPortfolioPreview({ item }: { item: PortfolioItem }) {
     return () => {
       active = false;
     };
-  }, [item.previewUrl]);
+  }, [item]);
 
   if (state === "loading") {
     return (
