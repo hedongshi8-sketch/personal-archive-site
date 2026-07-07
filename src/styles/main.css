@@ -1999,6 +1999,12 @@ p {
   font-size: 13px;
 }
 
+.structured-empty.compact {
+  min-height: 180px;
+  background: #fffdf6;
+  color: var(--ink);
+}
+
 .excel-reader,
 .document-reader {
   height: 100%;
@@ -2086,6 +2092,78 @@ p {
   border-color: rgba(33, 215, 222, 0.62);
   background: rgba(33, 215, 222, 0.13);
   color: #0c4e59;
+}
+
+.excel-image-board {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border-bottom: 1px solid rgba(30, 29, 25, 0.1);
+  background: #fdf7ed;
+}
+
+.excel-image-board-head,
+.document-page-preview-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  color: #514c43;
+}
+
+.excel-image-board-head span,
+.document-page-preview-head span {
+  color: var(--cyan-dark);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.excel-image-board-head strong,
+.document-page-preview-head strong {
+  font-size: 13px;
+}
+
+.excel-image-grid {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scroll-snap-type: x proximity;
+}
+
+.excel-image-card {
+  flex: 0 0 min(82vw, 360px);
+  display: grid;
+  gap: 7px;
+  margin: 0;
+  border: 1px solid rgba(30, 29, 25, 0.12);
+  border-radius: 7px;
+  padding: 8px;
+  background: #fffef8;
+  scroll-snap-align: start;
+}
+
+.excel-image-card img {
+  width: 100%;
+  max-height: 360px;
+  object-fit: contain;
+  border-radius: 5px;
+  background: #f5efe2;
+}
+
+.excel-image-card figcaption {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  color: #5f574a;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.excel-image-card small {
+  color: #837767;
+  font-size: 11px;
+  font-weight: 750;
 }
 
 .excel-table-shell,
@@ -2183,6 +2261,55 @@ p {
   flex: 0 0 auto;
 }
 
+.document-page-preview {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border-bottom: 1px solid rgba(30, 29, 25, 0.1);
+  background: #f8f2e6;
+}
+
+.document-page-strip {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scroll-snap-type: x proximity;
+}
+
+.document-page-card,
+.document-image-block {
+  margin: 0;
+}
+
+.document-page-card {
+  flex: 0 0 min(82vw, 420px);
+  display: grid;
+  gap: 7px;
+  border: 1px solid rgba(30, 29, 25, 0.12);
+  border-radius: 7px;
+  padding: 8px;
+  background: #fffdf7;
+  scroll-snap-align: start;
+}
+
+.document-page-card img,
+.document-image-block img {
+  display: block;
+  width: 100%;
+  max-height: 620px;
+  object-fit: contain;
+  border-radius: 5px;
+  background: #f5efe2;
+}
+
+.document-page-card figcaption,
+.document-image-block figcaption {
+  color: #6f6658;
+  font-size: 12px;
+  font-weight: 800;
+}
+
 .document-blocks {
   display: grid;
   gap: 10px;
@@ -2215,6 +2342,15 @@ p {
 .document-table-block {
   display: grid;
   gap: 0;
+}
+
+.document-image-block {
+  display: grid;
+  gap: 7px;
+  border: 1px solid rgba(30, 29, 25, 0.1);
+  border-radius: 7px;
+  padding: 8px;
+  background: #fffdf7;
 }
 
 .doc-table {

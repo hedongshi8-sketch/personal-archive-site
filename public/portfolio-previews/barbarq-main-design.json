@@ -4,6 +4,79 @@
   "sourceFile": "portfolio-assets/barbarq/docs/野蛮人大作战2-菇霸争夺战.pdf",
   "blockLimit": 180,
   "truncatedBlocks": true,
+  "pageImages": [
+    {
+      "page": 1,
+      "src": "portfolio-previews/media/barbarq-main-design/page-01.png",
+      "alt": "第 1 页预览"
+    },
+    {
+      "page": 2,
+      "src": "portfolio-previews/media/barbarq-main-design/page-02.png",
+      "alt": "第 2 页预览"
+    },
+    {
+      "page": 3,
+      "src": "portfolio-previews/media/barbarq-main-design/page-03.png",
+      "alt": "第 3 页预览"
+    },
+    {
+      "page": 4,
+      "src": "portfolio-previews/media/barbarq-main-design/page-04.png",
+      "alt": "第 4 页预览"
+    },
+    {
+      "page": 5,
+      "src": "portfolio-previews/media/barbarq-main-design/page-05.png",
+      "alt": "第 5 页预览"
+    },
+    {
+      "page": 6,
+      "src": "portfolio-previews/media/barbarq-main-design/page-06.png",
+      "alt": "第 6 页预览"
+    },
+    {
+      "page": 7,
+      "src": "portfolio-previews/media/barbarq-main-design/page-07.png",
+      "alt": "第 7 页预览"
+    },
+    {
+      "page": 8,
+      "src": "portfolio-previews/media/barbarq-main-design/page-08.png",
+      "alt": "第 8 页预览"
+    },
+    {
+      "page": 9,
+      "src": "portfolio-previews/media/barbarq-main-design/page-09.png",
+      "alt": "第 9 页预览"
+    },
+    {
+      "page": 10,
+      "src": "portfolio-previews/media/barbarq-main-design/page-10.png",
+      "alt": "第 10 页预览"
+    },
+    {
+      "page": 11,
+      "src": "portfolio-previews/media/barbarq-main-design/page-11.png",
+      "alt": "第 11 页预览"
+    },
+    {
+      "page": 12,
+      "src": "portfolio-previews/media/barbarq-main-design/page-12.png",
+      "alt": "第 12 页预览"
+    },
+    {
+      "page": 13,
+      "src": "portfolio-previews/media/barbarq-main-design/page-13.png",
+      "alt": "第 13 页预览"
+    },
+    {
+      "page": 14,
+      "src": "portfolio-previews/media/barbarq-main-design/page-14.png",
+      "alt": "第 14 页预览"
+    }
+  ],
+  "truncatedPageImages": false,
   "blocks": [
     {
       "type": "heading",
@@ -745,5 +818,5 @@
       "text": "① 个人变成魔王状态持续到倒计时结束 ，则个人所在队伍获胜"
     }
   ],
-  "generatedAt": "2026-06-24"
+  "generatedAt": "2026-07-07"
 }

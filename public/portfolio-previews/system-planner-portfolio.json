@@ -4,6 +4,54 @@
   "sourceFile": "portfolio-assets/system-planner/docs/01_作品集_系统策划实习生_最终投递版.pdf",
   "blockLimit": 180,
   "truncatedBlocks": true,
+  "pageImages": [
+    {
+      "page": 1,
+      "src": "portfolio-previews/media/system-planner-portfolio/page-1.png",
+      "alt": "第 1 页预览"
+    },
+    {
+      "page": 2,
+      "src": "portfolio-previews/media/system-planner-portfolio/page-2.png",
+      "alt": "第 2 页预览"
+    },
+    {
+      "page": 3,
+      "src": "portfolio-previews/media/system-planner-portfolio/page-3.png",
+      "alt": "第 3 页预览"
+    },
+    {
+      "page": 4,
+      "src": "portfolio-previews/media/system-planner-portfolio/page-4.png",
+      "alt": "第 4 页预览"
+    },
+    {
+      "page": 5,
+      "src": "portfolio-previews/media/system-planner-portfolio/page-5.png",
+      "alt": "第 5 页预览"
+    },
+    {
+      "page": 6,
+      "src": "portfolio-previews/media/system-planner-portfolio/page-6.png",
+      "alt": "第 6 页预览"
+    },
+    {
+      "page": 7,
+      "src": "portfolio-previews/media/system-planner-portfolio/page-7.png",
+      "alt": "第 7 页预览"
+    },
+    {
+      "page": 8,
+      "src": "portfolio-previews/media/system-planner-portfolio/page-8.png",
+      "alt": "第 8 页预览"
+    },
+    {
+      "page": 9,
+      "src": "portfolio-previews/media/system-planner-portfolio/page-9.png",
+      "alt": "第 9 页预览"
+    }
+  ],
+  "truncatedPageImages": false,
   "blocks": [
     {
       "type": "heading",
@@ -741,5 +789,5 @@
       "text": "3.4 对作品主题的结论"
     }
   ],
-  "generatedAt": "2026-06-24"
+  "generatedAt": "2026-07-07"
 }

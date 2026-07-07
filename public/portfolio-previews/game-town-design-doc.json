@@ -34,6 +34,11 @@
       "text": "首页："
     },
     {
+      "type": "image",
+      "src": "portfolio-previews/media/game-town-design-doc/doc-image-1.png",
+      "alt": "文档图片 1"
+    },
+    {
       "type": "paragraph",
       "text": "点按登录按钮，按钮高亮，松开后按钮恢复原样，并弹出微信登录，登陆成功进入游戏主界面"
     },
@@ -50,6 +55,11 @@
       "text": "冒险地： 代表探险和冒险的梦想。这里有高耸的山峰、深邃的森林、神秘的遗迹，还有隐藏的宝藏和危险的怪物。冒险家们在这里进行刺激的探险任务，与其他冒险家竞争，获取稀有资源和装备，通过提升挑战能量等级到一级解锁(新手教程安排两三只小怪闯入小镇，击杀之后挑战能量等级自动到一级)。"
     },
     {
+      "type": "image",
+      "src": "portfolio-previews/media/game-town-design-doc/doc-image-2.jpg",
+      "alt": "文档图片 2"
+    },
+    {
       "type": "paragraph",
       "text": "此为冒险地概念地图"
     },
@@ -60,6 +70,11 @@
     {
       "type": "paragraph",
       "text": "比如说目前屏幕上显示该画面，点击任意区域目前探索小队就会集中走到该区域。点击可交互实体，则产生对应交互逻辑"
+    },
+    {
+      "type": "image",
+      "src": "portfolio-previews/media/game-town-design-doc/doc-image-3.png",
+      "alt": "文档图片 3"
     },
     {
       "type": "paragraph",
@@ -168,6 +183,11 @@
     {
       "type": "paragraph",
       "text": "创意地： 代表艺术和创意的梦想。这里有五彩斑斓的建筑、奇异的景观、充满灵感的环境。艺术家们在这里创作他们的杰作，同时也可以参与创意竞赛，展示自己的作品，通过梦想能量等级到3级解锁(梦想能量等级到三级的同时，会有外来npc到小镇上对玩家小镇的建筑表示欣赏，并引荐镇上的npc到创意地)。"
+    },
+    {
+      "type": "image",
+      "src": "portfolio-previews/media/game-town-design-doc/doc-image-4.jpg",
+      "alt": "文档图片 4"
     },
     {
       "type": "paragraph",
@@ -290,6 +310,11 @@
       "text": "首次来到魔法地，带领玩家分身的npc会帮玩家解锁传送阵，并教学传送阵使用方法，此后可以消耗材料打造传送阵，并放入背包中，点击使用时可以放置在任意位置，点击任意传送阵交互后出现如图所示侧边栏"
     },
     {
+      "type": "image",
+      "src": "portfolio-previews/media/game-town-design-doc/doc-image-5.png",
+      "alt": "文档图片 5"
+    },
+    {
       "type": "paragraph",
       "text": "从上到下查看五大区域和小镇传送阵，点击之后跳转到对应区域地图，地图上会显示已有传送阵，点击之后出现传送特效，并让当前玩家分身出现在对应传送阵上(只有传送到冒险地，才会显示当前团队所有成员)"
     },
@@ -298,16 +323,36 @@
       "text": "这条路玩家走到的地方，两侧魔法塔浮现，此外浮现的魔法塔下沉。每日安排随机两个魔法阵上面有对话框气泡，交互之后可以与内部npc对话，npc下发任务，分为：提交道具，寻找宠物 两种类型任务，寻找宠物类型的任务格式为npc的魔法宠物跑丢到冒险地哪块哪块区域，同时玩家地图上产生标记一个大大致范围，玩家去该区域找到宠物——》发生战斗——》清空宠物血条(打晕)——》宠物产生眩晕特效，可拾取进背包，旁边出现拾取按键。拾取完之后玩家可选择带回小镇自己养，或者提交任务获取报酬。同时后续如果有该npc与这宠物碰到的情况，会产生特殊对话，如果宠物与小镇好感度不够高，则会重新归属于该npc；提交道具的任务提交指定道具就可以了，很简单。"
     },
     {
+      "type": "image",
+      "src": "portfolio-previews/media/game-town-design-doc/doc-image-6.png",
+      "alt": "文档图片 6"
+    },
+    {
       "type": "paragraph",
       "text": "该区域为魔法集市区域，小路两侧的店铺都可以交互，交互后出现商店界面，能在里面用金币购买魔法道具魔法材料魔宠等。"
+    },
+    {
+      "type": "image",
+      "src": "portfolio-previews/media/game-town-design-doc/doc-image-7.png",
+      "alt": "文档图片 7"
     },
     {
       "type": "paragraph",
       "text": "该区域为魔法地住宅区，能和内部所有npc交互，"
     },
     {
+      "type": "image",
+      "src": "portfolio-previews/media/game-town-design-doc/doc-image-8.png",
+      "alt": "文档图片 8"
+    },
+    {
       "type": "paragraph",
       "text": "右上角为魔法竞赛传送阵，旁边要守候俩npc，对话之后可以选择参加竞赛类型   后续开发"
+    },
+    {
+      "type": "image",
+      "src": "portfolio-previews/media/game-town-design-doc/doc-image-9.png",
+      "alt": "文档图片 9"
     },
     {
       "type": "paragraph",
@@ -340,6 +385,16 @@
     {
       "type": "paragraph",
       "text": "魔法地动线为“传送阵教学—魔法塔接任务—魔法集市补给—住宅区社交—魔法竞赛传送”。除了冒险地传送显示完整团队外，传送到其他区域只显示当前玩家分身。"
+    },
+    {
+      "type": "image",
+      "src": "portfolio-previews/media/game-town-design-doc/doc-image-10.png",
+      "alt": "文档图片 10"
+    },
+    {
+      "type": "image",
+      "src": "portfolio-previews/media/game-town-design-doc/doc-image-11.png",
+      "alt": "文档图片 11"
     },
     {
       "type": "paragraph",
@@ -400,6 +455,11 @@
     {
       "type": "paragraph",
       "text": "地图页面："
+    },
+    {
+      "type": "image",
+      "src": "portfolio-previews/media/game-town-design-doc/doc-image-12.png",
+      "alt": "文档图片 12"
     },
     {
       "type": "paragraph",
@@ -521,12 +581,27 @@
       "text": "主页面概念图："
     },
     {
+      "type": "image",
+      "src": "portfolio-previews/media/game-town-design-doc/doc-image-13.png",
+      "alt": "文档图片 13"
+    },
+    {
       "type": "paragraph",
       "text": "当玩家不选择任何功能时点击小镇区域内任意位置，由当前操控的玩家分身进行所有交互，点击地面，分身就会跑到指定地点，距离10格以上触发飞毛腿特效，速度大幅度上涨，总之保证所有区域通勤不超过5秒钟。所有与物体的交互都要分身跑到其旁边才会出现接下来的可操作显示。"
     },
     {
+      "type": "image",
+      "src": "portfolio-previews/media/game-town-design-doc/doc-image-14.png",
+      "alt": "文档图片 14"
+    },
+    {
       "type": "paragraph",
       "text": "点击此处弹出设置页面"
+    },
+    {
+      "type": "image",
+      "src": "portfolio-previews/media/game-town-design-doc/doc-image-15.png",
+      "alt": "文档图片 15"
     },
     {
       "type": "paragraph",
@@ -537,8 +612,18 @@
       "text": "点按某图标会出现高亮显示，让玩家知道当前模式，扩展栏中的这个图标代表角色框选，此时框内只有角色会被选中并执行后续命令。如框选后点击树木，这些角色就会自动到树木旁开始砍树。"
     },
     {
+      "type": "image",
+      "src": "portfolio-previews/media/game-town-design-doc/doc-image-16.png",
+      "alt": "文档图片 16"
+    },
+    {
       "type": "paragraph",
       "text": "点按此图标会将高亮显示切换为这个，逻辑与上面相同，只不过框选对象改为了建筑物。可以批量升级，移动，销毁建筑物。"
+    },
+    {
+      "type": "image",
+      "src": "portfolio-previews/media/game-town-design-doc/doc-image-17.png",
+      "alt": "文档图片 17"
     },
     {
       "type": "paragraph",
@@ -549,32 +634,87 @@
       "text": "此图标代表活动部分功能，点按逻辑与上方光标图标   相同"
     },
     {
+      "type": "image",
+      "src": "portfolio-previews/media/game-town-design-doc/doc-image-18.png",
+      "alt": "文档图片 18"
+    },
+    {
+      "type": "image",
+      "src": "portfolio-previews/media/game-town-design-doc/doc-image-19.png",
+      "alt": "文档图片 19"
+    },
+    {
       "type": "paragraph",
       "text": "扩展栏位初步定了两个  ，左边为通行证，右边为活动，点按都会出现按压特效，然后弹出对应界面，同时扩展栏自动回收。"
+    },
+    {
+      "type": "image",
+      "src": "portfolio-previews/media/game-town-design-doc/doc-image-20.png",
+      "alt": "文档图片 20"
+    },
+    {
+      "type": "image",
+      "src": "portfolio-previews/media/game-town-design-doc/doc-image-21.png",
+      "alt": "文档图片 21"
     },
     {
       "type": "paragraph",
       "text": "点击此图标出现按压特效，松开复原，并进入创建玩家分身界面"
     },
     {
+      "type": "image",
+      "src": "portfolio-previews/media/game-town-design-doc/doc-image-22.png",
+      "alt": "文档图片 22"
+    },
+    {
       "type": "paragraph",
       "text": "此图标代表角色招募栏，点按之后弹出角色招募界面"
+    },
+    {
+      "type": "image",
+      "src": "portfolio-previews/media/game-town-design-doc/doc-image-23.png",
+      "alt": "文档图片 23"
     },
     {
       "type": "paragraph",
       "text": "此图标代表建筑物-桥，npc会随机自动到上面钓鱼"
     },
     {
+      "type": "image",
+      "src": "portfolio-previews/media/game-town-design-doc/doc-image-24.png",
+      "alt": "文档图片 24"
+    },
+    {
       "type": "paragraph",
       "text": "此图标代表建筑物，点按会出现建筑物面板，可在上面选取想要的操作：升级 销毁 移动。"
+    },
+    {
+      "type": "image",
+      "src": "portfolio-previews/media/game-town-design-doc/doc-image-25.png",
+      "alt": "文档图片 25"
     },
     {
       "type": "paragraph",
       "text": "此图标代表npc，点按出现两个选项，                    其一为查看角色信息，其二为与角色对话，并弹出对话框，对话框参考qq自己设计吧。在框选模式点按为单选npc去做某些互动"
     },
     {
+      "type": "image",
+      "src": "portfolio-previews/media/game-town-design-doc/doc-image-26.png",
+      "alt": "文档图片 26"
+    },
+    {
+      "type": "image",
+      "src": "portfolio-previews/media/game-town-design-doc/doc-image-27.png",
+      "alt": "文档图片 27"
+    },
+    {
       "type": "paragraph",
       "text": "具体互动如下：点按或框选无土地地域，地域高亮，并弹出目前小镇储备的土地类型，派遣当前选择npc去将土地放置，具体表现方式如图，npc托着土地奔跑，并过去放到对应海面上。"
+    },
+    {
+      "type": "image",
+      "src": "portfolio-previews/media/game-town-design-doc/doc-image-28.png",
+      "alt": "文档图片 28"
     },
     {
       "type": "paragraph",
@@ -589,8 +729,18 @@
       "text": "点按此处出现背包界面，背包中所有世界观原生道具材料可堆叠上限为50，商城购买之类的非世界观原生道具不受此限制"
     },
     {
+      "type": "image",
+      "src": "portfolio-previews/media/game-town-design-doc/doc-image-29.png",
+      "alt": "文档图片 29"
+    },
+    {
       "type": "paragraph",
       "text": "仓库建筑物，玩家建造仓库之后才能获取到超出背包上限的材料，并储存在仓库内"
+    },
+    {
+      "type": "image",
+      "src": "portfolio-previews/media/game-town-design-doc/doc-image-30.png",
+      "alt": "文档图片 30"
     },
     {
       "type": "paragraph",
@@ -613,129 +763,10 @@
       "text": "此图标代表地图，点击之后出现该区域地图界面。"
     },
     {
-      "type": "paragraph",
-      "text": "左侧好友与工会入口在低保真版本中作为可点击入口保留：好友进入参观、点赞、驻外NPC与回访；工会进入公共建设、成员贡献、工会任务与工会聚集地。"
-    },
-    {
-      "type": "paragraph",
-      "text": "补充设计：好友与工会入口规则。"
-    },
-    {
-      "type": "paragraph",
-      "text": "好友入口打开好友参观列表，玩家可进入好友小镇、点赞建筑、查看驻外NPC、领取回访奖励和触发好友事件。点赞点位以地图实体形式出现，不是单独悬浮UI。"
-    },
-    {
-      "type": "paragraph",
-      "text": "工会入口打开工会聚集地建设界面，玩家可贡献材料、金币、NPC工时或建筑快照，推进公共建筑进度。工会公共工程完成后给参与者发放工会贡献章、社区积分、外观奖励或限时增益。"
-    },
-    {
-      "type": "paragraph",
-      "text": "好友与工会在低保真原型中先做可点击页面与核心反馈：进入、点赞、派驻、贡献、领奖、返回小镇。复杂聊天、排行榜和大型多人协作作为扩展系统，但表结构和入口不再空置。"
-    },
-    {
-      "type": "paragraph",
-      "text": "此为出行小舟，玩家点按之后玩家分身跑至其旁边交互，先出现选人界面，确认当前团队成员，再出现地图界面，点按地图界面已解锁区域去往该地点。"
-    },
-    {
-      "type": "paragraph",
-      "text": "以上出现的所有建筑物即玩家开局即解锁的默认建筑物，够材料就可以自行安排区域建造。"
-    },
-    {
-      "type": "paragraph",
-      "text": "建筑物见建筑表，表内维护建筑类型、解锁条件、可放置土地、建造材料、升级材料、NPC行为、产出消耗和是否可移动/销毁。"
-    },
-    {
-      "type": "paragraph",
-      "text": "补充设计：建筑表落地与建造面板字段。"
-    },
-    {
-      "type": "paragraph",
-      "text": "建造面板点击后必须展示建筑名称、建筑类型、解锁条件、适配土地、所需材料、建造时间、可派遣NPC、建成效果、升级效果、产出/消耗、是否可移动、是否可销毁。"
-    },
-    {
-      "type": "paragraph",
-      "text": "默认建筑服务新手闭环：住宅提升人口，田地产出农产，树产出木材与摸鱼点，桥连接海面并产鱼，铁匠铺承接装备成长，仓库解决背包溢出，招募栏承接NPC增长。"
-    },
-    {
-      "type": "paragraph",
-      "text": "扩展建筑服务五大地域：商铺联动商业地，灵感雕像联动创意地，魔法工坊和传送阵联动魔法地，工会大厅和公共广场联动和谐地，旅店、矿场、公告板联动冒险地和小镇事件。"
-    },
-    {
-      "type": "paragraph",
-      "text": "所有建筑物视觉显示上都是有npc在内部，即外部虚化能看到内部布置，没有的话直接显示外部外观。"
-    },
-    {
-      "type": "paragraph",
-      "text": "npc在被玩家决策影响时有几率发出吐槽，太累了之类的，具体表现形式为头上有气泡显示内容。"
-    },
-    {
-      "type": "paragraph",
-      "text": "角色招募界面交互："
-    },
-    {
-      "type": "paragraph",
-      "text": "未解锁栏位无法交互，点击招募之后界面变化成"
-    },
-    {
-      "type": "paragraph",
-      "text": "招募中下方显示剩余所需时间。"
-    },
-    {
-      "type": "paragraph",
-      "text": "招募以NPC自动接待为主，玩家点击招募栏可查看栏位状态、剩余时间、解锁条件、加速入口和招募结果；定向招募在低保真版本中用职业/性格倾向做轻量演示，具体概率和栏位见招募表。"
-    },
-    {
-      "type": "paragraph",
-      "text": "补充规则：招募栏与NPC获得规则。"
-    },
-    {
-      "type": "paragraph",
-      "text": "招募栏是小镇地图上的建筑实体，玩家点击招募栏后进入招募交互。初版设5个招募栏位，随小镇等级逐步解锁；未解锁栏位置灰，点击显示解锁所需小镇等级、建筑条件或事件条件。"
-    },
-    {
-      "type": "paragraph",
-      "text": "普通招募由NPC自动接待和处理，招募中显示剩余时间，默认12小时完成。完成后NPC自动来到小镇并触发镇长汇报或气泡提示；玩家也可使用广告加速、活动券或特殊建筑效果缩短招募时间。"
-    },
-    {
-      "type": "paragraph",
-      "text": "招募获得NPC的主特性与副特性随机生成，稀有度按普通、稀有、史诗、传说分层。IP角色或特殊NPC出现时要有更明显的入镇演出，并至少携带一个较高稀有度特性；1.0版本不做复杂条件招募，但保留后续按职业、性格、地域、事件定向招募的接口。"
-    },
-    {
-      "type": "paragraph",
-      "text": "背包界面交互："
-    },
-    {
-      "type": "paragraph",
-      "text": "单击上方页签切换至对应界面，同时页签视觉效果颜色变深，单击下方物品出现高亮框，左侧名称与描述自动切换至对应物体版本。背包堆叠上限50。如果选择独特装备，描述内还会显示该装备独特技能效果。"
-    },
-    {
-      "type": "paragraph",
-      "text": "各物体分类、稀有度、堆叠上限、来源、用途、是否世界观原生、是否可交易均维护在物品表中。"
-    },
-    {
-      "type": "paragraph",
-      "text": "背包默认排序优先级是 稀有度 高-低，稀有度相同则按照名称字母排序，优先级为首字母-第二字母-第三子母..."
-    },
-    {
-      "type": "paragraph",
-      "text": "排序功能补充为：按稀有度、获得时间、数量、类型、是否可交易、是否任务需求、是否高品质确认、是否装备中进行排序与筛选。"
-    },
-    {
-      "type": "paragraph",
-      "text": "补充设计：背包筛选、排序与物品类型规则。"
-    },
-    {
-      "type": "paragraph",
-      "text": "背包筛选至少包含全部、材料、土地、装备、消耗品、任务物品、特殊道具、可交易、高品质确认、最近获得。排序支持稀有度高到低、获得时间新到旧、数量多到少、名称、可交易优先、任务需求优先。"
-    },
-    {
-      "type": "paragraph",
-      "text": "选中物品后左侧详情展示名称、稀有度、分类、来源、用途、堆叠上限、是否世界观原生、是否可交易、是否被建筑/任务占用。装备额外展示部位、等级、属性、独特技能和来源怪物。"
-    },
-    {
-      "type": "paragraph",
-      "text": "批量操作遵循安全限制：普通材料可批量出售或投入建筑，高品质装备/唯一物品/任务物品/活动物品必须逐个确认；已装备物品、任务锁定物品和NPC赠礼物品默认不可被自动出售。"
+      "type": "image",
+      "src": "portfolio-previews/media/game-town-design-doc/doc-image-31.png",
+      "alt": "文档图片 31"
     }
   ],
-  "generatedAt": "2026-06-19"
+  "generatedAt": "2026-07-07"
 }

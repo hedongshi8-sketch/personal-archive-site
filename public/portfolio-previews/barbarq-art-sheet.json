@@ -380,8 +380,335 @@
         [
           "场景内均匀分布树木和草地，与角色美术风格一致即可，怪物设计为经典独眼哥布林形象，手持狼牙棒。精英怪为小怪放大版，菇霸设计一个带巨大蘑菇的怪物，小蓝菇为小巧蓝色蘑菇，天赋蘑菇为白色斑点红蘑菇，你自由发挥吧，画风与游戏不要太割裂即可。"
         ]
+      ],
+      "images": [
+        {
+          "id": "野蛮人大作战2-菇霸争夺战部分美术需求-sheet1-image-1",
+          "src": "portfolio-previews/media/barbarq-art-sheet/野蛮人大作战2-菇霸争夺战部分美术需求-sheet1-image-1.png",
+          "alt": "Sheet1 图片 1",
+          "anchor": {
+            "row": 11,
+            "column": 1,
+            "toRow": 33,
+            "toColumn": 14
+          },
+          "width": 1530,
+          "height": 714
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战部分美术需求-sheet1-image-2",
+          "src": "portfolio-previews/media/barbarq-art-sheet/野蛮人大作战2-菇霸争夺战部分美术需求-sheet1-image-2.png",
+          "alt": "Sheet1 图片 2",
+          "anchor": {
+            "row": 35,
+            "column": 2,
+            "toRow": 49,
+            "toColumn": 5
+          },
+          "width": 333,
+          "height": 321
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战部分美术需求-sheet1-image-3",
+          "src": "portfolio-previews/media/barbarq-art-sheet/野蛮人大作战2-菇霸争夺战部分美术需求-sheet1-image-3.png",
+          "alt": "Sheet1 图片 3",
+          "anchor": {
+            "row": 49,
+            "column": 2,
+            "toRow": 51,
+            "toColumn": 2
+          },
+          "width": 33,
+          "height": 56
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战部分美术需求-sheet1-image-4",
+          "src": "portfolio-previews/media/barbarq-art-sheet/野蛮人大作战2-菇霸争夺战部分美术需求-sheet1-image-4.png",
+          "alt": "Sheet1 图片 4",
+          "anchor": {
+            "row": 51,
+            "column": 2,
+            "toRow": 53,
+            "toColumn": 2
+          },
+          "width": 46,
+          "height": 55
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战部分美术需求-sheet1-image-5",
+          "src": "portfolio-previews/media/barbarq-art-sheet/野蛮人大作战2-菇霸争夺战部分美术需求-sheet1-image-5.png",
+          "alt": "Sheet1 图片 5",
+          "anchor": {
+            "row": 51,
+            "column": 2,
+            "toRow": 53,
+            "toColumn": 3
+          },
+          "width": 48,
+          "height": 53
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战部分美术需求-sheet1-image-6",
+          "src": "portfolio-previews/media/barbarq-art-sheet/野蛮人大作战2-菇霸争夺战部分美术需求-sheet1-image-6.png",
+          "alt": "Sheet1 图片 6",
+          "anchor": {
+            "row": 51,
+            "column": 3,
+            "toRow": 53,
+            "toColumn": 3
+          },
+          "width": 51,
+          "height": 56
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战部分美术需求-sheet1-image-7",
+          "src": "portfolio-previews/media/barbarq-art-sheet/野蛮人大作战2-菇霸争夺战部分美术需求-sheet1-image-7.png",
+          "alt": "Sheet1 图片 7",
+          "anchor": {
+            "row": 53,
+            "column": 2,
+            "toRow": 55,
+            "toColumn": 2
+          },
+          "width": 21,
+          "height": 26
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战部分美术需求-sheet1-image-8",
+          "src": "portfolio-previews/media/barbarq-art-sheet/野蛮人大作战2-菇霸争夺战部分美术需求-sheet1-image-8.png",
+          "alt": "Sheet1 图片 8",
+          "anchor": {
+            "row": 55,
+            "column": 2,
+            "toRow": 57,
+            "toColumn": 2
+          },
+          "width": 27,
+          "height": 24
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战部分美术需求-sheet1-image-9",
+          "src": "portfolio-previews/media/barbarq-art-sheet/野蛮人大作战2-菇霸争夺战部分美术需求-sheet1-image-9.png",
+          "alt": "Sheet1 图片 9",
+          "anchor": {
+            "row": 55,
+            "column": 2,
+            "toRow": 57,
+            "toColumn": 3
+          },
+          "width": 19,
+          "height": 34
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战部分美术需求-sheet1-image-10",
+          "src": "portfolio-previews/media/barbarq-art-sheet/野蛮人大作战2-菇霸争夺战部分美术需求-sheet1-image-10.png",
+          "alt": "Sheet1 图片 10",
+          "anchor": {
+            "row": 57,
+            "column": 2,
+            "toRow": 59,
+            "toColumn": 2
+          },
+          "width": 40,
+          "height": 38
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战部分美术需求-sheet1-image-11",
+          "src": "portfolio-previews/media/barbarq-art-sheet/野蛮人大作战2-菇霸争夺战部分美术需求-sheet1-image-11.png",
+          "alt": "Sheet1 图片 11",
+          "anchor": {
+            "row": 59,
+            "column": 2,
+            "toRow": 61,
+            "toColumn": 2
+          },
+          "width": 273,
+          "height": 272
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战部分美术需求-sheet1-image-12",
+          "src": "portfolio-previews/media/barbarq-art-sheet/野蛮人大作战2-菇霸争夺战部分美术需求-sheet1-image-12.png",
+          "alt": "Sheet1 图片 12",
+          "anchor": {
+            "row": 62,
+            "column": 2,
+            "toRow": 62,
+            "toColumn": 3
+          },
+          "width": 282,
+          "height": 36
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战部分美术需求-sheet1-image-13",
+          "src": "portfolio-previews/media/barbarq-art-sheet/野蛮人大作战2-菇霸争夺战部分美术需求-sheet1-image-13.png",
+          "alt": "Sheet1 图片 13",
+          "anchor": {
+            "row": 64,
+            "column": 2,
+            "toRow": 65,
+            "toColumn": 3
+          },
+          "width": 207,
+          "height": 37
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战部分美术需求-sheet1-image-14",
+          "src": "portfolio-previews/media/barbarq-art-sheet/野蛮人大作战2-菇霸争夺战部分美术需求-sheet1-image-14.png",
+          "alt": "Sheet1 图片 14",
+          "anchor": {
+            "row": 63,
+            "column": 7,
+            "toRow": 65,
+            "toColumn": 8
+          },
+          "width": 45,
+          "height": 36
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战部分美术需求-sheet1-image-15",
+          "src": "portfolio-previews/media/barbarq-art-sheet/野蛮人大作战2-菇霸争夺战部分美术需求-sheet1-image-15.png",
+          "alt": "Sheet1 图片 15",
+          "anchor": {
+            "row": 67,
+            "column": 2,
+            "toRow": 80,
+            "toColumn": 6
+          },
+          "width": 374,
+          "height": 279
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战部分美术需求-sheet1-image-16",
+          "src": "portfolio-previews/media/barbarq-art-sheet/野蛮人大作战2-菇霸争夺战部分美术需求-sheet1-image-16.png",
+          "alt": "Sheet1 图片 16",
+          "anchor": {
+            "row": 81,
+            "column": 2,
+            "toRow": 83,
+            "toColumn": 4
+          },
+          "width": 399,
+          "height": 133
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战部分美术需求-sheet1-image-17",
+          "src": "portfolio-previews/media/barbarq-art-sheet/野蛮人大作战2-菇霸争夺战部分美术需求-sheet1-image-17.png",
+          "alt": "Sheet1 图片 17",
+          "anchor": {
+            "row": 83,
+            "column": 2,
+            "toRow": 85,
+            "toColumn": 2
+          },
+          "width": 79,
+          "height": 72
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战部分美术需求-sheet1-image-18",
+          "src": "portfolio-previews/media/barbarq-art-sheet/野蛮人大作战2-菇霸争夺战部分美术需求-sheet1-image-18.png",
+          "alt": "Sheet1 图片 18",
+          "anchor": {
+            "row": 86,
+            "column": 2,
+            "toRow": 87,
+            "toColumn": 3
+          },
+          "width": 360,
+          "height": 132
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战部分美术需求-sheet1-image-19",
+          "src": "portfolio-previews/media/barbarq-art-sheet/野蛮人大作战2-菇霸争夺战部分美术需求-sheet1-image-19.png",
+          "alt": "Sheet1 图片 19",
+          "anchor": {
+            "row": 90,
+            "column": 2,
+            "toRow": 93,
+            "toColumn": 3
+          },
+          "width": 307,
+          "height": 285
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战部分美术需求-sheet1-image-20",
+          "src": "portfolio-previews/media/barbarq-art-sheet/野蛮人大作战2-菇霸争夺战部分美术需求-sheet1-image-20.png",
+          "alt": "Sheet1 图片 20",
+          "anchor": {
+            "row": 93,
+            "column": 2,
+            "toRow": 96,
+            "toColumn": 3
+          },
+          "width": 387,
+          "height": 338
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战部分美术需求-sheet1-image-21",
+          "src": "portfolio-previews/media/barbarq-art-sheet/野蛮人大作战2-菇霸争夺战部分美术需求-sheet1-image-21.png",
+          "alt": "Sheet1 图片 21",
+          "anchor": {
+            "row": 96,
+            "column": 2,
+            "toRow": 99,
+            "toColumn": 3
+          },
+          "width": 243,
+          "height": 298
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战部分美术需求-sheet1-image-22",
+          "src": "portfolio-previews/media/barbarq-art-sheet/野蛮人大作战2-菇霸争夺战部分美术需求-sheet1-image-22.png",
+          "alt": "Sheet1 图片 22",
+          "anchor": {
+            "row": 102,
+            "column": 1,
+            "toRow": 116,
+            "toColumn": 8
+          },
+          "width": 879,
+          "height": 561
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战部分美术需求-sheet1-image-23",
+          "src": "portfolio-previews/media/barbarq-art-sheet/野蛮人大作战2-菇霸争夺战部分美术需求-sheet1-image-23.png",
+          "alt": "Sheet1 图片 23",
+          "anchor": {
+            "row": 116,
+            "column": 6,
+            "toRow": 118,
+            "toColumn": 6
+          },
+          "width": 42,
+          "height": 35
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战部分美术需求-sheet1-image-24",
+          "src": "portfolio-previews/media/barbarq-art-sheet/野蛮人大作战2-菇霸争夺战部分美术需求-sheet1-image-24.png",
+          "alt": "Sheet1 图片 24",
+          "anchor": {
+            "row": 116,
+            "column": 8,
+            "toRow": 118,
+            "toColumn": 9
+          },
+          "width": 87,
+          "height": 77
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战部分美术需求-sheet1-image-25",
+          "src": "portfolio-previews/media/barbarq-art-sheet/野蛮人大作战2-菇霸争夺战部分美术需求-sheet1-image-25.png",
+          "alt": "Sheet1 图片 25",
+          "anchor": {
+            "row": 116,
+            "column": 10,
+            "toRow": 118,
+            "toColumn": 11
+          },
+          "width": 24,
+          "height": 42
+        }
       ]
     }
   ],
-  "generatedAt": "2026-06-19"
+  "generatedAt": "2026-07-07"
 }

@@ -2,11 +2,14 @@ from __future__ import annotations
 
 import json
 import re
+import shutil
+import subprocess
 from datetime import date, datetime
 from pathlib import Path
 from typing import Any
 
 from docx import Document
+from docx.oxml.ns import qn
 from docx.oxml.table import CT_Tbl
 from docx.oxml.text.paragraph import CT_P
 from docx.table import Table
@@ -26,6 +29,17 @@ MAX_DOCUMENT_BLOCKS = 180
 MAX_TABLE_ROWS = 80
 MAX_TABLE_COLS = 16
 MAX_PDF_BLOCKS = 180
+MAX_PDF_VISUAL_PAGES = 24
+
+CONTENT_TYPE_EXTENSIONS = {
+    "image/jpeg": "jpg",
+    "image/jpg": "jpg",
+    "image/png": "png",
+    "image/gif": "gif",
+    "image/bmp": "bmp",
+    "image/tiff": "tif",
+    "image/webp": "webp",
+}
 
 
 def public_path(path: Path) -> str:
@@ -89,35 +103,169 @@ def write_json(relative_path: str, payload: dict[str, Any]) -> None:
     print(f"wrote {target.relative_to(ROOT)}")
 
 
+def reset_media_dir(item_id: str) -> Path:
+    media_dir = OUT / "media" / item_id
+    if media_dir.exists():
+        shutil.rmtree(media_dir)
+    media_dir.mkdir(parents=True, exist_ok=True)
+    return media_dir
+
+
+def media_public_path(path: Path) -> str:
+    return path.relative_to(PUBLIC).as_posix()
+
+
+def extension_from_content_type(content_type: str | None, fallback: str = "png") -> str:
+    if not content_type:
+        return fallback
+    return CONTENT_TYPE_EXTENSIONS.get(content_type.lower(), fallback)
+
+
+def get_anchor_position(anchor: Any) -> dict[str, int | None]:
+    start = getattr(anchor, "_from", None)
+    end = getattr(anchor, "to", None)
+    return {
+        "row": getattr(start, "row", None) + 1 if getattr(start, "row", None) is not None else None,
+        "column": getattr(start, "col", None) + 1 if getattr(start, "col", None) is not None else None,
+        "toRow": getattr(end, "row", None) + 1 if getattr(end, "row", None) is not None else None,
+        "toColumn": getattr(end, "col", None) + 1 if getattr(end, "col", None) is not None else None,
+    }
+
+
+def find_pdftoppm() -> str | None:
+    candidates = [
+        ROOT / ".codex" / "pdftoppm.exe",
+        Path.home() / ".cache" / "codex-runtimes" / "codex-primary-runtime" / "dependencies" / "native" / "poppler" / "Library" / "bin" / "pdftoppm.exe",
+        Path.home() / ".cache" / "codex-runtimes" / "codex-primary-runtime" / "dependencies" / "bin" / "pdftoppm.cmd",
+    ]
+    for candidate in candidates:
+        if candidate.exists():
+            return str(candidate)
+    return shutil.which("pdftoppm")
+
+
+def build_pdf_page_images(item_id: str, source: Path, page_count: int) -> list[dict[str, Any]]:
+    pdftoppm = find_pdftoppm()
+    if not pdftoppm:
+        return []
+
+    media_dir = reset_media_dir(item_id)
+    prefix = media_dir / "page"
+    last_page = min(page_count, MAX_PDF_VISUAL_PAGES)
+
+    subprocess.run(
+        [
+            pdftoppm,
+            "-png",
+            "-r",
+            "128",
+            "-f",
+            "1",
+            "-l",
+            str(last_page),
+            str(source),
+            str(prefix),
+        ],
+        check=True,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+    )
+
+    page_images: list[dict[str, Any]] = []
+    for page_index, image_path in enumerate(sorted(media_dir.glob("page-*.png")), start=1):
+        page_images.append(
+            {
+                "page": page_index,
+                "src": media_public_path(image_path),
+                "alt": f"第 {page_index} 页预览",
+            }
+        )
+
+    return page_images
+
+
+def extract_docx_paragraph_images(item_id: str, document: Document, paragraph: Paragraph, media_dir: Path, image_counter: int) -> tuple[list[dict[str, Any]], int]:
+    blocks: list[dict[str, Any]] = []
+    for blip in paragraph._p.xpath(".//a:blip"):
+        relationship_id = blip.get(qn("r:embed")) or blip.get(qn("r:link"))
+        if not relationship_id or relationship_id not in document.part.related_parts:
+            continue
+
+        image_part = document.part.related_parts[relationship_id]
+        extension = extension_from_content_type(getattr(image_part, "content_type", None))
+        image_counter += 1
+        image_path = media_dir / f"doc-image-{image_counter}.{extension}"
+        image_path.write_bytes(image_part.blob)
+        blocks.append(
+            {
+                "type": "image",
+                "src": media_public_path(image_path),
+                "alt": f"文档图片 {image_counter}",
+            }
+        )
+
+    return blocks, image_counter
+
+
 def build_excel_preview(item_id: str, title: str, sources: list[Path]) -> None:
     sheets: list[dict[str, Any]] = []
+    media_dir = reset_media_dir(item_id)
+    image_counter = 0
 
     for source in sources:
-        workbook = load_workbook(source, read_only=True, data_only=False)
+        workbook = load_workbook(source, read_only=False, data_only=False)
         try:
             for worksheet in workbook.worksheets:
                 max_row = min(worksheet.max_row or 0, MAX_EXCEL_ROWS)
                 max_col = min(worksheet.max_column or 0, MAX_EXCEL_COLS)
-                if max_row <= 0 or max_col <= 0:
-                    continue
+                sheet_images: list[dict[str, Any]] = []
+                sheet_id = slug(f"{source.stem}-{worksheet.title}")
 
-                rows = [
-                    [format_value(value) for value in row]
-                    for row in worksheet.iter_rows(
-                        min_row=1,
-                        max_row=max_row,
-                        min_col=1,
-                        max_col=max_col,
-                        values_only=True,
-                    )
-                ]
-                rows = trim_matrix(rows)
-                if not rows:
+                for image in getattr(worksheet, "_images", []):
+                    try:
+                        image_counter += 1
+                        image_format = (getattr(image, "format", None) or "png").lower()
+                        extension = "jpg" if image_format == "jpeg" else image_format
+                        if extension not in {"png", "jpg", "jpeg", "gif", "bmp", "webp"}:
+                            extension = "png"
+                        image_path = media_dir / f"{sheet_id}-image-{image_counter}.{extension}"
+                        image_path.write_bytes(image._data())
+                        sheet_images.append(
+                            {
+                                "id": f"{sheet_id}-image-{image_counter}",
+                                "src": media_public_path(image_path),
+                                "alt": f"{worksheet.title} 图片 {len(sheet_images) + 1}",
+                                "anchor": get_anchor_position(getattr(image, "anchor", None)),
+                                "width": getattr(image, "width", None),
+                                "height": getattr(image, "height", None),
+                            }
+                        )
+                    except Exception as error:
+                        print(f"warning: failed to extract image from {source.name}/{worksheet.title}: {error}")
+
+                if max_row <= 0 or max_col <= 0:
+                    if not sheet_images:
+                        continue
+                    rows = []
+                else:
+                    rows = [
+                        [format_value(value) for value in row]
+                        for row in worksheet.iter_rows(
+                            min_row=1,
+                            max_row=max_row,
+                            min_col=1,
+                            max_col=max_col,
+                            values_only=True,
+                        )
+                    ]
+                    rows = trim_matrix(rows)
+
+                if not rows and not sheet_images:
                     continue
 
                 sheets.append(
                     {
-                        "id": slug(f"{source.stem}-{worksheet.title}"),
+                        "id": sheet_id,
                         "workbookName": source.name,
                         "sheetName": worksheet.title,
                         "rowCount": worksheet.max_row,
@@ -125,6 +273,7 @@ def build_excel_preview(item_id: str, title: str, sources: list[Path]) -> None:
                         "truncatedRows": (worksheet.max_row or 0) > MAX_EXCEL_ROWS,
                         "truncatedColumns": (worksheet.max_column or 0) > MAX_EXCEL_COLS,
                         "cells": rows,
+                        "images": sheet_images,
                     }
                 )
         finally:
@@ -172,6 +321,17 @@ def paragraph_block(paragraph: Paragraph) -> dict[str, Any] | None:
     return {"type": "paragraph", "text": text}
 
 
+def paragraph_blocks(item_id: str, document: Document, paragraph: Paragraph, media_dir: Path, image_counter: int) -> tuple[list[dict[str, Any]], int]:
+    blocks: list[dict[str, Any]] = []
+    text_block = paragraph_block(paragraph)
+    if text_block:
+        blocks.append(text_block)
+
+    image_blocks, image_counter = extract_docx_paragraph_images(item_id, document, paragraph, media_dir, image_counter)
+    blocks.extend(image_blocks)
+    return blocks, image_counter
+
+
 def table_block(table: Table) -> dict[str, Any] | None:
     rows: list[list[str]] = []
     for row in table.rows[:MAX_TABLE_ROWS]:
@@ -195,11 +355,17 @@ def table_block(table: Table) -> dict[str, Any] | None:
 def build_docx_preview(item_id: str, title: str, source: Path) -> None:
     document = Document(source)
     blocks: list[dict[str, Any]] = []
+    media_dir = reset_media_dir(item_id)
+    image_counter = 0
 
     for block in iter_docx_blocks(document):
-        next_block = table_block(block) if isinstance(block, Table) else paragraph_block(block)
-        if next_block:
-            blocks.append(next_block)
+        if isinstance(block, Table):
+            next_block = table_block(block)
+            if next_block:
+                blocks.append(next_block)
+        else:
+            next_blocks, image_counter = paragraph_blocks(item_id, document, block, media_dir, image_counter)
+            blocks.extend(next_blocks)
         if len(blocks) >= MAX_DOCUMENT_BLOCKS:
             break
 
@@ -221,6 +387,7 @@ def build_pdf_preview(item_id: str, title: str, source: Path) -> None:
 
     with pdfplumber.open(source) as pdf:
         page_count = len(pdf.pages)
+        page_images = build_pdf_page_images(item_id, source, page_count)
         for page_index, page in enumerate(pdf.pages, start=1):
             text = page.extract_text(layout=False) or ""
             lines = [line.strip() for line in text.splitlines() if line.strip()]
@@ -258,6 +425,8 @@ def build_pdf_preview(item_id: str, title: str, source: Path) -> None:
             "sourceFile": public_path(source),
             "blockLimit": MAX_PDF_BLOCKS,
             "truncatedBlocks": len(blocks) >= MAX_PDF_BLOCKS,
+            "pageImages": page_images,
+            "truncatedPageImages": page_count > MAX_PDF_VISUAL_PAGES,
             "blocks": blocks,
         },
     )

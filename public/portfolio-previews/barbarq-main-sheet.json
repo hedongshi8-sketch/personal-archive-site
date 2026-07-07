@@ -449,8 +449,1271 @@
         [
           "5.局内资源相关"
         ]
+      ],
+      "images": [
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-1",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-1.png",
+          "alt": "Sheet1 图片 1",
+          "anchor": {
+            "row": 19,
+            "column": 4,
+            "toRow": 21,
+            "toColumn": 5
+          },
+          "width": 200,
+          "height": 200
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-2",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-2.png",
+          "alt": "Sheet1 图片 2",
+          "anchor": {
+            "row": 21,
+            "column": 4,
+            "toRow": 22,
+            "toColumn": 5
+          },
+          "width": 200,
+          "height": 200
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-3",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-3.png",
+          "alt": "Sheet1 图片 3",
+          "anchor": {
+            "row": 23,
+            "column": 4,
+            "toRow": 24,
+            "toColumn": 5
+          },
+          "width": 200,
+          "height": 200
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-4",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-4.png",
+          "alt": "Sheet1 图片 4",
+          "anchor": {
+            "row": 18,
+            "column": 4,
+            "toRow": 19,
+            "toColumn": 5
+          },
+          "width": 200,
+          "height": 200
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-5",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-5.png",
+          "alt": "Sheet1 图片 5",
+          "anchor": {
+            "row": 18,
+            "column": 5,
+            "toRow": 19,
+            "toColumn": 5
+          },
+          "width": 200,
+          "height": 200
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-6",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-6.png",
+          "alt": "Sheet1 图片 6",
+          "anchor": {
+            "row": 18,
+            "column": 2,
+            "toRow": 25,
+            "toColumn": 4
+          },
+          "width": 200,
+          "height": 200
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-7",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-7.png",
+          "alt": "Sheet1 图片 7",
+          "anchor": {
+            "row": 21,
+            "column": 3,
+            "toRow": 23,
+            "toColumn": 4
+          },
+          "width": 200,
+          "height": 200
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-8",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-8.png",
+          "alt": "Sheet1 图片 8",
+          "anchor": {
+            "row": 25,
+            "column": 3,
+            "toRow": 26,
+            "toColumn": 4
+          },
+          "width": 200,
+          "height": 200
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-9",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-9.png",
+          "alt": "Sheet1 图片 9",
+          "anchor": {
+            "row": 25,
+            "column": 4,
+            "toRow": 26,
+            "toColumn": 4
+          },
+          "width": 200,
+          "height": 200
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-10",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-10.png",
+          "alt": "Sheet1 图片 10",
+          "anchor": {
+            "row": 17,
+            "column": 3,
+            "toRow": 18,
+            "toColumn": 4
+          },
+          "width": 200,
+          "height": 200
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-11",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-11.png",
+          "alt": "Sheet1 图片 11",
+          "anchor": {
+            "row": 17,
+            "column": 4,
+            "toRow": 18,
+            "toColumn": 4
+          },
+          "width": 200,
+          "height": 200
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-12",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-12.png",
+          "alt": "Sheet1 图片 12",
+          "anchor": {
+            "row": 16,
+            "column": 14,
+            "toRow": 17,
+            "toColumn": 14
+          },
+          "width": 200,
+          "height": 200
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-13",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-13.png",
+          "alt": "Sheet1 图片 13",
+          "anchor": {
+            "row": 16,
+            "column": 14,
+            "toRow": 17,
+            "toColumn": 15
+          },
+          "width": 200,
+          "height": 200
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-14",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-14.png",
+          "alt": "Sheet1 图片 14",
+          "anchor": {
+            "row": 16,
+            "column": 15,
+            "toRow": 17,
+            "toColumn": 15
+          },
+          "width": 200,
+          "height": 200
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-15",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-15.png",
+          "alt": "Sheet1 图片 15",
+          "anchor": {
+            "row": 19,
+            "column": 13,
+            "toRow": 20,
+            "toColumn": 13
+          },
+          "width": 200,
+          "height": 200
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-16",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-16.png",
+          "alt": "Sheet1 图片 16",
+          "anchor": {
+            "row": 20,
+            "column": 13,
+            "toRow": 21,
+            "toColumn": 13
+          },
+          "width": 200,
+          "height": 200
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-17",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-17.png",
+          "alt": "Sheet1 图片 17",
+          "anchor": {
+            "row": 21,
+            "column": 13,
+            "toRow": 22,
+            "toColumn": 13
+          },
+          "width": 200,
+          "height": 200
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-18",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-18.png",
+          "alt": "Sheet1 图片 18",
+          "anchor": {
+            "row": 23,
+            "column": 13,
+            "toRow": 23,
+            "toColumn": 14
+          },
+          "width": 200,
+          "height": 200
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-19",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-19.png",
+          "alt": "Sheet1 图片 19",
+          "anchor": {
+            "row": 19,
+            "column": 15,
+            "toRow": 20,
+            "toColumn": 15
+          },
+          "width": 200,
+          "height": 200
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-20",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-20.png",
+          "alt": "Sheet1 图片 20",
+          "anchor": {
+            "row": 20,
+            "column": 15,
+            "toRow": 21,
+            "toColumn": 15
+          },
+          "width": 200,
+          "height": 200
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-21",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-21.png",
+          "alt": "Sheet1 图片 21",
+          "anchor": {
+            "row": 22,
+            "column": 15,
+            "toRow": 23,
+            "toColumn": 15
+          },
+          "width": 200,
+          "height": 200
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-22",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-22.png",
+          "alt": "Sheet1 图片 22",
+          "anchor": {
+            "row": 24,
+            "column": 15,
+            "toRow": 25,
+            "toColumn": 15
+          },
+          "width": 200,
+          "height": 200
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-23",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-23.png",
+          "alt": "Sheet1 图片 23",
+          "anchor": {
+            "row": 26,
+            "column": 15,
+            "toRow": 27,
+            "toColumn": 15
+          },
+          "width": 200,
+          "height": 200
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-24",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-24.png",
+          "alt": "Sheet1 图片 24",
+          "anchor": {
+            "row": 35,
+            "column": 7,
+            "toRow": 37,
+            "toColumn": 7
+          },
+          "width": 200,
+          "height": 200
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-25",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-25.png",
+          "alt": "Sheet1 图片 25",
+          "anchor": {
+            "row": 34,
+            "column": 12,
+            "toRow": 37,
+            "toColumn": 12
+          },
+          "width": 200,
+          "height": 200
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-26",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-26.png",
+          "alt": "Sheet1 图片 26",
+          "anchor": {
+            "row": 31,
+            "column": 13,
+            "toRow": 34,
+            "toColumn": 14
+          },
+          "width": 208,
+          "height": 200
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-27",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-27.png",
+          "alt": "Sheet1 图片 27",
+          "anchor": {
+            "row": 30,
+            "column": 12,
+            "toRow": 32,
+            "toColumn": 12
+          },
+          "width": 200,
+          "height": 200
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-28",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-28.png",
+          "alt": "Sheet1 图片 28",
+          "anchor": {
+            "row": 29,
+            "column": 12,
+            "toRow": 31,
+            "toColumn": 12
+          },
+          "width": 200,
+          "height": 200
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-29",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-29.png",
+          "alt": "Sheet1 图片 29",
+          "anchor": {
+            "row": 24,
+            "column": 7,
+            "toRow": 28,
+            "toColumn": 8
+          },
+          "width": 200,
+          "height": 200
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-30",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-30.png",
+          "alt": "Sheet1 图片 30",
+          "anchor": {
+            "row": 44,
+            "column": 7,
+            "toRow": 48,
+            "toColumn": 8
+          },
+          "width": 200,
+          "height": 200
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-31",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-31.png",
+          "alt": "Sheet1 图片 31",
+          "anchor": {
+            "row": 56,
+            "column": 4,
+            "toRow": 58,
+            "toColumn": 4
+          },
+          "width": 105,
+          "height": 93
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-32",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-32.png",
+          "alt": "Sheet1 图片 32",
+          "anchor": {
+            "row": 99,
+            "column": 5,
+            "toRow": 103,
+            "toColumn": 6
+          },
+          "width": 200,
+          "height": 200
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-33",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-33.png",
+          "alt": "Sheet1 图片 33",
+          "anchor": {
+            "row": 127,
+            "column": 5,
+            "toRow": 131,
+            "toColumn": 6
+          },
+          "width": 200,
+          "height": 200
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-34",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-34.png",
+          "alt": "Sheet1 图片 34",
+          "anchor": {
+            "row": 79,
+            "column": 7,
+            "toRow": 82,
+            "toColumn": 8
+          },
+          "width": 208,
+          "height": 200
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-35",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-35.png",
+          "alt": "Sheet1 图片 35",
+          "anchor": {
+            "row": 75,
+            "column": 5,
+            "toRow": 79,
+            "toColumn": 6
+          },
+          "width": 200,
+          "height": 200
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-36",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-36.png",
+          "alt": "Sheet1 图片 36",
+          "anchor": {
+            "row": 75,
+            "column": 3,
+            "toRow": 79,
+            "toColumn": 5
+          },
+          "width": 200,
+          "height": 200
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-37",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-37.png",
+          "alt": "Sheet1 图片 37",
+          "anchor": {
+            "row": 73,
+            "column": 6,
+            "toRow": 77,
+            "toColumn": 7
+          },
+          "width": 200,
+          "height": 200
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-38",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-38.png",
+          "alt": "Sheet1 图片 38",
+          "anchor": {
+            "row": 72,
+            "column": 7,
+            "toRow": 77,
+            "toColumn": 8
+          },
+          "width": 200,
+          "height": 200
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-39",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-39.png",
+          "alt": "Sheet1 图片 39",
+          "anchor": {
+            "row": 19,
+            "column": 3,
+            "toRow": 20,
+            "toColumn": 3
+          },
+          "width": 200,
+          "height": 200
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-40",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-40.png",
+          "alt": "Sheet1 图片 40",
+          "anchor": {
+            "row": 19,
+            "column": 4,
+            "toRow": 20,
+            "toColumn": 4
+          },
+          "width": 200,
+          "height": 200
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-41",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-41.png",
+          "alt": "Sheet1 图片 41",
+          "anchor": {
+            "row": 85,
+            "column": 4,
+            "toRow": 87,
+            "toColumn": 4
+          },
+          "width": 191,
+          "height": 176
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-42",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-42.png",
+          "alt": "Sheet1 图片 42",
+          "anchor": {
+            "row": 88,
+            "column": 8,
+            "toRow": 91,
+            "toColumn": 8
+          },
+          "width": 171,
+          "height": 291
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-43",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-43.png",
+          "alt": "Sheet1 图片 43",
+          "anchor": {
+            "row": 88,
+            "column": 9,
+            "toRow": 91,
+            "toColumn": 10
+          },
+          "width": 160,
+          "height": 220
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-44",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-44.png",
+          "alt": "Sheet1 图片 44",
+          "anchor": {
+            "row": 88,
+            "column": 16,
+            "toRow": 91,
+            "toColumn": 17
+          },
+          "width": 135,
+          "height": 162
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-45",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-45.png",
+          "alt": "Sheet1 图片 45",
+          "anchor": {
+            "row": 90,
+            "column": 10,
+            "toRow": 93,
+            "toColumn": 11
+          },
+          "width": 339,
+          "height": 282
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-46",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-46.png",
+          "alt": "Sheet1 图片 46",
+          "anchor": {
+            "row": 66,
+            "column": 4,
+            "toRow": 68,
+            "toColumn": 4
+          },
+          "width": 192,
+          "height": 164
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-47",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-47.png",
+          "alt": "Sheet1 图片 47",
+          "anchor": {
+            "row": 51,
+            "column": 8,
+            "toRow": 53,
+            "toColumn": 9
+          },
+          "width": 200,
+          "height": 200
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-48",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-48.png",
+          "alt": "Sheet1 图片 48",
+          "anchor": {
+            "row": 51,
+            "column": 9,
+            "toRow": 53,
+            "toColumn": 9
+          },
+          "width": 200,
+          "height": 200
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-49",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-49.png",
+          "alt": "Sheet1 图片 49",
+          "anchor": {
+            "row": 62,
+            "column": 10,
+            "toRow": 64,
+            "toColumn": 11
+          },
+          "width": 153,
+          "height": 120
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-50",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-50.png",
+          "alt": "Sheet1 图片 50",
+          "anchor": {
+            "row": 107,
+            "column": 8,
+            "toRow": 109,
+            "toColumn": 8
+          },
+          "width": 200,
+          "height": 200
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-51",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-51.png",
+          "alt": "Sheet1 图片 51",
+          "anchor": {
+            "row": 111,
+            "column": 4,
+            "toRow": 113,
+            "toColumn": 5
+          },
+          "width": 127,
+          "height": 126
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-52",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-52.png",
+          "alt": "Sheet1 图片 52",
+          "anchor": {
+            "row": 137,
+            "column": 4,
+            "toRow": 139,
+            "toColumn": 4
+          },
+          "width": 54,
+          "height": 52
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-53",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-53.png",
+          "alt": "Sheet1 图片 53",
+          "anchor": {
+            "row": 137,
+            "column": 6,
+            "toRow": 139,
+            "toColumn": 7
+          },
+          "width": 33,
+          "height": 33
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-54",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-54.png",
+          "alt": "Sheet1 图片 54",
+          "anchor": {
+            "row": 137,
+            "column": 7,
+            "toRow": 139,
+            "toColumn": 8
+          },
+          "width": 29,
+          "height": 44
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-55",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-55.png",
+          "alt": "Sheet1 图片 55",
+          "anchor": {
+            "row": 24,
+            "column": 8,
+            "toRow": 26,
+            "toColumn": 9
+          },
+          "width": 200,
+          "height": 200
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-56",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-56.png",
+          "alt": "Sheet1 图片 56",
+          "anchor": {
+            "row": 74,
+            "column": 5,
+            "toRow": 77,
+            "toColumn": 6
+          },
+          "width": 200,
+          "height": 200
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-57",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-57.png",
+          "alt": "Sheet1 图片 57",
+          "anchor": {
+            "row": 150,
+            "column": 5,
+            "toRow": 154,
+            "toColumn": 6
+          },
+          "width": 200,
+          "height": 200
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-58",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-58.png",
+          "alt": "Sheet1 图片 58",
+          "anchor": {
+            "row": 190,
+            "column": 5,
+            "toRow": 194,
+            "toColumn": 6
+          },
+          "width": 200,
+          "height": 200
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-59",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-59.png",
+          "alt": "Sheet1 图片 59",
+          "anchor": {
+            "row": 216,
+            "column": 5,
+            "toRow": 220,
+            "toColumn": 6
+          },
+          "width": 200,
+          "height": 200
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-60",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-60.png",
+          "alt": "Sheet1 图片 60",
+          "anchor": {
+            "row": 160,
+            "column": 4,
+            "toRow": 162,
+            "toColumn": 5
+          },
+          "width": 42,
+          "height": 49
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-61",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-61.png",
+          "alt": "Sheet1 图片 61",
+          "anchor": {
+            "row": 160,
+            "column": 6,
+            "toRow": 162,
+            "toColumn": 6
+          },
+          "width": 88,
+          "height": 85
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-62",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-62.png",
+          "alt": "Sheet1 图片 62",
+          "anchor": {
+            "row": 160,
+            "column": 8,
+            "toRow": 162,
+            "toColumn": 9
+          },
+          "width": 183,
+          "height": 174
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-63",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-63.png",
+          "alt": "Sheet1 图片 63",
+          "anchor": {
+            "row": 180,
+            "column": 10,
+            "toRow": 181,
+            "toColumn": 10
+          },
+          "width": 183,
+          "height": 174
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-64",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-64.png",
+          "alt": "Sheet1 图片 64",
+          "anchor": {
+            "row": 174,
+            "column": 8,
+            "toRow": 176,
+            "toColumn": 9
+          },
+          "width": 200,
+          "height": 200
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-65",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-65.png",
+          "alt": "Sheet1 图片 65",
+          "anchor": {
+            "row": 186,
+            "column": 8,
+            "toRow": 191,
+            "toColumn": 9
+          },
+          "width": 200,
+          "height": 200
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-66",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-66.png",
+          "alt": "Sheet1 图片 66",
+          "anchor": {
+            "row": 186,
+            "column": 6,
+            "toRow": 191,
+            "toColumn": 8
+          },
+          "width": 200,
+          "height": 200
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-67",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-67.png",
+          "alt": "Sheet1 图片 67",
+          "anchor": {
+            "row": 192,
+            "column": 8,
+            "toRow": 196,
+            "toColumn": 9
+          },
+          "width": 200,
+          "height": 200
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-68",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-68.png",
+          "alt": "Sheet1 图片 68",
+          "anchor": {
+            "row": 192,
+            "column": 6,
+            "toRow": 197,
+            "toColumn": 8
+          },
+          "width": 200,
+          "height": 200
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-69",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-69.png",
+          "alt": "Sheet1 图片 69",
+          "anchor": {
+            "row": 186,
+            "column": 3,
+            "toRow": 188,
+            "toColumn": 4
+          },
+          "width": 213,
+          "height": 200
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-70",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-70.png",
+          "alt": "Sheet1 图片 70",
+          "anchor": {
+            "row": 188,
+            "column": 2,
+            "toRow": 196,
+            "toColumn": 4
+          },
+          "width": 200,
+          "height": 200
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-71",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-71.png",
+          "alt": "Sheet1 图片 71",
+          "anchor": {
+            "row": 199,
+            "column": 7,
+            "toRow": 202,
+            "toColumn": 8
+          },
+          "width": 226,
+          "height": 356
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-72",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-72.png",
+          "alt": "Sheet1 图片 72",
+          "anchor": {
+            "row": 200,
+            "column": 6,
+            "toRow": 203,
+            "toColumn": 7
+          },
+          "width": 251,
+          "height": 387
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-73",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-73.png",
+          "alt": "Sheet1 图片 73",
+          "anchor": {
+            "row": 191,
+            "column": 3,
+            "toRow": 198,
+            "toColumn": 5
+          },
+          "width": 200,
+          "height": 200
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-74",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-74.png",
+          "alt": "Sheet1 图片 74",
+          "anchor": {
+            "row": 199,
+            "column": 4,
+            "toRow": 203,
+            "toColumn": 5
+          },
+          "width": 128,
+          "height": 271
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-75",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-75.png",
+          "alt": "Sheet1 图片 75",
+          "anchor": {
+            "row": 220,
+            "column": 4,
+            "toRow": 222,
+            "toColumn": 4
+          },
+          "width": 200,
+          "height": 200
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-76",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-76.png",
+          "alt": "Sheet1 图片 76",
+          "anchor": {
+            "row": 220,
+            "column": 5,
+            "toRow": 223,
+            "toColumn": 6
+          },
+          "width": 200,
+          "height": 200
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-77",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-77.png",
+          "alt": "Sheet1 图片 77",
+          "anchor": {
+            "row": 219,
+            "column": 6,
+            "toRow": 223,
+            "toColumn": 7
+          },
+          "width": 200,
+          "height": 200
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-78",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-78.png",
+          "alt": "Sheet1 图片 78",
+          "anchor": {
+            "row": 232,
+            "column": 14,
+            "toRow": 235,
+            "toColumn": 14
+          },
+          "width": 114,
+          "height": 211
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-79",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-79.png",
+          "alt": "Sheet1 图片 79",
+          "anchor": {
+            "row": 35,
+            "column": 7,
+            "toRow": 37,
+            "toColumn": 8
+          },
+          "width": 200,
+          "height": 200
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-80",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-80.png",
+          "alt": "Sheet1 图片 80",
+          "anchor": {
+            "row": 35,
+            "column": 8,
+            "toRow": 37,
+            "toColumn": 8
+          },
+          "width": 200,
+          "height": 200
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-81",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-81.png",
+          "alt": "Sheet1 图片 81",
+          "anchor": {
+            "row": 35,
+            "column": 8,
+            "toRow": 37,
+            "toColumn": 9
+          },
+          "width": 200,
+          "height": 200
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-82",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-82.png",
+          "alt": "Sheet1 图片 82",
+          "anchor": {
+            "row": 35,
+            "column": 9,
+            "toRow": 37,
+            "toColumn": 9
+          },
+          "width": 200,
+          "height": 200
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-83",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-83.png",
+          "alt": "Sheet1 图片 83",
+          "anchor": {
+            "row": 232,
+            "column": 10,
+            "toRow": 235,
+            "toColumn": 12
+          },
+          "width": 231,
+          "height": 116
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-84",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-84.png",
+          "alt": "Sheet1 图片 84",
+          "anchor": {
+            "row": 32,
+            "column": 9,
+            "toRow": 35,
+            "toColumn": 9
+          },
+          "width": 138,
+          "height": 217
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-85",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-85.png",
+          "alt": "Sheet1 图片 85",
+          "anchor": {
+            "row": 236,
+            "column": 4,
+            "toRow": 239,
+            "toColumn": 6
+          },
+          "width": 345,
+          "height": 221
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-86",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-86.png",
+          "alt": "Sheet1 图片 86",
+          "anchor": {
+            "row": 245,
+            "column": 9,
+            "toRow": 248,
+            "toColumn": 9
+          },
+          "width": 200,
+          "height": 200
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-87",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-87.png",
+          "alt": "Sheet1 图片 87",
+          "anchor": {
+            "row": 247,
+            "column": 8,
+            "toRow": 252,
+            "toColumn": 10
+          },
+          "width": 200,
+          "height": 200
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-88",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-88.png",
+          "alt": "Sheet1 图片 88",
+          "anchor": {
+            "row": 251,
+            "column": 7,
+            "toRow": 253,
+            "toColumn": 8
+          },
+          "width": 200,
+          "height": 200
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-89",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-89.png",
+          "alt": "Sheet1 图片 89",
+          "anchor": {
+            "row": 160,
+            "column": 10,
+            "toRow": 162,
+            "toColumn": 10
+          },
+          "width": 198,
+          "height": 168
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-90",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-90.png",
+          "alt": "Sheet1 图片 90",
+          "anchor": {
+            "row": 267,
+            "column": 6,
+            "toRow": 269,
+            "toColumn": 9
+          },
+          "width": 243,
+          "height": 36
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-91",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-91.png",
+          "alt": "Sheet1 图片 91",
+          "anchor": {
+            "row": 281,
+            "column": 2,
+            "toRow": 288,
+            "toColumn": 4
+          },
+          "width": 333,
+          "height": 321
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-92",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-92.png",
+          "alt": "Sheet1 图片 92",
+          "anchor": {
+            "row": 289,
+            "column": 2,
+            "toRow": 290,
+            "toColumn": 3
+          },
+          "width": 46,
+          "height": 55
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-93",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-93.png",
+          "alt": "Sheet1 图片 93",
+          "anchor": {
+            "row": 289,
+            "column": 3,
+            "toRow": 290,
+            "toColumn": 3
+          },
+          "width": 48,
+          "height": 53
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-94",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-94.png",
+          "alt": "Sheet1 图片 94",
+          "anchor": {
+            "row": 288,
+            "column": 3,
+            "toRow": 290,
+            "toColumn": 4
+          },
+          "width": 51,
+          "height": 56
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-95",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-95.png",
+          "alt": "Sheet1 图片 95",
+          "anchor": {
+            "row": 290,
+            "column": 2,
+            "toRow": 292,
+            "toColumn": 3
+          },
+          "width": 21,
+          "height": 26
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-96",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-96.png",
+          "alt": "Sheet1 图片 96",
+          "anchor": {
+            "row": 290,
+            "column": 4,
+            "toRow": 292,
+            "toColumn": 4
+          },
+          "width": 27,
+          "height": 24
+        },
+        {
+          "id": "野蛮人大作战2-菇霸争夺战-sheet1-image-97",
+          "src": "portfolio-previews/media/barbarq-main-sheet/野蛮人大作战2-菇霸争夺战-sheet1-image-97.png",
+          "alt": "Sheet1 图片 97",
+          "anchor": {
+            "row": 290,
+            "column": 6,
+            "toRow": 292,
+            "toColumn": 6
+          },
+          "width": 19,
+          "height": 34
+        }
       ]
     }
   ],
-  "generatedAt": "2026-06-19"
+  "generatedAt": "2026-07-07"
 }

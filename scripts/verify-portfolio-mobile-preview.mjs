@@ -15,6 +15,12 @@ const pdfPreviewFiles = [
   "system-planner-portfolio.json",
 ];
 
+const excelPreviewFiles = [
+  "barbarq-main-sheet.json",
+  "barbarq-art-sheet.json",
+  "system-planner-war-sheet.json",
+];
+
 function pass(label) {
   console.log(`PASS ${label}`);
 }
@@ -42,6 +48,21 @@ for (const fileName of pdfPreviewFiles) {
   const payload = JSON.parse(readFileSync(filePath, "utf8"));
   assert(payload.kind === "document", `${fileName} renders through DocumentReader`, `kind=${payload.kind}`);
   assert(Array.isArray(payload.blocks) && payload.blocks.length > 8, `${fileName} has readable extracted blocks`);
+  assert(Array.isArray(payload.pageImages) && payload.pageImages.length > 0, `${fileName} keeps visual page previews`);
+  assert(existsSync(join(root, "public", payload.pageImages[0].src)), `${fileName} first page image asset exists`);
+}
+
+for (const fileName of excelPreviewFiles) {
+  const filePath = join(root, "public", "portfolio-previews", fileName);
+  assert(existsSync(filePath), `Excel JSON preview exists: ${fileName}`);
+  const payload = JSON.parse(readFileSync(filePath, "utf8"));
+  assert(payload.kind === "excel", `${fileName} renders through ExcelSheetPreview`, `kind=${payload.kind}`);
+  assert(Array.isArray(payload.sheets) && payload.sheets.length > 0, `${fileName} has sheet previews`);
+  const image = payload.sheets.flatMap((sheet) => sheet.images ?? [])[0];
+  assert(Boolean(image?.src), `${fileName} keeps embedded image metadata`);
+  if (image?.src) {
+    assert(existsSync(join(root, "public", image.src)), `${fileName} embedded image asset exists`);
+  }
 }
 
 includes(dataSource, "normalizePortfolioPreviewUrl", "portfolio data normalizes old PDF preview URLs");
@@ -53,16 +74,22 @@ assert(!dataSource.includes("previewUrl: `${assetRoot}/system-planner/docs/01_�
 
 includes(backendSource, "normalizePortfolioPreviewUrl(item)", "Supabase portfolio rows normalize old preview URLs");
 includes(appSource, "function isInlinePreview", "inline preview predicate exists");
+includes(appSource, "function RawFilePortfolioPreview", "raw file preview fallback exists");
+includes(appSource, "getOfficeViewerUrl", "Office files can use in-site Office viewer");
+includes(appSource, "RawTextPortfolioPreview", "Markdown/text uploads can preview in-site");
 includes(appSource, "function focusPortfolioPreview", "portfolio preview focus helper exists");
 includes(appSource, "function selectPortfolioItem", "portfolio card selection helper exists");
 includes(appSource, "window.matchMedia(\"(max-width: 860px)\")", "mobile card selection scrolls to preview");
 includes(appSource, "查看站内预览", "preview action stays in the site");
+includes(appSource, "表内图片", "Excel reader renders embedded images");
+includes(appSource, "版面预览", "document reader renders visual page previews");
 assert(!appSource.includes("打开预览"), "raw preview action label is removed");
 assert(!appSource.includes("href={activeItem.previewUrl} target=\"_blank\""), "preview action no longer opens raw files");
-assert(!appSource.includes("item.kind === \"pdf\" || item.kind === \"html-prototype\""), "PDF is not embedded as raw iframe");
 
 includes(stylesSource, ".portfolio-preview:focus", "portfolio preview has focus affordance");
 includes(stylesSource, "scroll-margin-top: 72px", "portfolio preview has mobile scroll margin");
+includes(stylesSource, ".excel-image-board", "Excel embedded images have mobile styles");
+includes(stylesSource, ".document-page-preview", "document page images have mobile styles");
 includes(stylesSource, ".portfolio-detail-actions .cyan-button", "mobile preview actions stretch cleanly");
 
 for (const fileName of pdfPreviewFiles) {

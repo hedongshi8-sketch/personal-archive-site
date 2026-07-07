@@ -242,6 +242,10 @@ const publicAssets = walkFiles("public/portfolio-assets");
 const distAssets = walkFiles("dist/portfolio-assets");
 const publicPreviews = walkFiles("public/portfolio-previews");
 const distPreviews = walkFiles("dist/portfolio-previews");
+const publicPreviewJson = publicPreviews.filter((file) => path.extname(file).toLowerCase() === ".json");
+const distPreviewJson = distPreviews.filter((file) => path.extname(file).toLowerCase() === ".json");
+const publicPreviewMedia = publicPreviews.filter((file) => file.startsWith("public/portfolio-previews/media/"));
+const distPreviewMedia = distPreviews.filter((file) => file.startsWith("dist/portfolio-previews/media/"));
 const publicSize = publicAssets.reduce((sum, file) => sum + sizeOf(file), 0);
 const distSize = distAssets.reduce((sum, file) => sum + sizeOf(file), 0);
 const publicPreviewSize = publicPreviews.reduce((sum, file) => sum + sizeOf(file), 0);
@@ -250,8 +254,10 @@ const distPreviewSize = distPreviews.reduce((sum, file) => sum + sizeOf(file), 0
 assert(publicAssets.length === 84, "public portfolio asset count is 84", `${publicAssets.length}`);
 assert(distAssets.length === 84, "dist portfolio asset count is 84", `${distAssets.length}`);
 assert(publicSize === distSize, "portfolio asset byte size matches", `${publicSize} vs ${distSize}`);
-assert(publicPreviews.length === 11, "public portfolio preview count is 11", `${publicPreviews.length}`);
-assert(distPreviews.length === 11, "dist portfolio preview count is 11", `${distPreviews.length}`);
+assert(publicPreviewJson.length === 11, "public portfolio preview JSON count is 11", `${publicPreviewJson.length}`);
+assert(distPreviewJson.length === 11, "dist portfolio preview JSON count is 11", `${distPreviewJson.length}`);
+assert(publicPreviewMedia.length > 0, "public portfolio preview media assets exist", `${publicPreviewMedia.length}`);
+assert(publicPreviewMedia.length === distPreviewMedia.length, "portfolio preview media asset count matches", `${publicPreviewMedia.length} vs ${distPreviewMedia.length}`);
 assert(publicPreviewSize === distPreviewSize, "portfolio preview byte size matches", `${publicPreviewSize} vs ${distPreviewSize}`);
 const textLikeExtensions = new Set([".html", ".json", ".md", ".txt"]);
 const publicPortfolioText = [...publicAssets, ...publicPreviews]
