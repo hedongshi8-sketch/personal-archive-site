@@ -108,6 +108,8 @@ includes(appSource, "function focusPortfolioPreview", "portfolio preview focus h
 includes(appSource, "function selectPortfolioItem", "portfolio card selection helper exists");
 includes(appSource, "window.matchMedia(\"(max-width: 860px)\")", "mobile card selection scrolls to preview");
 includes(appSource, "查看站内预览", "preview action stays in the site");
+includes(appSource, "放大预览", "desktop portfolio preview has an expanded reading action");
+includes(appSource, "portfolio-expanded-preview", "expanded portfolio preview dialog is wired");
 includes(appSource, "表内图片", "Excel reader renders embedded images");
 includes(appSource, "版面预览", "document reader renders visual page previews");
 includes(appSource, "has-page-images", "document reader marks visual-page documents for mobile layout");
@@ -118,6 +120,9 @@ assert(!appSource.includes("href={activeItem.previewUrl} target=\"_blank\""), "p
 
 includes(stylesSource, ".portfolio-preview:focus", "portfolio preview has focus affordance");
 includes(stylesSource, "scroll-margin-top: 72px", "portfolio preview has mobile scroll margin");
+includes(stylesSource, "height: min(68svh, 760px)", "desktop portfolio preview has a tall default reading area");
+includes(stylesSource, ".portfolio-expanded-preview", "portfolio expanded preview overlay has styles");
+includes(stylesSource, ".portfolio-expanded-body", "expanded preview body can host full readers");
 includes(stylesSource, ".excel-image-board", "Excel embedded images have mobile styles");
 includes(stylesSource, ".document-page-preview", "document page images have mobile styles");
 includes(stylesSource, ".portfolio-preview .document-image-block img", "mobile DOCX embedded images override global preview image sizing");

@@ -2718,6 +2718,7 @@ function DocsSection({ currentUser }: { currentUser: AuthUser | null }) {
   const [uploading, setUploading] = useState(false);
   const [savingPortfolio, setSavingPortfolio] = useState(false);
   const [deletingPortfolioItemId, setDeletingPortfolioItemId] = useState<string | null>(null);
+  const [expandedPreviewOpen, setExpandedPreviewOpen] = useState(false);
   const [docsState, setDocsState] = useState<LoadState>("idle");
   const [statusMessage, setStatusMessage] = useState("");
   const previewRef = useRef<HTMLDivElement | null>(null);
@@ -2742,6 +2743,21 @@ function DocsSection({ currentUser }: { currentUser: AuthUser | null }) {
 
   const activeItem = filteredItems.find((item) => item.id === activeId) ?? filteredItems[0] ?? portfolioItems[0];
   const editingPortfolioItem = editingPortfolioItemId ? items.find((item) => item.id === editingPortfolioItemId) : null;
+
+  useEffect(() => {
+    if (!expandedPreviewOpen) {
+      return;
+    }
+
+    function closeOnEscape(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setExpandedPreviewOpen(false);
+      }
+    }
+
+    window.addEventListener("keydown", closeOnEscape);
+    return () => window.removeEventListener("keydown", closeOnEscape);
+  }, [expandedPreviewOpen]);
 
   function focusPortfolioPreview() {
     previewRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -3151,6 +3167,12 @@ function DocsSection({ currentUser }: { currentUser: AuthUser | null }) {
                   查看站内预览
                 </button>
               ) : null}
+              {isInlinePreview(activeItem) ? (
+                <button className="cyan-button" onClick={() => setExpandedPreviewOpen(true)} type="button">
+                  <ExternalLink size={16} />
+                  放大预览
+                </button>
+              ) : null}
               {activeItem.publicUrl ? (
                 <a className="ghost-button" href={activeItem.publicUrl} target="_blank" rel="noreferrer">
                   <ExternalLink size={16} />
@@ -3169,6 +3191,26 @@ function DocsSection({ currentUser }: { currentUser: AuthUser | null }) {
           </aside>
         </div>
       </div>
+
+      {expandedPreviewOpen ? (
+        <div className="portfolio-expanded-preview" role="dialog" aria-modal="true" aria-label={`${activeItem.title} 放大预览`}>
+          <div className="portfolio-expanded-panel">
+            <div className="portfolio-expanded-head">
+              <div>
+                <span>{activeItem.projectLabel} / {activeItem.kindLabel}</span>
+                <strong>{activeItem.title}</strong>
+              </div>
+              <button className="ghost-button" onClick={() => setExpandedPreviewOpen(false)} type="button">
+                <X size={16} />
+                关闭
+              </button>
+            </div>
+            <div className="portfolio-expanded-body">
+              <PortfolioPreview item={activeItem} />
+            </div>
+          </div>
+        </div>
+      ) : null}
     </section>
   );
 }
