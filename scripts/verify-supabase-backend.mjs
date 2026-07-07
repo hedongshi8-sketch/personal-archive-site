@@ -52,14 +52,14 @@ if (!supabaseUrl || !supabaseAnonKey) {
     .eq("published", true);
 
   assert(!itemsError, "published portfolio items are readable", itemsError?.message);
-  assert((items?.length ?? 0) >= 17, "published portfolio item count is at least 17", `${items?.length ?? 0}`);
+  assert((items?.length ?? 0) >= 15, "published portfolio item count is at least 15", `${items?.length ?? 0}`);
   const internalPortfolioItems = (items ?? []).filter((item) => {
     const searchable = [item.title, item.public_url, item.preview_url, item.source_path].filter(Boolean).join(" ");
-    return /待替换个人信息|投递说明_只看这个|系统策划投递说明/.test(searchable);
+    return /待替换个人信息|投递说明_只看这个|系统策划投递说明|菇霸争夺战相关表格|游戏小镇视觉概念图/.test(searchable);
   });
   assert(
     internalPortfolioItems.length === 0,
-    "published portfolio excludes internal application assembly files",
+    "published portfolio excludes internal and weak portfolio files",
     internalPortfolioItems.length > 0
       ? `${internalPortfolioItems.length}: ${internalPortfolioItems.map((item) => `${item.title} (${item.id})`).join(", ")}. Run supabase/fix-live-database.sql in Supabase SQL Editor.`
       : "",

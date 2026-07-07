@@ -29,9 +29,19 @@ export type PortfolioItem = {
 };
 
 const internalPortfolioPattern = /待替换个人信息|投递说明_只看这个|README_投递使用说明|系统策划投递说明/;
+const hiddenPortfolioIds = new Set([
+  "barbarq-related-sheet",
+  "game-town-visual-concept",
+  "0147fb6e-5635-1e38-8923-654b00d21cd9",
+  "8524dbae-2398-ff06-801c-93bb4ff0c50e",
+]);
+const hiddenPortfolioPattern = /菇霸争夺战相关表格|游戏小镇视觉概念图|barbarq-related-sheet|game-town-visual-concept/;
 
-export function isPublicPortfolioItem(item: Pick<PortfolioItem, "title" | "publicUrl" | "previewUrl"> & { sourcePath?: string }) {
-  return !internalPortfolioPattern.test([item.title, item.publicUrl, item.previewUrl, item.sourcePath].filter(Boolean).join(" "));
+export function isPublicPortfolioItem(
+  item: Pick<PortfolioItem, "title" | "publicUrl" | "previewUrl"> & { id?: string; sourcePath?: string },
+) {
+  const searchable = [item.id, item.title, item.publicUrl, item.previewUrl, item.sourcePath].filter(Boolean).join(" ");
+  return !hiddenPortfolioIds.has(item.id ?? "") && !internalPortfolioPattern.test(searchable) && !hiddenPortfolioPattern.test(searchable);
 }
 
 const withBase = (path: string) => `${import.meta.env.BASE_URL}${path.replace(/^\/+/, "")}`;
@@ -68,6 +78,78 @@ export function normalizePortfolioPreviewUrl(item: Pick<PortfolioItem, "id" | "t
 
   const searchable = [item.id, item.title, item.publicUrl, item.previewUrl].join(" ");
   return pdfPreviewOverrides.find((override) => override.matchers.some((matcher) => searchable.includes(matcher)))?.previewUrl ?? item.previewUrl;
+}
+
+const preferredPortfolioOrder = [
+  ["system-planner-portfolio", "系统策划实习生作品集", "system-planner-portfolio.json"],
+  ["game-town-prototype", "游戏小镇微信小程序交互原型", "/game-town/prototype/index.html"],
+  ["game-town-config-sheets", "游戏小镇系统配置表合集", "game-town-config-sheets.json", "E:\\游戏小镇\\相关表格"],
+  ["game-town-design-doc", "游戏小镇方案完善版", "game-town-design-doc.json"],
+  ["system-planner-war-sheet", "战意 / 骑砍2 / 全面战争系统拆解案", "system-planner-war-sheet.json"],
+  ["system-planner-war-prototype", "3D战争界面 HTML 交互原型", "/system-planner/prototypes/war-ui/index.html"],
+  ["barbarq-main-design", "野蛮人大作战2 - 菇霸争夺战策划案", "barbarq-main-design.json"],
+  ["barbarq-main-sheet", "菇霸争夺战配置表", "barbarq-main-sheet.json"],
+  ["barbarq-art-requirement", "菇霸争夺战部分美术需求", "barbarq-art-requirement.json"],
+  ["barbarq-art-sheet", "菇霸争夺战美术需求表", "barbarq-art-sheet.json"],
+  ["game-town-expanded-design", "游戏小镇方案补全文档", "game-town-expanded-design.json"],
+  ["game-town-prototype-readme", "游戏小镇原型说明", "game-town-prototype-readme.json"],
+  ["game-town-art-doc", "游戏小镇美术需求文档"],
+  ["system-planner-game-overview", "游戏经历可视化总览"],
+  ["game-town-archive", "游戏小镇完整打包文件"],
+];
+
+function getPortfolioOrderRank(item: Pick<PortfolioItem, "id" | "title" | "publicUrl" | "previewUrl" | "sourcePath" | "featured" | "updatedAt">) {
+  const searchable = [item.title, item.publicUrl, item.previewUrl, item.sourcePath].filter(Boolean).join(" ");
+  const preferredIndex = preferredPortfolioOrder.findIndex(
+    (matchers) => matchers[0] === item.id || matchers.slice(1).some((matcher) => searchable.includes(matcher)),
+  );
+
+  if (preferredIndex >= 0) {
+    return preferredIndex;
+  }
+
+  return preferredPortfolioOrder.length + (item.featured ? 0 : 100);
+}
+
+export function orderPortfolioItems<T extends PortfolioItem>(items: T[]) {
+  return [...items].sort((left, right) => {
+    const leftRank = getPortfolioOrderRank(left);
+    const rightRank = getPortfolioOrderRank(right);
+
+    if (leftRank !== rightRank) {
+      return leftRank - rightRank;
+    }
+
+    if (left.featured !== right.featured) {
+      return left.featured ? -1 : 1;
+    }
+
+    return right.updatedAt.localeCompare(left.updatedAt) || left.title.localeCompare(right.title, "zh-Hans-CN");
+  });
+}
+
+export function normalizePortfolioItems<T extends PortfolioItem>(items: T[]) {
+  return orderPortfolioItems(items.filter(isPublicPortfolioItem));
+}
+
+function isSamePortfolioItem(left: PortfolioItem, right: PortfolioItem) {
+  const leftSignals = new Set([left.id, left.title, left.previewUrl, left.publicUrl, left.sourcePath].filter(Boolean));
+  return [right.id, right.title, right.previewUrl, right.publicUrl, right.sourcePath].filter(Boolean).some((signal) => leftSignals.has(signal));
+}
+
+const requiredPortfolioSeedIds = new Set(["game-town-config-sheets"]);
+
+export function ensureRequiredPortfolioItems(items: PortfolioItem[]) {
+  const visibleItems = normalizePortfolioItems(items);
+  if (visibleItems.length === 0) {
+    return portfolioItems;
+  }
+
+  const missingRequiredSeeds = portfolioItems.filter(
+    (seed) => requiredPortfolioSeedIds.has(seed.id) && !visibleItems.some((item) => isSamePortfolioItem(item, seed)),
+  );
+
+  return orderPortfolioItems([...visibleItems, ...missingRequiredSeeds]);
 }
 
 export const portfolioProjectLabels: Record<Exclude<PortfolioProject, "all">, string> = {
@@ -128,21 +210,6 @@ const rawPortfolioItems: PortfolioItem[] = [
     sourcePath: "E:\\工作相关\\野蛮人大作战2-菇霸争夺战.xlsx",
     updatedAt: "2026-04-13",
     featured: true,
-    downloadable: true,
-  },
-  {
-    id: "barbarq-related-sheet",
-    title: "菇霸争夺战相关表格",
-    project: "barbarq",
-    projectLabel: "野蛮人大作战",
-    kind: "excel",
-    kindLabel: "Excel",
-    summary: "补充表格，用于承接模式规则、字段整理与外围配置。",
-    tags: ["Excel", "补充表", "字段整理"],
-    publicUrl: `${assetRoot}/barbarq/sheets/野蛮人大作战2-菇霸争夺战相关表格.xlsx`,
-    previewUrl: `${previewRoot}/barbarq-related-sheet.json`,
-    sourcePath: "E:\\工作相关\\野蛮人大作战2-菇霸争夺战相关表格.xlsx",
-    updatedAt: "2026-04-01",
     downloadable: true,
   },
   {
@@ -333,22 +400,6 @@ const rawPortfolioItems: PortfolioItem[] = [
     downloadable: true,
   },
   {
-    id: "game-town-visual-concept",
-    title: "游戏小镇视觉概念图",
-    project: "game-town",
-    projectLabel: "游戏小镇",
-    kind: "image",
-    kindLabel: "图片",
-    summary: "作为游戏小镇作品的视觉入口和缩略展示图。",
-    tags: ["视觉概念", "图片", "展示图"],
-    publicUrl: `${assetRoot}/game-town/images/visual-concept.png`,
-    previewUrl: `${assetRoot}/game-town/images/visual-concept.png`,
-    thumbnailUrl: `${assetRoot}/game-town/images/visual-concept.png`,
-    sourcePath: "E:\\游戏小镇\\visual-concept.png",
-    updatedAt: "2026-06-09",
-    downloadable: true,
-  },
-  {
     id: "game-town-archive",
     title: "游戏小镇完整打包文件",
     project: "game-town",
@@ -364,4 +415,4 @@ const rawPortfolioItems: PortfolioItem[] = [
   },
 ];
 
-export const portfolioItems = rawPortfolioItems.filter(isPublicPortfolioItem);
+export const portfolioItems = normalizePortfolioItems(rawPortfolioItems);

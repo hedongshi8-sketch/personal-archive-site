@@ -2,6 +2,7 @@ import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import * as tus from "tus-js-client";
 import {
   isPublicPortfolioItem,
+  ensureRequiredPortfolioItems,
   portfolioItems,
   portfolioKindLabels,
   portfolioProjectLabels,
@@ -897,7 +898,7 @@ export class LocalPreviewBackend implements SiteBackend {
   }
 
   async listPortfolioItems() {
-    return localPortfolioItems;
+    return ensureRequiredPortfolioItems(localPortfolioItems);
   }
 
   async createPortfolioItem(input: PortfolioItemInput) {
@@ -1300,9 +1301,7 @@ export class SupabaseBackend implements SiteBackend {
       .order("sort_order", { ascending: true })
       .order("updated_at", { ascending: false });
 
-    return requireSupabaseResult(data as PortfolioItemRow[] | null, error)
-      .map(mapPortfolioItem)
-      .filter(isPublicPortfolioItem);
+    return ensureRequiredPortfolioItems(requireSupabaseResult(data as PortfolioItemRow[] | null, error).map(mapPortfolioItem));
   }
 
   async createPortfolioItem(input: PortfolioItemInput) {

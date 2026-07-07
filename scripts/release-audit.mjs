@@ -269,11 +269,14 @@ for (const internalMarker of ["待替换个人信息", "投递说明_只看这�
 
 const seed = read("supabase/seed-portfolio.sql");
 const seedItems = [...seed.matchAll(/'::timestamptz/g)].length;
-assert(seedItems === 17, "portfolio seed item count is 17", `${seedItems}`);
+assert(seedItems === 17, "portfolio seed item count is 17 including hidden legacy rows", `${seedItems}`);
 assert(seed.includes("on conflict (id) do update set"), "portfolio seed is rerunnable");
 assert(seed.includes("/portfolio-previews/barbarq-main-sheet.json"), "portfolio seed includes Excel preview URLs");
 assert(seed.includes("/portfolio-previews/game-town-design-doc.json"), "portfolio seed includes document preview URLs");
 assert(seed.includes("/portfolio-previews/barbarq-main-design.json"), "portfolio seed includes PDF JSON preview URLs");
+assert(seed.includes("/portfolio-previews/game-town-config-sheets.json"), "portfolio seed includes game town config preview URL");
+assert(seed.includes("'0147fb6e-5635-1e38-8923-654b00d21cd9', 'barbarq', '菇霸争夺战相关表格'") && seed.includes("false, false, 12"), "portfolio seed hides BarbarQ related sheet");
+assert(seed.includes("'8524dbae-2398-ff06-801c-93bb4ff0c50e', 'game-town', '游戏小镇视觉概念图'") && seed.includes("false, false, 27"), "portfolio seed hides game town visual concept");
 for (const internalMarker of ["待替换个人信息", "系统策划投递说明", "投递说明_只看这个"]) {
   assert(!seed.includes(internalMarker), `portfolio seed excludes internal marker ${internalMarker}`);
 }

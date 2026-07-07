@@ -169,11 +169,11 @@ async function checkSupabaseBackend() {
   assert(!publicPortfolioError, "published portfolio items can be checked", publicPortfolioError?.message);
   const internalPortfolioItems = (publicPortfolioItems ?? []).filter((item) => {
     const searchable = [item.title, item.public_url, item.preview_url, item.source_path].filter(Boolean).join(" ");
-    return /待替换个人信息|投递说明_只看这个|系统策划投递说明/.test(searchable);
+    return /待替换个人信息|投递说明_只看这个|系统策划投递说明|菇霸争夺战相关表格|游戏小镇视觉概念图/.test(searchable);
   });
   assert(
     internalPortfolioItems.length === 0,
-    "published portfolio excludes internal application assembly files",
+    "published portfolio excludes internal and weak portfolio files",
     internalPortfolioItems.length > 0
       ? `${internalPortfolioItems.length}: ${internalPortfolioItems.map((item) => `${item.title} (${item.id})`).join(", ")}. Run supabase/fix-live-database.sql in Supabase SQL Editor.`
       : "",

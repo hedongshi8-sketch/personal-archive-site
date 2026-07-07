@@ -21,6 +21,8 @@ const excelPreviewFiles = [
   "system-planner-war-sheet.json",
 ];
 
+const workbookCollectionPreviewFiles = ["game-town-config-sheets.json"];
+
 function pass(label) {
   console.log(`PASS ${label}`);
 }
@@ -65,7 +67,29 @@ for (const fileName of excelPreviewFiles) {
   }
 }
 
+for (const fileName of workbookCollectionPreviewFiles) {
+  const filePath = join(root, "public", "portfolio-previews", fileName);
+  assert(existsSync(filePath), `Excel collection JSON preview exists: ${fileName}`);
+  const payload = JSON.parse(readFileSync(filePath, "utf8"));
+  assert(payload.kind === "excel", `${fileName} renders through ExcelSheetPreview`, `kind=${payload.kind}`);
+  assert(Array.isArray(payload.sheets) && payload.sheets.length >= 12, `${fileName} keeps the game town related table collection`);
+  assert(Array.isArray(payload.sourceFiles) && payload.sourceFiles.length >= 12, `${fileName} keeps every related workbook download entry`);
+}
+
 includes(dataSource, "normalizePortfolioPreviewUrl", "portfolio data normalizes old PDF preview URLs");
+includes(dataSource, "ensureRequiredPortfolioItems", "portfolio data merges required showcase items");
+includes(dataSource, "game-town-config-sheets", "game town config sheets stay in the portfolio data");
+includes(dataSource, "E:\\\\游戏小镇\\\\相关表格", "game town related sheets source path stays visible");
+includes(dataSource, "hiddenPortfolioIds", "portfolio data hides weak public entries defensively");
+includes(dataSource, "0147fb6e-5635-1e38-8923-654b00d21cd9", "BarbarQ related sheet is denylisted");
+includes(dataSource, "8524dbae-2398-ff06-801c-93bb4ff0c50e", "game town visual concept is denylisted");
+assert(!/id:\s*"barbarq-related-sheet"/.test(dataSource), "BarbarQ related sheet removed from static portfolio list");
+assert(!/id:\s*"game-town-visual-concept"/.test(dataSource), "game town visual concept removed from static portfolio list");
+assert(
+  dataSource.indexOf("[\"game-town-config-sheets\"") > dataSource.indexOf("[\"game-town-prototype\"") &&
+    dataSource.indexOf("[\"game-town-config-sheets\"") < dataSource.indexOf("[\"game-town-design-doc\""),
+  "game town config sheets are prioritized near the top",
+);
 includes(dataSource, "barbarq-main-design.json", "main BarbarQ PDF uses JSON preview");
 includes(dataSource, "barbarq-art-requirement.json", "art requirement PDF uses JSON preview");
 includes(dataSource, "system-planner-portfolio.json", "system planner PDF uses JSON preview");
@@ -73,6 +97,7 @@ assert(!dataSource.includes("previewUrl: `${assetRoot}/barbarq/docs/野蛮人大
 assert(!dataSource.includes("previewUrl: `${assetRoot}/system-planner/docs/01_作品集_系统策划实习生_最终投递版.pdf`"), "system planner PDF no longer previews raw PDF");
 
 includes(backendSource, "normalizePortfolioPreviewUrl(item)", "Supabase portfolio rows normalize old preview URLs");
+includes(backendSource, "ensureRequiredPortfolioItems", "Supabase portfolio rows merge required showcase items");
 includes(appSource, "function isInlinePreview", "inline preview predicate exists");
 includes(appSource, "function RawFilePortfolioPreview", "raw file preview fallback exists");
 includes(appSource, "getOfficeViewerUrl", "Office files can use in-site Office viewer");
@@ -90,11 +115,25 @@ includes(stylesSource, ".portfolio-preview:focus", "portfolio preview has focus 
 includes(stylesSource, "scroll-margin-top: 72px", "portfolio preview has mobile scroll margin");
 includes(stylesSource, ".excel-image-board", "Excel embedded images have mobile styles");
 includes(stylesSource, ".document-page-preview", "document page images have mobile styles");
+includes(stylesSource, ".portfolio-preview .document-image-block img", "mobile DOCX embedded images override global preview image sizing");
+includes(stylesSource, "max-height: none", "mobile DOCX embedded images are not vertically clipped");
 includes(stylesSource, ".portfolio-detail-actions .cyan-button", "mobile preview actions stretch cleanly");
 
 for (const fileName of pdfPreviewFiles) {
   includes(seedSource, `/portfolio-previews/${fileName}`, `seed uses ${fileName}`);
 }
+includes(seedSource, "/portfolio-previews/game-town-config-sheets.json", "seed includes game town config sheet preview URL");
+assert(
+  seedSource.includes("'0147fb6e-5635-1e38-8923-654b00d21cd9', 'barbarq', '菇霸争夺战相关表格'") &&
+    seedSource.includes("'0147fb6e-5635-1e38-8923-654b00d21cd9', 'barbarq', '菇霸争夺战相关表格'") &&
+    seedSource.includes("false, false, 12"),
+  "seed hides BarbarQ related sheet",
+);
+assert(
+  seedSource.includes("'8524dbae-2398-ff06-801c-93bb4ff0c50e', 'game-town', '游戏小镇视觉概念图'") &&
+    seedSource.includes("false, false, 27"),
+  "seed hides game town visual concept",
+);
 assert(!seedSource.includes("'/portfolio-assets/barbarq/docs/野蛮人大作战2-菇霸争夺战.pdf', '/portfolio-assets/barbarq/docs/野蛮人大作战2-菇霸争夺战.pdf'"), "seed no longer stores raw PDF as main PDF preview");
 assert(!seedSource.includes("'/portfolio-assets/system-planner/docs/01_作品集_系统策划实习生_最终投递版.pdf', '/portfolio-assets/system-planner/docs/01_作品集_系统策划实习生_最终投递版.pdf'"), "seed no longer stores raw PDF as system planner preview");
 

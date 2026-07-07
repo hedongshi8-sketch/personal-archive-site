@@ -7520,6 +7520,30 @@ p {
     min-height: min(72vh, 620px);
   }
 
+  .portfolio-preview .document-reader {
+    height: auto;
+    overflow: visible;
+  }
+
+  .portfolio-preview .document-blocks {
+    padding: 14px 12px 22px;
+  }
+
+  .portfolio-preview .document-image-block {
+    padding: 6px;
+  }
+
+  .portfolio-preview .document-image-block img,
+  .portfolio-preview .document-page-card img,
+  .portfolio-preview .excel-image-card img {
+    height: auto;
+    min-height: 0;
+  }
+
+  .portfolio-preview .document-image-block img {
+    max-height: none;
+  }
+
   .portfolio-detail-actions {
     justify-content: stretch;
   }

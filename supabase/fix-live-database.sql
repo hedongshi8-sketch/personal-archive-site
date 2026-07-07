@@ -86,8 +86,11 @@ set
 where
   id in (
     '70cf8c1d-3fae-0389-4fac-f458ee4a1247',
-    'd9caa4e3-bda6-4d1b-9168-89acc6b9a584'
+    'd9caa4e3-bda6-4d1b-9168-89acc6b9a584',
+    '0147fb6e-5635-1e38-8923-654b00d21cd9',
+    '8524dbae-2398-ff06-801c-93bb4ff0c50e'
   )
+  or title in ('菇霸争夺战相关表格', '游戏小镇视觉概念图')
   or preview_url like '%system-planner-submission-note%';
 
 select
@@ -124,8 +127,11 @@ select
       and (
         id in (
           '70cf8c1d-3fae-0389-4fac-f458ee4a1247',
-          'd9caa4e3-bda6-4d1b-9168-89acc6b9a584'
+          'd9caa4e3-bda6-4d1b-9168-89acc6b9a584',
+          '0147fb6e-5635-1e38-8923-654b00d21cd9',
+          '8524dbae-2398-ff06-801c-93bb4ff0c50e'
         )
+        or title in ('菇霸争夺战相关表格', '游戏小镇视觉概念图')
         or preview_url like '%system-planner-submission-note%'
       )
   ) as visible_internal_items;

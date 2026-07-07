@@ -108,7 +108,7 @@ where schemaname = 'public'
 select
   'public portfolio item count' as check_name,
   case
-    when count(*) = 17 then 'ok'
+    when count(*) = 15 then 'ok'
     else 'check'
   end as status,
   count(*)::text as observed
@@ -126,6 +126,7 @@ from public.portfolio_items
 where published = true
   and (
     title in ('简历 + 作品集合并版', '系统策划投递说明')
+    or title in ('菇霸争夺战相关表格', '游戏小镇视觉概念图')
     or public_url like '%待替换个人信息%'
     or public_url like '%投递说明_只看这个%'
   );
