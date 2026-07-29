@@ -104,6 +104,15 @@ includes(appSource, "function isInlinePreview", "inline preview predicate exists
 includes(appSource, "function RawFilePortfolioPreview", "raw file preview fallback exists");
 includes(appSource, "getOfficeViewerUrl", "Office files can use in-site Office viewer");
 includes(appSource, "RawTextPortfolioPreview", "Markdown/text uploads can preview in-site");
+includes(appSource, "inferPortfolioKindFromFile", "portfolio uploads infer kind from selected file format");
+includes(appSource, "portfolioUploadAccept", "portfolio upload picker declares accepted portfolio formats");
+includes(appSource, "portfolioInlineUploadKinds.has(detectedKind)", "portfolio upload preview behavior follows detected file format");
+includes(appSource, "portfolioKindFilterOptions", "portfolio filters focus on file kinds after folder grouping");
+includes(appSource, "projectFolders", "portfolio items are grouped into project folders");
+includes(appSource, "portfolio-folder-tree", "portfolio folder tree is rendered");
+includes(appSource, "portfolio-detail-path", "portfolio detail renders a folder-style path");
+includes(appSource, "portfolio-empty-list", "portfolio folder browser has an empty-result state");
+includes(appSource, "portfolio-detail-empty", "portfolio detail matches empty folder state");
 includes(appSource, "function focusPortfolioPreview", "portfolio preview focus helper exists");
 includes(appSource, "function selectPortfolioItem", "portfolio card selection helper exists");
 includes(appSource, "window.matchMedia(\"(max-width: 860px)\")", "mobile card selection scrolls to preview");
@@ -119,6 +128,13 @@ assert(!appSource.includes("打开预览"), "raw preview action label is removed
 assert(!appSource.includes("href={activeItem.previewUrl} target=\"_blank\""), "preview action no longer opens raw files");
 
 includes(stylesSource, ".portfolio-preview:focus", "portfolio preview has focus affordance");
+includes(stylesSource, ".portfolio-browser", "portfolio browser hosts folder tree and file list");
+includes(stylesSource, ".portfolio-folder-tree", "portfolio folder tree has layout styles");
+includes(stylesSource, ".portfolio-file-panel", "portfolio file panel has layout styles");
+includes(stylesSource, ".portfolio-empty-list", "portfolio empty list has layout styles");
+includes(stylesSource, ".portfolio-empty-preview", "portfolio empty detail preview has layout styles");
+includes(stylesSource, ".portfolio-detail-head .portfolio-detail-path", "portfolio detail path avoids title-scale text");
+includes(stylesSource, "grid-auto-columns: minmax(190px, 72vw)", "mobile portfolio folders scroll horizontally");
 includes(stylesSource, "scroll-margin-top: 72px", "portfolio preview has mobile scroll margin");
 includes(stylesSource, "height: min(68svh, 760px)", "desktop portfolio preview has a tall default reading area");
 includes(stylesSource, ".portfolio-expanded-preview", "portfolio expanded preview overlay has styles");

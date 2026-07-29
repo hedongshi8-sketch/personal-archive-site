@@ -25,6 +25,8 @@ import {
   ExternalLink,
   FileSpreadsheet,
   FileText,
+  Folder,
+  FolderOpen,
   Heart,
   ImageIcon,
   LockKeyhole,
@@ -299,6 +301,32 @@ const portfolioKindOptions = Object.entries(portfolioKindLabels).map(([id, label
   label,
 }));
 
+const portfolioInlineUploadKinds = new Set<PortfolioKind>(["pdf", "excel", "docx", "html-prototype", "image", "markdown", "text"]);
+const portfolioUploadAccept = [
+  ".pdf",
+  ".xlsx",
+  ".xls",
+  ".csv",
+  ".doc",
+  ".docx",
+  ".html",
+  ".htm",
+  ".png",
+  ".jpg",
+  ".jpeg",
+  ".webp",
+  ".gif",
+  ".md",
+  ".markdown",
+  ".txt",
+  ".zip",
+  ".rar",
+  ".7z",
+].join(",");
+const portfolioKindFilterOptions = portfolioFilters.filter(
+  (filter) => filter.id === "all" || Object.prototype.hasOwnProperty.call(portfolioKindLabels, filter.id),
+) as Array<{ id: "all" | PortfolioKind; label: string }>;
+
 const defaultPortfolioDraft: PortfolioItemInput = {
   project: "system-planner",
   kind: "pdf",
@@ -476,6 +504,45 @@ function portfolioItemToDraft(item: PortfolioItem): PortfolioItemInput {
 
 function makeFileTitle(file: File) {
   return file.name.replace(/\.[^.]+$/, "");
+}
+
+function inferPortfolioKindFromFile(file: File): PortfolioKind | null {
+  const extension = file.name.split(".").pop()?.toLowerCase() ?? "";
+  const mime = file.type.toLowerCase();
+
+  if (extension === "pdf" || mime === "application/pdf") {
+    return "pdf";
+  }
+
+  if (["xlsx", "xls", "csv"].includes(extension) || mime.includes("spreadsheet") || mime.includes("excel")) {
+    return "excel";
+  }
+
+  if (["doc", "docx"].includes(extension) || mime.includes("wordprocessingml") || mime === "application/msword") {
+    return "docx";
+  }
+
+  if (["html", "htm"].includes(extension) || mime === "text/html") {
+    return "html-prototype";
+  }
+
+  if (["png", "jpg", "jpeg", "webp", "gif", "avif"].includes(extension) || mime.startsWith("image/")) {
+    return "image";
+  }
+
+  if (extension === "md" || extension === "markdown" || mime === "text/markdown") {
+    return "markdown";
+  }
+
+  if (extension === "txt" || mime === "text/plain") {
+    return "text";
+  }
+
+  if (["zip", "rar", "7z"].includes(extension) || mime.includes("zip") || mime.includes("rar") || mime.includes("7z")) {
+    return "archive";
+  }
+
+  return null;
 }
 
 function formatUploadSize(bytes: number) {
@@ -2708,7 +2775,8 @@ function BackgroundMusicDock({ settings }: { settings: SiteSettings }) {
 }
 
 function DocsSection({ currentUser }: { currentUser: AuthUser | null }) {
-  const [activeFilter, setActiveFilter] = useState<(typeof portfolioFilters)[number]["id"]>("all");
+  const [activeFolder, setActiveFolder] = useState<PortfolioProject>("all");
+  const [activeFilter, setActiveFilter] = useState<"all" | PortfolioKind>("all");
   const [query, setQuery] = useState("");
   const [items, setItems] = useState<PortfolioItem[]>(portfolioItems);
   const [activeId, setActiveId] = useState(portfolioItems.find((item) => item.featured)?.id ?? portfolioItems[0].id);
@@ -2731,17 +2799,34 @@ function DocsSection({ currentUser }: { currentUser: AuthUser | null }) {
     const normalizedQuery = query.trim().toLowerCase();
 
     return items.filter((item) => {
-      const matchesFilter =
-        activeFilter === "all" ||
-        item.project === activeFilter ||
-        item.kind === activeFilter;
+      const matchesFolder = activeFolder === "all" || item.project === activeFolder;
+      const matchesFilter = activeFilter === "all" || item.kind === activeFilter;
       const searchable = `${item.title} ${item.projectLabel} ${item.kindLabel} ${item.summary} ${item.tags.join(" ")}`.toLowerCase();
       const matchesQuery = !normalizedQuery || searchable.includes(normalizedQuery);
-      return matchesFilter && matchesQuery;
+      return matchesFolder && matchesFilter && matchesQuery;
     });
-  }, [activeFilter, items, query]);
+  }, [activeFilter, activeFolder, items, query]);
 
-  const activeItem = filteredItems.find((item) => item.id === activeId) ?? filteredItems[0] ?? portfolioItems[0];
+  const projectFolders = useMemo(
+    () => [
+      {
+        id: "all" as PortfolioProject,
+        label: "全部作品集",
+        description: "所有公开作品",
+        count: items.length,
+      },
+      ...portfolioProjectOptions.map((project) => ({
+        id: project.id as PortfolioProject,
+        label: project.label,
+        description: "作品集文件夹",
+        count: items.filter((item) => item.project === project.id).length,
+      })),
+    ],
+    [items],
+  );
+  const activeFolderInfo = projectFolders.find((folder) => folder.id === activeFolder) ?? projectFolders[0];
+
+  const activeItem = filteredItems.find((item) => item.id === activeId) ?? filteredItems[0] ?? null;
   const editingPortfolioItem = editingPortfolioItemId ? items.find((item) => item.id === editingPortfolioItemId) : null;
 
   useEffect(() => {
@@ -2777,8 +2862,10 @@ function DocsSection({ currentUser }: { currentUser: AuthUser | null }) {
       return;
     }
 
-    if (docsNavigationTarget.targetId && items.some((item) => item.id === docsNavigationTarget.targetId)) {
-      setActiveId(docsNavigationTarget.targetId);
+    const targetItem = docsNavigationTarget.targetId ? items.find((item) => item.id === docsNavigationTarget.targetId) : null;
+    if (targetItem) {
+      setActiveId(targetItem.id);
+      setActiveFolder(targetItem.project);
       setQuery("");
       setActiveFilter("all");
       return;
@@ -2786,13 +2873,14 @@ function DocsSection({ currentUser }: { currentUser: AuthUser | null }) {
 
     if (docsNavigationTarget.query) {
       setQuery(docsNavigationTarget.query);
+      setActiveFolder("all");
       setActiveFilter("all");
     }
   }, [docsNavigationTarget, items]);
 
   useEffect(() => {
-    if (!filteredItems.some((item) => item.id === activeId)) {
-      setActiveId(filteredItems[0]?.id ?? portfolioItems[0].id);
+    if (filteredItems.length > 0 && !filteredItems.some((item) => item.id === activeId)) {
+      setActiveId(filteredItems[0].id);
     }
   }, [activeId, filteredItems]);
 
@@ -2844,12 +2932,14 @@ function DocsSection({ currentUser }: { currentUser: AuthUser | null }) {
     setStatusMessage("");
 
     try {
-      const uploaded = await siteBackend.uploadPortfolioFile(file, draft.kind);
+      const detectedKind = inferPortfolioKindFromFile(file) ?? draft.kind;
+      const uploaded = await siteBackend.uploadPortfolioFile(file, detectedKind);
       setDraft((current) => ({
         ...current,
-        title: current.title || file.name.replace(/\.[^.]+$/, ""),
+        kind: detectedKind,
+        title: current.title || makeFileTitle(file),
         publicUrl: uploaded.publicUrl,
-        previewUrl: ["pdf", "html-prototype", "image", "excel", "docx", "markdown", "text"].includes(current.kind) ? uploaded.publicUrl : current.previewUrl,
+        previewUrl: portfolioInlineUploadKinds.has(detectedKind) ? uploaded.publicUrl : current.previewUrl,
         sourcePath: uploaded.storagePath,
       }));
       setStatusMessage(isSupabase ? "文件已上传到 Supabase Storage。" : "本地预览已读取文件。");
@@ -2866,7 +2956,12 @@ function DocsSection({ currentUser }: { currentUser: AuthUser | null }) {
     setEditingPortfolioItemId(null);
   }
 
-  function startEditingPortfolioItem(item: PortfolioItem = activeItem) {
+  function startEditingPortfolioItem(item: PortfolioItem | null = activeItem) {
+    if (!item) {
+      setStatusMessage("当前文件夹没有可编辑的作品，请先切换筛选或新增作品。");
+      return;
+    }
+
     setDraft(portfolioItemToDraft(item));
     setTagInput(item.tags.join(", "));
     setEditingPortfolioItemId(item.id);
@@ -2927,7 +3022,12 @@ function DocsSection({ currentUser }: { currentUser: AuthUser | null }) {
     }
   }
 
-  async function deletePortfolioItem(item: PortfolioItem = activeItem) {
+  async function deletePortfolioItem(item: PortfolioItem | null = activeItem) {
+    if (!item) {
+      setStatusMessage("当前文件夹没有可删除的作品。");
+      return;
+    }
+
     if (!isOwner) {
       setStatusMessage("只有站主账号可以删除作品集条目。");
       return;
@@ -3047,10 +3147,11 @@ function DocsSection({ currentUser }: { currentUser: AuthUser | null }) {
                 />
               </label>
               <div className="portfolio-upload-row">
-                <label className="portfolio-file-picker">
+                <label className={clsx("portfolio-file-picker", uploading && "is-busy")}>
                   <Upload size={16} />
                   <span>{uploading ? "上传中..." : "选择文件"}</span>
                   <input
+                    accept={portfolioUploadAccept}
                     disabled={uploading}
                     onChange={(event) => void handlePortfolioFile(event.target.files?.[0] ?? null)}
                     type="file"
@@ -3065,6 +3166,9 @@ function DocsSection({ currentUser }: { currentUser: AuthUser | null }) {
                   {savingPortfolio ? "保存中..." : editingPortfolioItem ? "保存修改" : "登记作品"}
                 </button>
               </div>
+              <p className="portfolio-upload-hint">
+                支持 PDF、Excel、DOC/DOCX、HTML 原型、图片、Markdown、TXT、ZIP/RAR/7z；上传后会按文件格式自动切换类型和站内预览方式。
+              </p>
             </div>
           ) : null}
           {statusMessage ? <p className="backend-status">{statusMessage}</p> : null}
@@ -3083,7 +3187,7 @@ function DocsSection({ currentUser }: { currentUser: AuthUser | null }) {
             />
           </label>
           <div className="portfolio-filters" aria-label="作品筛选">
-            {portfolioFilters.map((filter) => (
+            {portfolioKindFilterOptions.map((filter) => (
               <button
                 className={clsx(activeFilter === filter.id && "active")}
                 key={filter.id}
@@ -3097,102 +3201,177 @@ function DocsSection({ currentUser }: { currentUser: AuthUser | null }) {
         </div>
 
         <div className="portfolio-content">
-          <div className="portfolio-list" aria-label="作品列表">
-            {filteredItems.map((item) => (
-              <button
-                className={clsx("portfolio-card", activeItem.id === item.id && "selected")}
-                key={item.id}
-                onClick={() => selectPortfolioItem(item)}
-                type="button"
-              >
-                <span className="portfolio-card-icon">
-                  <PortfolioIcon item={item} />
-                </span>
-                <span className="portfolio-card-copy">
-                  <span>
-                    <strong>{item.title}</strong>
-                    {item.featured ? <em>Featured</em> : null}
-                  </span>
-                  <small>{item.projectLabel} / {item.kindLabel}</small>
-                  <p>{item.summary}</p>
-                  <span className="tag-row">
-                    {item.tags.slice(0, 3).map((tag) => (
-                      <span key={tag}>{tag}</span>
-                    ))}
-                  </span>
-                </span>
-              </button>
-            ))}
+          <div className="portfolio-browser" aria-label="作品集文件夹浏览">
+            <div className="portfolio-folder-tree" aria-label="作品集文件夹">
+              <div className="portfolio-browser-label">
+                <span>作品集名称</span>
+                <small>{projectFolders.length} 个文件夹</small>
+              </div>
+              {projectFolders.map((folder) => {
+                const selected = activeFolder === folder.id;
+                return (
+                  <button
+                    className={clsx("portfolio-folder", selected && "selected")}
+                    key={folder.id}
+                    onClick={() => {
+                      setActiveFolder(folder.id);
+                      setActiveFilter("all");
+                    }}
+                    type="button"
+                  >
+                    <span className="portfolio-folder-icon">
+                      {selected ? <FolderOpen size={18} /> : <Folder size={18} />}
+                    </span>
+                    <span className="portfolio-folder-copy">
+                      <strong>{folder.label}</strong>
+                      <small>{folder.description}</small>
+                    </span>
+                    <span className="portfolio-folder-count">{folder.count}</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="portfolio-file-panel">
+              <div className="portfolio-path" aria-label="当前作品集路径">
+                <span>{activeFolderInfo.label}</span>
+                <em aria-hidden="true">\</em>
+                <strong>作品</strong>
+                <small>{filteredItems.length} 个文件</small>
+              </div>
+              <div className="portfolio-list" aria-label={`${activeFolderInfo.label} 作品列表`}>
+                {filteredItems.length > 0 ? (
+                  filteredItems.map((item) => (
+                    <button
+                      className={clsx("portfolio-card", "portfolio-file-card", activeItem?.id === item.id && "selected")}
+                      key={item.id}
+                      onClick={() => selectPortfolioItem(item)}
+                      type="button"
+                    >
+                      <span className="portfolio-card-icon">
+                        <PortfolioIcon item={item} />
+                      </span>
+                      <span className="portfolio-card-copy">
+                        <span>
+                          <strong>{item.title}</strong>
+                          {item.featured ? <em>Featured</em> : null}
+                        </span>
+                        <small>{item.projectLabel} / {item.kindLabel}</small>
+                        <p>{item.summary}</p>
+                        <span className="tag-row">
+                          {item.tags.slice(0, 3).map((tag) => (
+                            <span key={tag}>{tag}</span>
+                          ))}
+                        </span>
+                      </span>
+                    </button>
+                  ))
+                ) : (
+                  <div className="portfolio-empty-list" role="status">
+                    <FolderOpen size={24} />
+                    <strong>这个文件夹里没有匹配作品</strong>
+                    <span>换一个作品集、类型筛选，或清空搜索关键词。</span>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
 
-          <aside className="portfolio-detail" aria-label="作品详情">
-            <div className="portfolio-detail-head">
-              <span>{activeItem.projectLabel}</span>
-              <strong>{activeItem.title}</strong>
-              <p>{activeItem.summary}</p>
-              <div className="portfolio-meta">
-                <span>{activeItem.kindLabel}</span>
-                <time>{activeItem.updatedAt}</time>
-              </div>
-              {isOwner ? (
-                <div className="portfolio-owner-actions">
-                  <button
-                    className="ghost-button"
-                    disabled={savingPortfolio}
-                    onClick={() => startEditingPortfolioItem(activeItem)}
-                    type="button"
-                  >
-                    <Edit3 size={15} />
-                    编辑当前
-                  </button>
-                  <button
-                    className="ghost-button danger"
-                    disabled={deletingPortfolioItemId === activeItem.id}
-                    onClick={() => void deletePortfolioItem(activeItem)}
-                    type="button"
-                  >
-                    <Trash2 size={15} />
-                    删除当前
-                  </button>
+          {activeItem ? (
+            <aside className="portfolio-detail" aria-label="作品详情">
+              <div className="portfolio-detail-head">
+                <div className="portfolio-detail-path" aria-label="当前文件路径">
+                  <FolderOpen size={15} />
+                  <span>{activeItem.projectLabel}</span>
+                  <em aria-hidden="true">\</em>
+                  <strong>{activeItem.title}</strong>
                 </div>
-              ) : null}
-            </div>
-            <div className="portfolio-preview" ref={previewRef} tabIndex={-1}>
-              <PortfolioPreview item={activeItem} />
-            </div>
-            <div className="portfolio-detail-actions">
-              {isInlinePreview(activeItem) ? (
-                <button className="ghost-button" onClick={focusPortfolioPreview} type="button">
-                  <FileText size={16} />
-                  查看站内预览
-                </button>
-              ) : null}
-              {isInlinePreview(activeItem) ? (
-                <button className="cyan-button" onClick={() => setExpandedPreviewOpen(true)} type="button">
-                  <ExternalLink size={16} />
-                  放大预览
-                </button>
-              ) : null}
-              {activeItem.publicUrl ? (
-                <a className="ghost-button" href={activeItem.publicUrl} target="_blank" rel="noreferrer">
-                  <ExternalLink size={16} />
-                  打开原文件
+                <span>{activeItem.projectLabel}</span>
+                <strong>{activeItem.title}</strong>
+                <p>{activeItem.summary}</p>
+                <div className="portfolio-meta">
+                  <span>{activeItem.kindLabel}</span>
+                  <time>{activeItem.updatedAt}</time>
+                </div>
+                {isOwner ? (
+                  <div className="portfolio-owner-actions">
+                    <button
+                      className="ghost-button"
+                      disabled={savingPortfolio}
+                      onClick={() => startEditingPortfolioItem(activeItem)}
+                      type="button"
+                    >
+                      <Edit3 size={15} />
+                      编辑当前
+                    </button>
+                    <button
+                      className="ghost-button danger"
+                      disabled={deletingPortfolioItemId === activeItem.id}
+                      onClick={() => void deletePortfolioItem(activeItem)}
+                      type="button"
+                    >
+                      <Trash2 size={15} />
+                      删除当前
+                    </button>
+                  </div>
+                ) : null}
+              </div>
+              <div className="portfolio-preview" ref={previewRef} tabIndex={-1}>
+                <PortfolioPreview item={activeItem} />
+              </div>
+              <div className="portfolio-detail-actions">
+                {isInlinePreview(activeItem) ? (
+                  <button className="ghost-button" onClick={focusPortfolioPreview} type="button">
+                    <FileText size={16} />
+                    查看站内预览
+                  </button>
+                ) : null}
+                {isInlinePreview(activeItem) ? (
+                  <button className="cyan-button" onClick={() => setExpandedPreviewOpen(true)} type="button">
+                    <ExternalLink size={16} />
+                    放大预览
+                  </button>
+                ) : null}
+                {activeItem.publicUrl ? (
+                  <a className="ghost-button" href={activeItem.publicUrl} target="_blank" rel="noreferrer">
+                    <ExternalLink size={16} />
+                    打开原文件
+                  </a>
+                ) : null}
+                <a className="cyan-button" href={activeItem.publicUrl} download>
+                  <Download size={16} />
+                  下载文件
                 </a>
-              ) : null}
-              <a className="cyan-button" href={activeItem.publicUrl} download>
-                <Download size={16} />
-                下载文件
-              </a>
-            </div>
-            <div className="portfolio-source">
-              <span>来源</span>
-              <code>{activeItem.sourcePath}</code>
-            </div>
-          </aside>
+              </div>
+              <div className="portfolio-source">
+                <span>来源</span>
+                <code>{activeItem.sourcePath}</code>
+              </div>
+            </aside>
+          ) : (
+            <aside className="portfolio-detail portfolio-detail-empty" aria-label="作品详情">
+              <div className="portfolio-detail-head">
+                <div className="portfolio-detail-path" aria-label="当前文件路径">
+                  <FolderOpen size={15} />
+                  <span>{activeFolderInfo.label}</span>
+                  <em aria-hidden="true">\</em>
+                  <strong>作品</strong>
+                </div>
+                <span>{activeFolderInfo.label}</span>
+                <strong>没有匹配作品</strong>
+                <p>当前文件夹或筛选条件下暂无作品。你可以切换作品集、切换类型，或清空搜索关键词。</p>
+              </div>
+              <div className="portfolio-empty-preview" ref={previewRef} tabIndex={-1}>
+                <FolderOpen size={34} />
+                <strong>{activeFolderInfo.label} \ 作品</strong>
+                <span>空文件夹</span>
+              </div>
+            </aside>
+          )}
         </div>
       </div>
 
-      {expandedPreviewOpen ? (
+      {expandedPreviewOpen && activeItem ? (
         <div className="portfolio-expanded-preview" role="dialog" aria-modal="true" aria-label={`${activeItem.title} 放大预览`}>
           <div className="portfolio-expanded-panel">
             <div className="portfolio-expanded-head">
