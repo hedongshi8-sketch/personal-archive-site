@@ -251,11 +251,11 @@ const distSize = distAssets.reduce((sum, file) => sum + sizeOf(file), 0);
 const publicPreviewSize = publicPreviews.reduce((sum, file) => sum + sizeOf(file), 0);
 const distPreviewSize = distPreviews.reduce((sum, file) => sum + sizeOf(file), 0);
 
-assert(publicAssets.length === 84, "public portfolio asset count is 84", `${publicAssets.length}`);
-assert(distAssets.length === 84, "dist portfolio asset count is 84", `${distAssets.length}`);
+assert(publicAssets.length === 98, "public portfolio asset count is 98", `${publicAssets.length}`);
+assert(distAssets.length === 98, "dist portfolio asset count is 98", `${distAssets.length}`);
 assert(publicSize === distSize, "portfolio asset byte size matches", `${publicSize} vs ${distSize}`);
-assert(publicPreviewJson.length === 11, "public portfolio preview JSON count is 11", `${publicPreviewJson.length}`);
-assert(distPreviewJson.length === 11, "dist portfolio preview JSON count is 11", `${distPreviewJson.length}`);
+assert(publicPreviewJson.length === 23, "public portfolio preview JSON count is 23", `${publicPreviewJson.length}`);
+assert(distPreviewJson.length === 23, "dist portfolio preview JSON count is 23", `${distPreviewJson.length}`);
 assert(publicPreviewMedia.length > 0, "public portfolio preview media assets exist", `${publicPreviewMedia.length}`);
 assert(publicPreviewMedia.length === distPreviewMedia.length, "portfolio preview media asset count matches", `${publicPreviewMedia.length} vs ${distPreviewMedia.length}`);
 assert(publicPreviewSize === distPreviewSize, "portfolio preview byte size matches", `${publicPreviewSize} vs ${distPreviewSize}`);
@@ -269,12 +269,15 @@ for (const internalMarker of ["待替换个人信息", "投递说明_只看这�
 
 const seed = read("supabase/seed-portfolio.sql");
 const seedItems = [...seed.matchAll(/'::timestamptz/g)].length;
-assert(seedItems === 17, "portfolio seed item count is 17 including hidden legacy rows", `${seedItems}`);
+assert(seedItems === 31, "portfolio seed item count is 31 including hidden legacy rows", `${seedItems}`);
 assert(seed.includes("on conflict (id) do update set"), "portfolio seed is rerunnable");
 assert(seed.includes("/portfolio-previews/barbarq-main-sheet.json"), "portfolio seed includes Excel preview URLs");
 assert(seed.includes("/portfolio-previews/game-town-design-doc.json"), "portfolio seed includes document preview URLs");
 assert(seed.includes("/portfolio-previews/barbarq-main-design.json"), "portfolio seed includes PDF JSON preview URLs");
 assert(seed.includes("/portfolio-previews/game-town-config-sheets.json"), "portfolio seed includes game town config preview URL");
+assert(seed.includes("'ninja-rogue', '忍三 Rogue 模式'"), "portfolio seed includes Ninja Rogue project");
+assert(seed.includes("/portfolio-previews/ninja-rogue-system-portfolio.json"), "portfolio seed includes Ninja Rogue PDF preview URL");
+assert(seed.includes("/portfolio-assets/ninja-rogue/archive/NinjaRogueModePrototype_UnityProject.zip"), "portfolio seed includes Ninja Rogue demo archive URL");
 assert(seed.includes("'0147fb6e-5635-1e38-8923-654b00d21cd9', 'barbarq', '菇霸争夺战相关表格'") && seed.includes("false, false, 12"), "portfolio seed hides BarbarQ related sheet");
 assert(seed.includes("'8524dbae-2398-ff06-801c-93bb4ff0c50e', 'game-town', '游戏小镇视觉概念图'") && seed.includes("false, false, 27"), "portfolio seed hides game town visual concept");
 for (const internalMarker of ["待替换个人信息", "系统策划投递说明", "投递说明_只看这个"]) {
@@ -454,7 +457,7 @@ for (const file of walkFiles(".")) {
     file.startsWith("node_modules/") ||
     file.startsWith("dist/") ||
     file === "scripts/release-audit.mjs" ||
-    /\.(png|jpe?g|pdf|xlsx|docx|rar)$/i.test(file)
+    /\.(png|jpe?g|pdf|xlsx|docx|rar|zip)$/i.test(file)
   ) {
     continue;
   }

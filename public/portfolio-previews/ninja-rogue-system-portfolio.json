@@ -1,0 +1,452 @@
+{
+  "kind": "document",
+  "title": "忍三 Rogue 模式系统作品集",
+  "sourceFile": "portfolio-assets/ninja-rogue/docs/NinjaRogue_SystemPortfolio.pdf",
+  "blockLimit": 180,
+  "truncatedBlocks": false,
+  "pageImages": [
+    {
+      "page": 1,
+      "src": "portfolio-previews/media/ninja-rogue-system-portfolio/page-1.png",
+      "alt": "第 1 页预览"
+    },
+    {
+      "page": 2,
+      "src": "portfolio-previews/media/ninja-rogue-system-portfolio/page-2.png",
+      "alt": "第 2 页预览"
+    },
+    {
+      "page": 3,
+      "src": "portfolio-previews/media/ninja-rogue-system-portfolio/page-3.png",
+      "alt": "第 3 页预览"
+    },
+    {
+      "page": 4,
+      "src": "portfolio-previews/media/ninja-rogue-system-portfolio/page-4.png",
+      "alt": "第 4 页预览"
+    },
+    {
+      "page": 5,
+      "src": "portfolio-previews/media/ninja-rogue-system-portfolio/page-5.png",
+      "alt": "第 5 页预览"
+    }
+  ],
+  "truncatedPageImages": false,
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "第 1 页 / 共 5 页"
+    },
+    {
+      "type": "paragraph",
+      "text": "忍者秘境：影替试炼"
+    },
+    {
+      "type": "paragraph",
+      "text": "《忍者必须死 3》限时肉鸽活动系统策划作品集"
+    },
+    {
+      "type": "paragraph",
+      "text": "字段 内容"
+    },
+    {
+      "type": "paragraph",
+      "text": "目标岗位 杭州游戏中大厂系统策划秋招投递"
+    },
+    {
+      "type": "paragraph",
+      "text": "核心证明 从点子提出到策划案、PRD、美术需求、配表、Unity demo 和落地计划"
+    },
+    {
+      "type": "paragraph",
+      "text": "参考对象 《Skul: The Hero Slayer》的双身份槽、门奖励、局内构筑"
+    },
+    {
+      "type": "paragraph",
+      "text": "目标游戏映射 忍三角色 = 局内角色契印；忍三武器 = 局内装备/道具；小地图终点 = 双分支门"
+    },
+    {
+      "type": "paragraph",
+      "text": "资源策略 不抓取商业美术；demo 使用原创白盒和文字占位，正式项目接入授权资产 ID"
+    },
+    {
+      "type": "paragraph",
+      "text": "1. 活动点子与立项逻辑"
+    },
+    {
+      "type": "paragraph",
+      "text": "本项目的出发点是用一个完整可交付的活动系统证明入职即可参与系统策划工作。忍三已有高速"
+    },
+    {
+      "type": "paragraph",
+      "text": "跑酷、角色技能、武器释放和活动生态；肉鸽结构可以补充局内成长、路线选择和复玩差异。"
+    },
+    {
+      "type": "paragraph",
+      "text": "• 玩家每跑完一个小地图，在终点选择武器门或角色门。"
+    },
+    {
+      "type": "paragraph",
+      "text": "• 角色承担 Skul 头骨的身份功能，最多保留两个角色槽。"
+    },
+    {
+      "type": "paragraph",
+      "text": "• 武器承担 Skul 装备/道具的构筑功能，最多保留三个武器槽。"
+    },
+    {
+      "type": "paragraph",
+      "text": "• 元素/定位标签累计到 2 个时激活协同，让随机奖励变成可读的流派选择。"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "第 2 页 / 共 5 页"
+    },
+    {
+      "type": "paragraph",
+      "text": "2. 竞品映射"
+    },
+    {
+      "type": "paragraph",
+      "text": "Skul 结构 忍三活动映射 设计理由"
+    },
+    {
+      "type": "paragraph",
+      "text": "头骨 角色契印/临时角色槽 忍三角色本身具备能力差异，适合承担身份切换。"
+    },
+    {
+      "type": "paragraph",
+      "text": "最多两个头骨 最多两个角色槽 保留切换决策，同时控制 UI 和学习成本。"
+    },
+    {
+      "type": "paragraph",
+      "text": "道具/装备 局内武器 武器图标和释放记忆点强，适合作为构筑核心。"
+    },
+    {
+      "type": "paragraph",
+      "text": "房间门奖励 小地图终点双门 跑酷终点天然适合作为选择与结算节点。"
+    },
+    {
+      "type": "paragraph",
+      "text": "章节 Boss 精英追逐/Boss 验证 验证当前构筑是否能处理高压段。"
+    },
+    {
+      "type": "paragraph",
+      "text": "3. 核心循环"
+    },
+    {
+      "type": "paragraph",
+      "text": "1. 开局给予 1 个初始角色和 1 把初始武器。"
+    },
+    {
+      "type": "paragraph",
+      "text": "2. 玩家完成一段短跑酷小地图，到达终点奖励区。"
+    },
+    {
+      "type": "paragraph",
+      "text": "3. 选择武器门或角色门，并从 3 个候选中选择 1 个。"
+    },
+    {
+      "type": "paragraph",
+      "text": "4. 奖励进入角色槽或武器槽，触发槽位替换、协同更新和日志记录。"
+    },
+    {
+      "type": "paragraph",
+      "text": "5. 每 4 个房间进入章节验证段，通关后结算积分、图鉴和复盘数据。"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "第 3 页 / 共 5 页"
+    },
+    {
+      "type": "paragraph",
+      "text": "4. PRD 摘要"
+    },
+    {
+      "type": "paragraph",
+      "text": "需求 规则 验收"
+    },
+    {
+      "type": "paragraph",
+      "text": "读取活动配置、随机种子、初始角色和武 Play 后 HUD 显示章节、角色、武器和"
+    },
+    {
+      "type": "paragraph",
+      "text": "开局初始化"
+    },
+    {
+      "type": "paragraph",
+      "text": "器。 战力评分。"
+    },
+    {
+      "type": "paragraph",
+      "text": "双门分支 终点固定出现武器门与角色门。 两个门进入不同奖励池。"
+    },
+    {
+      "type": "paragraph",
+      "text": "奖励候选 每次展示 3 个未拥有候选。 按 1/2/3 能选择，Esc 能跳过。"
+    },
+    {
+      "type": "paragraph",
+      "text": "角色上限 2，武器上限 3，满槽替换最早获"
+    },
+    {
+      "type": "paragraph",
+      "text": "槽位管理 选择后 HUD 和日志立即变化。"
+    },
+    {
+      "type": "paragraph",
+      "text": "得项。"
+    },
+    {
+      "type": "paragraph",
+      "text": "统计元素/定位/标签，数量达到 2 即显 同标签累计后 HUD 出现 x2 或更高提"
+    },
+    {
+      "type": "paragraph",
+      "text": "协同提示"
+    },
+    {
+      "type": "paragraph",
+      "text": "示。 示。"
+    },
+    {
+      "type": "paragraph",
+      "text": "5. 美术需求摘要"
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "资源 优先级 规格 说明"
+    },
+    {
+      "type": "paragraph",
+      "text": "橙红发光门、武器图标、开门动"
+    },
+    {
+      "type": "paragraph",
+      "text": "武器门 P0 玩家必须在 2 秒内理解这是拿武器。"
+    },
+    {
+      "type": "paragraph",
+      "text": "效"
+    },
+    {
+      "type": "paragraph",
+      "text": "蓝紫发光门、契印/角色图标、开"
+    },
+    {
+      "type": "paragraph",
+      "text": "角色门 P0 玩家必须理解这是换角色。"
+    },
+    {
+      "type": "paragraph",
+      "text": "门动效"
+    },
+    {
+      "type": "paragraph",
+      "text": "三种稀有度边框，支持角色和武"
+    },
+    {
+      "type": "paragraph",
+      "text": "奖励卡 P0 名称、标签、效果不超过两行。"
+    },
+    {
+      "type": "paragraph",
+      "text": "器"
+    },
+    {
+      "type": "paragraph",
+      "text": "元素标签 P0 火/雷/水/风/暗/通用 贯穿奖励卡、槽位和协同提示。"
+    },
+    {
+      "type": "paragraph",
+      "text": "换人特效 P2 0.4 到 0.8 秒元素入场 正式版增强反馈，MVP 可先不做。"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "第 4 页 / 共 5 页"
+    },
+    {
+      "type": "paragraph",
+      "text": "6. 配表结构"
+    },
+    {
+      "type": "paragraph",
+      "text": "表 核心字段 用途 demo 状态"
+    },
+    {
+      "type": "paragraph",
+      "text": "id, element, archetype,"
+    },
+    {
+      "type": "paragraph",
+      "text": "characters base_hp, move_speed, 定义角色契印和切换体验。 已接入 JSON。"
+    },
+    {
+      "type": "paragraph",
+      "text": "swap_skill"
+    },
+    {
+      "type": "paragraph",
+      "text": "id, element, role, rarity,"
+    },
+    {
+      "type": "paragraph",
+      "text": "weapons 定义局内武器构筑。 已接入 JSON。"
+    },
+    {
+      "type": "paragraph",
+      "text": "base_power, cooldown, tags"
+    },
+    {
+      "type": "paragraph",
+      "text": "chapter, room_index,"
+    },
+    {
+      "type": "paragraph",
+      "text": "room_flow 定义章节与房间压力。 部分接入。"
+    },
+    {
+      "type": "paragraph",
+      "text": "room_type, hazard_density"
+    },
+    {
+      "type": "paragraph",
+      "text": "HUD 统计已接"
+    },
+    {
+      "type": "paragraph",
+      "text": "synergies trigger, effect, counter_risk 定义流派协同。"
+    },
+    {
+      "type": "paragraph",
+      "text": "入。"
+    },
+    {
+      "type": "paragraph",
+      "text": "reward_rules condition, result, priority 定义奖励权重、保底和替换。 基础规则已接入。"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "第 5 页 / 共 5 页"
+    },
+    {
+      "type": "paragraph",
+      "text": "7. 落地计划"
+    },
+    {
+      "type": "paragraph",
+      "text": "阶段 时间 交付 验收"
+    },
+    {
+      "type": "paragraph",
+      "text": "2026-07-29 至"
+    },
+    {
+      "type": "paragraph",
+      "text": "M0 作品集 MVP 文档、配表、Unity 白盒 demo 3 分钟内讲清核心循环。"
+    },
+    {
+      "type": "paragraph",
+      "text": "2026-08-02"
+    },
+    {
+      "type": "paragraph",
+      "text": "2026-08-03 至 真实跑酷判定、武器释放、8 个房 3 名玩家无说明完成一"
+    },
+    {
+      "type": "paragraph",
+      "text": "M1 玩法验证版"
+    },
+    {
+      "type": "paragraph",
+      "text": "2026-08-12 间模板 局。"
+    },
+    {
+      "type": "paragraph",
+      "text": "2026-08-13 至 每局至少激活 1 个协"
+    },
+    {
+      "type": "paragraph",
+      "text": "M2 数值平衡版 权重、保底、协同、复盘数据"
+    },
+    {
+      "type": "paragraph",
+      "text": "2026-08-22 同。"
+    },
+    {
+      "type": "paragraph",
+      "text": "2026-08-23 至 演示视频、作品集 PDF、面试话 首屏可读，无版权风"
+    },
+    {
+      "type": "paragraph",
+      "text": "M3 投递包装版"
+    },
+    {
+      "type": "paragraph",
+      "text": "2026-08-31 术 险。"
+    },
+    {
+      "type": "paragraph",
+      "text": "8. 面试讲述重点"
+    },
+    {
+      "type": "paragraph",
+      "text": "• 我不是只提出玩法点子，而是把活动拆成规则、数据、UI、美术需求、demo 和验收。"
+    },
+    {
+      "type": "paragraph",
+      "text": "• 我借鉴 Skul 的结构，但没有照搬动作系统；我把它翻译到忍三的跑酷和武器生态中。"
+    },
+    {
+      "type": "paragraph",
+      "text": "• demo 的每个元素都对应一条 PRD 或配表字段，方便程序和美术落地。"
+    },
+    {
+      "type": "paragraph",
+      "text": "• 版权上主动规避商业资源抓取，作品集只展示系统设计能力。"
+    },
+    {
+      "type": "paragraph",
+      "text": "9. 资料来源与边界"
+    },
+    {
+      "type": "paragraph",
+      "text": "公开资料只用于文字层面的竞品研究和系统拆解。最终 demo 不包含任何忍三或 Skul 的商业图"
+    },
+    {
+      "type": "paragraph",
+      "text": "像、音效、模型或字体。"
+    },
+    {
+      "type": "paragraph",
+      "text": "• 忍者必须死3 BWIKI 忍者页：https://wiki.biligame.com/nmd3/忍者"
+    },
+    {
+      "type": "paragraph",
+      "text": "• 忍者必须死3 BWIKI 武器图鉴：https://wiki.biligame.com/nmd3/武器图鉴"
+    },
+    {
+      "type": "paragraph",
+      "text": "• Skul Steam 页面："
+    },
+    {
+      "type": "paragraph",
+      "text": "https://store.steampowered.com/app/1147560/Skul_The_Hero_Slayer/"
+    },
+    {
+      "type": "paragraph",
+      "text": "• Skul Wiki Skulls：https://skul.fandom.com/wiki/Skulls"
+    },
+    {
+      "type": "paragraph",
+      "text": "• Skul Wiki Items：https://skul.fandom.com/wiki/Items"
+    }
+  ],
+  "generatedAt": "2026-07-29"
+}

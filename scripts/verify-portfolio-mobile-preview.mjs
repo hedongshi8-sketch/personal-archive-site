@@ -15,6 +15,7 @@ const pdfPreviewFiles = [
   "barbarq-main-design.json",
   "barbarq-art-requirement.json",
   "system-planner-portfolio.json",
+  "ninja-rogue-system-portfolio.json",
 ];
 
 const excelPreviewFiles = [
@@ -24,6 +25,22 @@ const excelPreviewFiles = [
 ];
 
 const workbookCollectionPreviewFiles = ["game-town-config-sheets.json"];
+
+const simpleExcelPreviewFiles = ["ninja-rogue-config-workbook.json"];
+
+const documentPreviewFiles = ["ninja-rogue-system-portfolio-docx.json"];
+
+const markdownPreviewFiles = [
+  "ninja-rogue-readme.json",
+  "ninja-rogue-idea-pitch.json",
+  "ninja-rogue-design-proposal.json",
+  "ninja-rogue-prd.json",
+  "ninja-rogue-art-request.json",
+  "ninja-rogue-implementation-plan.json",
+  "ninja-rogue-delivery-guide.json",
+  "ninja-rogue-research-notes.json",
+  "ninja-rogue-asset-sources.json",
+];
 
 function pass(label) {
   console.log(`PASS ${label}`);
@@ -78,10 +95,39 @@ for (const fileName of workbookCollectionPreviewFiles) {
   assert(Array.isArray(payload.sourceFiles) && payload.sourceFiles.length >= 12, `${fileName} keeps every related workbook download entry`);
 }
 
+for (const fileName of simpleExcelPreviewFiles) {
+  const filePath = join(root, "public", "portfolio-previews", fileName);
+  assert(existsSync(filePath), `Excel JSON preview exists: ${fileName}`);
+  const payload = JSON.parse(readFileSync(filePath, "utf8"));
+  assert(payload.kind === "excel", `${fileName} renders through ExcelSheetPreview`, `kind=${payload.kind}`);
+  assert(Array.isArray(payload.sheets) && payload.sheets.length >= 8, `${fileName} keeps the Ninja Rogue workbook sheets`);
+  assert(Array.isArray(payload.sourceFiles) && payload.sourceFiles[0]?.includes("NinjaRogue_ConfigWorkbook.xlsx"), `${fileName} points to the Ninja Rogue workbook`);
+}
+
+for (const fileName of documentPreviewFiles) {
+  const filePath = join(root, "public", "portfolio-previews", fileName);
+  assert(existsSync(filePath), `DOCX JSON preview exists: ${fileName}`);
+  const payload = JSON.parse(readFileSync(filePath, "utf8"));
+  assert(payload.kind === "document", `${fileName} renders through DocumentReader`, `kind=${payload.kind}`);
+  assert(Array.isArray(payload.blocks) && payload.blocks.length > 8, `${fileName} has readable extracted blocks`);
+}
+
+for (const fileName of markdownPreviewFiles) {
+  const filePath = join(root, "public", "portfolio-previews", fileName);
+  assert(existsSync(filePath), `Markdown JSON preview exists: ${fileName}`);
+  const payload = JSON.parse(readFileSync(filePath, "utf8"));
+  assert(payload.kind === "markdown", `${fileName} renders through RawTextPortfolioPreview`, `kind=${payload.kind}`);
+  assert(typeof payload.content === "string" && payload.content.length > 500, `${fileName} has readable markdown content`);
+}
+
 includes(dataSource, "normalizePortfolioPreviewUrl", "portfolio data normalizes old PDF preview URLs");
 includes(dataSource, "ensureRequiredPortfolioItems", "portfolio data merges required showcase items");
 includes(dataSource, "game-town-config-sheets", "game town config sheets stay in the portfolio data");
 includes(dataSource, "E:\\\\游戏小镇\\\\相关表格", "game town related sheets source path stays visible");
+includes(dataSource, '"ninja-rogue"', "Ninja Rogue project is available in portfolio folders");
+includes(dataSource, "ninja-rogue-system-portfolio", "Ninja Rogue system portfolio stays in the portfolio data");
+includes(dataSource, "ninja-rogue-unity-demo", "Ninja Rogue Unity demo download stays in the portfolio data");
+includes(dataSource, "NinjaRogueModePrototype_UnityProject.zip", "Ninja Rogue demo is published as a downloadable archive");
 includes(dataSource, "hiddenPortfolioIds", "portfolio data hides weak public entries defensively");
 includes(dataSource, "0147fb6e-5635-1e38-8923-654b00d21cd9", "BarbarQ related sheet is denylisted");
 includes(dataSource, "8524dbae-2398-ff06-801c-93bb4ff0c50e", "game town visual concept is denylisted");
@@ -137,6 +183,8 @@ includes(stylesSource, ".portfolio-detail-head .portfolio-detail-path", "portfol
 includes(stylesSource, "grid-auto-columns: minmax(190px, 72vw)", "mobile portfolio folders scroll horizontally");
 includes(stylesSource, "scroll-margin-top: 72px", "portfolio preview has mobile scroll margin");
 includes(stylesSource, "height: min(68svh, 760px)", "desktop portfolio preview has a tall default reading area");
+assert(/\.portfolio-preview\s*{[^}]*height:\s*auto;[^}]*overflow:\s*visible;/s.test(stylesSource), "mobile portfolio preview expands instead of clipping long document images");
+includes(stylesSource, ".portfolio-preview iframe,\n  .portfolio-preview > img", "mobile iframe and direct image previews keep a stable viewport height");
 includes(stylesSource, ".portfolio-expanded-preview", "portfolio expanded preview overlay has styles");
 includes(stylesSource, ".portfolio-expanded-body", "expanded preview body can host full readers");
 includes(stylesSource, ".excel-image-board", "Excel embedded images have mobile styles");
@@ -156,6 +204,9 @@ for (const fileName of pdfPreviewFiles) {
   includes(seedSource, `/portfolio-previews/${fileName}`, `seed uses ${fileName}`);
 }
 includes(seedSource, "/portfolio-previews/game-town-config-sheets.json", "seed includes game town config sheet preview URL");
+includes(seedSource, "'ninja-rogue', '忍三 Rogue 模式'", "seed includes Ninja Rogue project");
+includes(seedSource, "/portfolio-previews/ninja-rogue-config-workbook.json", "seed includes Ninja Rogue workbook preview URL");
+includes(seedSource, "/portfolio-assets/ninja-rogue/archive/NinjaRogueModePrototype_UnityProject.zip", "seed includes Ninja Rogue demo archive URL");
 assert(
   seedSource.includes("'0147fb6e-5635-1e38-8923-654b00d21cd9', 'barbarq', '菇霸争夺战相关表格'") &&
     seedSource.includes("'0147fb6e-5635-1e38-8923-654b00d21cd9', 'barbarq', '菇霸争夺战相关表格'") &&

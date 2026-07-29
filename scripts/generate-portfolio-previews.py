@@ -506,5 +506,40 @@ def main() -> None:
         "markdown",
     )
 
+    build_pdf_preview(
+        "ninja-rogue-system-portfolio",
+        "忍三 Rogue 模式系统作品集",
+        ASSETS / "ninja-rogue" / "docs" / "NinjaRogue_SystemPortfolio.pdf",
+    )
+    build_docx_preview(
+        "ninja-rogue-system-portfolio-docx",
+        "忍三 Rogue 模式作品集源文件",
+        ASSETS / "ninja-rogue" / "docs" / "NinjaRogue_SystemPortfolio.docx",
+    )
+    build_excel_preview(
+        "ninja-rogue-config-workbook",
+        "忍三 Rogue 模式配置表",
+        [ASSETS / "ninja-rogue" / "sheets" / "NinjaRogue_ConfigWorkbook.xlsx"],
+    )
+
+    ninja_markdown_previews = [
+        ("ninja-rogue-readme", "忍三 Rogue 模式项目说明", "README.md"),
+        ("ninja-rogue-idea-pitch", "忍三 Rogue 模式立项 Pitch", "01_Idea_Pitch.md"),
+        ("ninja-rogue-design-proposal", "忍三 Rogue 模式系统策划案", "02_Game_Design_Proposal.md"),
+        ("ninja-rogue-prd", "忍三 Rogue 模式 PRD", "03_PRD.md"),
+        ("ninja-rogue-art-request", "忍三 Rogue 模式美术需求文档", "04_Art_Request_Document.md"),
+        ("ninja-rogue-implementation-plan", "忍三 Rogue 模式开发计划", "05_Implementation_Plan.md"),
+        ("ninja-rogue-delivery-guide", "忍三 Rogue 模式投递说明", "06_Portfolio_Delivery_Guide.md"),
+        ("ninja-rogue-research-notes", "忍三 Rogue 模式竞品研究", "07_Research_Notes.md"),
+        ("ninja-rogue-asset-sources", "忍三 Rogue 模式素材来源说明", "08_Asset_Sources.md"),
+    ]
+    for item_id, title, file_name in ninja_markdown_previews:
+        build_text_preview(
+            item_id,
+            title,
+            ASSETS / "ninja-rogue" / "docs" / file_name,
+            "markdown",
+        )
+
 if __name__ == "__main__":
     main()

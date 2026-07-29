@@ -40,6 +40,16 @@ const checks = [
     minBytes: 1_000,
   },
   {
+    path: "/portfolio-assets/ninja-rogue/docs/NinjaRogue_SystemPortfolio.pdf",
+    type: "application/pdf",
+    minBytes: 10_000,
+  },
+  {
+    path: "/portfolio-assets/ninja-rogue/archive/NinjaRogueModePrototype_UnityProject.zip",
+    type: "application/zip",
+    minBytes: 1_000_000,
+  },
+  {
     path: "/portfolio-previews/barbarq-main-sheet.json",
     type: "application/json",
     minBytes: 1_000,
@@ -51,6 +61,16 @@ const checks = [
   },
   {
     path: "/portfolio-previews/game-town-design-doc.json",
+    type: "application/json",
+    minBytes: 10_000,
+  },
+  {
+    path: "/portfolio-previews/ninja-rogue-system-portfolio.json",
+    type: "application/json",
+    minBytes: 10_000,
+  },
+  {
+    path: "/portfolio-previews/ninja-rogue-config-workbook.json",
     type: "application/json",
     minBytes: 10_000,
   },
@@ -77,6 +97,7 @@ const mimeTypes = new Map([
   [".svg", "image/svg+xml; charset=utf-8"],
   [".txt", "text/plain; charset=utf-8"],
   [".webmanifest", "application/manifest+json; charset=utf-8"],
+  [".zip", "application/zip"],
   [
     ".xlsx",
     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",

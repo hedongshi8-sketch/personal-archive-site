@@ -7886,7 +7886,14 @@ p {
   }
 
   .portfolio-preview {
+    height: auto;
     min-height: min(72vh, 620px);
+    overflow: visible;
+  }
+
+  .portfolio-preview iframe,
+  .portfolio-preview > img {
+    height: min(72vh, 620px);
   }
 
   .portfolio-preview .document-reader {

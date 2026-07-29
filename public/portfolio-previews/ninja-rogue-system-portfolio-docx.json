@@ -1,0 +1,910 @@
+{
+  "kind": "document",
+  "title": "忍三 Rogue 模式作品集源文件",
+  "sourceFile": "portfolio-assets/ninja-rogue/docs/NinjaRogue_SystemPortfolio.docx",
+  "blockLimit": 180,
+  "truncatedBlocks": true,
+  "blocks": [
+    {
+      "type": "paragraph",
+      "text": "忍者秘境：影替试炼"
+    },
+    {
+      "type": "paragraph",
+      "text": "《忍者必须死3》限时肉鸽活动系统策划作品集"
+    },
+    {
+      "type": "table",
+      "rowCount": 5,
+      "columnCount": 2,
+      "truncatedRows": false,
+      "truncatedColumns": false,
+      "rows": [
+        [
+          "字段",
+          "内容"
+        ],
+        [
+          "目标岗位",
+          "杭州游戏中大厂系统策划秋招投递"
+        ],
+        [
+          "核心证明",
+          "从点子提出到策划案、PRD、美术需求、配表、Unity demo、验证和投递包装的全流程能力"
+        ],
+        [
+          "Demo 当前状态",
+          "中文 2D 横版水墨占位版：单跑道上下切位、角色/武器/关卡差分、左武器门、中央祭坛、右角色门、角色面板、武器试放"
+        ],
+        [
+          "素材边界",
+          "不使用忍三或 Skul 商业素材；第三方相近占位素材保留来源与授权核验说明"
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 1,
+      "text": "01 活动点子的提出"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "项目定位"
+    },
+    {
+      "type": "paragraph",
+      "text": "项目名暂定为《忍者秘境：影替试炼》。它是一个为《忍者必须死3》设计的限时肉鸽活动概念，目标不是替代主线或竞技内容，而是在原本“跑酷、武器释放、角色培养”的基础上，增加一次局内构筑体验。"
+    },
+    {
+      "type": "paragraph",
+      "text": "面向秋招作品集，本项目的重点是证明系统策划能力："
+    },
+    {
+      "type": "paragraph",
+      "text": "能从现有商业游戏中识别可复用的核心体验。"
+    },
+    {
+      "type": "paragraph",
+      "text": "能将竞品机制翻译成目标游戏可接受的系统结构。"
+    },
+    {
+      "type": "paragraph",
+      "text": "能输出策划案、PRD、美术需求、配表、demo 和落地计划。"
+    },
+    {
+      "type": "paragraph",
+      "text": "能用可试玩原型证明规则闭环，而不是只停留在文字设想。"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "机会判断"
+    },
+    {
+      "type": "paragraph",
+      "text": "《忍者必须死3》的强项是高速跑酷、角色技能、武器释放和养成收集。肉鸽活动适合补足“单局内成长”和“每次开局不一样”的体验：玩家在一次活动局中不断跑完小地图，在终点选择分支奖励，形成临时流派。"
+    },
+    {
+      "type": "paragraph",
+      "text": "《Skul: The Hero Slayer》的可借鉴点是：玩家最多持有两个头骨，通过切换获得差异动作与流派；地图房间结束后通过不同门进入奖励方向；局内道具持续塑造构筑；Boss/章节提供阶段性验证。这些结构可以迁移为忍三的角色位、武器位和地图分支。"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "核心创意"
+    },
+    {
+      "type": "paragraph",
+      "text": "每个小地图是一段短跑酷关卡。玩家跑到终点后看到两个门："
+    },
+    {
+      "type": "paragraph",
+      "text": "武器门：进入后从 3 个局内武器奖励中选择 1 个。"
+    },
+    {
+      "type": "paragraph",
+      "text": "角色门：进入后从 3 个局内角色契印中选择 1 个，可补齐双角色位或替换现有角色。"
+    },
+    {
+      "type": "paragraph",
+      "text": "角色相当于 Skul 的头骨，决定基础属性、换人技能和构筑方向；武器相当于 Skul 的装备，提供主动释放、元素标签和套装协同。玩家最终面对章节 Boss 或精英段，用当前构筑验证选择是否成立。"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "设计边界"
+    },
+    {
+      "type": "paragraph",
+      "text": "为了让作品集更像真实项目而不是同人脑洞，设计边界如下："
+    },
+    {
+      "type": "paragraph",
+      "text": "不改动忍三的长期养成价值，只在活动局内生成临时构筑。"
+    },
+    {
+      "type": "paragraph",
+      "text": "不要求新角色或新武器美术，优先复用已有角色/武器资产，demo 用占位。"
+    },
+    {
+      "type": "paragraph",
+      "text": "不设计付费点，避免秋招作品集变成商业化方案。"
+    },
+    {
+      "type": "paragraph",
+      "text": "不复制 Skul 的动作系统，只借鉴“角色槽、道具构筑、门分支、章节验证”的结构。"
+    },
+    {
+      "type": "paragraph",
+      "text": "不抓取商业美术资源，demo 主视觉使用原创 2D 水墨风占位图形与程序生成笔刷贴图；若引入第三方占位素材，只用于角色/武器图标衍生，并保留来源与授权边界。"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "一句话提案"
+    },
+    {
+      "type": "paragraph",
+      "text": "在《忍者必须死3》中加入一个“跑酷房间 + 双门奖励 + 双角色切换 + 武器构筑”的限时肉鸽活动，让玩家每局用不同角色与武器组合打出新的流派。"
+    },
+    {
+      "type": "heading",
+      "level": 1,
+      "text": "02 系统策划案"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "目标体验"
+    },
+    {
+      "type": "paragraph",
+      "text": "玩家进入活动后，不再只依赖局外养成强度，而是在 10 到 15 分钟的单局中完成“跑酷表现 -> 分支选择 -> 构筑成型 -> Boss 验证”的循环。每次障碍组合和战斗压力不同，角色与武器组合不同，玩家可以围绕元素、冷却、爆发、生存、风险收益等方向形成流派。"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "竞品映射"
+    },
+    {
+      "type": "table",
+      "rowCount": 7,
+      "columnCount": 3,
+      "truncatedRows": false,
+      "truncatedColumns": false,
+      "rows": [
+        [
+          "Skul 结构",
+          "忍三活动映射",
+          "设计理由"
+        ],
+        [
+          "头骨",
+          "角色契印/临时角色槽",
+          "忍三本身以角色为主要能力差异，适合承接头骨身份"
+        ],
+        [
+          "最多持有两个头骨",
+          "最多持有两个角色契印",
+          "保留“切换”决策，同时控制 UI 和学习成本"
+        ],
+        [
+          "道具/装备",
+          "局内武器",
+          "忍三已有武器记忆点强，适合作为单局构筑核心"
+        ],
+        [
+          "房间门奖励",
+          "小地图终点双分支门",
+          "跑酷终点天然适合作为奖励选择节点"
+        ],
+        [
+          "章节 Boss",
+          "章节首领/精英追逐段",
+          "用高压段验证构筑强度和容错"
+        ],
+        [
+          "金币/商店",
+          "活动货币与随机补给",
+          "可扩展，但 demo 阶段不做复杂经济"
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "核心循环"
+    },
+    {
+      "type": "paragraph",
+      "text": "1. 开局选择初始角色与初始武器。"
+    },
+    {
+      "type": "paragraph",
+      "text": "2. 进入小地图，完成跑酷与轻量战斗压力。"
+    },
+    {
+      "type": "paragraph",
+      "text": "3. 到达终点，选择武器门或角色门。"
+    },
+    {
+      "type": "paragraph",
+      "text": "4. 从 3 个候选中选择 1 个加入构筑。"
+    },
+    {
+      "type": "paragraph",
+      "text": "5. 每 4 个小地图进入章节 Boss 或精英验证。"
+    },
+    {
+      "type": "paragraph",
+      "text": "6. 通关后结算活动积分、成就、图鉴解锁和复盘信息。"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "局内角色系统"
+    },
+    {
+      "type": "paragraph",
+      "text": "角色槽上限为 2。角色承担三类功能："
+    },
+    {
+      "type": "paragraph",
+      "text": "基础手感：移动速度、容错血量、冲刺节奏。"
+    },
+    {
+      "type": "paragraph",
+      "text": "换人技能：切换进入时触发短时增益或清屏/护盾/冷却刷新。"
+    },
+    {
+      "type": "paragraph",
+      "text": "构筑标签：火、雷、水、风、暗、爆发、连击、控制、生存、风险。"
+    },
+    {
+      "type": "paragraph",
+      "text": "切换规则建议："
+    },
+    {
+      "type": "paragraph",
+      "text": "换人冷却：12 秒。"
+    },
+    {
+      "type": "paragraph",
+      "text": "进入新角色时触发入场技能。"
+    },
+    {
+      "type": "paragraph",
+      "text": "当前角色死亡时，若另一角色仍可用，则自动切换但扣除活动评分。"
+    },
+    {
+      "type": "paragraph",
+      "text": "角色门优先提供不同定位角色，避免连续刷出同质奖励。"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "局内武器系统"
+    },
+    {
+      "type": "paragraph",
+      "text": "武器槽上限为 3。每把武器保留“释放效果 + 冷却 + 标签 + 稀有度”四个核心字段。武器不继承玩家局外强化等级，避免活动平衡失控；可用活动内稀有度和升级来表达成长。"
+    },
+    {
+      "type": "paragraph",
+      "text": "武器类型示例："
+    },
+    {
+      "type": "paragraph",
+      "text": "爆发型：高伤害、长冷却，适合 Boss 验证。"
+    },
+    {
+      "type": "paragraph",
+      "text": "连击型：短冷却、多段触发，适合高速跑图。"
+    },
+    {
+      "type": "paragraph",
+      "text": "控制型：减速、护盾、清障，适合降低操作压力。"
+    },
+    {
+      "type": "paragraph",
+      "text": "机动型：与速度、冲刺、完美闪避关联。"
+    },
+    {
+      "type": "paragraph",
+      "text": "风险型：低血量暴击、高收益但低容错。"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "分支房间"
+    },
+    {
+      "type": "paragraph",
+      "text": "每个小地图终点固定出现两个门："
+    },
+    {
+      "type": "paragraph",
+      "text": "左侧武器门：偏向提升战斗强度、构筑标签和主动技能。"
+    },
+    {
+      "type": "paragraph",
+      "text": "右侧角色门：偏向改变手感、换人能力和流派核心。"
+    },
+    {
+      "type": "paragraph",
+      "text": "中央关底祭坛：门只决定奖励池，真正的三选一结算在祭坛上展开，避免玩家误以为“碰门即发奖”。"
+    },
+    {
+      "type": "paragraph",
+      "text": "后续可扩展第三类门，但作品集 demo 先保留两个门，让核心规则更容易被面试官理解。"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "构筑协同"
+    },
+    {
+      "type": "paragraph",
+      "text": "协同不做复杂长文本套装，采用“标签计数触发”："
+    },
+    {
+      "type": "paragraph",
+      "text": "火 2：武器爆发提升，奖励池提高火系权重。"
+    },
+    {
+      "type": "paragraph",
+      "text": "雷/连击 2：冷却降低，切换返还冲刺。"
+    },
+    {
+      "type": "paragraph",
+      "text": "水/支援 2：护盾容量增加，障碍减速时间延长。"
+    },
+    {
+      "type": "paragraph",
+      "text": "暗/风险 2：低血暴击提升，但治疗奖励权重降低。"
+    },
+    {
+      "type": "paragraph",
+      "text": "这个结构能证明系统策划对“随机性和可读性”的平衡：随机候选仍然可控，玩家能根据标签做预期决策。"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "难度曲线"
+    },
+    {
+      "type": "table",
+      "rowCount": 5,
+      "columnCount": 4,
+      "truncatedRows": false,
+      "truncatedColumns": false,
+      "rows": [
+        [
+          "阶段",
+          "房间数",
+          "压力来源",
+          "设计目标"
+        ],
+        [
+          "教学段",
+          "1",
+          "少量障碍、低速弹幕",
+          "让玩家理解双门奖励"
+        ],
+        [
+          "成型段",
+          "2-3",
+          "单跑道上下切位障碍、精英追击",
+          "逼玩家选择构筑方向"
+        ],
+        [
+          "验证段",
+          "4",
+          "Boss/精英首领",
+          "检查当前构筑是否有效"
+        ],
+        [
+          "循环段",
+          "5-8",
+          "更高密度和混合机制",
+          "产生二次构筑与替换选择"
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "失败与结算"
+    },
+    {
+      "type": "paragraph",
+      "text": "失败不只显示死亡，而要产生复盘："
+    },
+    {
+      "type": "paragraph",
+      "text": "本局最高章节"
+    },
+    {
+      "type": "paragraph",
+      "text": "已获得角色/武器"
+    },
+    {
+      "type": "paragraph",
+      "text": "激活协同"
+    },
+    {
+      "type": "paragraph",
+      "text": "死亡房间类型"
+    },
+    {
+      "type": "paragraph",
+      "text": "推荐下次优先补足的短板"
+    },
+    {
+      "type": "paragraph",
+      "text": "这类复盘对作品集很重要，因为它展示了策划不仅会设计玩法，还会设计验证和迭代入口。"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "MVP 范围"
+    },
+    {
+      "type": "paragraph",
+      "text": "当前 Unity demo 覆盖："
+    },
+    {
+      "type": "paragraph",
+      "text": "配表驱动角色/武器/房间/协同。"
+    },
+    {
+      "type": "paragraph",
+      "text": "可移动玩家和小地图终点“左武器门 / 中央祭坛 / 右角色门”。"
+    },
+    {
+      "type": "paragraph",
+      "text": "武器奖励三选一。"
+    },
+    {
+      "type": "paragraph",
+      "text": "角色奖励三选一。"
+    },
+    {
+      "type": "paragraph",
+      "text": "双角色槽、三武器槽、替换和切换。"
+    },
+    {
+      "type": "paragraph",
+      "text": "中文 HUD、角色面板、武器面板、事件日志。"
+    },
+    {
+      "type": "paragraph",
+      "text": "5 个角色的速度、跳跃、冲刺冷却/距离和视觉色差分。"
+    },
+    {
+      "type": "paragraph",
+      "text": "6 把武器的图标、稀有度、冷却、构筑标签和 J 键试放视觉差分。"
+    },
+    {
+      "type": "paragraph",
+      "text": "2 章 8 个关卡的名称、类型、难度、障碍密度和氛围差分。"
+    },
+    {
+      "type": "paragraph",
+      "text": "单跑道内的上下切位提示，用 W/S 在上位和下位之间切换，表达忍三局内躲避障碍的核心空间判断。"
+    },
+    {
+      "type": "paragraph",
+      "text": "基础构筑评分与协同提示。"
+    },
+    {
+      "type": "paragraph",
+      "text": "一键生成 demo 场景。"
+    },
+    {
+      "type": "paragraph",
+      "text": "不覆盖："
+    },
+    {
+      "type": "paragraph",
+      "text": "真实忍三动作、战斗和美术。"
+    },
+    {
+      "type": "paragraph",
+      "text": "Boss AI。"
+    },
+    {
+      "type": "paragraph",
+      "text": "长线活动货币。"
+    },
+    {
+      "type": "paragraph",
+      "text": "服务端发奖。"
+    },
+    {
+      "type": "paragraph",
+      "text": "商业 IP 资源接入。"
+    },
+    {
+      "type": "heading",
+      "level": 1,
+      "text": "03 PRD"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "版本信息"
+    },
+    {
+      "type": "paragraph",
+      "text": "文档版本：0.1"
+    },
+    {
+      "type": "paragraph",
+      "text": "日期：2026-07-29"
+    },
+    {
+      "type": "paragraph",
+      "text": "项目：忍者秘境：影替试炼"
+    },
+    {
+      "type": "paragraph",
+      "text": "目标岗位：游戏系统策划"
+    },
+    {
+      "type": "paragraph",
+      "text": "原型路径：E:\\u3d project\\NinjaRogueModePrototype"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "产品目标"
+    },
+    {
+      "type": "paragraph",
+      "text": "为《忍者必须死3》设计一个可复用的限时肉鸽活动框架。通过较短单局、局内随机成长、双门分支和角色/武器构筑，提高活动新鲜感和复玩空间。"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "用户故事"
+    },
+    {
+      "type": "table",
+      "rowCount": 8,
+      "columnCount": 3,
+      "truncatedRows": false,
+      "truncatedColumns": false,
+      "rows": [
+        [
+          "编号",
+          "用户故事",
+          "验收标准"
+        ],
+        [
+          "US-01",
+          "作为玩家，我希望每个小地图结束后有明确奖励选择",
+          "终点出现武器门和角色门，进入后弹出奖励三选一"
+        ],
+        [
+          "US-02",
+          "作为玩家，我希望局内选择能改变后续体验",
+          "选择角色会改变速度/技能，选择武器会改变构筑评分和协同"
+        ],
+        [
+          "US-02A",
+          "作为玩家，我希望不同角色和武器不只是名字不同",
+          "角色面板显示差异数值和技能，角色切换会改变移动手感；J 键试放当前武器会出现不同视觉效果"
+        ],
+        [
+          "US-03A",
+          "作为玩家，我希望跑酷段像忍三局内而不是普通平台跳跃",
+          "角色在单条横版跑道内用 W/S 上下切换身位，障碍和敌人攻击要求玩家判断上位/下位窗口"
+        ],
+        [
+          "US-03",
+          "作为玩家，我希望能形成流派而不是纯随机",
+          "同标签累计到 2 个时显示协同提示"
+        ],
+        [
+          "US-04",
+          "作为面试官，我希望快速看懂系统闭环",
+          "demo 左侧实时显示章节、房间、角色槽、武器槽、协同和日志"
+        ],
+        [
+          "US-05",
+          "作为开发，我希望规则可配",
+          "角色、武器、房间、协同读取 ninja_rogue_catalog.json"
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "功能需求"
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "FR-01 开局初始化"
+    },
+    {
+      "type": "paragraph",
+      "text": "系统读取活动配置。"
+    },
+    {
+      "type": "paragraph",
+      "text": "初始化随机种子。"
+    },
+    {
+      "type": "paragraph",
+      "text": "默认给予 1 个初始角色和 1 把初始武器。"
+    },
+    {
+      "type": "paragraph",
+      "text": "显示当前章节、房间、角色槽、武器槽和构筑评分。"
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "FR-02 房间推进"
+    },
+    {
+      "type": "paragraph",
+      "text": "玩家从起点移动到终点奖励区。"
+    },
+    {
+      "type": "paragraph",
+      "text": "房间状态包含章节、房间序号、房间类型、障碍密度。"
+    },
+    {
+      "type": "paragraph",
+      "text": "每完成一个奖励选择后进入下一房间。"
+    },
+    {
+      "type": "paragraph",
+      "text": "每章 4 个房间，超过章节数后 demo 循环重置章节。"
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "FR-03 双门分支"
+    },
+    {
+      "type": "paragraph",
+      "text": "终点固定出现左侧武器门、中央关底祭坛、右侧角色门。"
+    },
+    {
+      "type": "paragraph",
+      "text": "武器门只决定进入武器奖励池。"
+    },
+    {
+      "type": "paragraph",
+      "text": "角色门只决定进入角色奖励池。"
+    },
+    {
+      "type": "paragraph",
+      "text": "三选一奖励必须在中央祭坛面板中展开。"
+    },
+    {
+      "type": "paragraph",
+      "text": "门视觉必须用颜色/标签区分，祭坛视觉必须与门区分。"
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "FR-04 奖励候选"
+    },
+    {
+      "type": "paragraph",
+      "text": "候选数量：3。"
+    },
+    {
+      "type": "paragraph",
+      "text": "候选来自未拥有池。"
+    },
+    {
+      "type": "paragraph",
+      "text": "当前 demo 使用随机抽取。"
+    },
+    {
+      "type": "paragraph",
+      "text": "后续可加入权重：已激活标签、当前短板、房间难度、保底规则。"
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "FR-05 角色槽"
+    },
+    {
+      "type": "paragraph",
+      "text": "上限：2。"
+    },
+    {
+      "type": "paragraph",
+      "text": "获得新角色时，如果槽未满则加入；如果槽满则替换最早角色。"
+    },
+    {
+      "type": "paragraph",
+      "text": "当前角色切换到新获得角色。"
+    },
+    {
+      "type": "paragraph",
+      "text": "玩家可按 Tab 在已有角色间切换。"
+    },
+    {
+      "type": "paragraph",
+      "text": "不同角色必须至少表现 3 类差分：角色面板信息、移动/跳跃/冲刺参数、角色剪影/元素色。"
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "FR-06 武器槽"
+    },
+    {
+      "type": "paragraph",
+      "text": "上限：3。"
+    },
+    {
+      "type": "paragraph",
+      "text": "获得新武器时，如果槽未满则加入；如果槽满则替换最早武器。"
+    },
+    {
+      "type": "paragraph",
+      "text": "武器记录元素、定位、稀有度、冷却、效果说明。"
+    },
+    {
+      "type": "paragraph",
+      "text": "当前武器显示在武器面板中。"
+    },
+    {
+      "type": "paragraph",
+      "text": "玩家可按 J 试放当前武器，不同武器需要有速度、尺寸、颜色或停留时间差异。"
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "FR-06A 关卡差分"
+    },
+    {
+      "type": "paragraph",
+      "text": "房间配置从 rooms 读取，按章节和房间序号推进。"
+    },
+    {
+      "type": "paragraph",
+      "text": "不同房间显示中文名称、房间类型、难度和障碍密度。"
+    },
+    {
+      "type": "paragraph",
+      "text": "原型中障碍数量、障碍颜色和氛围色随房间配置变化。"
+    },
+    {
+      "type": "paragraph",
+      "text": "跑酷空间按忍三逻辑处理为单跑道上下切位，不设计双跑道分线；上位/下位只是同一条跑道内的躲避身位。"
+    },
+    {
+      "type": "paragraph",
+      "text": "W/S 切换上位/下位，Space 只处理跳跃，不承担换跑道功能。"
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "FR-07 协同提示"
+    },
+    {
+      "type": "paragraph",
+      "text": "统计角色和武器的元素/定位/标签。"
+    },
+    {
+      "type": "paragraph",
+      "text": "任一标签数量达到 2，显示为激活协同。"
+    },
+    {
+      "type": "paragraph",
+      "text": "协同文字展示在 HUD 中。"
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "FR-08 复盘日志"
+    },
+    {
+      "type": "paragraph",
+      "text": "记录开局、选择奖励、角色切换、章节推进。"
+    },
+    {
+      "type": "paragraph",
+      "text": "左侧 HUD 显示最近 7 条日志。"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "非功能需求"
+    },
+    {
+      "type": "paragraph",
+      "text": "原型必须能在 Unity 2022.3.62f3c1 打开。"
+    },
+    {
+      "type": "paragraph",
+      "text": "不依赖付费插件。"
+    },
+    {
+      "type": "paragraph",
+      "text": "不依赖商业 IP 美术资源。"
+    },
+    {
+      "type": "paragraph",
+      "text": "所有系统数据应可由配置表修改。"
+    },
+    {
+      "type": "paragraph",
+      "text": "单次试玩 1 到 3 分钟内能看懂循环。"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "数据结构"
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "CharacterConfig"
+    },
+    {
+      "type": "paragraph",
+      "text": "id"
+    },
+    {
+      "type": "paragraph",
+      "text": "displayName"
+    },
+    {
+      "type": "paragraph",
+      "text": "element"
+    },
+    {
+      "type": "paragraph",
+      "text": "archetype"
+    },
+    {
+      "type": "paragraph",
+      "text": "baseHp"
+    },
+    {
+      "type": "paragraph",
+      "text": "moveSpeed"
+    },
+    {
+      "type": "paragraph",
+      "text": "skill"
+    },
+    {
+      "type": "paragraph",
+      "text": "portfolioPoint"
+    },
+    {
+      "type": "paragraph",
+      "text": "sourceMapping"
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "WeaponConfig"
+    },
+    {
+      "type": "paragraph",
+      "text": "id"
+    },
+    {
+      "type": "paragraph",
+      "text": "displayName"
+    },
+    {
+      "type": "paragraph",
+      "text": "element"
+    }
+  ],
+  "generatedAt": "2026-07-29"
+}

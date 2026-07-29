@@ -1,0 +1,679 @@
+{
+  "kind": "excel",
+  "title": "忍三 Rogue 模式配置表",
+  "sourceFiles": [
+    "portfolio-assets/ninja-rogue/sheets/NinjaRogue_ConfigWorkbook.xlsx"
+  ],
+  "sheetCount": 8,
+  "rowLimit": 160,
+  "columnLimit": 40,
+  "sheets": [
+    {
+      "id": "ninjarogue_configworkbook-overview",
+      "workbookName": "NinjaRogue_ConfigWorkbook.xlsx",
+      "sheetName": "Overview",
+      "rowCount": 8,
+      "columnCount": 6,
+      "truncatedRows": false,
+      "truncatedColumns": false,
+      "cells": [
+        [
+          "忍者秘境：影替试炼 - 配表总览",
+          ""
+        ],
+        [
+          "",
+          ""
+        ],
+        [
+          "用途",
+          "系统策划秋招作品集，证明从活动点子到可跑 demo 的全流程能力"
+        ],
+        [
+          "Demo",
+          "Unity 2022.3.62f3c1；中文 2D 横版水墨占位场景；单跑道上下切位；左武器门 / 中央祭坛 / 右角色门；角色面板；武器试放；关卡差分"
+        ],
+        [
+          "配置源",
+          "Assets/Resources/Config/ninja_rogue_catalog.json"
+        ],
+        [
+          "正式接入",
+          "source_mapping 字段替换为授权角色、武器、图标和特效 ID"
+        ],
+        [
+          "版权边界",
+          "不抓取忍三或 Skul 商业美术；第三方相近占位素材保留来源和授权核验说明"
+        ],
+        [
+          "核心循环",
+          "跑小地图 -> 选择左武器门或右角色门 -> 中央祭坛三选一 -> 构筑成长 -> 章节验证"
+        ]
+      ],
+      "images": []
+    },
+    {
+      "id": "ninjarogue_configworkbook-characters",
+      "workbookName": "NinjaRogue_ConfigWorkbook.xlsx",
+      "sheetName": "Characters",
+      "rowCount": 6,
+      "columnCount": 10,
+      "truncatedRows": false,
+      "truncatedColumns": false,
+      "cells": [
+        [
+          "id",
+          "display_name",
+          "element",
+          "archetype",
+          "base_hp",
+          "move_speed",
+          "swap_skill",
+          "tags",
+          "source_mapping",
+          "portfolio_reason"
+        ],
+        [
+          "flame_runner",
+          "烈焰忍者",
+          "火",
+          "爆发",
+          "110",
+          "8.2",
+          "入场留下燃烧冲刺轨迹，下一次武器试放获得爆发加成。",
+          "火;爆发;初始",
+          "demo 使用原创水墨占位图 + 第三方相近忍者素材衍生；授权后替换为忍三火系角色资产/ID",
+          "证明角色契印可以像小骨头骨一样改变爆发节奏"
+        ],
+        [
+          "storm_runner",
+          "雷影忍者",
+          "雷",
+          "连击",
+          "95",
+          "9",
+          "入场刷新短冷却武器节奏，冲刺冷却更短，适合高频试放。",
+          "雷;连击;短冷却",
+          "demo 使用原创水墨占位图 + 第三方相近忍者素材衍生；授权后替换为忍三雷系角色资产/ID",
+          "证明高速玩家可围绕冷却和换人构筑"
+        ],
+        [
+          "frost_runner",
+          "冰魄忍者",
+          "水",
+          "控制",
+          "120",
+          "7.6",
+          "入场减缓障碍压力，血量预算更高，适合保守通关。",
+          "水;控制;安全",
+          "demo 使用原创水墨占位图 + 第三方相近忍者素材衍生；授权后替换为忍三水系角色资产/ID",
+          "证明防守流派也能成立"
+        ],
+        [
+          "wind_runner",
+          "风刃忍者",
+          "风",
+          "机动",
+          "100",
+          "9.4",
+          "入场获得更高跳跃与更远冲刺，速度房奖励质量提高。",
+          "风;机动;切位",
+          "demo 使用原创水墨占位图 + 第三方相近忍者素材衍生；授权后替换为忍三风系角色资产/ID",
+          "证明跑酷表现可以影响奖励"
+        ],
+        [
+          "shadow_runner",
+          "影袭忍者",
+          "暗",
+          "风险",
+          "85",
+          "8.8",
+          "低血入场获得暴击武器试放，但治疗收益下降。",
+          "暗;风险;暴击",
+          "demo 使用原创水墨占位图 + 第三方相近忍者素材衍生；授权后替换为忍三暗系/高风险角色资产/ID",
+          "证明高风险高收益流派"
+        ]
+      ],
+      "images": []
+    },
+    {
+      "id": "ninjarogue_configworkbook-weapons",
+      "workbookName": "NinjaRogue_ConfigWorkbook.xlsx",
+      "sheetName": "Weapons",
+      "rowCount": 7,
+      "columnCount": 10,
+      "truncatedRows": false,
+      "truncatedColumns": false,
+      "cells": [
+        [
+          "id",
+          "display_name",
+          "element",
+          "role",
+          "rarity",
+          "base_power",
+          "cooldown",
+          "tags",
+          "effect",
+          "source_mapping"
+        ],
+        [
+          "fire_wheel",
+          "火轮",
+          "火",
+          "爆发",
+          "稀有",
+          "46",
+          "7",
+          "火;爆发;投射",
+          "试放时生成大号旋转火轮，适合清理身前障碍与敌人。",
+          "demo 使用原创图标 + 第三方相近武器小图衍生；授权后替换为忍三火系武器图标/ID"
+        ],
+        [
+          "thunder_blade",
+          "雷切",
+          "雷",
+          "连击",
+          "稀有",
+          "38",
+          "5",
+          "雷;连击;短冷却",
+          "试放速度快，连续使用时形成连击节奏。",
+          "demo 使用原创图标 + 第三方相近武器小图衍生；授权后替换为忍三雷系武器图标/ID"
+        ],
+        [
+          "ice_orb",
+          "冰魄珠",
+          "水",
+          "控制",
+          "稀有",
+          "32",
+          "8",
+          "水;控制;护盾",
+          "试放时生成慢速冰球，强调控场和容错。",
+          "demo 使用原创图标 + 第三方相近武器小图衍生；授权后替换为忍三水系武器图标/ID"
+        ],
+        [
+          "wind_scythe",
+          "风镰",
+          "风",
+          "机动",
+          "史诗",
+          "42",
+          "6",
+          "风;机动;多段",
+          "试放轨迹上扬，伤害与当前移动速度挂钩。",
+          "demo 使用原创图标 + 第三方相近武器小图衍生；授权后替换为忍三风系武器图标/ID"
+        ],
+        [
+          "shadow_kunai",
+          "影苦无",
+          "暗",
+          "风险",
+          "史诗",
+          "55",
+          "9",
+          "暗;风险;暴击",
+          "试放速度最快，低血时获得更高暴击收益。",
+          "demo 使用原创图标 + 第三方相近武器小图衍生；授权后替换为忍三暗系武器图标/ID"
+        ],
+        [
+          "jade_brush",
+          "青玉符笔",
+          "通用",
+          "支援",
+          "史诗",
+          "28",
+          "10",
+          "通用;支援;治疗",
+          "试放后在身前停留，表达治疗符和辅助构筑。",
+          "demo 使用原创图标 + 第三方相近武器小图衍生；授权后替换为忍三辅助类武器图标/ID"
+        ]
+      ],
+      "images": []
+    },
+    {
+      "id": "ninjarogue_configworkbook-roomflow",
+      "workbookName": "NinjaRogue_ConfigWorkbook.xlsx",
+      "sheetName": "RoomFlow",
+      "rowCount": 9,
+      "columnCount": 11,
+      "truncatedRows": false,
+      "truncatedColumns": false,
+      "cells": [
+        [
+          "id",
+          "chapter",
+          "room_index",
+          "display_name",
+          "room_type",
+          "difficulty",
+          "length",
+          "hazard_density",
+          "door_a",
+          "door_b",
+          "design_note"
+        ],
+        [
+          "lane_intro",
+          "1",
+          "1",
+          "秘境入口",
+          "战斗",
+          "1",
+          "28",
+          "0.25",
+          "左侧武器门",
+          "右侧角色门",
+          "教学左右门 + 中央祭坛结构，奖励反馈必须快"
+        ],
+        [
+          "split_bridge",
+          "1",
+          "2",
+          "断桥疾跑",
+          "战斗",
+          "2",
+          "32",
+          "0.38",
+          "左侧武器门",
+          "右侧角色门",
+          "加入单跑道上下切位压力，鼓励第一次构筑判断"
+        ],
+        [
+          "elite_chase",
+          "1",
+          "3",
+          "精英追袭",
+          "精英",
+          "3",
+          "36",
+          "0.48",
+          "左侧武器门",
+          "右侧角色门",
+          "精英压力让玩家意识到当前构筑短板"
+        ],
+        [
+          "chapter_boss",
+          "1",
+          "4",
+          "一章祭坛",
+          "Boss",
+          "4",
+          "24",
+          "0.55",
+          "左侧武器门",
+          "右侧角色门",
+          "章节验证，Boss 后提高下一章奖励质量"
+        ],
+        [
+          "storm_rooftop",
+          "2",
+          "1",
+          "雷雨屋脊",
+          "战斗",
+          "4",
+          "34",
+          "0.58",
+          "左侧武器门",
+          "右侧角色门",
+          "二章开始提高障碍混合度"
+        ],
+        [
+          "mirror_corridor",
+          "2",
+          "2",
+          "镜影回廊",
+          "事件",
+          "4",
+          "30",
+          "0.45",
+          "左侧武器门",
+          "右侧角色门",
+          "加入事件房可扩展位，demo 仍用双门 + 中央祭坛"
+        ],
+        [
+          "shadow_elite",
+          "2",
+          "3",
+          "影卫精英",
+          "精英",
+          "5",
+          "38",
+          "0.65",
+          "左侧武器门",
+          "右侧角色门",
+          "检查玩家是否有生存或输出协同"
+        ],
+        [
+          "final_altar",
+          "2",
+          "4",
+          "终章祭坛",
+          "Boss",
+          "6",
+          "26",
+          "0.72",
+          "左侧武器门",
+          "右侧角色门",
+          "最终验证，结算复盘"
+        ]
+      ],
+      "images": []
+    },
+    {
+      "id": "ninjarogue_configworkbook-synergies",
+      "workbookName": "NinjaRogue_ConfigWorkbook.xlsx",
+      "sheetName": "Synergies",
+      "rowCount": 6,
+      "columnCount": 6,
+      "truncatedRows": false,
+      "truncatedColumns": false,
+      "cells": [
+        [
+          "id",
+          "display_name",
+          "trigger",
+          "effect",
+          "counter_risk",
+          "designer_intent"
+        ],
+        [
+          "fire_2",
+          "Burning Arsenal",
+          "Fire 标签达到 2",
+          "武器爆发伤害 +18%，奖励池提高火系权重",
+          "Boss 爆发强但跑图容错一般",
+          "让玩家快速理解元素同色构筑"
+        ],
+        [
+          "lightning_2",
+          "Storm Tempo",
+          "Lightning 或 Combo 标签达到 2",
+          "武器冷却 -15%，换人返还一次冲刺",
+          "高操作频率增加失误风险",
+          "服务高速操作型玩家"
+        ],
+        [
+          "control_2",
+          "Safe Passage",
+          "Water 或 Support 标签达到 2",
+          "护盾容量 +1，障碍减速延长",
+          "输出较低，Boss 时间压力更高",
+          "给普通玩家一条稳健路线"
+        ],
+        [
+          "risk_2",
+          "Blood Moon",
+          "Dark 或 Risk 标签达到 2",
+          "低血暴击伤害 +30%，治疗奖励权重降低",
+          "翻车概率高",
+          "提供高手向刺激体验"
+        ],
+        [
+          "mobility_2",
+          "Wind Step",
+          "Wind 或 Mobility 标签达到 2",
+          "移动速度 +8%，速度房奖励质量提高",
+          "需要房间设计避免速度碾压",
+          "把跑酷表现和构筑收益绑定"
+        ]
+      ],
+      "images": []
+    },
+    {
+      "id": "ninjarogue_configworkbook-rewardrules",
+      "workbookName": "NinjaRogue_ConfigWorkbook.xlsx",
+      "sheetName": "RewardRules",
+      "rowCount": 9,
+      "columnCount": 6,
+      "truncatedRows": false,
+      "truncatedColumns": false,
+      "cells": [
+        [
+          "rule_id",
+          "rule_type",
+          "condition",
+          "result",
+          "priority",
+          "note"
+        ],
+        [
+          "RR_001",
+          "offer_count",
+          "进入左侧武器门",
+          "中央祭坛随机展示 3 个未拥有武器",
+          "P0",
+          "demo 已实现"
+        ],
+        [
+          "RR_002",
+          "offer_count",
+          "进入右侧角色门",
+          "中央祭坛随机展示 3 个未拥有角色",
+          "P0",
+          "demo 已实现"
+        ],
+        [
+          "RR_003",
+          "slot_limit",
+          "武器槽已满后选择新武器",
+          "替换最早获得武器",
+          "P0",
+          "demo 已实现，正式版应允许玩家手动选择替换"
+        ],
+        [
+          "RR_004",
+          "slot_limit",
+          "角色槽已满后选择新角色",
+          "替换最早获得角色并切换到新角色",
+          "P0",
+          "demo 已实现，正式版应允许玩家手动选择替换"
+        ],
+        [
+          "RR_005",
+          "weight",
+          "已有某标签且未激活 2 件协同",
+          "相关标签奖励权重 +20%",
+          "P1",
+          "正式版加入，避免无构筑"
+        ],
+        [
+          "RR_006",
+          "pity",
+          "连续 2 次无同标签候选",
+          "下一次候选至少包含 1 个同标签奖励",
+          "P1",
+          "正式版加入"
+        ],
+        [
+          "RR_007",
+          "boss_reward",
+          "章节 Boss 结束",
+          "下一次奖励至少 Rare+，小概率 Epic",
+          "P2",
+          "用于拉高章节反馈"
+        ],
+        [
+          "RR_008",
+          "risk_build",
+          "激活 Risk 协同",
+          "治疗类奖励权重 -30%，暴击类权重 +30%",
+          "P2",
+          "强化流派代价"
+        ]
+      ],
+      "images": []
+    },
+    {
+      "id": "ninjarogue_configworkbook-artrequests",
+      "workbookName": "NinjaRogue_ConfigWorkbook.xlsx",
+      "sheetName": "ArtRequests",
+      "rowCount": 11,
+      "columnCount": 8,
+      "truncatedRows": false,
+      "truncatedColumns": false,
+      "cells": [
+        [
+          "asset_id",
+          "module",
+          "asset_name",
+          "type",
+          "priority",
+          "spec",
+          "description",
+          "dependency"
+        ],
+        [
+          "ART_DOOR_WEAPON",
+          "分支门",
+          "左侧武器门",
+          "Scene Prop + VFX",
+          "P0",
+          "2D 门、橙红发光、武器图标",
+          "终点左侧入口，只决定进入武器奖励池",
+          "系统门类型"
+        ],
+        [
+          "ART_DOOR_CHARACTER",
+          "分支门",
+          "右侧角色门",
+          "Scene Prop + VFX",
+          "P0",
+          "2D 门、蓝紫发光、契印图标",
+          "终点右侧入口，只决定进入角色奖励池",
+          "系统门类型"
+        ],
+        [
+          "ART_REWARD_ALTAR",
+          "结算",
+          "中央关底祭坛",
+          "Scene Prop + UI Anchor",
+          "P0",
+          "祭坛、奖励光、三选一展开锚点",
+          "终点中间的关底结算奖励视觉中心",
+          "奖励系统"
+        ],
+        [
+          "ART_CARD_REWARD",
+          "UI",
+          "奖励卡通用框",
+          "UI Prefab",
+          "P0",
+          "三种稀有度边框，支持角色/武器",
+          "三选一奖励面板核心组件",
+          "奖励系统"
+        ],
+        [
+          "ART_ICON_ELEMENT",
+          "UI",
+          "元素标签图标",
+          "Icon Set",
+          "P0",
+          "火/雷/水/风/暗/通用",
+          "奖励卡、槽位、协同提示共用",
+          "标签系统"
+        ],
+        [
+          "ART_SLOT_CHARACTER",
+          "UI",
+          "角色槽位",
+          "UI Prefab",
+          "P1",
+          "2 个槽位，支持当前角色高亮",
+          "表达双角色切换",
+          "角色系统"
+        ],
+        [
+          "ART_SLOT_WEAPON",
+          "UI",
+          "武器槽位",
+          "UI Prefab",
+          "P1",
+          "3 个槽位，显示冷却和稀有度",
+          "表达局内武器构筑",
+          "武器系统"
+        ],
+        [
+          "ART_VFX_WEAPON_CAST",
+          "特效",
+          "武器试放效果",
+          "VFX",
+          "P1",
+          "6 把武器差分，速度/尺寸/颜色/停留时间不同",
+          "让 demo 能直观看出不同武器不是同名换皮",
+          "武器系统"
+        ],
+        [
+          "ART_VFX_SWAP",
+          "特效",
+          "角色切换入场",
+          "VFX",
+          "P2",
+          "5 元素版本，0.4-0.8 秒",
+          "增强切换反馈",
+          "角色技能"
+        ],
+        [
+          "ART_BG_CHAPTER",
+          "场景",
+          "秘境章节背景",
+          "Parallax BG",
+          "P2",
+          "2 章，每章前中远景",
+          "增强活动包装",
+          "关卡主题"
+        ]
+      ],
+      "images": []
+    },
+    {
+      "id": "ninjarogue_configworkbook-milestones",
+      "workbookName": "NinjaRogue_ConfigWorkbook.xlsx",
+      "sheetName": "Milestones",
+      "rowCount": 5,
+      "columnCount": 5,
+      "truncatedRows": false,
+      "truncatedColumns": false,
+      "cells": [
+        [
+          "milestone",
+          "date_range",
+          "deliverable",
+          "owner",
+          "acceptance"
+        ],
+        [
+          "M0 作品集 MVP",
+          "2026-07-29 至 2026-08-02",
+          "文档、配表、中文 Unity 2D 水墨风 demo：角色/武器/关卡差分、左右门、中央祭坛、角色面板",
+          "系统策划",
+          "3 分钟内能讲清核心循环，demo 可进入两种门并在祭坛结算奖励"
+        ],
+        [
+          "M1 玩法验证版",
+          "2026-08-03 至 2026-08-12",
+          "真实跑酷判定、武器释放、8 个房间模板",
+          "策划+程序",
+          "3 名玩家可无说明完成一局"
+        ],
+        [
+          "M2 数值平衡版",
+          "2026-08-13 至 2026-08-22",
+          "权重、保底、协同、复盘数据",
+          "系统+数值",
+          "每局至少激活 1 个协同，随机不出现死局"
+        ],
+        [
+          "M3 投递包装版",
+          "2026-08-23 至 2026-08-31",
+          "演示视频、作品集 PDF、面试话术",
+          "个人",
+          "首屏可读，素材合规，无版权风险"
+        ]
+      ],
+      "images": []
+    }
+  ],
+  "generatedAt": "2026-07-29"
+}
