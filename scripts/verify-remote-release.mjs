@@ -17,6 +17,11 @@ const checks = [
     minBytes: 1_000,
   },
   {
+    path: "portfolio-assets/game-town/docs/game-town-auto-behavior-offline-prd.docx",
+    type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    minBytes: 100_000,
+  },
+  {
     path: "portfolio-assets/ninja-rogue/docs/NinjaRogue_SystemPortfolio.pdf",
     type: "application/pdf",
     minBytes: 10_000,
@@ -37,6 +42,11 @@ const checks = [
   },
   {
     path: "portfolio-previews/game-town-design-doc.json",
+    type: "application/json",
+    minBytes: 10_000,
+  },
+  {
+    path: "portfolio-previews/game-town-auto-behavior-prd.json",
     type: "application/json",
     minBytes: 10_000,
   },
@@ -120,7 +130,24 @@ try {
 }
 
 const baseUrl = normalizeBaseUrl(remoteUrl);
-for (const check of checks) {
+const baseHost = new URL(baseUrl).hostname;
+const activeChecks =
+  baseHost === "easttiger.top"
+    ? [
+        ...checks,
+        {
+          path: "CNAME",
+          minBytes: 10,
+        },
+        {
+          path: "personal-archive-site/",
+          type: "text/html",
+          minBytes: 300,
+        },
+      ]
+    : checks;
+
+for (const check of activeChecks) {
   const url = new URL(check.path, baseUrl);
 
   try {

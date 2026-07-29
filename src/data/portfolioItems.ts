@@ -99,6 +99,7 @@ const preferredPortfolioOrder = [
   ["game-town-prototype", "游戏小镇微信小程序交互原型", "/game-town/prototype/index.html"],
   ["game-town-config-sheets", "游戏小镇系统配置表合集", "game-town-config-sheets.json", "E:\\游戏小镇\\相关表格"],
   ["game-town-design-doc", "游戏小镇方案完善版", "game-town-design-doc.json"],
+  ["game-town-auto-behavior-prd", "游戏小镇角色自动行为与离线事件系统 PRD", "game-town-auto-behavior-prd.json"],
   ["system-planner-war-sheet", "战意 / 骑砍2 / 全面战争系统拆解案", "system-planner-war-sheet.json"],
   ["system-planner-war-prototype", "3D战争界面 HTML 交互原型", "/system-planner/prototypes/war-ui/index.html"],
   ["barbarq-main-design", "野蛮人大作战2 - 菇霸争夺战策划案", "barbarq-main-design.json"],
@@ -153,6 +154,7 @@ function isSamePortfolioItem(left: PortfolioItem, right: PortfolioItem) {
 
 const requiredPortfolioSeedIds = new Set([
   "game-town-config-sheets",
+  "game-town-auto-behavior-prd",
   "ninja-rogue-system-portfolio",
   "ninja-rogue-config-workbook",
   "ninja-rogue-design-proposal",
@@ -585,6 +587,21 @@ const rawPortfolioItems: PortfolioItem[] = [
     previewUrl: `${previewRoot}/game-town-design-doc.json`,
     sourcePath: "E:\\游戏小镇\\游戏小镇方案V_0.2完善版(1).docx",
     updatedAt: "2026-06-10",
+    downloadable: true,
+  },
+  {
+    id: "game-town-auto-behavior-prd",
+    title: "游戏小镇角色自动行为与离线事件系统 PRD",
+    project: "game-town",
+    projectLabel: "游戏小镇",
+    kind: "docx",
+    kindLabel: "DOCX",
+    summary: "围绕角色自动行为、离线事件、NPC 日程、资源结算和异常兜底整理的研发向 PRD。",
+    tags: ["PRD", "自动行为", "离线系统"],
+    publicUrl: `${assetRoot}/game-town/docs/game-town-auto-behavior-offline-prd.docx`,
+    previewUrl: `${previewRoot}/game-town-auto-behavior-prd.json`,
+    sourcePath: "E:\\策划文档\\游戏小镇_角色自动行为与离线事件系统_PRD_V1.0.docx",
+    updatedAt: "2026-07-29",
     downloadable: true,
   },
   {

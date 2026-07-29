@@ -28,7 +28,7 @@ const workbookCollectionPreviewFiles = ["game-town-config-sheets.json"];
 
 const simpleExcelPreviewFiles = ["ninja-rogue-config-workbook.json"];
 
-const documentPreviewFiles = ["ninja-rogue-system-portfolio-docx.json"];
+const documentPreviewFiles = ["game-town-auto-behavior-prd.json", "ninja-rogue-system-portfolio-docx.json"];
 
 const markdownPreviewFiles = [
   "ninja-rogue-readme.json",
@@ -124,6 +124,8 @@ includes(dataSource, "normalizePortfolioPreviewUrl", "portfolio data normalizes 
 includes(dataSource, "ensureRequiredPortfolioItems", "portfolio data merges required showcase items");
 includes(dataSource, "game-town-config-sheets", "game town config sheets stay in the portfolio data");
 includes(dataSource, "E:\\\\游戏小镇\\\\相关表格", "game town related sheets source path stays visible");
+includes(dataSource, "game-town-auto-behavior-prd", "game town PRD stays in the portfolio data");
+includes(dataSource, "游戏小镇_角色自动行为与离线事件系统_PRD_V1.0.docx", "game town PRD source path stays visible");
 includes(dataSource, '"ninja-rogue"', "Ninja Rogue project is available in portfolio folders");
 includes(dataSource, "ninja-rogue-system-portfolio", "Ninja Rogue system portfolio stays in the portfolio data");
 includes(dataSource, "ninja-rogue-unity-demo", "Ninja Rogue Unity demo download stays in the portfolio data");
@@ -204,6 +206,7 @@ for (const fileName of pdfPreviewFiles) {
   includes(seedSource, `/portfolio-previews/${fileName}`, `seed uses ${fileName}`);
 }
 includes(seedSource, "/portfolio-previews/game-town-config-sheets.json", "seed includes game town config sheet preview URL");
+includes(seedSource, "/portfolio-previews/game-town-auto-behavior-prd.json", "seed includes game town PRD preview URL");
 includes(seedSource, "'ninja-rogue', '忍三 Rogue 模式'", "seed includes Ninja Rogue project");
 includes(seedSource, "/portfolio-previews/ninja-rogue-config-workbook.json", "seed includes Ninja Rogue workbook preview URL");
 includes(seedSource, "/portfolio-assets/ninja-rogue/archive/NinjaRogueModePrototype_UnityProject.zip", "seed includes Ninja Rogue demo archive URL");

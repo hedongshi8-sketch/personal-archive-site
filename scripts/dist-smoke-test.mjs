@@ -11,9 +11,11 @@ const checks = [
   { path: "/", type: "text/html", minBytes: 500 },
   { path: "/404.html", type: "text/html", minBytes: 500 },
   { path: "/.nojekyll", type: "application/octet-stream", minBytes: 0 },
+  { path: "/CNAME", type: "application/octet-stream", minBytes: 10 },
   { path: "/sw.js", type: "text/javascript", minBytes: 100 },
   { path: "/_headers", type: "text/plain", minBytes: 10 },
   { path: "/_redirects", type: "text/plain", minBytes: 10 },
+  { path: "/personal-archive-site/index.html", type: "text/html", minBytes: 300 },
   {
     path: "/portfolio-assets/game-town/prototype/index.html",
     type: "text/html",
@@ -38,6 +40,11 @@ const checks = [
     path: "/portfolio-assets/system-planner/docs/01_作品集_系统策划实习生_最终投递版.pdf",
     type: "application/pdf",
     minBytes: 1_000,
+  },
+  {
+    path: "/portfolio-assets/game-town/docs/game-town-auto-behavior-offline-prd.docx",
+    type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    minBytes: 100_000,
   },
   {
     path: "/portfolio-assets/ninja-rogue/docs/NinjaRogue_SystemPortfolio.pdf",
@@ -65,6 +72,11 @@ const checks = [
     minBytes: 10_000,
   },
   {
+    path: "/portfolio-previews/game-town-auto-behavior-prd.json",
+    type: "application/json",
+    minBytes: 10_000,
+  },
+  {
     path: "/portfolio-previews/ninja-rogue-system-portfolio.json",
     type: "application/json",
     minBytes: 10_000,
@@ -84,6 +96,7 @@ const absentChecks = [
 
 const mimeTypes = new Map([
   [".css", "text/css; charset=utf-8"],
+  [".docx", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"],
   [".html", "text/html; charset=utf-8"],
   [".ico", "image/x-icon"],
   [".jpeg", "image/jpeg"],

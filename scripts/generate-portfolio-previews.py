@@ -493,6 +493,11 @@ def main() -> None:
         "游戏小镇方案完善版",
         ASSETS / "game-town" / "docs" / "游戏小镇方案V_0.2完善版(1).docx",
     )
+    build_docx_preview(
+        "game-town-auto-behavior-prd",
+        "游戏小镇角色自动行为与离线事件系统 PRD",
+        ASSETS / "game-town" / "docs" / "game-town-auto-behavior-offline-prd.docx",
+    )
     build_text_preview(
         "game-town-prototype-readme",
         "游戏小镇原型说明",
