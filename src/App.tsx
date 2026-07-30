@@ -359,12 +359,36 @@ function normalizeSearchText(value: string) {
   return value.normalize("NFKC").trim().toLowerCase();
 }
 
+const legacyReadingSeedQuotes = new Set([
+  "短摘：游戏玩法应该是你要一直琢磨的。",
+  "短摘：把游戏的流程、玩法以及细节都写出来。",
+  "短摘：玩游戏的场景对游戏会产生巨大的影响。",
+  "短摘：想出创意，尝试制作，不断测试和改进。",
+  "短摘：玩家做出的决定会反映他的游戏风格。",
+  "短摘：玩家非常喜欢定义自己。",
+  "目录摘记：情感触发器、虚构层、心流和沉浸共同构成体验引擎。",
+  "短摘：你必须在长远目标和短期需求之间找到一个平衡点。",
+  "短摘：在游戏一开始就设计一些小回报。",
+  "短摘：更多地赋予玩家能动性，并不一定意味着会产生更好的效果。",
+  "短摘：玩家通过游戏角色把自己和虚拟形象联系起来。",
+]);
+
+function replaceLegacyReadingSeed(note: ReadingNote) {
+  const freshSeed = readingNotes.find((seed) => seed.id === note.id);
+  if (!freshSeed || !legacyReadingSeedQuotes.has(note.quote.trim())) {
+    return note;
+  }
+
+  return freshSeed;
+}
+
 function mergeReadingNotesWithSeeds(remoteNotes: ReadingNote[]) {
   const seenIds = new Set<string>();
   const seenContent = new Set<string>();
   const mergedNotes: ReadingNote[] = [];
 
-  for (const note of [...remoteNotes, ...readingNotes]) {
+  for (const rawNote of [...remoteNotes, ...readingNotes]) {
+    const note = replaceLegacyReadingSeed(rawNote);
     const contentKey = normalizeSearchText(`${note.title}|${note.creator}|${note.quote}`);
     if (seenIds.has(note.id) || seenContent.has(contentKey)) {
       continue;
@@ -3413,6 +3437,12 @@ function DemosSection() {
       return;
     }
 
+    if (activeDemo.downloadUrl) {
+      window.open(activeDemo.downloadUrl, "_blank", "noopener,noreferrer");
+      setPlayMessage(`已打开 ${activeDemo.title} 的 Demo 工程下载。`);
+      return;
+    }
+
     if (activeDemo.portfolioTargetId) {
       const params = new URLSearchParams({
         fromSearch: "1",
@@ -3434,21 +3464,26 @@ function DemosSection() {
     { label: "当前展台", value: activeDemo.status ?? "Demo 展台" },
     { label: "体验方式", value: activeDemo.duration },
     { label: "平台", value: activeDemo.platform },
-    { label: "档案链接", value: activeDemo.portfolioTargetId ? "已绑定" : "待补充" },
+    { label: "工程包", value: activeDemo.downloadUrl ? "可下载" : "待补充" },
   ];
 
   return (
     <section className="screen-section demos-section" id="demos">
       <ScreenIntro
         title="游戏 Demo"
-        description="Demo 区独占一屏，主舞台放当前选中的原型，其它 Demo 作为可切换的播放队列。"
-        action="打开 Demo 库"
-        actionHref="#demos"
+        description="Demo 区只保留当前能代表项目完成度的试玩工程；主舞台展示忍三 Rogue 模式截图，HR 可以直接下载工程或跳转作品档案。"
+        action="查看忍三档案"
+        actionHref="?fromSearch=1&target=ninja-rogue-unity-demo#docs"
       />
       <div className="demo-stage">
-        <MediaTile tile={activeDemo.tile} className="demo-feature">
-          <button className="play-orb" type="button" aria-label={`播放 ${activeDemo.title}`} onClick={playActiveDemo}>
-            <Play size={34} fill="currentColor" />
+        <MediaTile tile={activeDemo.tile} imageUrl={activeDemo.thumbnailUrl} className="demo-feature">
+          <button
+            className="play-orb"
+            type="button"
+            aria-label={activeDemo.downloadUrl ? `下载 ${activeDemo.title}` : `播放 ${activeDemo.title}`}
+            onClick={playActiveDemo}
+          >
+            {activeDemo.downloadUrl && !activeDemo.prototypeUrl ? <Download size={32} /> : <Play size={34} fill="currentColor" />}
           </button>
           <div className="demo-feature-overlay">
             <span>{activeDemo.platform}</span>
@@ -3471,6 +3506,12 @@ function DemosSection() {
                 打开可交互原型
               </a>
             ) : null}
+            {activeDemo.downloadUrl ? (
+              <a className="cyan-button" href={activeDemo.downloadUrl} download>
+                <Download size={16} />
+                {activeDemo.downloadLabel ?? "下载 Demo"}
+              </a>
+            ) : null}
             <a className="ghost-button" href={activePortfolioHref}>
               <Archive size={16} />
               查看作品档案
@@ -3482,7 +3523,13 @@ function DemosSection() {
         <div>
           <span>Demo Control</span>
           <strong>{activeDemo.title}</strong>
-          <p>{activeDemo.prototypeUrl ? "可以直接打开可交互原型；旁边的作品档案会展示文档、配置表和预览材料。" : "当前条目以作品档案为主，适合查看规则说明、配置表和设计文档。"}</p>
+          <p>
+            {activeDemo.downloadUrl
+              ? "当前 Demo 提供 Unity 工程下载；作品档案会展示系统作品集、配置表、PRD 和截图。"
+              : activeDemo.prototypeUrl
+                ? "可以直接打开可交互原型；旁边的作品档案会展示文档、配置表和预览材料。"
+                : "当前条目以作品档案为主，适合查看规则说明、配置表和设计文档。"}
+          </p>
         </div>
         <div className="demo-signal-grid">
           {demoSignals.map((signal) => (
@@ -3493,22 +3540,24 @@ function DemosSection() {
           ))}
         </div>
       </div>
-      <div className="demo-shelf">
-        {gameDemos.map((demo) => (
-          <button
-            className={clsx("demo-card", activeTitle === demo.title && "selected")}
-            key={demo.title}
-            onClick={() => setActiveTitle(demo.title)}
-            type="button"
-          >
-            <MediaTile tile={demo.tile} />
-            <span>
-              <strong>{demo.title}</strong>
-              <small>{demo.description}</small>
-            </span>
-          </button>
-        ))}
-      </div>
+      {gameDemos.length > 1 ? (
+        <div className="demo-shelf">
+          {gameDemos.map((demo) => (
+            <button
+              className={clsx("demo-card", activeTitle === demo.title && "selected")}
+              key={demo.title}
+              onClick={() => setActiveTitle(demo.title)}
+              type="button"
+            >
+              <MediaTile tile={demo.tile} imageUrl={demo.thumbnailUrl} />
+              <span>
+                <strong>{demo.title}</strong>
+                <small>{demo.description}</small>
+              </span>
+            </button>
+          ))}
+        </div>
+      ) : null}
     </section>
   );
 }

@@ -7746,6 +7746,13 @@ p {
     scroll-snap-align: start;
   }
 
+  .notes-mini-index-list strong,
+  .notes-mini-index-list small {
+    overflow: visible;
+    text-overflow: clip;
+    white-space: normal;
+  }
+
   .notes-reading-lens {
     grid-column: auto;
   }

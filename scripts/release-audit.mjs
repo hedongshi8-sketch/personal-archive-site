@@ -156,7 +156,7 @@ assert(read("scripts/verify-portfolio-mobile-preview.mjs").includes("查看站�
 assert(packageJson.scripts?.["verify:reading-import"] === "node scripts/verify-reading-import.mjs", "reading import verification script exists");
 assert(read("scripts/verify-reading-import.mjs").includes("parseReadingClipboardText"), "reading import verifier checks clipboard parsing");
 assert(packageJson.scripts?.["verify:reading-seeds"] === "node scripts/verify-reading-seeds.mjs", "reading seed verification script exists");
-assert(read("scripts/verify-reading-seeds.mjs").includes("通关！游戏设计之道（第2版）"), "reading seed verifier checks game design book list");
+assert(read("scripts/verify-reading-seeds.mjs").includes("体验引擎：游戏设计全景探秘"), "reading seed verifier checks verified game design notes");
 assert(exists("supabase/seed-reading-notes.sql"), "Supabase reading notes seed exists");
 assert(read("supabase/seed-reading-notes.sql").includes("on conflict (id) do update set"), "Supabase reading notes seed is rerunnable");
 assert(packageJson.scripts?.["verify:reading-owner-flow"] === "node scripts/verify-reading-owner-flow.mjs", "reading owner flow verification script exists");
@@ -322,6 +322,7 @@ assert(schema.includes("author_id"), "comments are tied to profile author id");
 
 const appSource = read("src/App.tsx");
 const backendSource = read("src/lib/backendContract.ts");
+const siteDataSource = read("src/data/siteData.ts");
 const musicSectionSource = appSource.slice(
   appSource.indexOf("function MusicSection"),
   appSource.indexOf("function GallerySection"),
@@ -348,6 +349,7 @@ assert(appSource.includes("DocumentReader"), "document in-site preview reader ex
 assert(appSource.includes("查看站内预览") && !appSource.includes("打开预览"), "portfolio preview action stays in-site");
 assert(backendSource.includes("normalizePortfolioPreviewUrl(item)"), "remote portfolio rows normalize raw PDF preview URLs");
 assert(appSource.includes("demo-experience-console") && appSource.includes("Demo Control"), "demo experience console exists");
+assert(siteDataSource.includes("忍三 Rogue 模式") && siteDataSource.includes("NinjaRogueModePrototype_UnityProject.zip"), "demo section focuses on Ninja Rogue download");
 assert(appSource.includes("updatePortfolioItem") && appSource.includes("deletePortfolioItem"), "portfolio owner edit/delete UI exists");
 assert(backendSource.includes("function assertPublicPortfolioInput") && backendSource.includes("已阻止公开发布"), "portfolio owner publish guard blocks internal files");
 assert(appSource.includes("function MusicSection"), "music upload section exists");
