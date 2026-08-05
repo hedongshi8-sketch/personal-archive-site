@@ -3471,9 +3471,9 @@ function DemosSection() {
     <section className="screen-section demos-section" id="demos">
       <ScreenIntro
         title="游戏 Demo"
-        description="Demo 区只保留当前能代表项目完成度的试玩工程；主舞台展示忍三 Rogue 模式截图，HR 可以直接下载工程或跳转作品档案。"
-        action="查看忍三档案"
-        actionHref="?fromSearch=1&target=ninja-rogue-unity-demo#docs"
+        description="Demo 区只保留当前能代表项目完成度的试玩工程；主舞台展示《我的修仙日常》Godot 竖切截图，HR 可以直接下载工程或跳转作品档案。"
+        action="查看修仙档案"
+        actionHref="?fromSearch=1&target=my-cultivation-daily-godot-demo#docs"
       />
       <div className="demo-stage">
         <MediaTile tile={activeDemo.tile} imageUrl={activeDemo.thumbnailUrl} className="demo-feature">
@@ -3525,7 +3525,7 @@ function DemosSection() {
           <strong>{activeDemo.title}</strong>
           <p>
             {activeDemo.downloadUrl
-              ? "当前 Demo 提供 Unity 工程下载；作品档案会展示系统作品集、配置表、PRD 和截图。"
+              ? "当前 Demo 提供 Godot 工程下载；作品档案会展示系统文档、参考矩阵、测试用例、QA 报告和截图证据。"
               : activeDemo.prototypeUrl
                 ? "可以直接打开可交互原型；旁边的作品档案会展示文档、配置表和预览材料。"
                 : "当前条目以作品档案为主，适合查看规则说明、配置表和设计文档。"}

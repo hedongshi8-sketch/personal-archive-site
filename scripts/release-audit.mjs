@@ -253,11 +253,11 @@ const distSize = distAssets.reduce((sum, file) => sum + sizeOf(file), 0);
 const publicPreviewSize = publicPreviews.reduce((sum, file) => sum + sizeOf(file), 0);
 const distPreviewSize = distPreviews.reduce((sum, file) => sum + sizeOf(file), 0);
 
-assert(publicAssets.length === 99, "public portfolio asset count is 99", `${publicAssets.length}`);
-assert(distAssets.length === 99, "dist portfolio asset count is 99", `${distAssets.length}`);
+assert(publicAssets.length === 132, "public portfolio asset count is 132", `${publicAssets.length}`);
+assert(distAssets.length === 132, "dist portfolio asset count is 132", `${distAssets.length}`);
 assert(publicSize === distSize, "portfolio asset byte size matches", `${publicSize} vs ${distSize}`);
-assert(publicPreviewJson.length === 24, "public portfolio preview JSON count is 24", `${publicPreviewJson.length}`);
-assert(distPreviewJson.length === 24, "dist portfolio preview JSON count is 24", `${distPreviewJson.length}`);
+assert(publicPreviewJson.length === 39, "public portfolio preview JSON count is 39", `${publicPreviewJson.length}`);
+assert(distPreviewJson.length === 39, "dist portfolio preview JSON count is 39", `${distPreviewJson.length}`);
 assert(publicPreviewMedia.length > 0, "public portfolio preview media assets exist", `${publicPreviewMedia.length}`);
 assert(publicPreviewMedia.length === distPreviewMedia.length, "portfolio preview media asset count matches", `${publicPreviewMedia.length} vs ${distPreviewMedia.length}`);
 assert(publicPreviewSize === distPreviewSize, "portfolio preview byte size matches", `${publicPreviewSize} vs ${distPreviewSize}`);
@@ -271,7 +271,7 @@ for (const internalMarker of ["待替换个人信息", "投递说明_只看这�
 
 const seed = read("supabase/seed-portfolio.sql");
 const seedItems = [...seed.matchAll(/'::timestamptz/g)].length;
-assert(seedItems === 32, "portfolio seed item count is 32 including hidden legacy rows", `${seedItems}`);
+assert(seedItems === 53, "portfolio seed item count is 53 including hidden legacy rows", `${seedItems}`);
 assert(seed.includes("on conflict (id) do update set"), "portfolio seed is rerunnable");
 assert(seed.includes("/portfolio-previews/barbarq-main-sheet.json"), "portfolio seed includes Excel preview URLs");
 assert(seed.includes("/portfolio-previews/game-town-design-doc.json"), "portfolio seed includes document preview URLs");
@@ -279,6 +279,11 @@ assert(seed.includes("/portfolio-previews/barbarq-main-design.json"), "portfolio
 assert(seed.includes("/portfolio-previews/game-town-config-sheets.json"), "portfolio seed includes game town config preview URL");
 assert(seed.includes("/portfolio-previews/game-town-auto-behavior-prd.json"), "portfolio seed includes game town PRD preview URL");
 assert(seed.includes("'ninja-rogue', '忍三 Rogue 模式'"), "portfolio seed includes Ninja Rogue project");
+assert(seed.includes("'my-cultivation-daily', '我的修仙日常'"), "portfolio seed includes My Cultivation Daily project");
+assert(seed.includes("/portfolio-previews/my-cultivation-daily-open-world-system-v5.json"), "portfolio seed includes My Cultivation Daily open-world doc preview URL");
+assert(seed.includes("/portfolio-previews/my-cultivation-daily-vertical-slice-spec-v6.json"), "portfolio seed includes My Cultivation Daily vertical-slice doc preview URL");
+assert(seed.includes("/portfolio-previews/my-cultivation-daily-reference-workbooks.json"), "portfolio seed includes My Cultivation Daily workbook preview URL");
+assert(seed.includes("/portfolio-assets/my-cultivation-daily/archive/MyCultivationDaily_Godot2DVerticalSlice.zip"), "portfolio seed includes My Cultivation Daily Godot demo archive URL");
 assert(seed.includes("/portfolio-previews/ninja-rogue-system-portfolio.json"), "portfolio seed includes Ninja Rogue PDF preview URL");
 assert(seed.includes("/portfolio-assets/ninja-rogue/archive/NinjaRogueModePrototype_UnityProject.zip"), "portfolio seed includes Ninja Rogue demo archive URL");
 assert(seed.includes("'0147fb6e-5635-1e38-8923-654b00d21cd9', 'barbarq', '菇霸争夺战相关表格'") && seed.includes("false, false, 12"), "portfolio seed hides BarbarQ related sheet");
@@ -349,7 +354,12 @@ assert(appSource.includes("DocumentReader"), "document in-site preview reader ex
 assert(appSource.includes("查看站内预览") && !appSource.includes("打开预览"), "portfolio preview action stays in-site");
 assert(backendSource.includes("normalizePortfolioPreviewUrl(item)"), "remote portfolio rows normalize raw PDF preview URLs");
 assert(appSource.includes("demo-experience-console") && appSource.includes("Demo Control"), "demo experience console exists");
-assert(siteDataSource.includes("忍三 Rogue 模式") && siteDataSource.includes("NinjaRogueModePrototype_UnityProject.zip"), "demo section focuses on Ninja Rogue download");
+assert(
+  siteDataSource.includes("我的修仙日常 Godot2D 像素竖切 Demo") &&
+    siteDataSource.includes("MyCultivationDaily_Godot2DVerticalSlice.zip") &&
+    siteDataSource.includes("my-cultivation-daily-godot-demo"),
+  "demo section focuses on My Cultivation Daily Godot download",
+);
 assert(appSource.includes("updatePortfolioItem") && appSource.includes("deletePortfolioItem"), "portfolio owner edit/delete UI exists");
 assert(backendSource.includes("function assertPublicPortfolioInput") && backendSource.includes("已阻止公开发布"), "portfolio owner publish guard blocks internal files");
 assert(appSource.includes("function MusicSection"), "music upload section exists");

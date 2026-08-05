@@ -1,0 +1,1231 @@
+{
+  "kind": "excel",
+  "title": "我的修仙日常参考矩阵与素材矩阵合集",
+  "sourceFiles": [
+    "portfolio-assets/my-cultivation-daily/sheets/ReferenceMatrix.xlsx",
+    "portfolio-assets/my-cultivation-daily/sheets/SinglePlayerSystemReferenceMatrix.xlsx",
+    "portfolio-assets/my-cultivation-daily/sheets/UIUXReferenceMatrix.xlsx",
+    "portfolio-assets/my-cultivation-daily/sheets/PixelAssetMatrix.xlsx",
+    "portfolio-assets/my-cultivation-daily/sheets/AdvancedDemoReferenceMatrix.xlsx"
+  ],
+  "sheetCount": 10,
+  "rowLimit": 160,
+  "columnLimit": 40,
+  "sheets": [
+    {
+      "id": "referencematrix-referencematrix",
+      "workbookName": "ReferenceMatrix.xlsx",
+      "sheetName": "ReferenceMatrix",
+      "rowCount": 17,
+      "columnCount": 8,
+      "truncatedRows": false,
+      "truncatedColumns": false,
+      "cells": [
+        [
+          "《我的修仙日常》参考矩阵",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        [
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        [
+          "参考作品",
+          "系统点",
+          "可借鉴结构",
+          "不应照搬点",
+          "对本项目启发",
+          "MVP优先级",
+          "来源类型",
+          "事实/推导"
+        ],
+        [
+          "星露谷物语",
+          "每日日程循环",
+          "用时间和体力限制推动玩家在种植、社交、探索之间取舍。",
+          "不要照搬乡村劳动强度，避免修仙感被农活吞掉。",
+          "做修仙每日时间预算：灵田、打坐、炼丹、门派差事、拜访道友。",
+          "高",
+          "Steam/官方Wiki",
+          "资料事实+设计推导"
+        ],
+        [
+          "星露谷物语",
+          "四季与节日",
+          "季节改变作物、资源、鱼类、节日和规划目标。",
+          "不要直接复制春夏秋冬农场节庆。",
+          "转化为节气、灵气潮汐、月相，影响灵草、丹炉、秘境和修炼。",
+          "高",
+          "官方Wiki",
+          "资料事实+设计推导"
+        ],
+        [
+          "星露谷物语",
+          "NPC关系",
+          "交谈、礼物、生日和事件让城镇角色逐步变熟。",
+          "不要把恋爱社交直接搬成现代乡村关系。",
+          "用师门缘分、道友因果、论道赠丹和帮忙渡劫建立关系。",
+          "中",
+          "官方Wiki",
+          "资料事实+设计推导"
+        ],
+        [
+          "星露谷物语",
+          "农场扩建",
+          "建筑物改变生产结构，形成长期经营目标。",
+          "不要只做面积扩张。",
+          "洞府扩建为灵田、丹房、聚灵阵、灵兽栏等功能空间。",
+          "高",
+          "官方Wiki",
+          "资料事实+设计推导"
+        ],
+        [
+          "波西亚时光",
+          "工坊订单",
+          "订单把生产链绑定到城镇需求，提供短中期目标。",
+          "不要让订单完全主导修仙节奏。",
+          "门派委托/坊市委托：炼丹、修阵旗、供灵谷、处理灵材。",
+          "高",
+          "Steam/Wiki",
+          "资料事实+设计推导"
+        ],
+        [
+          "波西亚时光",
+          "生产设备",
+          "设备和图纸把原料转化为半成品、成品。",
+          "不要复制复杂工业排程。",
+          "丹炉、炼器炉、符台、阵盘形成轻加工链。",
+          "中",
+          "Wiki",
+          "资料事实+设计推导"
+        ],
+        [
+          "波西亚时光",
+          "城镇建设",
+          "玩家产出改变公共设施和城镇状态。",
+          "MVP不宜铺开大型城镇建设。",
+          "先做宗门小建设：修护山阵、扩灵田、补藏经阁物资。",
+          "中",
+          "Steam/Wiki",
+          "资料事实+设计推导"
+        ],
+        [
+          "浮岛物语",
+          "短反馈采集",
+          "资源刷新快、点击反馈快、升级密集。",
+          "不要把修仙日常做成纯刷资源。",
+          "采灵草、吸灵气、丹药出炉、符箓完成都要快速反馈。",
+          "高",
+          "Steam/Wiki",
+          "资料事实+设计推导"
+        ],
+        [
+          "浮岛物语",
+          "地块解锁",
+          "购买土地持续扩展地图和资源池。",
+          "不要只用金币买地。",
+          "用灵脉节点、秘境碎片、门派许可或境界门槛解锁洞府区域。",
+          "中",
+          "Steam/Wiki",
+          "资料事实+设计推导"
+        ],
+        [
+          "浮岛物语",
+          "自动化成长",
+          "技能、建筑、自动单位让玩家从手采进入半自动生产。",
+          "不要开局给满自动化。",
+          "中后期用纸人傀儡、阵法代劳、灵兽巡田减负。",
+          "低",
+          "Wiki",
+          "资料事实+设计推导"
+        ],
+        [
+          "修仙题材",
+          "洞府",
+          "个人修炼、生产、收藏、休息的空间载体。",
+          "不要一开始做大世界洞天。",
+          "MVP以小洞府承载核心循环和可视化成长。",
+          "高",
+          "题材资料",
+          "题材事实+设计推导"
+        ],
+        [
+          "修仙题材",
+          "灵田与炼丹",
+          "灵草种植和丹药制作天然连接日常与成长。",
+          "不要把丹方系统做得过深。",
+          "先做灵草->丹药->修炼/委托/关系的一条短链。",
+          "高",
+          "题材资料",
+          "题材事实+设计推导"
+        ],
+        [
+          "修仙题材",
+          "境界与天劫",
+          "境界提供长期阶段目标，天劫提供突破仪式和风险。",
+          "不要过早展开复杂战力数值。",
+          "把突破做成阶段事件，要求丹药、心境、因果或准备度。",
+          "中",
+          "题材资料",
+          "题材事实+设计推导"
+        ],
+        [
+          "修仙题材",
+          "门派日常",
+          "早课、差事、论道、比试和巡山可替代城镇生活中心。",
+          "不要直接变成战斗门派争霸。",
+          "门派作为社交和委托中心，服务日常而非大战线。",
+          "高",
+          "题材资料",
+          "题材事实+设计推导"
+        ]
+      ],
+      "images": []
+    },
+    {
+      "id": "referencematrix-sources",
+      "workbookName": "ReferenceMatrix.xlsx",
+      "sheetName": "Sources",
+      "rowCount": 13,
+      "columnCount": 3,
+      "truncatedRows": false,
+      "truncatedColumns": false,
+      "cells": [
+        [
+          "来源",
+          "URL",
+          "备注"
+        ],
+        [
+          "Stardew Valley Steam",
+          "https://store.steampowered.com/app/413150/Stardew_Valley/",
+          "官方商店页"
+        ],
+        [
+          "Stardew Valley Seasons",
+          "https://stardewvalleywiki.com/Seasons",
+          "官方Wiki"
+        ],
+        [
+          "Stardew Valley Friendship",
+          "https://stardewvalleywiki.com/Friendship",
+          "官方Wiki"
+        ],
+        [
+          "Stardew Valley Farm Buildings",
+          "https://stardewvalleywiki.com/Farm_Buildings",
+          "官方Wiki"
+        ],
+        [
+          "My Time at Portia Steam",
+          "https://store.steampowered.com/app/666140/My_Time_at_Portia/",
+          "官方商店页"
+        ],
+        [
+          "My Time at Portia Commissions",
+          "https://mytimeatportia.fandom.com/wiki/Commissions",
+          "社区Wiki"
+        ],
+        [
+          "My Time at Portia Worktable",
+          "https://mytimeatportia.fandom.com/wiki/Worktable",
+          "社区Wiki"
+        ],
+        [
+          "Forager Steam",
+          "https://store.steampowered.com/app/751780/Forager/",
+          "官方商店页"
+        ],
+        [
+          "Forager Land",
+          "https://forager.fandom.com/wiki/Land",
+          "社区Wiki"
+        ],
+        [
+          "Forager Skills",
+          "https://forager.fandom.com/wiki/Skills",
+          "社区Wiki"
+        ],
+        [
+          "Xianxia",
+          "https://en.wikipedia.org/wiki/Xianxia",
+          "题材资料"
+        ],
+        [
+          "Cultivation genre",
+          "https://en.wikipedia.org/wiki/Cultivation_(genre)",
+          "题材资料"
+        ]
+      ],
+      "images": []
+    },
+    {
+      "id": "singleplayersystemreferencematrix-designmatrix",
+      "workbookName": "SinglePlayerSystemReferenceMatrix.xlsx",
+      "sheetName": "DesignMatrix",
+      "rowCount": 8,
+      "columnCount": 12,
+      "truncatedRows": false,
+      "truncatedColumns": false,
+      "cells": [
+        [
+          "《我的修仙日常》单机系统设计参考矩阵",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        [
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        [
+          "参考作品",
+          "核心系统结构",
+          "值得学的系统结构",
+          "不该照搬",
+          "解锁/递进方式",
+          "玩家发现感来源",
+          "对本项目启发",
+          "统一母题",
+          "规则复用",
+          "空间承载",
+          "反运营化价值",
+          "来源类型"
+        ],
+        [
+          "塞尔达传说：旷野之息",
+          "物理/化学规则 + 环境对象响应 + 能力组合",
+          "少量基础规则覆盖大量场景；能力不是钥匙而是环境语言",
+          "不照搬大开放世界和复杂战斗",
+          "先给基础能力，再让环境不断提出新问题",
+          "火、电、风、金属、重量等对象互相作用，玩家自行组合",
+          "把御剑/符箓/丹药/元神/传音统一成灵气作用方式",
+          "极高",
+          "极高",
+          "极高",
+          "极高",
+          "GDC/开发者演讲"
+        ],
+        [
+          "星露谷物语",
+          "每日时间 + 季节 + 农场/村庄/矿洞/关系互相牵引",
+          "生活节奏来自空间与关系，而不是日课清单",
+          "不照搬农场劳动密度和现代恋爱模板",
+          "季节、关系、工具、农场建筑逐步展开",
+          "玩家选择今天要种田、下矿、拜访、钓鱼还是探索",
+          "洞府/山门/灵田/药谷形成可熟悉的小生活场",
+          "高",
+          "中高",
+          "高",
+          "极高",
+          "Steam/官方Wiki"
+        ],
+        [
+          "波西亚时光",
+          "工坊委托 + 制作链 + 城镇建设反馈",
+          "个人生产和城镇变化相连，长期目标可见",
+          "不照搬复杂工业排程和每日必清委托",
+          "工具、图纸、订单、建设项目逐步扩展",
+          "玩家为可见城镇变化准备材料和设备",
+          "门派委托应改变空间、人际或宗门状态",
+          "中高",
+          "中",
+          "高",
+          "高",
+          "Steam/Wiki"
+        ],
+        [
+          "浮岛物语",
+          "采集/制作/扩张/技能的短循环",
+          "目标清晰、反馈快、扩张欲望强",
+          "不照搬纯刷资源和金币买地",
+          "资源链和技能推动地图扩张与自动化",
+          "开新地块、发现新资源和自动化效率提升",
+          "借短反馈，但用灵脉/禁制/境界解释扩张",
+          "中",
+          "中高",
+          "中",
+          "中",
+          "Steam/Wiki"
+        ],
+        [
+          "A Short Hike",
+          "小地图 + 自由探索 + 移动能力成长",
+          "目标简单但路径自由；移动本身产生乐趣",
+          "不照搬轻旅行调性，也不弱化生活模拟",
+          "移动能力提升打开新路线",
+          "玩家自己找到上山路径、支线和互动",
+          "御剑先做探索语言，而不是战斗技能",
+          "中高",
+          "中",
+          "极高",
+          "高",
+          "Steam/商店页"
+        ]
+      ],
+      "images": []
+    },
+    {
+      "id": "singleplayersystemreferencematrix-principles",
+      "workbookName": "SinglePlayerSystemReferenceMatrix.xlsx",
+      "sheetName": "Principles",
+      "rowCount": 8,
+      "columnCount": 3,
+      "truncatedRows": false,
+      "truncatedColumns": false,
+      "cells": [
+        [
+          "维度",
+          "评价问题",
+          "本项目判定"
+        ],
+        [
+          "统一母题",
+          "所有能力是否像同一个世界规则的不同表现？",
+          "必须统一为灵气作用方式"
+        ],
+        [
+          "规则复用",
+          "一个规则能否跨生活、探索、关系、解谜使用？",
+          "每个能力至少跨两个场景"
+        ],
+        [
+          "空间承载",
+          "系统是否落在洞府、山门、灵田、秘境等空间里？",
+          "禁止纯菜单化"
+        ],
+        [
+          "玩家发现",
+          "玩家是否能自己想到解法？",
+          "必须提供多解法场景"
+        ],
+        [
+          "递进清晰",
+          "第一小时是否只给少量可理解规则？",
+          "禁止第一天开全系统"
+        ],
+        [
+          "叙事理由",
+          "限制和解锁是否有世界观原因？",
+          "用灵气、因果、境界解释"
+        ],
+        [
+          "反运营化",
+          "是否避开签到、活跃、登录奖励、强制日课？",
+          "必须避开"
+        ]
+      ],
+      "images": []
+    },
+    {
+      "id": "uiuxreferencematrix-sources",
+      "workbookName": "UIUXReferenceMatrix.xlsx",
+      "sheetName": "Sources",
+      "rowCount": 13,
+      "columnCount": 7,
+      "truncatedRows": false,
+      "truncatedColumns": false,
+      "cells": [
+        [
+          "《我的修仙日常》UIUX参考来源矩阵",
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        [
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        [
+          "来源名称",
+          "URL",
+          "来源类型",
+          "可信度",
+          "可借鉴点",
+          "不可照搬点",
+          "对本项目的转译建议"
+        ],
+        [
+          "Godot UI官方文档",
+          "https://docs.godotengine.org/en/stable/tutorials/ui/index.html",
+          "官方文档",
+          "高",
+          "Godot UI由Control节点和布局控件构成，适合拆HUD、菜单、提示层",
+          "文档只讲工具，不直接给游戏信息架构",
+          "把主HUD、主动菜单、短提示、Debug Overlay分成不同UI结构"
+        ],
+        [
+          "Godot CanvasLayer官方文档",
+          "https://docs.godotengine.org/en/stable/classes/class_canvaslayer.html",
+          "官方文档",
+          "高",
+          "CanvasLayer用于2D独立渲染层，HUD可置于高层",
+          "CanvasLayer不等于所有变量都该画出来",
+          "用CanvasLayer做HUD和菜单层，但默认隐藏Debug层"
+        ],
+        [
+          "GDC BotW演讲",
+          "https://www.gdcvault.com/play/1024562/Change-and-Constant-Breaking-Conventions",
+          "开发者演讲",
+          "高",
+          "系统通过环境对象响应和玩家发现表达，而不是固定按钮答案",
+          "不照搬开放世界规模和战斗HUD",
+          "显形、爆炸、元神、传音都要落在场景反馈"
+        ],
+        [
+          "Stardew Valley Steam",
+          "https://store.steampowered.com/app/413150/Stardew_Valley/",
+          "官方/商店页",
+          "中高",
+          "生活模拟长期状态多，但主游玩围绕行动、关系和空间",
+          "不照搬农场UI和日程结构",
+          "资源、关系、札记进入主动菜单，不铺主屏"
+        ],
+        [
+          "My Time at Portia Steam",
+          "https://store.steampowered.com/app/666140/My_Time_at_Portia/",
+          "官方/商店页",
+          "中高",
+          "工坊、委托、制作链通过空间入口和菜单承载",
+          "不照搬工业排程和订单面板",
+          "门派委托、符箓匣、行囊应有空间入口"
+        ],
+        [
+          "大侠立志传 Steam",
+          "https://store.steampowered.com/app/1948980/_/",
+          "官方/商店页",
+          "中",
+          "单机RPG可承载关系、物品、任务等大量信息",
+          "不照搬复杂武侠菜单",
+          "关系和记录进入关系录/札记，不常驻HUD"
+        ],
+        [
+          "Game Developer - Off With Their HUDs",
+          "https://www.gamedeveloper.com/design/off-with-their-huds-rethinking-the-heads-up-display-in-console-game-design",
+          "高质量设计分析",
+          "中",
+          "每个HUD信息都应问是否真正必要，主题化信息更不侵入",
+          "文章观点不是本项目事实依据",
+          "主屏只留当下必要信息，长期变量进入菜单"
+        ],
+        [
+          "Game Developer - The Long Dark HUD/UI",
+          "https://www.gamedeveloper.com/design/long-dark-survival-game-hud-ui",
+          "高质量设计分析",
+          "中",
+          "上下文HUD、淡出提示、色彩和重要性分级",
+          "生存游戏需求不可照搬",
+          "心境和风险只在临界情境显示"
+        ],
+        [
+          "Game Developer - User interface design in video games",
+          "https://www.gamedeveloper.com/design/user-interface-design-in-video-games",
+          "设计分析/理论转述",
+          "中",
+          "区分非叙事、空间、拟真/叙事化UI",
+          "分类不是硬标准",
+          "修仙能力状态尽量通过空间/拟真反馈表达"
+        ],
+        [
+          "Game Developer - 6 examples of UI design",
+          "https://www.gamedeveloper.com/audio/6-examples-of-ui-design-that-every-game-developer-should-study",
+          "开发者观点汇总",
+          "中",
+          "HUD应服务核心系统并影响玩家注意力",
+          "多案例不可直接拼贴",
+          "建立HUD/菜单/场景反馈的优先级"
+        ]
+      ],
+      "images": []
+    },
+    {
+      "id": "uiuxreferencematrix-infosplit",
+      "workbookName": "UIUXReferenceMatrix.xlsx",
+      "sheetName": "InfoSplit",
+      "rowCount": 10,
+      "columnCount": 5,
+      "truncatedRows": false,
+      "truncatedColumns": false,
+      "cells": [
+        [
+          "当前state_label信息",
+          "主HUD",
+          "短时提示/场景反馈",
+          "主动菜单",
+          "调试层"
+        ],
+        [
+          "形态",
+          "否",
+          "切换瞬间提示、画面/声音变化",
+          "修行札记",
+          "Debug变量"
+        ],
+        [
+          "心境",
+          "仅临界",
+          "边缘警示、呼吸音、动作迟缓",
+          "状态页",
+          "数值"
+        ],
+        [
+          "显形符",
+          "当前选中图标",
+          "隐纹显现、对象轻闪",
+          "符箓匣",
+          "learned_reveal"
+        ],
+        [
+          "爆炸符",
+          "当前选中图标",
+          "岩障碎裂、尘土、开路",
+          "符箓匣",
+          "learned_blast"
+        ],
+        [
+          "传音",
+          "否",
+          "声源方向、片段/完整差异",
+          "传音札",
+          "heard_complete_voice"
+        ],
+        [
+          "理解",
+          "否",
+          "札记新增短提示",
+          "修行札记",
+          "cultivation_record"
+        ],
+        [
+          "灵草",
+          "否",
+          "获得+1淡出",
+          "行囊",
+          "herbs"
+        ],
+        [
+          "灵石",
+          "否",
+          "获得+1淡出",
+          "行囊",
+          "stones"
+        ],
+        [
+          "林小满关系",
+          "否",
+          "语气和对话变化",
+          "关系录",
+          "relation"
+        ]
+      ],
+      "images": []
+    },
+    {
+      "id": "pixelassetmatrix-assets",
+      "workbookName": "PixelAssetMatrix.xlsx",
+      "sheetName": "Assets",
+      "rowCount": 16,
+      "columnCount": 11,
+      "truncatedRows": false,
+      "truncatedColumns": false,
+      "cells": [
+        [
+          "《我的修仙日常》像素资产矩阵",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        [
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        [
+          "组合",
+          "资产名称",
+          "来源URL",
+          "作者",
+          "许可",
+          "是否需要署名",
+          "适用内容",
+          "下载/导入注意",
+          "风险",
+          "来源类型",
+          "事实/推导"
+        ],
+        [
+          "A主推",
+          "Top Down Adventure Assets",
+          "https://opengameart.org/content/top-down-adventure-assets",
+          "ansimuz",
+          "CC0",
+          "不需要，署名可选",
+          "主角、10 NPC、2 套 tileset、基础探索地表",
+          "4 向角色 + 10 NPC + 2 tilesets；统一像素尺寸后切图",
+          "开包内容较杂，需筛图",
+          "OGA",
+          "资料事实"
+        ],
+        [
+          "A主推",
+          "Pixel Platformer: Farm Expansion",
+          "https://opengameart.org/content/pixel-platformer-farm-expansion",
+          "Kenney",
+          "CC0",
+          "不需要，Kenney 名义署名可选",
+          "农场、作物、温室、田地扩展",
+          "100+ PNG tiles + tilesheets；适合农场/灵田",
+          "风格偏平台器材感",
+          "OGA",
+          "资料事实"
+        ],
+        [
+          "A主推",
+          "RPG Urban Pack",
+          "https://www.kenney.nl/assets/rpg-urban-pack",
+          "Kenney",
+          "CC0",
+          "不需要，Kenney 名义署名可选",
+          "村庄、道路、商店、室内、居民角色",
+          "16×16，480 files，适合和其他 16×16 资源拼装",
+          "需下载后再筛内容",
+          "Kenney",
+          "资料事实"
+        ],
+        [
+          "A主推",
+          "Pixel UI Pack",
+          "https://www.kenney.nl/assets/pixel-ui-pack",
+          "Kenney",
+          "CC0",
+          "不需要，Kenney 名义署名可选",
+          "UI 面板、按钮、背包界面",
+          "750 files，适合直接做 HUD",
+          "风格通用",
+          "Kenney",
+          "资料事实"
+        ],
+        [
+          "A主推",
+          "CC0 Currency Icons",
+          "https://opengameart.org/content/cc0-currency-icons",
+          "AntumDeluge",
+          "CC0",
+          "不需要",
+          "金币、银币、货币与资源图标",
+          "支持 16x16 / 24x24 / 32x32 / 64x64",
+          "图标风格通用",
+          "OGA",
+          "资料事实"
+        ],
+        [
+          "A主推",
+          "Simple RPG Inventory Icons",
+          "https://opengameart.org/content/simple-rpg-inventory-icons",
+          "DezrasDragons",
+          "CC0",
+          "不需要，署名可选",
+          "道具、装备、库存图标",
+          "最宽 16px、最高 18px",
+          "需要补专用材料图标",
+          "OGA",
+          "资料事实"
+        ],
+        [
+          "备选A",
+          "Simple Farm Tiles",
+          "https://opengameart.org/content/simple-farm-tiles",
+          "ChikenwingJJA",
+          "CC0",
+          "不需要",
+          "草地、农田、作物",
+          "PNG 小体积",
+          "覆盖面有限",
+          "OGA",
+          "资料事实"
+        ],
+        [
+          "备选A",
+          "Farming crops 16x16",
+          "https://opengameart.org/content/farming-crops-16x16",
+          "josehzz",
+          "CC0",
+          "不需要，署名可选",
+          "20 种作物、5 个生长阶段",
+          "16x16，适合快速铺种植循环",
+          "农场味重，需要修仙包装",
+          "OGA",
+          "资料事实"
+        ],
+        [
+          "备选A",
+          "16x16 8-bit RPG character set",
+          "https://opengameart.org/content/16x16-8-bit-rpg-character-set",
+          "devurandom",
+          "CC0",
+          "不需要",
+          "基础主角 / NPC 行走帧",
+          "7 组站立/行走角色，NES 风格",
+          "风格较复古",
+          "OGA",
+          "资料事实"
+        ],
+        [
+          "备选A",
+          "Classy Furniture",
+          "https://opengameart.org/content/classy-furniture",
+          "Turnovus",
+          "CC0",
+          "不需要",
+          "桌子、床头柜、室内家具",
+          "适合洞府、房间、商店内部",
+          "仅少量家具",
+          "OGA",
+          "资料事实"
+        ],
+        [
+          "备选B",
+          "Tiny Town",
+          "https://kenney.nl/assets/tiny-town",
+          "Kenney",
+          "CC0",
+          "不需要",
+          "小镇和地图骨架",
+          "16×16，适合快速拼城镇轮廓",
+          "内容偏简化",
+          "Kenney",
+          "资料事实"
+        ],
+        [
+          "备选B",
+          "Pixel UI Pack",
+          "https://www.kenney.nl/assets/pixel-ui-pack",
+          "Kenney",
+          "CC0",
+          "不需要",
+          "HUD、按钮、面板",
+          "750 files，适合直接做 Demo UI",
+          "与其他 Kenney 资源混搭更顺",
+          "Kenney",
+          "资料事实"
+        ],
+        [
+          "备选B",
+          "Top Down Adventure Assets",
+          "https://opengameart.org/content/top-down-adventure-assets",
+          "ansimuz",
+          "CC0",
+          "不需要，署名可选",
+          "主角、NPC、地表、探索",
+          "4 向角色 + 10 NPC + 2 tilesets",
+          "需拆图和统一风格",
+          "OGA",
+          "资料事实"
+        ]
+      ],
+      "images": []
+    },
+    {
+      "id": "pixelassetmatrix-sources",
+      "workbookName": "PixelAssetMatrix.xlsx",
+      "sheetName": "Sources",
+      "rowCount": 13,
+      "columnCount": 4,
+      "truncatedRows": false,
+      "truncatedColumns": false,
+      "cells": [
+        [
+          "来源",
+          "URL",
+          "用途",
+          "可靠性"
+        ],
+        [
+          "Top Down Adventure Assets",
+          "https://opengameart.org/content/top-down-adventure-assets",
+          "主角/NPC/tileset",
+          "高"
+        ],
+        [
+          "Pixel Platformer: Farm Expansion",
+          "https://opengameart.org/content/pixel-platformer-farm-expansion",
+          "农场/温室/作物",
+          "高"
+        ],
+        [
+          "RPG Urban Pack",
+          "https://www.kenney.nl/assets/rpg-urban-pack",
+          "村庄/商店/室内",
+          "高"
+        ],
+        [
+          "Pixel UI Pack",
+          "https://www.kenney.nl/assets/pixel-ui-pack",
+          "UI/HUD",
+          "高"
+        ],
+        [
+          "CC0 Currency Icons",
+          "https://opengameart.org/content/cc0-currency-icons",
+          "货币图标",
+          "高"
+        ],
+        [
+          "Simple RPG Inventory Icons",
+          "https://opengameart.org/content/simple-rpg-inventory-icons",
+          "库存图标",
+          "高"
+        ],
+        [
+          "Simple Farm Tiles",
+          "https://opengameart.org/content/simple-farm-tiles",
+          "草地/农田",
+          "高"
+        ],
+        [
+          "Farming crops 16x16",
+          "https://opengameart.org/content/farming-crops-16x16",
+          "作物阶段",
+          "高"
+        ],
+        [
+          "16x16 8-bit RPG character set",
+          "https://opengameart.org/content/16x16-8-bit-rpg-character-set",
+          "基础角色",
+          "高"
+        ],
+        [
+          "Classy Furniture",
+          "https://opengameart.org/content/classy-furniture",
+          "室内家具",
+          "高"
+        ],
+        [
+          "Tiny Town",
+          "https://kenney.nl/assets/tiny-town",
+          "城镇骨架",
+          "高"
+        ],
+        [
+          "License summary",
+          "CC0 / optional attribution",
+          "许可结论",
+          "高"
+        ]
+      ],
+      "images": []
+    },
+    {
+      "id": "advanceddemoreferencematrix-sources",
+      "workbookName": "AdvancedDemoReferenceMatrix.xlsx",
+      "sheetName": "Sources",
+      "rowCount": 20,
+      "columnCount": 7,
+      "truncatedRows": false,
+      "truncatedColumns": false,
+      "cells": [
+        [
+          "《我的修仙日常》高级Demo参考来源矩阵",
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        [
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        [
+          "来源名称",
+          "URL",
+          "来源类型",
+          "可信度",
+          "可借鉴点",
+          "不可照搬点",
+          "对本项目的转译建议"
+        ],
+        [
+          "Godot 2D 文档",
+          "https://docs.godotengine.org/en/stable/tutorials/2d/index.html",
+          "官方文档",
+          "高",
+          "Godot 2D包含tilemaps、particles、animation、lighting、parallax等能力",
+          "文档不是美术方案",
+          "后续Demo必须拆地图层、特效层、动画层、UI层"
+        ],
+        [
+          "Godot TileMaps 文档",
+          "https://docs.godotengine.org/en/stable/tutorials/2d/using_tilemaps.html",
+          "官方文档",
+          "高",
+          "TileMapLayer适合高效绘制大量瓦片，并支持碰撞、遮挡、导航和Y-sort",
+          "不能只用一层硬铺色块",
+          "至少地面/过渡/装饰/遮挡/特效多层组织"
+        ],
+        [
+          "Godot 2D Lights and Shadows",
+          "https://docs.godotengine.org/en/stable/tutorials/2d/2d_lights_and_shadows.html",
+          "官方文档",
+          "高",
+          "CanvasModulate、PointLight2D、DirectionalLight2D、LightOccluder2D可增强2D深度",
+          "不要做高成本或风格不统一的光污染",
+          "石灯、灵泉、废阵使用局部光源和像素化阴影"
+        ],
+        [
+          "Godot AnimatedSprite2D",
+          "https://docs.godotengine.org/en/4.5/tutorials/2d/2d_sprite_animation.html",
+          "官方文档",
+          "高",
+          "AnimatedSprite2D和AnimationPlayer可处理角色和sprite sheet动画",
+          "不要只有静态Sprite",
+          "角色/NPC至少idle和四向移动/朝向变化"
+        ],
+        [
+          "Godot GPUParticles2D",
+          "https://docs.godotengine.org/en/latest/classes/class_gpuparticles2d.html",
+          "官方文档",
+          "高",
+          "2D粒子可做轨迹、尘土、灵气、波纹等反馈",
+          "粒子不能替代对象状态变化",
+          "显形、爆炸、元神、传音各配不同粒子语言"
+        ],
+        [
+          "GDC BotW 演讲",
+          "https://www.gdcvault.com/play/1024562/Change-and-Constant-Breaking-Conventions",
+          "开发者演讲",
+          "高",
+          "规则通过环境对象响应和玩家发现表达",
+          "不照搬开放世界规模",
+          "符箓/元神/传音必须改变对象和空间状态"
+        ],
+        [
+          "Eastward 官方FAQ/媒体页",
+          "https://eastwardgame.com/faqs/",
+          "官方",
+          "中高",
+          "强调细致像素冒险RPG、双角色、城镇、音效与场景细节",
+          "不照搬线性剧情和战斗结构",
+          "学习小场景物件簇、生活细节、视觉焦点"
+        ],
+        [
+          "CrossCode Steam",
+          "https://store.steampowered.com/app/368340/CrossCode/",
+          "官方/商店页",
+          "中高",
+          "16-bit风格、顺滑物理、谜题与战斗反馈",
+          "不照搬高强度动作战斗",
+          "学习能力和对象间即时反馈"
+        ],
+        [
+          "Little Witch in the Woods Steam",
+          "https://store.steampowered.com/app/1594940/Little_Witch_in_the_Woods/",
+          "官方/商店页",
+          "中高",
+          "女巫生活、森林探索、制药、居民互动",
+          "不照搬女巫题材",
+          "转译为洞府、灵田、丹房、药谷的魔法生活密度"
+        ],
+        [
+          "Potion Permit Steam",
+          "https://store.steampowered.com/app/1337760/Potion_Permit/",
+          "官方/商店页",
+          "中高",
+          "照顾居民、诊断、采集材料、制作药剂的小循环",
+          "不照搬医疗题材",
+          "门派/NPC需求与采药炼丹形成可见反馈"
+        ],
+        [
+          "Fields of Mistria Steam",
+          "https://store.steampowered.com/app/2142790/Fields_of_Mistria/",
+          "官方/商店页",
+          "中高",
+          "季节、作物、动物、房屋装饰、NPC日程和动态肖像",
+          "不照搬庞大生活模拟内容量",
+          "小区域也要有季节/物件/角色的视觉身份"
+        ],
+        [
+          "Core Keeper Steam",
+          "https://store.steampowered.com/app/1621690/Core_Keeper/",
+          "官方/商店页",
+          "中",
+          "采矿、建造、战斗、制作、农场和基地在地下空间中融合",
+          "不照搬生存刷资源",
+          "学习采掘、光照、基地空间和环境持久变化"
+        ],
+        [
+          "Kenney Assets",
+          "https://kenney.nl/assets",
+          "资产来源",
+          "高",
+          "CC0资产丰富，适合原型统一风格",
+          "不要混用不统一资产包",
+          "继续使用但要按场景簇、层级和动效组织"
+        ],
+        [
+          "OpenGameArt",
+          "https://opengameart.org/",
+          "资产来源",
+          "中",
+          "可找到像素角色、地形、图标、特效",
+          "许可和风格必须逐项确认",
+          "只选同尺寸同透视资源，记录作者和许可"
+        ],
+        [
+          "itch.io game assets",
+          "https://itch.io/game-assets/free/tag-pixel-art",
+          "资产来源",
+          "中",
+          "有大量免费像素资源",
+          "免费不等于可商用或可再分发",
+          "筛选可商用、可改造、tile size一致的资源"
+        ],
+        [
+          "CraftPix Freebies",
+          "https://craftpix.net/freebies/",
+          "资产来源",
+          "中",
+          "免费区有成套2D资源",
+          "许可需按具体页面复核",
+          "只作为备选资产站，不直接混入主风格"
+        ],
+        [
+          "LimeZu itch.io",
+          "https://limezu.itch.io/",
+          "资产作者/商店",
+          "中",
+          "现代生活像素场景资产密度高",
+          "授权和风格需逐包确认",
+          "可作为场景密度参考或授权素材备选"
+        ]
+      ],
+      "images": []
+    },
+    {
+      "id": "advanceddemoreferencematrix-benchmark",
+      "workbookName": "AdvancedDemoReferenceMatrix.xlsx",
+      "sheetName": "Benchmark",
+      "rowCount": 9,
+      "columnCount": 4,
+      "truncatedRows": false,
+      "truncatedColumns": false,
+      "cells": [
+        [
+          "验收维度",
+          "最低硬门槛",
+          "当前Demo问题",
+          "后续动作"
+        ],
+        [
+          "画面层级",
+          "至少5层：地面/过渡/装饰/遮挡/光效",
+          "大色块硬切，层次不足",
+          "改TileMapLayer多层"
+        ],
+        [
+          "装饰密度",
+          "20个以上按簇摆放物件",
+          "对象孤立像测试点",
+          "为洞府/灵田/茶摊等建物件簇"
+        ],
+        [
+          "遮挡/Y-sort",
+          "角色可从物件前后穿行",
+          "同平面贴图感强",
+          "启用Y-sort对象层"
+        ],
+        [
+          "光影",
+          "3个局部光源和基础阴影",
+          "几乎无光影",
+          "石灯/灵泉/废阵光源"
+        ],
+        [
+          "动画",
+          "角色idle+四向，5类环境循环",
+          "大量静态对象",
+          "AnimatedSprite2D/AnimationPlayer"
+        ],
+        [
+          "交互反馈",
+          "每个能力有前中后反馈",
+          "主要靠文字toast",
+          "粒子+对象状态变化"
+        ],
+        [
+          "持久变化",
+          "采集/爆破/显形后留在世界",
+          "状态变化偏弱",
+          "更新对象sprite/碰撞/路径"
+        ],
+        [
+          "证据",
+          "4张截图+30-60秒录屏",
+          "只有默认/入口截图",
+          "补显形/爆炸/元神证据"
+        ]
+      ],
+      "images": []
+    }
+  ],
+  "generatedAt": "2026-08-05"
+}

@@ -24,13 +24,45 @@ const excelPreviewFiles = [
   "system-planner-war-sheet.json",
 ];
 
-const workbookCollectionPreviewFiles = ["game-town-config-sheets.json"];
+const workbookCollectionPreviewFiles = [
+  { fileName: "game-town-config-sheets.json", minSheets: 12, sourceFile: "NPC表.xlsx", label: "game town related table collection" },
+  {
+    fileName: "my-cultivation-daily-reference-workbooks.json",
+    minSheets: 5,
+    sourceFile: "ReferenceMatrix.xlsx",
+    label: "My Cultivation Daily reference workbook collection",
+  },
+];
 
-const simpleExcelPreviewFiles = ["ninja-rogue-config-workbook.json"];
+const simpleExcelPreviewFiles = [
+  { fileName: "ninja-rogue-config-workbook.json", minSheets: 8, sourceFile: "NinjaRogue_ConfigWorkbook.xlsx", label: "Ninja Rogue workbook" },
+  {
+    fileName: "my-cultivation-daily-test-cases.json",
+    minSheets: 1,
+    sourceFile: "AdvancedVerticalSliceTestCases.xlsx",
+    label: "My Cultivation Daily test cases",
+  },
+];
 
-const documentPreviewFiles = ["game-town-auto-behavior-prd.json", "ninja-rogue-system-portfolio-docx.json"];
+const documentPreviewFiles = [
+  "game-town-auto-behavior-prd.json",
+  "ninja-rogue-system-portfolio-docx.json",
+  "my-cultivation-daily-open-world-system-v5.json",
+  "my-cultivation-daily-vertical-slice-spec-v6.json",
+];
 
 const markdownPreviewFiles = [
+  "my-cultivation-daily-demo-qa.json",
+  "my-cultivation-daily-open-world-markdown.json",
+  "my-cultivation-daily-vertical-slice-markdown.json",
+  "my-cultivation-daily-insight-spirit-rules.json",
+  "my-cultivation-daily-linearity-antipatterns.json",
+  "my-cultivation-daily-visual-layers.json",
+  "my-cultivation-daily-interaction-feedback.json",
+  "my-cultivation-daily-engineering-acceptance.json",
+  "my-cultivation-daily-reference-research.json",
+  "my-cultivation-daily-pixel-benchmark.json",
+  "my-cultivation-daily-demo-readme.json",
   "ninja-rogue-readme.json",
   "ninja-rogue-idea-pitch.json",
   "ninja-rogue-design-proposal.json",
@@ -86,22 +118,22 @@ for (const fileName of excelPreviewFiles) {
   }
 }
 
-for (const fileName of workbookCollectionPreviewFiles) {
+for (const { fileName, minSheets, sourceFile, label } of workbookCollectionPreviewFiles) {
   const filePath = join(root, "public", "portfolio-previews", fileName);
   assert(existsSync(filePath), `Excel collection JSON preview exists: ${fileName}`);
   const payload = JSON.parse(readFileSync(filePath, "utf8"));
   assert(payload.kind === "excel", `${fileName} renders through ExcelSheetPreview`, `kind=${payload.kind}`);
-  assert(Array.isArray(payload.sheets) && payload.sheets.length >= 12, `${fileName} keeps the game town related table collection`);
-  assert(Array.isArray(payload.sourceFiles) && payload.sourceFiles.length >= 12, `${fileName} keeps every related workbook download entry`);
+  assert(Array.isArray(payload.sheets) && payload.sheets.length >= minSheets, `${fileName} keeps the ${label}`, `sheets=${payload.sheets?.length}`);
+  assert(Array.isArray(payload.sourceFiles) && payload.sourceFiles.some((source) => source.includes(sourceFile)), `${fileName} keeps source download entries`);
 }
 
-for (const fileName of simpleExcelPreviewFiles) {
+for (const { fileName, minSheets, sourceFile, label } of simpleExcelPreviewFiles) {
   const filePath = join(root, "public", "portfolio-previews", fileName);
   assert(existsSync(filePath), `Excel JSON preview exists: ${fileName}`);
   const payload = JSON.parse(readFileSync(filePath, "utf8"));
   assert(payload.kind === "excel", `${fileName} renders through ExcelSheetPreview`, `kind=${payload.kind}`);
-  assert(Array.isArray(payload.sheets) && payload.sheets.length >= 8, `${fileName} keeps the Ninja Rogue workbook sheets`);
-  assert(Array.isArray(payload.sourceFiles) && payload.sourceFiles[0]?.includes("NinjaRogue_ConfigWorkbook.xlsx"), `${fileName} points to the Ninja Rogue workbook`);
+  assert(Array.isArray(payload.sheets) && payload.sheets.length >= minSheets, `${fileName} keeps the ${label} sheets`, `sheets=${payload.sheets?.length}`);
+  assert(Array.isArray(payload.sourceFiles) && payload.sourceFiles[0]?.includes(sourceFile), `${fileName} points to the ${label}`);
 }
 
 for (const fileName of documentPreviewFiles) {
@@ -127,6 +159,14 @@ includes(dataSource, "E:\\\\游戏小镇\\\\相关表格", "game town related sh
 includes(dataSource, "game-town-auto-behavior-prd", "game town PRD stays in the portfolio data");
 includes(dataSource, "游戏小镇_角色自动行为与离线事件系统_PRD_V1.0.docx", "game town PRD source path stays visible");
 includes(dataSource, '"ninja-rogue"', "Ninja Rogue project is available in portfolio folders");
+includes(dataSource, '"my-cultivation-daily"', "My Cultivation Daily project is available in portfolio folders");
+includes(dataSource, "my-cultivation-daily-open-world-system-v5", "My Cultivation Daily open-world system document stays in the portfolio data");
+includes(dataSource, "my-cultivation-daily-vertical-slice-spec-v6", "My Cultivation Daily vertical-slice spec stays in the portfolio data");
+includes(dataSource, "my-cultivation-daily-reference-workbooks", "My Cultivation Daily reference workbooks stay in the portfolio data");
+includes(dataSource, "my-cultivation-daily-test-cases", "My Cultivation Daily test cases stay in the portfolio data");
+includes(dataSource, "my-cultivation-daily-godot-demo", "My Cultivation Daily Godot demo download stays in the portfolio data");
+includes(dataSource, "MyCultivationDaily_Godot2DVerticalSlice.zip", "My Cultivation Daily demo is published as a downloadable archive");
+includes(dataSource, "Demo_Default.png", "My Cultivation Daily default screenshot is available as a thumbnail");
 includes(dataSource, "ninja-rogue-system-portfolio", "Ninja Rogue system portfolio stays in the portfolio data");
 includes(dataSource, "ninja-rogue-unity-demo", "Ninja Rogue Unity demo download stays in the portfolio data");
 includes(dataSource, "NinjaRogueModePrototype_UnityProject.zip", "Ninja Rogue demo is published as a downloadable archive");
@@ -208,6 +248,12 @@ for (const fileName of pdfPreviewFiles) {
 includes(seedSource, "/portfolio-previews/game-town-config-sheets.json", "seed includes game town config sheet preview URL");
 includes(seedSource, "/portfolio-previews/game-town-auto-behavior-prd.json", "seed includes game town PRD preview URL");
 includes(seedSource, "'ninja-rogue', '忍三 Rogue 模式'", "seed includes Ninja Rogue project");
+includes(seedSource, "'my-cultivation-daily', '我的修仙日常'", "seed includes My Cultivation Daily project");
+includes(seedSource, "/portfolio-previews/my-cultivation-daily-open-world-system-v5.json", "seed includes My Cultivation Daily open-world system preview URL");
+includes(seedSource, "/portfolio-previews/my-cultivation-daily-vertical-slice-spec-v6.json", "seed includes My Cultivation Daily vertical-slice spec preview URL");
+includes(seedSource, "/portfolio-previews/my-cultivation-daily-reference-workbooks.json", "seed includes My Cultivation Daily reference workbook preview URL");
+includes(seedSource, "/portfolio-previews/my-cultivation-daily-test-cases.json", "seed includes My Cultivation Daily test case preview URL");
+includes(seedSource, "/portfolio-assets/my-cultivation-daily/archive/MyCultivationDaily_Godot2DVerticalSlice.zip", "seed includes My Cultivation Daily Godot demo archive URL");
 includes(seedSource, "/portfolio-previews/ninja-rogue-config-workbook.json", "seed includes Ninja Rogue workbook preview URL");
 includes(seedSource, "/portfolio-assets/ninja-rogue/archive/NinjaRogueModePrototype_UnityProject.zip", "seed includes Ninja Rogue demo archive URL");
 assert(

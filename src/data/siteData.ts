@@ -166,15 +166,15 @@ export const designDocs: DesignDoc[] = [
 
 export const gameDemos: GameDemo[] = [
   {
-    title: "忍三 Rogue 模式",
-    description: "《忍者必须死3》限时肉鸽活动 Unity demo，包含单跑道切位、分支奖励门、角色/武器构筑和可下载工程包。",
-    platform: "Unity 2022.3",
+    title: "我的修仙日常 Godot2D 像素竖切 Demo",
+    description: "单机修仙开放小区域 Godot 竖切工程，包含元神传音、显形前后、符箓爆炸、测试用例和可下载工程包。",
+    platform: "Godot 4.7",
     duration: "Demo 工程下载",
     tile: 0,
-    thumbnailUrl: `${import.meta.env.BASE_URL}portfolio-assets/ninja-rogue/images/NinjaRogue_DemoScreenshot.png`,
-    downloadUrl: `${import.meta.env.BASE_URL}portfolio-assets/ninja-rogue/archive/NinjaRogueModePrototype_UnityProject.zip`,
-    downloadLabel: "下载 Unity 工程",
-    portfolioTargetId: "ninja-rogue-unity-demo",
+    thumbnailUrl: `${import.meta.env.BASE_URL}portfolio-assets/my-cultivation-daily/images/Demo_Default.png`,
+    downloadUrl: `${import.meta.env.BASE_URL}portfolio-assets/my-cultivation-daily/archive/MyCultivationDaily_Godot2DVerticalSlice.zip`,
+    downloadLabel: "下载 Godot 工程",
+    portfolioTargetId: "my-cultivation-daily-godot-demo",
     status: "当前唯一 Demo",
   },
 ];
@@ -388,7 +388,7 @@ export const seedOwnerPosts: OwnerPost[] = [
 
 export const contactHighlights = [
   "作品集：策划案、Excel 配置、PDF、图文说明都支持站内预览",
-  "游戏 Demo：当前只展示忍三 Rogue 模式，提供 Unity 工程下载和作品档案入口",
+  "游戏 Demo：当前只展示《我的修仙日常》Godot 竖切工程，提供工程下载和作品档案入口",
   "书摘心得：来自本地真实书籍的要点摘记、策划用法和标签会沉淀成公开阅读档案",
   "站主动态：阶段更新、想法和作品调整会保留在公开时间线",
   "留言墙：登录后可以评论、回复和点赞，我会定期查看反馈",

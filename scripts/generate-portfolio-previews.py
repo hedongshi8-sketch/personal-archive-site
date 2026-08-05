@@ -489,6 +489,54 @@ def main() -> None:
     )
 
     build_docx_preview(
+        "my-cultivation-daily-open-world-system-v5",
+        "我的修仙日常大世界自由探索系统修订 v5",
+        ASSETS / "my-cultivation-daily" / "docs" / "MyCultivationDaily_OpenWorldSystem_v5.docx",
+    )
+    build_docx_preview(
+        "my-cultivation-daily-vertical-slice-spec-v6",
+        "我的修仙日常高级竖切 Demo 规格 v6",
+        ASSETS / "my-cultivation-daily" / "docs" / "MyCultivationDaily_AdvancedVerticalSliceSpec_v6.docx",
+    )
+    build_excel_preview(
+        "my-cultivation-daily-reference-workbooks",
+        "我的修仙日常参考矩阵与素材矩阵合集",
+        [
+            ASSETS / "my-cultivation-daily" / "sheets" / "ReferenceMatrix.xlsx",
+            ASSETS / "my-cultivation-daily" / "sheets" / "SinglePlayerSystemReferenceMatrix.xlsx",
+            ASSETS / "my-cultivation-daily" / "sheets" / "UIUXReferenceMatrix.xlsx",
+            ASSETS / "my-cultivation-daily" / "sheets" / "PixelAssetMatrix.xlsx",
+            ASSETS / "my-cultivation-daily" / "sheets" / "AdvancedDemoReferenceMatrix.xlsx",
+        ],
+    )
+    build_excel_preview(
+        "my-cultivation-daily-test-cases",
+        "我的修仙日常高级竖切 Demo 测试用例",
+        [ASSETS / "my-cultivation-daily" / "sheets" / "AdvancedVerticalSliceTestCases.xlsx"],
+    )
+
+    my_cultivation_daily_markdown_previews = [
+        ("my-cultivation-daily-demo-qa", "我的修仙日常高级竖切 Demo QA 报告", "17_advanced_vertical_slice_qa.md"),
+        ("my-cultivation-daily-open-world-markdown", "我的修仙日常大世界自由探索系统 Markdown 版", "09_open_world_system_v5.md"),
+        ("my-cultivation-daily-vertical-slice-markdown", "我的修仙日常高级竖切 Demo 规格 Markdown 版", "13_advanced_vertical_slice_spec_v6.md"),
+        ("my-cultivation-daily-insight-spirit-rules", "我的修仙日常感悟与元神出窍规则", "11_insight_spirit_rules_v5.md"),
+        ("my-cultivation-daily-linearity-antipatterns", "我的修仙日常线性化反模式清单", "12_linearity_antipatterns_v5.md"),
+        ("my-cultivation-daily-visual-layers", "我的修仙日常高级 Demo 画面层级规格", "14_advanced_demo_visual_layers_v6.md"),
+        ("my-cultivation-daily-interaction-feedback", "我的修仙日常高级 Demo 交互反馈规格", "15_advanced_demo_interaction_feedback_v6.md"),
+        ("my-cultivation-daily-engineering-acceptance", "我的修仙日常高级 Demo 工程验收清单", "16_advanced_demo_engineering_acceptance_v6.md"),
+        ("my-cultivation-daily-reference-research", "我的修仙日常参考拆解研究包", "01_reference_research.md"),
+        ("my-cultivation-daily-pixel-benchmark", "我的修仙日常高级像素画面与交互参考基准", "05_advanced_pixel_interaction_benchmark.md"),
+        ("my-cultivation-daily-demo-readme", "我的修仙日常 Godot Demo 项目说明", "18_demo_readme.md"),
+    ]
+    for item_id, title, file_name in my_cultivation_daily_markdown_previews:
+        build_text_preview(
+            item_id,
+            title,
+            ASSETS / "my-cultivation-daily" / "docs" / file_name,
+            "markdown",
+        )
+
+    build_docx_preview(
         "game-town-design-doc",
         "游戏小镇方案完善版",
         ASSETS / "game-town" / "docs" / "游戏小镇方案V_0.2完善版(1).docx",

@@ -31,6 +31,35 @@ const checks = [
     minBytes: 1_000_000,
   },
   {
+    path: "portfolio-assets/my-cultivation-daily/docs/MyCultivationDaily_OpenWorldSystem_v5.docx",
+    type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    minBytes: 40_000,
+  },
+  {
+    path: "portfolio-assets/my-cultivation-daily/docs/MyCultivationDaily_AdvancedVerticalSliceSpec_v6.docx",
+    type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    minBytes: 40_000,
+  },
+  {
+    path: "portfolio-assets/my-cultivation-daily/sheets/ReferenceMatrix.xlsx",
+    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    minBytes: 5_000,
+  },
+  {
+    path: "portfolio-assets/my-cultivation-daily/sheets/AdvancedVerticalSliceTestCases.xlsx",
+    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    minBytes: 5_000,
+  },
+  {
+    path: "portfolio-assets/my-cultivation-daily/images/Demo_Default.png",
+    type: "image/png",
+    minBytes: 20_000,
+  },
+  {
+    path: "portfolio-assets/my-cultivation-daily/archive/MyCultivationDaily_Godot2DVerticalSlice.zip",
+    minBytes: 200_000,
+  },
+  {
     path: "portfolio-previews/barbarq-main-sheet.json",
     type: "application/json",
     minBytes: 1_000,
@@ -59,6 +88,26 @@ const checks = [
     path: "portfolio-previews/ninja-rogue-config-workbook.json",
     type: "application/json",
     minBytes: 10_000,
+  },
+  {
+    path: "portfolio-previews/my-cultivation-daily-open-world-system-v5.json",
+    type: "application/json",
+    minBytes: 10_000,
+  },
+  {
+    path: "portfolio-previews/my-cultivation-daily-vertical-slice-spec-v6.json",
+    type: "application/json",
+    minBytes: 10_000,
+  },
+  {
+    path: "portfolio-previews/my-cultivation-daily-reference-workbooks.json",
+    type: "application/json",
+    minBytes: 10_000,
+  },
+  {
+    path: "portfolio-previews/my-cultivation-daily-test-cases.json",
+    type: "application/json",
+    minBytes: 1_000,
   },
 ];
 const absentChecks = [
